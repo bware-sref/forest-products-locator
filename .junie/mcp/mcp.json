@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "/usr/bin/php",
+            "args": [
+                "/home/ec2-user/development/ffs/fpn.sref.info/artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}
