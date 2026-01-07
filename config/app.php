@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /**
+    | TrustProxies middleware
+    | NOTE: this config was created to be used in bootstrap/app.php but apparently config can't be accessed there.
+    */
+    'trust_proxies' => [
+	...array_filter(
+	    explode(',', (string) env('TRUST_PROXIES', ''))
+	),
+    ],
 ];
