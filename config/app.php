@@ -125,7 +125,7 @@ return [
 
     /**
     | TrustProxies middleware
-    | NOTE: this config was created to be used in bootstrap/app.php but apparently config can't be accessed there.
+    | This is needed because the proxy handles HTTPS.
     */
     'trust_proxies' => [
 	...array_filter(
