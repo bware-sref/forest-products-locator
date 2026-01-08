@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /**
+    | TrustProxies middleware
+    | This is needed because the proxy handles HTTPS.
+    */
+    'trust_proxies' => [
+        ...array_filter(
+	        explode(',', (string) env('TRUST_PROXIES', ''))
+    	),
+    ],
 ];
