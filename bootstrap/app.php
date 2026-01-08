@@ -23,15 +23,15 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-	// specify trusted proxies!
-	// we have to use the booted() method if we want to store proxy IPs in a env config because
-	// the configs haven't been loaded yet when this executes.
+    	// specify trusted proxies!
+	    // we have to use the booted() method if we want to store proxy IPs in a env config because
+    	// the configs haven't been loaded yet when this executes.
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->booted(function (Application $app): void {
-	// specify IPs of trusted proxies, if there are any
-	if (! empty(config('app.trust_proxies'))) {
-	    TrustProxies::at(config('app.trust_proxies'));
-	}
+	    // specify IPs of trusted proxies, if there are any
+    	if (! empty(config('app.trust_proxies'))) {
+	        TrustProxies::at(config('app.trust_proxies'));
+    	}
     })->create();
