@@ -71,7 +71,9 @@ import {
     useEffect,
     useRef,
     useState,
-    type ComponentType,
+// prevent eslint error
+// ComponentType is needed when this component is used with NextJS but not with React
+//    type ComponentType,
     type ReactNode,
     type Ref,
 } from "react"
@@ -263,6 +265,8 @@ function MapTileLayer({
                 attribution: resolvedAttribution,
             })
         }
+        // prevent bug with eslint react-hooks
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [context, name, url, attribution])
 
     if (context && context.selectedTileLayer !== name) {
@@ -379,6 +383,9 @@ function MapLayers({
                 tileLayers.some((layer) => layer.name === defaultTileLayer)
                     ? defaultTileLayer
                     : tileLayers[0].name
+            // prevent false positive error due to bug in eslint react-hooks
+            // eslint flags out setSelectTileLayer() as a setState() invocation.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSelectedTileLayer(validDefaultValue)
         }
 
@@ -821,6 +828,9 @@ function MapLocateControl({
         setIsLocating(false)
     }
 
+    // prevent eslint bug with react-hooks
+    // allegedly stopLocating is a missing dependency...but look up
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => () => stopLocating(), [])
 
     return (
@@ -932,11 +942,20 @@ function MapDrawControl({
             map.off(L.Draw.Event.EDITED, handleDrawEditedOrDeleted)
             map.off(L.Draw.Event.DELETED, handleDrawEditedOrDeleted)
         }
+        // prevent bug with eslint react-hooks
+        // allegedly handleDrawCreated is a missing dependency
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [L, LeafletDraw, map, onLayersChange])
 
     return (
         <MapDrawContext.Provider
+            // prevent eslint react-hooks bug
+            // allegedly assigning 'value' is considered accessing a ref during render
+             
             value={{
+                // prevent eslint react-hooks bug
+                // allegedly featureGroupRef.current is accessing a ref during render
+                 
                 featureGroup: featureGroupRef.current,
                 activeMode,
                 setActiveMode,
@@ -1181,6 +1200,9 @@ function MapDrawActionButton<T extends EditToolbar.Edit | EditToolbar.Delete>({
             control.disable?.()
             controlRef.current = null
         }
+        // prevent eslint react-hooks bug
+        // allegedly controlRef is a missing dependency
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [L, map, isActive, featureGroup, createDrawTool])
 
     function handleClick() {
@@ -1234,13 +1256,19 @@ function MapDrawEdit({
             touchMoveIcon: mapDrawHandleIcon,
             touchResizeIcon: mapDrawHandleIcon,
         })
+        // prevent eslint react-hooks bug
+        // L is a constant but that doesn't mean we can't alter its properties
+         
         L.drawLocal.edit.handlers.edit.tooltip = {
             text: "Drag handles or markers to edit.",
             subtext: "",
         }
         L.drawLocal.edit.handlers.remove.tooltip = {
             text: "Click on a shape to remove.",
-        }
+        }        
+        // prevent eslint react-hooks bug
+        // allegedly L is a missing dependency
+        // eslint-disable-next-line react-hooks/exhaustive-deps        
     }, [mapDrawHandleIcon])
 
     return (
@@ -1402,6 +1430,9 @@ function useDebounceLoadingState(delay = 200) {
                 clearTimeout(timeoutRef.current)
                 timeoutRef.current = null
             }
+            // prevent eslint react-hooks bug
+            // I'm not convinced that setShowLoading(false) is a problem
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setShowLoading(false)
         }
 

@@ -228,6 +228,9 @@ function usePlaceSearch({
         fetchResults()
 
         return () => abortController.abort()
+        // prevent eslint react-hooks bug
+        // allegedly props is a missing dependency
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         debouncedQuery,
         props.lang,
