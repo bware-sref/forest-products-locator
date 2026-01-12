@@ -266,6 +266,7 @@ function MapTileLayer({
             })
         }
         // prevent bug with eslint react-hooks
+        // alleged missing dependencies are resolvedUrl and resolvedAttribution
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [context, name, url, attribution])
 
