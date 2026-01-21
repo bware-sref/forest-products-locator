@@ -1,19 +1,17 @@
-// import { dashboard, login, register, millMap, millList, aboutUs } from '@/routes';
+//import { dashboard, login, register, millMap, millList, aboutUs } from '@/routes';
 import { type SharedData } from '@/types';
 // import { Head, Link, usePage } from '@inertiajs/react';
 import { Head, usePage } from '@inertiajs/react';
 import { BasicMap } from '@/components/basic-map';
 import { TopNav } from '@/components/top-nav';
 
-export default function Welcome({
+export default function MillMap({
     canRegister = true,
 }: {
     canRegister?: boolean;
 }) {
-    const page = usePage<SharedData>();
-    // const moreStuff = page.props.name
-    // const { auth } = usePage<SharedData>().props;
-    const pageTitle = 'Welcome';
+    const { auth } = usePage<SharedData>().props;
+    const pageTitle = "Mill Map";
 
     return (
         <>

@@ -5,15 +5,15 @@ import { Head, usePage } from '@inertiajs/react';
 import { BasicMap } from '@/components/basic-map';
 import { TopNav } from '@/components/top-nav';
 
-export default function Welcome({
+export default function MillList({
     canRegister = true,
 }: {
     canRegister?: boolean;
 }) {
     const page = usePage<SharedData>();
-    // const moreStuff = page.props.name
     // const { auth } = usePage<SharedData>().props;
-    const pageTitle = 'Welcome';
+    const { auth } = page.props;
+    const pageTitle = 'Mill List';
 
     return (
         <>
