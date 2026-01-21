@@ -15,6 +15,8 @@
 .env
 .env.backup
 .env.production
+# there's an argument for adding .env.local to the repo, but the main .env must have APP_ENV=local for .env.local to override .env
+# I guess perhaps a/the thing to do is update .env.example to use appropriate values for use in .env and .env.local.
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
