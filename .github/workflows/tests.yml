@@ -48,3 +48,7 @@ jobs:
 
       - name: Tests
         run: ./vendor/bin/pest
+        # override local test settings for Github actions
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
