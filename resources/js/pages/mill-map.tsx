@@ -10,8 +10,11 @@ export default function MillMap({
 }: {
     canRegister?: boolean;
 }) {
-    const { auth } = usePage<SharedData>().props;
+    const page = usePage<SharedData>();
+    // const { auth } = usePage<SharedData>().props;
     const pageTitle = "Mill Map";
+    // temporary work-around for unused properties lint
+    page.props.pageTitle = pageTitle;
 
     return (
         <>

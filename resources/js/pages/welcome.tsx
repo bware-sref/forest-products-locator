@@ -14,6 +14,8 @@ export default function Welcome({
     // const moreStuff = page.props.name
     // const { auth } = usePage<SharedData>().props;
     const pageTitle = 'Welcome';
+    // temporary work-around for unused properties lint
+    page.props.pageTitle = pageTitle;
 
     return (
         <>

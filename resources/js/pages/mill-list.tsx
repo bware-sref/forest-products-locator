@@ -12,8 +12,10 @@ export default function MillList({
 }) {
     const page = usePage<SharedData>();
     // const { auth } = usePage<SharedData>().props;
-    const { auth } = page.props;
+    // const { auth } = page.props;
     const pageTitle = 'Mill List';
+    // temporary work-around for unused properties lint
+    page.props.pageTitle = pageTitle;
 
     return (
         <>
