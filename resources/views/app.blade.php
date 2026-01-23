@@ -36,8 +36,19 @@
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+        {{-- Google Fonts used in Figma designs (also available at fonts.bunny.net) --}}
         <link rel="preconnect" href="https://fonts.bunny.net">
+        {{-- bunny fonts used in Laravel starter kit 
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+        --}}
+        {{-- bunny fonts lato and Zilla Slab --}}
+        <link href="https://fonts.bunny.net/css?family=lato:400,400i,700,700i,900,900i|zilla-slab:700" rel="stylesheet" />
+        
+        {{-- Google versions of Lato and Zilla Slab
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Zilla+Slab:wght@700&display=swap" rel="stylesheet">
+        --}}
 
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])

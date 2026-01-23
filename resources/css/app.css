@@ -9,13 +9,35 @@
 
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        /*'Instrument Sans', ui-sans-serif, system-ui, sans-serif,*/
+        'Lato', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+
+    --font-serif:
+        'Zilla Slab', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
+
+    /**
+    add variables for our color scheme
+    tailwind will slurp them up and create CSS utility classes for them
+    e.g., text-beluga, bg-zucchini
+    BTW, names adapted from https://colornamer.robertcooper.me/
+    originals below, variable names trucated for simplicity & concision
+    beluga #F0F1F2; 
+    "dad's coupe" #2F454D;
+    "velvet black" #25201D;
+    "nature lover" #6A7666;
+    "zucchini cream" #97A88D;
+    */
+    --color-beluga: #f0f1f2;
+    --color-coupe: #2f454d;
+    --color-velvet: #25201d;
+    --color-nature: #6a7666;
+    --color-zucchini: #97a88d;
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
