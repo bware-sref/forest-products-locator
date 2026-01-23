@@ -85,7 +85,7 @@ const rightNavItems: NavItem[] = [
 ];
 
 const activeItemStyles =
-    'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
+    'text-velvet-900 dark:bg-velvet-800 dark:text-velvet-100';
 
 interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
@@ -186,12 +186,12 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         <Link
                                             href={item.href}
                                             className={cn(
-                                                navigationMenuTriggerStyle(),
+                                                // navigationMenuTriggerStyle(),
                                                 isSameUrl(
                                                     page.url,
                                                     item.href,
                                                 ) && activeItemStyles,
-                                                'h-9 cursor-pointer px-3 bg-none',
+                                                'h-9 cursor-pointer px-3 bg-none font-bold text-xl',
                                             )}
                                         >
                                             {item.icon && (
@@ -203,13 +203,17 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             {item.title}
                                         </Link>
                                         {isSameUrl(page.url, item.href) && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
+                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-velvet dark:bg-velvet"></div>
                                         )}
                                     </NavigationMenuItem>
                                 ))}
                             </NavigationMenuList>
                         </NavigationMenu>
                     </div>
+
+<div className="hidden">
+    {navigationMenuTriggerStyle()}
+</div>
 
                     <div className="ml-auto flex items-center space-x-2">
                         <div className="relative flex items-center space-x-1">
