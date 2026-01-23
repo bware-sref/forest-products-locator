@@ -29,32 +29,62 @@ import {
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
-import { dashboard } from '@/routes';
+import { home, millMap, millList, stateResources, addBusiness, faq, contact } from '@/routes';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, List, Map, Menu, Search } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
 const mainNavItems: NavItem[] = [
+    // {
+    //     title: 'Dashboard',
+    //     href: dashboard(),
+    //     icon: LayoutGrid,
+    // },
     {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
+        title: 'Mill Map',
+        href: millMap(),
+        icon: Map,
+    },
+    {
+        title: 'Mill List',
+        href: millList(),
+        icon: List,
+    },
+    {
+        title: 'State Resources',
+        href: stateResources(),
+        //icon: Map,
+    },
+    {
+        title: 'Add Your Business',
+        href: addBusiness(),
+        //icon: Map,
+    },
+    {
+        title: 'FAQ',
+        href: faq(),
+        //icon: Map,
+    },
+    {
+        title: 'Contact',
+        href: contact(),
+        //icon: Map,
     },
 ];
 
 const rightNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+    // {
+    //     title: 'Repository',
+    //     href: 'https://github.com/laravel/react-starter-kit',
+    //     icon: Folder,
+    // },
+    // {
+    //     title: 'Documentation',
+    //     href: 'https://laravel.com/docs/starter-kits#react',
+    //     icon: BookOpen,
+    // },
 ];
 
 const activeItemStyles =
@@ -140,7 +170,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
 
                     <Link
-                        href={dashboard()}
+                        href={home()}
                         prefetch
                         className="flex items-center space-x-2"
                     >
@@ -226,6 +256,11 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 ))}
                             </div>
                         </div>
+                        {/**
+                         * Okay this whole logged-in user crap is probably not necessary.
+                         * But at minimum, we need to check if the user is logged in before blindly attempting to display it.
+                         */}
+                        {auth && auth.user ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
@@ -247,6 +282,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <UserMenuContent user={auth.user} />
                             </DropdownMenuContent>
                         </DropdownMenu>
+                        ) : ('')}
                     </div>
                 </div>
             </div>

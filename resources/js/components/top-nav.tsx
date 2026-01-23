@@ -30,6 +30,26 @@ export function TopNav({
                     >
                         {page.props.name}
                     </Link>
+
+                    <Link
+                        href={millMap()}
+                        className="inline-block px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:text-[#1915] dark:text-[#EDEDEC] dark:hover:text-[#62605b]"
+                    >
+                        Mill Map
+                    </Link>
+                    <Link
+                        href={millList()}
+                        className="inline-block px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:text-[#1915] dark:text-[#EDEDEC] dark:hover:text-[#62605b]"
+                    >
+                        Mill List
+                    </Link>
+                    <Link
+                        href={aboutUs()}
+                        className="inline-block px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:text-[#1915] dark:text-[#EDEDEC] dark:hover:text-[#62605b]"
+                    >
+                        About Us
+                    </Link>
+                    {/** auth stuff probably isn't needed in top nav */}
                     {auth.user ? (
                         <Link
                             href={dashboard()}
@@ -54,25 +74,7 @@ export function TopNav({
                                 </Link>
                             )}
                         </>
-                    )}
-                    <Link
-                        href={millMap()}
-                        className="inline-block px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:text-[#1915] dark:text-[#EDEDEC] dark:hover:text-[#62605b]"
-                    >
-                        Mill Map
-                    </Link>
-                    <Link
-                        href={millList()}
-                        className="inline-block px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:text-[#1915] dark:text-[#EDEDEC] dark:hover:text-[#62605b]"
-                    >
-                        Mill List
-                    </Link>
-                    <Link
-                        href={aboutUs()}
-                        className="inline-block px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:text-[#1915] dark:text-[#EDEDEC] dark:hover:text-[#62605b]"
-                    >
-                        About Us
-                    </Link>
+                    )}                    
                 </nav>
             </header>
         </>
