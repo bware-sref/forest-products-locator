@@ -11,12 +11,12 @@ export default function MillList() {
     return (
         <AppLayout>
             <Head title={pageTitle} />
-            <div className="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] lg:justify-center lg:p-8 dark:bg-[#0a0a0a]">
+            <div className="flex min-h-screen flex-col items-center Xbg-nature p-6 text-velvet lg:justify-center lg:p-8 Xdark:bg-nature">
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
                     <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
-                        <ul>
-                            <li>
-                                <h2>Mill Name</h2>
+                        <ul className="flex flex-col justify-evenly items-stretch gap-1">
+                            <li className="bg-beluga text-black p-8 ">
+                                <h2 className="font-extrabold text-velvet text-lg">Mill Name</h2>
                                 <p>Mill Address</p>
                                 <p>Map This Location</p>
                                 <p><strong>Species:</strong> Hardwood &amp; Softwood</p>

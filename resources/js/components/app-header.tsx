@@ -32,7 +32,8 @@ import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
 import { home, millMap, millList, stateResources, addBusiness, faq, contact } from '@/routes';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, List, Map, Menu, Search } from 'lucide-react';
+// import { BookOpen, Folder, LayoutGrid, List, Map, Menu, Search } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
@@ -45,32 +46,28 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Mill Map',
         href: millMap(),
-        icon: Map,
+        // icon: Map,
     },
     {
         title: 'Mill List',
         href: millList(),
-        icon: List,
+        // icon: List,
     },
     {
         title: 'State Resources',
         href: stateResources(),
-        //icon: Map,
     },
     {
         title: 'Add Your Business',
         href: addBusiness(),
-        //icon: Map,
     },
     {
         title: 'FAQ',
         href: faq(),
-        //icon: Map,
     },
     {
         title: 'Contact',
         href: contact(),
-        //icon: Map,
     },
 ];
 
@@ -100,8 +97,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const getInitials = useInitials();
     return (
         <>
-            <div className="border-b border-sidebar-border/80">
-                <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
+            <div className="border-b-6 border-sidebar-border bg-zucchini text-velvet">
+                <div className="mx-auto flex h-20 items-center px-4 md:max-w-7xl">
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
                         <Sheet>
@@ -194,7 +191,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     page.url,
                                                     item.href,
                                                 ) && activeItemStyles,
-                                                'h-9 cursor-pointer px-3',
+                                                'h-9 cursor-pointer px-3 bg-none',
                                             )}
                                         >
                                             {item.icon && (
