@@ -4,16 +4,20 @@
 
 import { 
     Map,
+    MapControlContainer,
     MapLocateControl,
     MapMarker,
     MapPopup,
-    MapTileLayer
+    MapSearchControl,
+    MapTileLayer,
+    MapZoomControl,
 } from "@/components/ui/map"
 import type { LatLngExpression } from "leaflet"
+import { CircleIcon } from "lucide-react";
 import { useState } from "react"
 import { toast } from "sonner"
 
-export function BasicMap() {
+export function ComplexMap() {
     const WARNELL_COORDINATES = [33.9439, -83.3769] satisfies LatLngExpression
     const PINS = [
         {
@@ -48,6 +52,11 @@ export function BasicMap() {
                     {myCoordinates.toString()}
                 </MapPopup>
             )}
+            <MapControlContainer 
+                className="absolute top-5 left-5 z-1000 grid gap-1 bg-beluga">
+                <MapSearchControl className="static" />                                       
+                <MapZoomControl className="static" />
+            </MapControlContainer>
         </Map>
     )
 }

@@ -5,23 +5,68 @@
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
+/* disable dark mode for now
 @custom-variant dark (&:is(.dark *));
+*/
 
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        /*'Instrument Sans', ui-sans-serif, system-ui, sans-serif,*/
+        'Lato', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+    /** override default serif font stack */
+    --font-serif:
+        'Zilla Slab', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
+    /**
+    add variables for our color scheme
+    tailwind will slurp them up and create CSS utility classes for them
+    e.g., text-beluga, bg-zucchini
+    BTW, names adapted from https://colornamer.robertcooper.me/
+    originals below, variable names trucated for simplicity & concision
+    beluga #F0F1F2;
+    oklch(0.9577 0.0017 247.84)
+    "dad's coupe" #2F454D;
+    oklch(0.3754 0.0306 222.53)
+    "velvet black" #25201D;
+    oklch(0.2481 0.0095 53.04)
+    "nature lover" #6A7666;
+    oklch(0.5509 0.0282 137.85)
+    "zucchini cream" #97A88D;
+    oklch(0.7107 0.0429 133.87)
+    specifying colors in oklch allows using tailwind named color scale utility classes, e.g., 
+    */    
+    --color-beluga: oklch(0.9577 0.0017 247.84); /* #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
+    --color-coupe: oklch(0.3754 0.0306 222.53); /*#2f454d;  card heading background */
+    --color-nature: oklch(0.5509 0.0282 137.85); /* #6a7666;  footer background */
+    --color-velvet: oklch(0.2481 0.0095 53.04); /* #25201d; top nav foreground */
+    --color-zucchini: oklch(0.7107 0.0429 133.87); /* #97a88d; top nav bg */
 
-    --color-card: var(--card);
-    --color-card-foreground: var(--card-foreground);
+    /** override default bg, fg, et al */
+    /** except this apparently is not how to do it */
+    /* --background: var(--color-nature);
+    --foreground: var(--color-beluga);
+    --card: var(--color-beluga); 
+    --card-foreground: var(--color-black);
+    --color-primary: var(--color-nature);
+    --color-primary-foreground: var(--color-beluga);
+    --color-secondary: var(--color-zucchini);
+    --color-secondary-foreground: var(--color-velvet);
+    --sidebar-primary: var(--color-zucchini);
+    --sidebar-primary-foreground: var(--color-velvet);
+    --sidebar-border: var(--color-beluga); */
+
+    /** this is where we actually set the theme colors using the values defined above. */
+    --color-background: var(--color-nature); /* var(--background); */
+    --color-foreground: var(--color-beluga); /*(var(--foreground); */
+
+    --color-card: var(--color-beluga); /* var(--card); */
+    --color-card-foreground: var(--color-black); /*var(--card-foreground);*/
 
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
@@ -51,10 +96,10 @@
     --color-chart-4: var(--chart-4);
     --color-chart-5: var(--chart-5);
 
-    --color-sidebar: var(--sidebar);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar: var(--color-zucchini); /*var(--sidebar);*/
+    --color-sidebar-foreground: var(--color-velvet); /* var(--sidebar-foreground); */
+    --color-sidebar-primary: var(--color-zucchini); /*var(--sidebar-primary); */
+    --color-sidebar-primary-foreground: var(--color-velvet); /* var(--sidebar-primary-foreground); */
     --color-sidebar-accent: var(--sidebar-accent);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
@@ -97,6 +142,10 @@
     --sidebar-ring: oklch(0.87 0 0);
 }
 
+/**
+disabling dark for now
+*/
+/*
 .dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
@@ -131,6 +180,7 @@
     --sidebar-border: oklch(0.269 0 0);
     --sidebar-ring: oklch(0.439 0 0);
 }
+*/
 
 @layer base {
     * {
