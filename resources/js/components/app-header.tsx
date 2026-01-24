@@ -177,7 +177,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     {/* Desktop Navigation */}
                     <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
                         <NavigationMenu className="flex h-full items-stretch">
-                            <NavigationMenuList className="flex h-full items-stretch space-x-2">
+                            <NavigationMenuList className="flex h-full items-stretch space-x-2 justify-items-end">
                                 {mainNavItems.map((item, index) => (
                                     <NavigationMenuItem
                                         key={index}
@@ -186,7 +186,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         <Link
                                             href={item.href}
                                             className={cn(
-                                                // navigationMenuTriggerStyle(),
+                                                navigationMenuTriggerStyle(),
                                                 isSameUrl(
                                                     page.url,
                                                     item.href,
@@ -203,18 +203,14 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             {item.title}
                                         </Link>
                                         {isSameUrl(page.url, item.href) && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-velvet dark:bg-velvet"></div>
+                                            <div className="absolute bottom-0.5 left-0 h-0.5 w-full translate-y-px bg-velvet dark:bg-velvet"></div>
                                         )}
                                     </NavigationMenuItem>
                                 ))}
                             </NavigationMenuList>
                         </NavigationMenu>
                     </div>
-
-<div className="hidden">
-    {navigationMenuTriggerStyle()}
-</div>
-
+                    {/* new menu who dis?*/}
                     <div className="ml-auto flex items-center space-x-2">
                         <div className="relative flex items-center space-x-1">
                             <Button
