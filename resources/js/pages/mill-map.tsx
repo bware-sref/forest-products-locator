@@ -8,22 +8,15 @@ export default function MillMap() {
     const pageTitle = "Mill Map";
     // temporary work-around for unused properties lint
     page.props.pageTitle = pageTitle;
-
+    // we need to override the styles on the <main> element in the app layout for this page
+    // there's almost certainly a better way to do this...
+    // turns out there might not be...
+    page.props.contentClassName = 'max-w-screen';
+    
     return (
         <AppLayout>
             <Head title={pageTitle} />
-{/*            
-            <div className="flex min-h-screen flex-col items-center bg-nature text-beluga lg:justify-center dark:bg-nature">
-                <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-full lg:flex-row">
- */}                    
-                        <ComplexMap />
-{/* 
-                    </main>
-                </div>
-                <div className="hidden h-14.5 lg:block"></div>
-            </div>
-*/}
+            <ComplexMap />
         </AppLayout>
     );
 }
