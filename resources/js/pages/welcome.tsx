@@ -53,7 +53,7 @@ export default function Welcome() {
                                             asChild
                                             size="lg"
                                             
-                                            className="grow-0 place-self-start bg-coupe border-white border-2 text-2xl py-6"
+                                            className="grow-0 place-self-start bg-coupe border-white border-2 text-2xl py-10"
                                         >
                                             <Link
                                                 href={millMap()}
@@ -71,11 +71,16 @@ export default function Welcome() {
                                 </div>
                             </div>
                         </div>
-                        <div className="mx-auto border-1 mt-4 cards flex w-full lg:w-7xl max-w-[335px] lg:max-w-7xl items-stretch justify-between">
+                        <div className="mx-auto mt-4 cards flex w-full lg:w-7xl max-w-[335px] lg:max-w-7xl items-stretch justify-between">
                             <div className="card">card</div>
                             <div className="card">card</div>
                             <div className="card">card</div>
                         </div>
+
+                        <div className="mx-auto mt-4 cards flex w-full lg:w-7xl max-w-[335px] lg:max-w-7xl items-stretch justify-between">
+                            <p>footer</p>
+                        </div>
+
             {/*                        
                     </main>
                 </div>

@@ -31,7 +31,8 @@ export function ComplexMap() {
 
     return (
         <Map center={WARNELL_COORDINATES} zoom={5}>
-            <MapTileLayer />
+            <MapTileLayer 
+            />
             {PINS.map((pin) => (
                 <MapMarker key={pin.name} position={pin.coordinates}>
                     <MapPopup className="w-56">{pin.name}</MapPopup>
