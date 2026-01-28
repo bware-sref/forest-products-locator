@@ -51,12 +51,16 @@ services:
             timeout: 5s
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
-        restart: always
+        # restart: always
         ports:
             - "8080:80" # Access phpMyAdmin in your browser via http://localhost:8080
         environment:
             PMA_HOST: mysql # Links phpMyAdmin to the 'mysql' service defined above
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}' # Use the same password as the database
+        networks:
+            - sail
+        links:
+            - mysql:mysql
         depends_on:
             - mysql
 networks:
