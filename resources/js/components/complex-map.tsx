@@ -4,6 +4,7 @@
 
 import { 
     Map,
+    MapCircle,
     MapControlContainer,
     MapLocateControl,
     MapMarker,
@@ -13,7 +14,7 @@ import {
     MapZoomControl,
 } from "@/components/ui/map"
 import type { LatLngExpression } from "leaflet"
-import { CircleIcon } from "lucide-react";
+import { MapPinIcon } from "lucide-react";
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -23,6 +24,7 @@ export function ComplexMap() {
         {
             name: "Warnell School of Forestry and Natural Resources",
             coordinates: WARNELL_COORDINATES,
+            icon: <MapPinIcon className="size-6 stroke-velvet" />
         },
     ];
     const [myCoordinates, setMyCoordinates] = useState<LatLngExpression | null>(
@@ -33,8 +35,18 @@ export function ComplexMap() {
         <Map center={WARNELL_COORDINATES} zoom={5}>
             <MapTileLayer 
             />
+            <MapCircle 
+                center={WARNELL_COORDINATES}
+                radius={Math.ceil((100* 5280)/3)}
+                className="stroke-velvet"
+            />
+
             {PINS.map((pin) => (
-                <MapMarker key={pin.name} position={pin.coordinates}>
+                <MapMarker
+                    key={pin.name}
+                    position={pin.coordinates}
+                    icon={pin.icon}                 
+                >
                     <MapPopup className="w-56">{pin.name}</MapPopup>
                 </MapMarker>
             ))}
