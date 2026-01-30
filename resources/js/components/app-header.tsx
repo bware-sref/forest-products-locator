@@ -32,7 +32,6 @@ import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
 import { home, millMap, millList, stateResources, addBusiness, faq, contact } from '@/routes';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-// import { BookOpen, Folder, LayoutGrid, List, Map, Menu, Search } from 'lucide-react';
 import { Menu, Search } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';

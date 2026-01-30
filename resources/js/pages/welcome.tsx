@@ -120,13 +120,6 @@ export default function Welcome() {
                 )}
             </div>
 
-            {/**
-             * Need to roll footer into the main layout and add page attribute to indicate whether it should display or not.
-             */}
-            <div className="mx-auto mt-4 cards flex w-full lg:w-7xl max-w-[335px] lg:max-w-7xl items-stretch justify-between">
-                <p>footer</p>
-            </div>
-
         </AppLayout>
     );
 }
