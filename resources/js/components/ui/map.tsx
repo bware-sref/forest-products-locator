@@ -92,6 +92,8 @@ import {
     type RectangleProps,
     type TileLayerProps,
     type TooltipProps,
+    // have to import WMSTileLayer and ...Props from React Leaflet to 
+    type WMSTileLayerProps,
 } from "react-leaflet"
 import type { MarkerClusterGroupProps } from "react-leaflet-markercluster"
 import "react-leaflet-markercluster/styles"
@@ -166,6 +168,7 @@ const LeafletPolygon = ReactLeaflet.Polygon
 const LeafletRectangle = ReactLeaflet.Rectangle
 const LeafletLayerGroup = ReactLeaflet.LayerGroup
 const LeafletFeatureGroup = ReactLeaflet.FeatureGroup
+const LeafletWMSTileLayer = ReactLeaflet.WMSTileLayer
 
 // don't forget LeafletMarkerClusterGroup
 import LeafletMarkerClusterGroup from "react-leaflet-markercluster"
@@ -1447,6 +1450,81 @@ function useDebounceLoadingState(delay = 200) {
     return [showLoading, setIsLoading] as const
 }
 
+/**
+ * We need to add our own wrapper for WMSTileLayer.
+ */
+function MapWMSTileLayer({
+    name = "Default",
+    url,
+    layers,
+    format = 'image/png',
+    transparent = true,
+    version,
+    attribution,
+    darkUrl,
+    darkAttribution,
+    ...props
+}: Partial<WMSTileLayerProps> & {
+    name?: string
+    darkUrl?: string
+    darkAttribution?: string
+    ref?: Ref<TileLayer.WMS>
+}) {
+    const map = useMap()
+    if (map.attributionControl) {
+        map.attributionControl.setPrefix("")
+    }
+
+    const context = useContext(MapLayersContext)
+    const DEFAULT_URL =
+        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+    const DEFAULT_DARK_URL =
+        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+
+    const { resolvedTheme } = useTheme()
+    const resolvedUrl =
+        resolvedTheme === "dark"
+            ? (darkUrl ?? url ?? DEFAULT_DARK_URL)
+            : (url ?? DEFAULT_URL)
+    const resolvedAttribution =
+        resolvedTheme === "dark" && darkAttribution
+            ? darkAttribution
+            : (attribution ??
+              '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>')
+    console.log('WMS resolvedURL: ', resolvedUrl);
+    console.log('WMS URL: ', url);
+
+    useEffect(() => {
+        if (context) {
+            context.registerTileLayer({
+                name,
+                url: resolvedUrl,
+                attribution: resolvedAttribution,
+            })
+        }
+        // prevent bug with eslint react-hooks
+        // alleged missing dependencies are resolvedUrl and resolvedAttribution
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [context, name, url, attribution])
+
+    if (context && context.selectedTileLayer !== name) {
+        return null
+    }
+
+    console.log('wms props: ', props);
+
+    return (
+        <LeafletWMSTileLayer
+            url={resolvedUrl}
+            attribution={resolvedAttribution}
+            layers={layers}
+            transparent={transparent}
+            format={format}
+            {...props}
+        />
+    )
+}
+
 export {
     Map,
     MapCircle,
@@ -1477,4 +1555,5 @@ export {
     MapTooltip,
     MapZoomControl,
     useLeaflet,
+    MapWMSTileLayer,
 }
