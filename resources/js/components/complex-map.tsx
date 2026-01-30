@@ -11,12 +11,28 @@ import {
     MapPopup,
     MapSearchControl,
     MapTileLayer,
+    MapWMSTileLayer,
     MapZoomControl,
 } from "@/components/ui/map"
-import type { LatLngExpression } from "leaflet"
+import type { LatLngExpression } from "leaflet";
+// import { WMSTileLayer } from "@react-leaflet/core";
 import { MapPinIcon } from "lucide-react";
-import { useState } from "react"
-import { toast } from "sonner"
+import { useState } from "react";
+import { toast } from "sonner";
+
+// const WmsTileLayer = createTileLayerComponent()
+
+// the Leaflet docs keep the ? on the URL :shrug:
+// const wmsServer = 'https://www.mrlc.gov/geoserver/NLCD_Canopy/wms?';  // SERVICE=WMS&REQUEST=GetCapabilities
+// const wmsLayers = 'default-style-CONUS_Canopy';
+// const wmsServer = 'https://wms.gebco.net/mapserv?'; // request=getcapabilities'; //&service=wms&version=1.3.0'
+// const wmsLayers = 'GEBCO_LATEST';
+
+const srefEsri = 'https://esri.sref.info:6443/arcgis/services/SampleWorldCities/MapServer/WMSServer?'; //request=GetCapabilities&service=WMS'
+const srefLayers = '2';
+const wmsServer = srefEsri;
+const wmsLayers = srefLayers;
+
 
 export function ComplexMap() {
     const WARNELL_COORDINATES = [33.9439, -83.3769] satisfies LatLngExpression
@@ -34,6 +50,10 @@ export function ComplexMap() {
     return (
         <Map center={WARNELL_COORDINATES} zoom={5}>
             <MapTileLayer 
+            />
+            <MapWMSTileLayer 
+                url={wmsServer}
+                layers={wmsLayers}
             />
             <MapCircle 
                 center={WARNELL_COORDINATES}
@@ -67,7 +87,7 @@ export function ComplexMap() {
             )}
             <MapControlContainer 
                 className="absolute top-5 left-5 z-1000 grid gap-1 bg-beluga">
-                <MapSearchControl className="static" />                                       
+                <MapSearchControl id="mapSearchControl" className="static" />                                       
                 <MapZoomControl className="static" />
             </MapControlContainer>
         </Map>
