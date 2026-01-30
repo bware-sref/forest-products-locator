@@ -15,12 +15,15 @@ import {
     MapZoomControl,
 } from "@/components/ui/map"
 import type { LatLngExpression } from "leaflet";
-// import { WMSTileLayer } from "@react-leaflet/core";
-import { MapPinIcon } from "lucide-react";
+import { MapPinIcon, SearchIcon } from "lucide-react";
+import { 
+    InputGroup,
+    InputGroupAddon,
+    InputGroupButton,
+    InputGroupInput,
+} from "@/components/ui/input-group";
 import { useState } from "react";
 import { toast } from "sonner";
-
-// const WmsTileLayer = createTileLayerComponent()
 
 // the Leaflet docs keep the ? on the URL :shrug:
 // const wmsServer = 'https://www.mrlc.gov/geoserver/NLCD_Canopy/wms?';  // SERVICE=WMS&REQUEST=GetCapabilities
@@ -29,7 +32,7 @@ import { toast } from "sonner";
 // const wmsLayers = 'GEBCO_LATEST';
 
 const srefEsri = 'https://esri.sref.info:6443/arcgis/services/SampleWorldCities/MapServer/WMSServer?'; //request=GetCapabilities&service=WMS'
-const srefLayers = '2';
+const srefLayers = '2'; // yep
 const wmsServer = srefEsri;
 const wmsLayers = srefLayers;
 
@@ -86,8 +89,17 @@ export function ComplexMap() {
                 </MapPopup>
             )}
             <MapControlContainer 
-                className="absolute top-5 left-5 z-1000 grid gap-1 bg-beluga">
-                <MapSearchControl id="mapSearchControl" className="static" />                                       
+                className="absolute top-5 left-5 z-1000 grid gap-1 bg-nature p-8">
+                <h2 className="text-xl font-bold text-beluga">Mill Map</h2>
+                {/**
+                 * Turns out we can't use the default MapSearchControl for multiple reasons.
+                 * The main on is that it won't fn let you style the fn input element, FFnS
+                 * Also, the designs don't include a zoom control or locate button.
+                 */}
+                <MapSearchControl
+                    id="mapSearchControl"
+                    className="static rounded-4xl"
+                />
                 <MapZoomControl className="static" />
             </MapControlContainer>
         </Map>
