@@ -1,14 +1,16 @@
 import React, { ImgHTMLAttributes, ReactNode, SourceHTMLAttributes } from 'react';
 
 // define SourceProps so we can accept an array
-interface SourceProps extends SourceHTMLAttributes<HTMLSourceElement> {}
+// lint complained about this interface not adding any new members
+// interface SourceProps extends SourceHTMLAttributes<HTMLSourceElement> {}
 
 interface HeroProps extends ImgHTMLAttributes<HTMLPictureElement> {
     src: string;
     alt: string;
     pictureClassName?: string;
     imageClassName?: string;
-    sources?: SourceProps[];
+    // sources?: SourceProps[];
+    sources?: SourceHTMLAttributes<HTMLSourceElement>[];
     children?: ReactNode;
 }
 
