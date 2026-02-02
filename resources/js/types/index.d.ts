@@ -41,3 +41,33 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Mill {
+    id: number;
+    match_id: string;
+    mill_id?: string;
+    mill_name?: string;
+    latitude?: string;
+    longitude?: string;
+    year?: string;
+    physical_address?: string;
+    physical_city?: string;
+    county?: string;
+    physical_state?: string;
+    physical_zip?: string;
+    mailing_address?: string;
+    mailing_city?: string;
+    mailing_state?: string;
+    mailing_zip?: string;
+    telephone?: string;
+    fax?: string;
+    type?: string;
+    species?: string;
+    email?: string;
+    web_site?: string;
+    size?: string;
+    modification_date?: string;
+    // accessor!
+    physical_address_two?: string;
+    [key: string]: unknown; // This allows for additional properties...
+}
