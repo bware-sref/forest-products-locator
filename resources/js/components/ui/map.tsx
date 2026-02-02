@@ -1491,8 +1491,6 @@ function MapWMSTileLayer({
             ? darkAttribution
             : (attribution ??
               '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>')
-    console.log('WMS resolvedURL: ', resolvedUrl);
-    console.log('WMS URL: ', url);
 
     useEffect(() => {
         if (context) {
@@ -1511,8 +1509,6 @@ function MapWMSTileLayer({
         return null
     }
 
-    console.log('wms props: ', props);
-
     return (
         <LeafletWMSTileLayer
             url={resolvedUrl}
@@ -1520,6 +1516,7 @@ function MapWMSTileLayer({
             layers={layers}
             transparent={transparent}
             format={format}
+            version={version}
             {...props}
         />
     )

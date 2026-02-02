@@ -1,12 +1,13 @@
 import AppLayout from '@/layouts/app-layout';
-import { type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+// import { type SharedData } from '@/types';
+// import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 
 export default function Faq() {
-    const page = usePage<SharedData>();
+    // const page = usePage<SharedData>();
     const pageTitle = 'FAQ';
     // temporary work-around for unused properties lint
-    page.props.pageTitle = pageTitle;
+    // page.props.pageTitle = pageTitle;
 
     return (
         <AppLayout>

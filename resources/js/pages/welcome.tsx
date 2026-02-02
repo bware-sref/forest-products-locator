@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-import { type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+// import { type SharedData } from '@/types';
+// import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import Hero from '@/components/hero';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,16 +11,16 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { ArrowRightIcon, CircleArrowRight } from 'lucide-react';
-import heroImage from '@img/lumber-flipped@2x.jpg';
+// import heroImage from '@img/lumber-flipped@2x.jpg';
 import heroFallback from '@img/lumber-flipped.jpg';
 import { millMap, millList, stateResources, addBusiness } from '@/routes';
 
 export default function Welcome() {
-    const page = usePage<SharedData>();
+    // const page = usePage<SharedData>();
     const pageTitle = 'Welcome';
     // temporary work-around for unused properties lint
-    page.props.pageTitle = pageTitle;
-    page.props.contentClassName = 'max-w-screen';
+    // page.props.pageTitle = pageTitle;
+    // page.props.contentClassName = 'max-w-screen';
     const cards = [
         {
             title: 'Mill List',

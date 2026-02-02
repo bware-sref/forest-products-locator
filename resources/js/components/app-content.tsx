@@ -15,13 +15,15 @@ export function AppContent({
     ...props
 }: AppContentProps) {
     const page = usePage<SharedData>();
+    // contentClassName relies on modifying page.props in each page file which is apparently a no-no
+    // leaving the prop contentClassName for now to avoid needing to remove a lot of things as unused
     const contentClassName = page.props.contentClassName || 'burst';
     if (variant === 'sidebar') {
         return <SidebarInset {...props}>{children}</SidebarInset>;
     }
     return (
         <main
-            className={cn("mx-auto flex h-full w-full max-w-7xl flex-1 flex-col", contentClassName)}
+            className={cn("mx-auto flex h-full w-full max-w-screen flex-1 flex-col", contentClassName)}
             {...props}
         >
             {children}
