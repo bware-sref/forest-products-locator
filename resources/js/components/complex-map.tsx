@@ -9,10 +9,10 @@ import {
     MapLocateControl,
     MapMarker,
     MapPopup,
-    MapSearchControl,
+    // MapSearchControl,
     MapTileLayer,
     MapWMSTileLayer,
-    MapZoomControl,
+    // MapZoomControl,
 } from "@/components/ui/map"
 import type { LatLngExpression } from "leaflet";
 import { MapPinIcon, SearchIcon } from "lucide-react";
@@ -95,12 +95,30 @@ export function ComplexMap() {
                  * Turns out we can't use the default MapSearchControl for multiple reasons.
                  * The main on is that it won't fn let you style the fn input element, FFnS
                  * Also, the designs don't include a zoom control or locate button.
+                 * Also also, dark mode is still enabled for some reason.
                  */}
-                <MapSearchControl
+                <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
+                    <InputGroupInput 
+                        id="searchMills"
+                        className="text-velvet dark:text-velvet"
+                        placeholder="Search mills..."
+                    />
+                    <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                            
+                            aria-label="Search"
+                            title="Search"
+                            size="icon-sm"
+                        >
+                            <SearchIcon />
+                        </InputGroupButton>
+                    </InputGroupAddon>
+                </InputGroup>
+                {/* <MapSearchControl
                     id="mapSearchControl"
                     className="static rounded-4xl"
                 />
-                <MapZoomControl className="static" />
+                <MapZoomControl className="static hidden" /> */}
             </MapControlContainer>
         </Map>
     )
