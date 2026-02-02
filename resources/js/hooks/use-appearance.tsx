@@ -41,6 +41,7 @@ const handleSystemThemeChange = () => {
 };
 
 export function initializeTheme() {
+    // disabling this doesn't kill dark mode because dark mode media queries poll the OS
     const savedAppearance =
         (localStorage.getItem('appearance') as Appearance) || 'system';
 

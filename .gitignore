@@ -30,4 +30,5 @@ yarn-error.log
 /.vscode
 /.zed
 Thumbs.db
-
+# ignore extra MS files
+*\:Zone.Identifier
