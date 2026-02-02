@@ -1,13 +1,19 @@
 import AppLayout from '@/layouts/app-layout';
-// import { type SharedData } from '@/types';
-// import { Head, usePage } from '@inertiajs/react';
-import { Head } from '@inertiajs/react';
+import { 
+    // type SharedData,
+    type Mill,
+} from '@/types';
+import { Head, usePage } from '@inertiajs/react';
+// import { Head } from '@inertiajs/react';
 
 export default function MillList() {
     // const page = usePage<SharedData>();
+    const page = usePage<{
+        mills: Mill[];
+    }>();
     const pageTitle = 'Mill List';
-    // temporary work-around for unused properties lint
-    // page.props.pageTitle = pageTitle;
+    const mills = page.props.mills || [];
+
 
     return (
         <AppLayout>
@@ -16,13 +22,20 @@ export default function MillList() {
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
                     <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
                         <ul className="flex flex-col justify-evenly items-stretch gap-1">
-                            <li className="bg-beluga text-black p-8 ">
-                                <h2 className="font-extrabold text-velvet text-lg">Mill Name</h2>
-                                <p>Mill Address</p>
-                                <p>Map This Location</p>
-                                <p><strong>Species:</strong> Hardwood &amp; Softwood</p>
-                                <p><strong>Mill Type:</strong> Sawmill</p>
-                            </li>
+                            
+                            {mills.map(mill => 
+                                <li className="bg-beluga text-black p-8 " key={mill.match_id}>
+                                    <h2 className="font-extrabold text-velvet text-lg">{mill.mill_name}</h2>
+                                    <address>
+                                       {mill.physical_address}
+                                       <br />
+                                       {mill.physical_address_two}
+                                    </address>
+                                    <p>Map This Location</p>
+                                    <p><strong>Species:</strong> {mill.species}</p>
+                                    <p><strong>Mill Type:</strong> {mill.type}</p>
+                                </li>
+                            )}
                         </ul>
                     </main>
                 </div>
