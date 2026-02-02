@@ -49,20 +49,20 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+    # add phpMyAdmin to simplify importing CSV to DB
     phpmyadmin:
-        image: phpmyadmin/phpmyadmin
-        # restart: always
-        ports:
-            - "8080:80" # Access phpMyAdmin in your browser via http://localhost:8080
-        environment:
-            PMA_HOST: mysql # Links phpMyAdmin to the 'mysql' service defined above
-            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}' # Use the same password as the database
-        networks:
-            - sail
+        image: 'phpmyadmin/phpmyadmin:latest'
         links:
             - mysql:mysql
+        ports:
+            - '${PMA_PORT:-8080}:80'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            PMA_HOST: mysql
+        networks:
+            - sail
         depends_on:
-            - mysql
+            - mysql    
 networks:
     sail:
         driver: bridge
