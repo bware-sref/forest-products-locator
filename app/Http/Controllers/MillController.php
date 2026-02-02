@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
 use App\Models\Mill;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class MillController extends Controller
 {
@@ -14,6 +16,11 @@ class MillController extends Controller
     public function index()
     {
         //
+        $mills = Mill::all();
+
+        return Inertia::render('mill-list', [
+            'mills' => $mills,
+        ]);
     }
 
     /**
