@@ -4,9 +4,96 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Str;
 
 class Mill extends Model
 {
     /** @use HasFactory<\Database\Factories\MillFactory> */
     use HasFactory;
+
+    /**
+     * These model attributes are mass assignable.
+     * 
+     * @var list<string>
+     */
+    protected $fillable = [
+        'match_id',
+        'mill_id',
+        'mill_name',
+        'latitude',
+        'longitude',
+        'year',
+        'physical_address',
+        'physical_city',
+        'county',
+        'physical_state',
+        'physical_zip',
+        'mailing_address',
+        'mailing_city',
+        'mailing_state',
+        'mailing_zip',
+        'telephone',
+        'fax',
+        'type',
+        'species',
+        'email',
+        'web_site',
+        'size',
+        'modification_date',
+    ];
+
+    /**
+     * List of accessors to append to the model's array/JSON form.
+     * Accessors with the same name as the underlying attribute do not need to be appended.
+     * 
+     * @var array
+     */
+    protected $appends = [
+        'physical_address_two',
+    ];
+
+    /**
+     * Accessors to format the type and species fields which are pipe separated
+     */
+    protected function type(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value) => self::parseListField($value),
+        );
+    }
+
+    protected function species(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => self::parseListField($attributes['species']),
+        );
+    }
+
+    /**
+     * Helper method to replace | with ', ' then replace the last ', ' with ' & '
+     */
+    protected static function parseListField(string $value): string
+    {
+        $v = Str::of($value)
+            ->replace('|', ', ')
+            ->replaceLast(', ', ' & ');
+        return $v;
+    }
+
+    /**
+     * Accessors for physical and mailing address
+     */
+    protected function physicalAddressTwo(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => 
+                sprintf(
+                    '%s, %s %s',
+                    $attributes['physical_city'] ?? '',
+                    $attributes['physical_state'] ?? '',
+                    $attributes['physical_zip'] ?? ''
+                ),
+        );
+    }
 }
