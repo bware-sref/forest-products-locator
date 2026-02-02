@@ -26,7 +26,7 @@ export function BasicMap() {
     )
 
     return (
-        <Map center={WARNELL_COORDINATES}>
+        <Map center={WARNELL_COORDINATES} zoom={5}>
             <MapTileLayer />
             {PINS.map((pin) => (
                 <MapMarker key={pin.name} position={pin.coordinates}>
