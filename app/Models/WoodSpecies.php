@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class WoodSpecies extends Model
 {
@@ -13,4 +14,13 @@ class WoodSpecies extends Model
     protected $fillable = [
         'name',
     ];
+
+    /**
+     * WoodSpecies belongs to many Mills
+     */
+    public function mills(): BelongsToMany
+    {
+        return $this->belongsToMany(Mill::class);
+    }
+
 }
