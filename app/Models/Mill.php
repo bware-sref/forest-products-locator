@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+// use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
 class Mill extends Model
@@ -103,10 +104,26 @@ class Mill extends Model
     }
 
     // belongsTo State
+    public function state(): BelongsTo
+    {
+        return $this->belongsTo(State::class);
+    }
 
     // belongsTo County
+    public function county(): BelongsTo
+    {
+        return $this->belongsTo(County::class);
+    }
 
     // hasMany MillTypes
+    public function millType(): BelongsToMany
+    {
+        return $this->belongsToMany(MillType::class);
+    }
 
     // hasMany Species
+    public function woodSpecies(): BelongsToMany
+    {
+        return $this->belongsToMany(WoodSpecies::class);
+    }
 }
