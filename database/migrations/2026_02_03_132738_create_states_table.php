@@ -15,6 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('abbreviation');
+
+            // found data with lat/lng
+            $table->string('latitude')
+                ->nullable(true)
+                ->default(null);
+            $table->string('longitude')
+                ->nullable(true)
+                ->default(null);
+
             // should we add a flag for front-end visibility?
             // can always add it later
             // add polygon points later

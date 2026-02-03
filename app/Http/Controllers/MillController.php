@@ -15,8 +15,15 @@ class MillController extends Controller
      */
     public function index()
     {
-        //
+        // fetch all mills
         $mills = Mill::all();
+
+        // we can collect values for filtering UI here
+        // whichever is faster
+        // we know we want to filter on state, mill type and mill species
+        // also need to figure out distance filtering
+        // probably something we can crib from the old version.
+        // $typeValues = 'distinct mill type values';
 
         return Inertia::render('mill-list', [
             'mills' => $mills,
