@@ -37,3 +37,5 @@ Thumbs.db
 *.bak
 *.bck
 *.backup
+# ignore ide_helper settings
+_ide_helper.php
