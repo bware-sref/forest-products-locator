@@ -15,7 +15,8 @@ class StateSeeder extends Seeder
     public function run(): void
     {
         // read state data file and insert in DB
-        $json = File::get(database_path('data/state-names-and-abbreviations.json'));
+        // $json = File::get(database_path('data/state-names-and-abbreviations.json'));
+        $json = File::get(database_path('data/states-with-coordinates.json'));
         $data = json_decode($json, true);
 
         foreach ($data as $state) {
