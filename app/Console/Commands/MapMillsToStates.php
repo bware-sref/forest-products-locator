@@ -23,7 +23,7 @@ class MapMillsToStates extends Command
      *
      * @var string
      */
-    protected $description = 'Create database relationships for Mills. Mills are related to States, Counties, MillTypes, and WoodSpecies.';
+    protected $description = 'Create database relationships between Mills and States';
 
     /**
      * Execute the console command.

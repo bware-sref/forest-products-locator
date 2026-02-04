@@ -29,6 +29,7 @@ class Mill extends Model
         'year',
         'physical_address',
         'physical_city',
+        // need to rename county to prevent conflict with relationship field
         'county',
         'physical_state',
         'physical_zip',
