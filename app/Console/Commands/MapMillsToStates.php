@@ -48,10 +48,9 @@ class MapMillsToStates extends Command
             return self::SUCCESS;
         }
 
-        // $millCount = count($mills);
         $this->info(sprintf('Found %d Mills without a State relationship.', $millCount));
 
-        // get distinct physical_state were state_id null
+        // get distinct physical_state where state_id null
         $millStates = Mill::query()
             ->select('physical_state')
             ->whereNull('state_id')
@@ -65,17 +64,12 @@ class MapMillsToStates extends Command
         }
         
 
-        // fetch all States?
+        // fetch states with at least one Mill
         $states = State::query()
             ->whereIn('abbreviation', $millStates)
             ->get();
-            // ->keyBy('abbreviation');
 
-        // maybe fetch counties?
-        // we don't need them all...
-        // maybe look them up as we go?
-        // looking up counties won't help since were doing updates to mills table instead of selecting individual mills
-
+        // accounting
         $totalAffected = 0;
 
         foreach ($states as $state) {
@@ -104,7 +98,6 @@ class MapMillsToStates extends Command
                 $affectedRows,
                 $state->name
             ));
-
         }
 
         $this->info(sprintf(
