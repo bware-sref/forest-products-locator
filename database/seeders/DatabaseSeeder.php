@@ -23,6 +23,14 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+        User::firstOrCreate(
+            ['email' => 'ddrummond@sref.info'],
+            [
+                'name' => 'Daniel Drummond',
+                'password' => 'password',
+                'email_verified_at' => now(),
+            ]
+        );
 
         $this->call([
             StateSeeder::class,
