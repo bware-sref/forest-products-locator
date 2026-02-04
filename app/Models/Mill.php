@@ -116,7 +116,7 @@ class Mill extends Model
     }
 
     // hasMany MillTypes
-    public function millType(): BelongsToMany
+    public function millTypes(): BelongsToMany
     {
         return $this->belongsToMany(MillType::class);
     }
