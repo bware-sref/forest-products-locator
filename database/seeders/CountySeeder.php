@@ -21,25 +21,18 @@ class CountySeeder extends Seeder
             ->select('id', 'name')
             ->get();
         $states = collect($states)->keyBy('name');
-        // dd($states);
 
-        // read state data file and insert in DB
+        // read county data file and insert in DB
         $json = File::get(database_path('data/us-counties-by-state__only-south.json'));
         $data = json_decode($json, true);
 
         foreach ($data as $county) {
-            // $c = [
-            //     'created_at' => now(),
-            //     'updated_at' => now(),
-            //     'state_id' => $states[$county['state_name']]->id,
-            // ];
             $county['created_at'] = now();
             $county['updated_at'] = now();
             $county['state_id'] = $states[$county['state_name']]->id;
 
+            // unset state_name to prevent DB error
             unset($county['state_name']);
-
-            // dd($county);
 
             DB::table('counties')->updateOrInsert(
                 ['name' => $county['name']], // lookup via
