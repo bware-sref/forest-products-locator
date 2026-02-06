@@ -7,7 +7,82 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
+/**
+ * TypeScript attribute marks data objects for transformation to TypeScript type for front-end
+ *
+ * @property int $id
+ * @property string $match_id
+ * @property string|null $mill_id
+ * @property string|null $mill_name
+ * @property string|null $latitude
+ * @property string|null $longitude
+ * @property string|null $year
+ * @property string|null $physical_address
+ * @property string|null $physical_city
+ * @property string|null $county_name
+ * @property int|null $county_id
+ * @property string|null $physical_state
+ * @property int|null $state_id
+ * @property string|null $physical_zip
+ * @property string|null $mailing_address
+ * @property string|null $mailing_city
+ * @property string|null $mailing_state
+ * @property string|null $mailing_zip
+ * @property string|null $telephone
+ * @property string|null $fax
+ * @property string|null $type
+ * @property string|null $species
+ * @property string|null $email
+ * @property string|null $web_site
+ * @property string|null $size
+ * @property string|null $modification_date
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\County|null $county
+ * @property-read mixed $mailing_address_two
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MillType> $millTypes
+ * @property-read int|null $mill_types_count
+ * @property-read mixed $physical_address_two
+ * @property-read \App\Models\State|null $state
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\WoodSpecies> $woodSpecies
+ * @property-read int|null $wood_species_count
+ * @method static \Database\Factories\MillFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereCountyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereCountyName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereFax($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereLatitude($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereLongitude($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMailingAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMailingCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMailingState($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMailingZip($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMatchId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMillId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMillName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereModificationDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill wherePhysicalAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill wherePhysicalCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill wherePhysicalState($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill wherePhysicalZip($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereSpecies($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereStateId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereTelephone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereWebSite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereYear($value)
+ * @mixin \Eloquent
+ */
+#[TypeScript]
 class Mill extends Model
 {
     /** @use HasFactory<\Database\Factories\MillFactory> */
