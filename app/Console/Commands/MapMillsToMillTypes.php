@@ -106,22 +106,25 @@ class MapMillsToMillTypes extends Command
                                 $t
                             );
                             throw new Exception($msg);
-                            $this->error('Just satisfying myself that throwing an exception prevents further execution in this block.');
                         }
 
+                        /**
+                         * InteractsWithPivotTable::attach() does not return anything!
+                         */
+                        
+                        $mill->millTypes()->attach($millTypes[$t]['id'], ['created_at' => now(), 'updated_at' => now()]);
+
                         // log and output successes
-                        if ($mill->millTypes()->attach($millTypes[$t]['id'], ['created_at' => now(), 'updated_at' => now()])) {
-                            $msg = sprintf(
-                                'Attached mill type #%d (%s) to mill #%d (%s).',
-                                $millTypes[$t]['id'],
-                                $t,
-                                $mill->id,
-                                $mill->name
-                            );
-                            $this->info($msg);
-                            Log::info($msg);
-                            $audit['success']++;
-                        }
+                        $msg = sprintf(
+                            'Attached mill type #%d (%s) to mill #%d (%s).',
+                            $millTypes[$t]['id'],
+                            $t,
+                            $mill->id,
+                            $mill->name
+                        );
+                        $this->info($msg);
+                        Log::info($msg);
+                        $audit['success']++;
                     }
                 } catch (Exception $e) {
                     $this->error($e->getMessage());
