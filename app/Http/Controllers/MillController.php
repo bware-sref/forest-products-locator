@@ -21,7 +21,7 @@ class MillController extends Controller
     {
         // fetch all mills
         // make sure to eagerly load relationships!
-        $mills = Mill::with(['millTypes', 'woodSpecies', 'state', 'county'])->all();
+        $mills = Mill::with(['millTypes', 'woodSpecies', 'state', 'county'])->get();
         
 
         // we can collect values for filtering UI here
