@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
+use App\Models\County;
 use App\Models\Mill;
+use App\Models\MillType;
+use App\Models\State;
+use App\Models\WoodSpecies;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -16,17 +20,22 @@ class MillController extends Controller
     public function index()
     {
         // fetch all mills
-        $mills = Mill::all();
+        // make sure to eagerly load relationships!
+        $mills = Mill::with(['millTypes', 'woodSpecies', 'state', 'county'])->all();
+        
 
         // we can collect values for filtering UI here
         // whichever is faster
         // we know we want to filter on state, mill type and mill species
         // also need to figure out distance filtering
         // probably something we can crib from the old version.
-        // $typeValues = 'distinct mill type values';
 
         return Inertia::render('mill-list', [
-            'mills' => $mills,
+            'mills' => $mills->toArray(),
+            'states' => Inertia::once(fn() => State::has('mills')->get()->toArray()),
+            'counties' => Inertia::once(fn() => County::has('mills')->get()->load('state')->toArray()),
+            'millTypes' => Inertia::once(fn() => MillType::all()->toArray()),
+            'woodSpecies' => Inertia::once(fn() => WoodSpecies::all()->toArray()),
         ]);
     }
 
