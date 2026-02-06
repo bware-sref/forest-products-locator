@@ -6,7 +6,7 @@ use App\Models\MillType;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class MillTypesPolicy
+class MillTypePolicy
 {
     /**
      * Determine whether the user can view any models.
