@@ -61,34 +61,6 @@ class Mill extends Model
     ];
 
     /**
-     * Accessors to format the type and species fields which are pipe separated
-     */
-    protected function type(): Attribute
-    {
-        return Attribute::make(
-            get: fn (mixed $value) => self::parseListField($value),
-        );
-    }
-
-    protected function species(): Attribute
-    {
-        return Attribute::make(
-            get: fn (mixed $value, array $attributes) => self::parseListField($attributes['species']),
-        );
-    }
-
-    /**
-     * Helper method to replace | with ', ' then replace the last ', ' with ' & '
-     */
-    protected static function parseListField(string $value): string
-    {
-        $v = Str::of($value)
-            ->replace('|', ', ')
-            ->replaceLast(', ', ' & ');
-        return $v;
-    }
-
-    /**
      * Accessors for physical and mailing address
      */
     protected function physicalAddressTwo(): Attribute
