@@ -5,10 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-// use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Str;
 
 class Mill extends Model
 {
@@ -67,12 +65,23 @@ class Mill extends Model
     {
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => 
-                sprintf(
-                    '%s, %s %s',
-                    $attributes['physical_city'] ?? '',
-                    $attributes['physical_state'] ?? '',
-                    $attributes['physical_zip'] ?? ''
-                ),
+                self::buildAddress(
+                    $attributes['physical_city'],
+                    $attributes['physical_state'],
+                    $attributes['physical_zip']
+                )
+        );
+    }
+
+    protected function mailingAddressTwo(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => 
+                self::buildAddress(
+                    $attributes['mailing_city'],
+                    $attributes['mailing_state'],
+                    $attributes['mailing_zip']
+                )
         );
     }
 
@@ -98,5 +107,17 @@ class Mill extends Model
     public function woodSpecies(): BelongsToMany
     {
         return $this->belongsToMany(WoodSpecies::class);
+    }
+
+    protected static function buildAddress(string $city = '', string $state = '', string $zip = ''): string
+    {
+        $address = sprintf(
+            '%s, %s  %s',
+            $city,
+            $state,
+            $zip
+        );
+
+        return trim($address, " \n\r\t\v\0,");
     }
 }
