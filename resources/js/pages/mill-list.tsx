@@ -7,8 +7,13 @@ import {
     type State,
     type WoodSpecies
 } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
-// import { Head } from '@inertiajs/react';
+import { 
+    Head,
+    Link,
+    usePage
+} from '@inertiajs/react';
+// import { Link } from 'lucide-react';
+import { show } from '@/actions/App/Http/Controllers/MillController';
 
 export default function MillList() {
     // const page = usePage<SharedData>();
@@ -41,13 +46,20 @@ export default function MillList() {
             <Head title={pageTitle} />
             <div className="flex min-h-screen flex-col items-center Xbg-nature p-6 text-velvet lg:justify-center lg:p-8 Xdark:bg-nature">
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl ffslg:flex-row">
+                    <main className="flex w-full max-w-[335px] flex-col lg:max-w-4xl ffslg:flex-row">
                         <div className="flex w-full flex-row">filters</div>
                         <ul className="flex flex-col justify-evenly items-stretch gap-1 max-w-[335px] lg:max-w-xl">
                             
                             {mills.map(mill => 
                                 <li className="bg-beluga text-black p-8 " key={mill.match_id}>
-                                    <h2 className="font-extrabold text-velvet text-lg">{mill.mill_name}</h2>
+                                    <h2 className="font-extrabold text-velvet text-lg">
+                                        <Link 
+                                            href={show(mill.match_id)}
+                                            className="hover:underline"
+                                        >
+                                            {mill.mill_name}
+                                        </Link>
+                                    </h2>
                                     <address>
                                        {mill.physical_address}
                                        <br />

@@ -49,10 +49,23 @@ class MillController extends Controller
 
     /**
      * Display the specified resource.
+     * 
+     * NOTE: to avoid the need to create redirects for all individual mill pages,
+     * MillController::show() needs to be routed to /mill-list/{match_id} (no trailing slash).
+     * See database/data/searchMills.json for examples of old URLs.
      */
     public function show(Mill $mill)
     {
-        //
+        // load relationships
+        $mill->load([
+            'millTypes',
+            'woodSpecies',
+            'state',
+            'county',
+        ]);
+        return Inertia::render('mill-list-item', [
+            'mills' => [$mill],
+        ]);
     }
 
     /**

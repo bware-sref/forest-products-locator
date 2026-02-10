@@ -24,6 +24,8 @@ Route::get('/mill-map', function () {
 // Route mill-list to MillController::index()
 Route::get('/mill-list', [MillController::class, 'index'])
     ->name('mill-list');
+Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
+    ->name('mill-list-item');
 
 Route::get('/about-us', function () {
     return Inertia::render('about-us', []);
