@@ -65,7 +65,14 @@ export default function MillList() {
                                        <br />
                                        {mill.physical_address_two}
                                     </address>
-                                    <p>Map This Location</p>
+                                    <p>
+                                        <Link 
+                                            href={`https://maps.google.com/?q=${mill.latitude},${mill.longitude}`}
+                                            target="_blank"
+                                        >
+                                            Map This Location
+                                        </Link>
+                                    </p>
                                     <p><strong>Species: </strong> 
                                         {mill.wood_species ? mill.wood_species.map((wood, index) => {
                                             const prefix = (0 < index) ? ', ' : '';
