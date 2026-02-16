@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\MillController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -19,9 +20,13 @@ Route::get('/', function () {
 Route::get('/mill-map', function () {
     return Inertia::render('mill-map', []);
 })->name('mill-map');
-Route::get('/mill-list', function () {
-    return Inertia::render('mill-list', []);
-})->name('mill-list');
+
+// Route mill-list to MillController::index()
+Route::get('/mill-list', [MillController::class, 'index'])
+    ->name('mill-list');
+Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
+    ->name('mill-list-item');
+
 Route::get('/about-us', function () {
     return Inertia::render('about-us', []);
 })->name('about-us');

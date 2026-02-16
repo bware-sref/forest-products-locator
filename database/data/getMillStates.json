@@ -1,0 +1,60 @@
+{
+    "states": [
+        {
+            "value": "AL",
+            "text": "Alabama"
+        },
+        {
+            "value": "AR",
+            "text": "Arkansas"
+        },
+        {
+            "value": "CT",
+            "text": "Connecticut"
+        },
+        {
+            "value": "DC",
+            "text": "District of Columbia"
+        },
+        {
+            "value": "FL",
+            "text": "Florida"
+        },
+        {
+            "value": "GA",
+            "text": "Georgia"
+        },
+        {
+            "value": "KY",
+            "text": "Kentucky"
+        },
+        {
+            "value": "MS",
+            "text": "Mississippi"
+        },
+        {
+            "value": "NC",
+            "text": "North Carolina"
+        },
+        {
+            "value": "OK",
+            "text": "Oklahoma"
+        },
+        {
+            "value": "SC",
+            "text": "South Carolina"
+        },
+        {
+            "value": "TN",
+            "text": "Tennessee"
+        },
+        {
+            "value": "TX",
+            "text": "Texas"
+        },
+        {
+            "value": "VA",
+            "text": "Virginia"
+        }
+    ]
+}
