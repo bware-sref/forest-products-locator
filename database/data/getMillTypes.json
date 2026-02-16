@@ -1,0 +1,15 @@
+{
+    "types": [
+        "Chip",
+        "Energy Product",
+        "Firewood",
+        "Log Home",
+        "Mulch",
+        "Other",
+        "Post Pole",
+        "Pulp Paper",
+        "Sawmill",
+        "Shavings",
+        "Veneer Plywood Panels"
+    ]
+}

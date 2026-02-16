@@ -32,3 +32,12 @@ yarn-error.log
 Thumbs.db
 # ignore extra MS files
 *\:Zone.Identifier
+# myriad backup file suffixes
+*.back
+*.bak
+*.bck
+*.backup
+# ignore ide-helper files
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php

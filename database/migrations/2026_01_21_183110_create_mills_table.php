@@ -40,7 +40,7 @@ return new class extends Migration
             $table->string('physical_city')
                 ->nullable($value = true)
                 ->default(null);
-            $table->string('county')
+            $table->string('county_name')
                 ->nullable($value = true)
                 ->default(null);
             $table->string('physical_state')
