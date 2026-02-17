@@ -2,21 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use App\Exceptions\MillResourceRequestValidationException;
+use App\Http\Requests\MillResourceRequest;
 use App\Http\Resources\MillResource;
 use App\Http\Resources\MillResourceCollection;
 use App\Models\Mill;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class MillResourceController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(MillResourceRequest $request)
     {
         // filter Mills based on request parameters
-        $mills = Mill::all();
-        return new MillResourceCollection($mills);
+        // do we want to make a model method for this?
+        // yes.
+        return new MillResourceCollection(Mill::apiSearch($request->validated()));
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -194,5 +195,49 @@ class Mill extends Model
         );
 
         return trim($address, " \n\r\t\v\0,");
+    }
+
+    public static function apiSearch($validated = [])
+    {
+        /**
+         * we need to check for the following:
+         * and I almost forgot that everything except mill_name needs to query a relationship
+         * - s
+         * - millType
+         * - woodSpecies
+         * - state
+         * - county
+         */
+        $query = Mill::with(['millTypes', 'woodSpecies', 'state', 'county']);
+        
+        if (!empty($validated['s'])) {
+            $query->whereLike('mill_name', '%' . $validated['s'] . '%');
+        }
+
+        if (!empty($validated['millType'])) {
+            $query->whereHas('millTypes', function (Builder $query) use ($validated) {
+                $query->where('name', $validated['millType']);
+            });
+        }
+
+        if (!empty($validated['woodSpecies'])) {
+            $query->whereHas('woodSpecies', function (Builder $query) use ($validated) {
+                $query->where('name', $validated['woodSpecies']);
+            });
+        }
+
+        if (!empty($validated['state'])) {
+            $query->whereHas('state', function (Builder $query) use ($validated) {
+                $query->where('abbreviation', $validated['state']);
+            });
+        }
+
+        if (!empty($validated['county'])) {
+            $query->whereHas('county', function (Builder $query) use ($validated) {
+                $query->where('name', $validated['county']);
+            });
+        }
+
+        return $query->get();
     }
 }
