@@ -10,17 +10,22 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 */
 
-// Route::resource('mills', MillResourceController::class)
-//     ->only([
-//         'index',
-//         'show',
-//     ]);
+/**
+ * Prefix this group of API routes with v1.
+ * The result should be like /api/v1/mills
+ * Also add a prefix to all the route names in this group.
+ */
+Route::name('api.v1.')->prefix('v1')->group(function() {
 
-Route::get('/mills', 
-    [
-        MillResourceController::class,
-        'index'
-    ])->name('api-mills');
+    /**
+     * accept get and post requests
+     */
+    Route::match(['get', 'post'], '/mills', [MillResourceController::class, 'index'])
+        ->name('mills');
 
-Route::get('/mill/{mill:match_id}', [MillResourceController::class, 'show'])
-    ->name('api-mill');
+    /**
+     * Is there any reason to accept posts on this endpoint?
+     */
+    Route::get('/mill/{mill:match_id}', [MillResourceController::class, 'show'])
+        ->name('mill');
+});
