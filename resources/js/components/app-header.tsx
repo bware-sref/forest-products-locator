@@ -99,7 +99,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     return (
         <>
             <div className="border-b-6 border-sidebar-border bg-zucchini text-velvet">
-                <div className="mx-auto flex h-20 items-center px-4 md:max-w-7xl">
+                <div className="mx-auto flex h-20 items-center px-4 md:max-w-7xl Xbg-amber-400">
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
                         <Sheet>
@@ -120,7 +120,17 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     Navigation Menu
                                 </SheetTitle>
                                 <SheetHeader className="flex justify-start text-left">
-                                    <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
+                                    {/**
+                                     * <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
+                                     */}
+                                    <Link
+                                        href={home()}
+                                        prefetch
+                                        className="flex items-center space-x-2"
+                                    >
+                                        <AppLogo />
+                                    </Link>
+
                                 </SheetHeader>
                                 <div className="flex h-full flex-1 flex-col space-y-4 p-4">
                                     <div className="flex h-full flex-col justify-between text-sm">
@@ -176,9 +186,9 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
-                        <NavigationMenu className="flex h-full items-stretch">
-                            <NavigationMenuList className="flex h-full items-stretch space-x-2 justify-items-end">
+                    <div className="ml-auto hidden h-full w-auto items-stretch justify-stretch space-x-6 justify-items-end justify-self-end lg:flex Xbg-purple-400">
+                        <NavigationMenu className="flex h-full items-stretch justify-stretch justify-self-end Xbg-green-400/50">
+                            <NavigationMenuList className="flex h-full items-stretch space-x-2 justify-items-end Xbg-pink-400/50">
                                 {mainNavItems.map((item, index) => (
                                     <NavigationMenuItem
                                         key={index}

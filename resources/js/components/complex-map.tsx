@@ -104,8 +104,7 @@ export function ComplexMap() {
                         placeholder="Search mills..."
                     />
                     <InputGroupAddon align="inline-end">
-                        <InputGroupButton
-                            
+                        <InputGroupButton                            
                             aria-label="Search"
                             title="Search"
                             size="icon-sm"
