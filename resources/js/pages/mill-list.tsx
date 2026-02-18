@@ -26,10 +26,10 @@ export default function MillList() {
     }>();
     const pageTitle = 'Mill List';
     const mills = page.props.mills || [];
-    const states = page.props.states || [];
-    const counties = page.props.counties || [];
-    const millTypes = page.props.millTypes || [];
-    const woodSpecies = page.props.woodSpecies || [];
+    // const states = page.props.states || [];
+    // const counties = page.props.counties || [];
+    // const millTypes = page.props.millTypes || [];
+    // const woodSpecies = page.props.woodSpecies || [];
 
 
     // console.log('mills[0]: ', mills[0]);

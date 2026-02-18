@@ -51,12 +51,12 @@ export function AppFooter() {
     const page = usePage<SharedData>();
     return (
         <>
-            <div className="bg-nature text-beluga my-8">
-                <div className="mx-auto flex h-20 items-center md:max-w-7xl">
+            <div className="bg-nature text-beluga my-8 w-full">
+                <div className="mx-auto flex flex-col px-5 md:flex-row lg:h-20 items-center md:max-w-6xl lg:max-w-7xl ">
                     {/* Desktop Navigation */}
-                    <div className="h-full items-stretch space-x-6 lg:flex w-full">
-                        <NavigationMenu className="flex h-full items-stretch -ml-2">
-                            <NavigationMenuList className="flex h-full items-stretch space-x-2 justify-items-end">
+                    <div className="h-full items-stretch md:items-center space-x-6 flex flex-col md:flex-row w-full">
+                        <NavigationMenu className="flex flex-col md:flex-row justify-stretch h-full items-stretch md:-ml-4 w-full md:w-auto max-w-full">
+                            <NavigationMenuList className="flex flex-col md:flex-row h-full items-center justify-items-start md:items-stretch md:space-x-2 md:justify-items-end">
                                 {mainNavItems.map((item, index) => (
                                     <NavigationMenuItem
                                         key={index}
@@ -88,7 +88,7 @@ export function AppFooter() {
                                 ))}
                             </NavigationMenuList>
                         </NavigationMenu>
-                        <div className="ml-auto flex">
+                        <div className="mx-auto md:ml-auto flex max-w-[168px] justify-self-end">
                             <Link
                                 href={sGSF.href}
                                 className=""

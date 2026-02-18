@@ -14,18 +14,18 @@ interface HeroProps extends ImgHTMLAttributes<HTMLPictureElement> {
     children?: ReactNode;
 }
 
-export default function Hero({src, alt, pictureClassName = '', imageClassName = '', sources = [], children = ''}:HeroProps) {
+export default function Hero({src, alt, pictureClassName = 'max-w-full', imageClassName = 'max-w-full', sources = [], children = ''}:HeroProps) {
     const sourceList = sources.map(source => 
         <source srcSet={source.srcSet} media={source.media} />
     );
     return (
-        <div className="grid grid-cols-1 grid-rows-1 w-full">
+        <div className="hero grid grid-cols-1 grid-rows-1 w-full max-w-full">
             <picture className={pictureClassName}>
                 {sourceList}
                 <img src={src} alt={alt} width="100%" height="auto" className={imageClassName} />
             </picture>
-            <div className="hero-content w-full col-start-1 row-start-1 flex flex-col Xbg-sky-500/30">
-                <div className="hero-content__inner mx-auto flex flex-col gap-8 h-full w-full lg:w-7xl max-w-[335px] lg:max-w-7xl items-start p-5 Xbg-amber-300/30">
+            <div className="hero-content w-full col-start-1 row-start-1 flex flex-col max-w-full Xbg-sky-500/30">
+                <div className="hero-content__inner mx-auto flex flex-col gap-8 h-full w-full md:w-6xl lg:w-7xl max-w-full items-start p-5 Xbg-amber-300/30">
                     {children}
                 </div>
             </div>

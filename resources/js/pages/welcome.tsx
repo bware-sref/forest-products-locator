@@ -26,16 +26,19 @@ export default function Welcome() {
             title: 'Mill List',
             href: millList(),
             content: 'View and search our directory of lumber mills providing primary forest products.',
+            key: 'millList',
         },
         {
             title: 'State Resources',
             href: stateResources(),
             content: 'Many additional resources are available to buyers. Browse these resources by state and region.',
+            key: 'stateResources',
         },
         {
             title: 'Add Your Business',
             href: addBusiness(),
             content: 'Reach a global audience of potential customers by adding your lumber business to our directory.',
+            key: 'addBusiness',
         },
     ];
 
@@ -48,7 +51,7 @@ export default function Welcome() {
             <Hero
                 src={heroFallback}
                 alt="Lumber"
-                pictureClassName={'col-start-1 row-start-1 h-full w-full object-cover'}
+                pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
             >
                 <div className="flex flex-col gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe Xbg-red-500/30">
                     <h1 className="text-5xl font-bold my-6">
@@ -80,10 +83,10 @@ export default function Welcome() {
             {/**
              * Cards!
              */}
-            <div className="cards mx-auto mt-4 py-6 flex w-full lg:w-7xl max-w-[335px] lg:max-w-7xl items-stretch justify-between">
+            <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col md:flex-row w-full lg:w-7xl max-w-[100vw] xl:max-w-7xl items-stretch justify-between gap-8 lg:gap-6 Xbg-pink-400">
                 {cards.map( card =>
-                <Card className="w-[380px] max-w-[380px] pt-0 border-0 rounded-2xl">
-                    <CardHeader className="bg-coupe py-6 rounded-t-2xl">
+                <Card key={card.key} className="w-full md:w-[220px] lg:w-[280px] lg:max-w-[280px] xl:w-[350px] xl:max-w-[380px] pt-0 border-0 rounded-2xl">
+                    <CardHeader className="bg-coupe py-4 xl:py-6 rounded-t-2xl">
                         <CardTitle className="text-beluga">
                             <Link
                                 href={card.href}
