@@ -23,7 +23,7 @@ export function AppContent({
     }
     return (
         <main
-            className={cn("mx-auto flex w-full max-w-screen flex-1 flex-col", contentClassName)}
+            className={cn("mx-auto flex h-full w-full max-w-screen flex-1 flex-col", contentClassName)}
             {...props}
         >
             {children}
