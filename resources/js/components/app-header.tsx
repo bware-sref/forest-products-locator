@@ -34,7 +34,7 @@ import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { Menu, Search } from 'lucide-react';
 import AppLogo from './app-logo';
-import AppLogoIcon from './app-logo-icon';
+// import AppLogoIcon from './app-logo-icon';
 
 const mainNavItems: NavItem[] = [
     // {
