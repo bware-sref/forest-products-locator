@@ -16,12 +16,20 @@ import {
 } from "@/components/ui/map"
 import type { LatLngExpression } from "leaflet";
 import { MapPinIcon, SearchIcon } from "lucide-react";
-import { 
+import {
     InputGroup,
     InputGroupAddon,
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group";
+import {
+    Combobox,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxList,
+} from "@/components/ui/combobox";
 import { useState } from "react";
 import { toast } from "sonner";
 
