@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { 
     // type SharedData,
-    type County,
+    // type County,
     type Mill,
     type MillType,
     type State,
@@ -19,23 +19,23 @@ import {
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group";
+// import {
+//     Combobox,
+//     ComboboxContent,
+//     ComboboxEmpty,
+//     ComboboxInput,
+//     ComboboxItem,
+//     ComboboxList,
+// } from "@/components/ui/combobox";
+// import { Button } from '@/components/ui/button';
+// import {
+//     Card,
+//     CardContent,
+//     CardHeader,
+//     CardTitle,
+// } from "@/components/ui/card";
 import {
-    Combobox,
-    ComboboxContent,
-    ComboboxEmpty,
-    ComboboxInput,
-    ComboboxItem,
-    ComboboxList,
-} from "@/components/ui/combobox";
-import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import {
-    ArrowRight,
+    // ArrowRight,
     SearchIcon
 } from 'lucide-react';
 import { show } from '@/actions/App/Http/Controllers/MillController';
@@ -51,7 +51,7 @@ export default function MillList() {
     }>();
     const pageTitle = 'Mill List';
     // const mills = page.props.mills || [];
-    const states = page.props.states || [];
+    // const states = page.props.states || [];
 
     const [mills] = useState(page.props.mills);
     // const counties = page.props.counties || [];
