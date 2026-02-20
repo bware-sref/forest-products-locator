@@ -85,7 +85,7 @@ export default function Welcome() {
              */}
             <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col md:flex-row w-full lg:w-7xl max-w-[100vw] xl:max-w-7xl items-stretch justify-between gap-8 lg:gap-6 Xbg-pink-400">
                 {cards.map( card =>
-                <Card key={card.key} className="w-full md:w-[220px] lg:w-[280px] lg:max-w-[280px] xl:w-[350px] xl:max-w-[380px] pt-0 border-0 rounded-2xl">
+                <Card key={card.key} className="w-full md:w-55 lg:w-70 lg:max-w-70 xl:w-87.5 xl:max-w-95 pt-0 border-0 rounded-2xl">
                     <CardHeader className="bg-coupe py-4 xl:py-6 rounded-t-2xl">
                         <CardTitle className="text-beluga">
                             <Link
