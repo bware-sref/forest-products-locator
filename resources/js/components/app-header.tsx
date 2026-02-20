@@ -34,7 +34,7 @@ import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { Menu, Search } from 'lucide-react';
 import AppLogo from './app-logo';
-import AppLogoIcon from './app-logo-icon';
+// import AppLogoIcon from './app-logo-icon';
 
 const mainNavItems: NavItem[] = [
     // {
@@ -120,7 +120,17 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     Navigation Menu
                                 </SheetTitle>
                                 <SheetHeader className="flex justify-start text-left">
-                                    <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
+                                    {/**
+                                     * <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
+                                     */}
+                                    <Link
+                                        href={home()}
+                                        prefetch
+                                        className="flex items-center space-x-2"
+                                    >
+                                        <AppLogo />
+                                    </Link>
+
                                 </SheetHeader>
                                 <div className="flex h-full flex-1 flex-col space-y-4 p-4">
                                     <div className="flex h-full flex-col justify-between text-sm">
@@ -176,8 +186,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
-                        <NavigationMenu className="flex h-full items-stretch">
+                    <div className="ml-auto hidden h-full w-auto items-stretch justify-stretch space-x-6 justify-items-end justify-self-end lg:flex">
+                        <NavigationMenu className="flex h-full items-stretch justify-stretch justify-self-end">
                             <NavigationMenuList className="flex h-full items-stretch space-x-2 justify-items-end">
                                 {mainNavItems.map((item, index) => (
                                     <NavigationMenuItem

@@ -11,17 +11,25 @@ import {
     MapPopup,
     // MapSearchControl,
     MapTileLayer,
-    MapWMSTileLayer,
+    // MapWMSTileLayer,
     // MapZoomControl,
 } from "@/components/ui/map"
 import type { LatLngExpression } from "leaflet";
 import { MapPinIcon, SearchIcon } from "lucide-react";
-import { 
+import {
     InputGroup,
     InputGroupAddon,
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group";
+// import {
+//     Combobox,
+//     ComboboxContent,
+//     ComboboxEmpty,
+//     ComboboxInput,
+//     ComboboxItem,
+//     ComboboxList,
+// } from "@/components/ui/combobox";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -31,10 +39,10 @@ import { toast } from "sonner";
 // const wmsServer = 'https://wms.gebco.net/mapserv?'; // request=getcapabilities'; //&service=wms&version=1.3.0'
 // const wmsLayers = 'GEBCO_LATEST';
 
-const srefEsri = 'https://esri.sref.info:6443/arcgis/services/SampleWorldCities/MapServer/WMSServer?'; //request=GetCapabilities&service=WMS'
-const srefLayers = '2'; // yep
-const wmsServer = srefEsri;
-const wmsLayers = srefLayers;
+// const srefEsri = 'https://esri.sref.info:6443/arcgis/services/SampleWorldCities/MapServer/WMSServer?'; //request=GetCapabilities&service=WMS'
+// const srefLayers = '2'; // yep
+// const wmsServer = srefEsri;
+// const wmsLayers = srefLayers;
 
 
 export function ComplexMap() {
@@ -54,10 +62,13 @@ export function ComplexMap() {
         <Map center={WARNELL_COORDINATES} zoom={5}>
             <MapTileLayer 
             />
+{/*
+Disable the POC WMS layer until esri.sref.info certificate is fixed.            
             <MapWMSTileLayer 
                 url={wmsServer}
                 layers={wmsLayers}
             />
+*/}            
             <MapCircle 
                 center={WARNELL_COORDINATES}
                 radius={Math.ceil((100* 5280)/3)}
@@ -104,8 +115,7 @@ export function ComplexMap() {
                         placeholder="Search mills..."
                     />
                     <InputGroupAddon align="inline-end">
-                        <InputGroupButton
-                            
+                        <InputGroupButton                            
                             aria-label="Search"
                             title="Search"
                             size="icon-sm"
