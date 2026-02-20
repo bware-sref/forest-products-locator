@@ -9,6 +9,7 @@ use App\Models\Mill;
 use App\Models\MillType;
 use App\Models\State;
 use App\Models\WoodSpecies;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -17,11 +18,16 @@ class MillController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // fetch all mills
         // make sure to eagerly load relationships!
-        $mills = Mill::with(['millTypes', 'woodSpecies', 'state', 'county'])->get();
+        // let's omit the state and county from this query because we can easily map back to them with Mill data
+        // $mills = Mill::with(['millTypes', 'woodSpecies', 'state', 'county'])->get();
+        $mills = Mill::with([
+                'millTypes',
+                'woodSpecies'
+            ])->get();
         
 
         // we can collect values for filtering UI here
@@ -32,12 +38,29 @@ class MillController extends Controller
 
         return Inertia::render('mill-list', [
             'mills' => $mills->toArray(),
-            'states' => Inertia::once(fn() => State::has('mills')->get()->toArray()),
-            'counties' => Inertia::once(fn() => County::has('mills')->get()->load('state')->toArray()),
+            /**
+             * we can forego the counties by just loading them onto the states
+             * still need to only load the counties that have mills though
+             */
+            // 'states' => Inertia::once(fn() => State::has('mills')->get()->toArray()),
+            'states' => Inertia::once(fn() => State::has('mills')->with([
+                'counties' => function ($query) {
+                    $query->select('id', 'name', 'state_id')->has('mills');
+            }])->get(['id', 'name'])->toArray()),
+            // 'counties' => Inertia::once(fn() => County::has('mills')->get()->load('state')->toArray()),
             'millTypes' => Inertia::once(fn() => MillType::all()->toArray()),
             'woodSpecies' => Inertia::once(fn() => WoodSpecies::all()->toArray()),
         ]);
     }
+
+    /**
+     * Display the mill map
+     */
+    public function map(Request $request)
+    {
+
+    }
+
 
     /**
      * Store a newly created resource in storage.
