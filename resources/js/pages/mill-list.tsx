@@ -72,11 +72,10 @@ export default function MillList() {
         <AppLayout>
             <Head title={pageTitle} />
             <div className="flex min-h-screen flex-col items-center p-6 text-velvet lg:justify-center lg:p-8">
-                <div className="flex flex-col w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 px-5 bg-pink-500">
-                    <div className="flex w-full flex-row items-stretch bg-green-500">
-                        <div
-                            className="grid gap-1 bg-nature p-8">
-                            <h2 className="text-xl font-bold text-beluga">Mill List</h2>
+                <div className="flex flex-col w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 px-5">
+                    <div className="flex w-full flex-row items-stretch max-w-83.75">
+                        <div className="grid gap-1 bg-nature p-8 w-full">
+                            <h2 className="text-xl font-bold text-beluga pb-2">Mill List</h2>
                             {/**
                              * Turns out we can't use the default MapSearchControl for multiple reasons.
                              * The main on is that it won't fn let you style the fn input element, FFnS
@@ -104,49 +103,49 @@ export default function MillList() {
                     {/**
                      * Mill List
                      */}
-                    <div className="flex flex-row">
+                    <div className="flex flex-row max-w-83.75">
+                        <ul className="flex flex-col justify-evenly items-stretch gap-1">
+                            
+                            {mills.map(mill => 
+                                <li className="bg-beluga text-black p-8 " key={mill.match_id}>
+                                    <h2 className="font-extrabold text-velvet text-lg">
+                                        <Link 
+                                            href={show(mill.match_id)}
+                                            className="hover:underline"
+                                        >
+                                            {mill.mill_name}
+                                        </Link>
+                                    </h2>
+                                    <address>
+                                        {mill.physical_address}
+                                        <br />
+                                        {mill.physical_address_two}
+                                    </address>
+                                    <p>
+                                        <Link 
+                                            href={`https://maps.google.com/?q=${mill.latitude},${mill.longitude}`}
+                                            target="_blank"
+                                        >
+                                            Map This Location
+                                        </Link>
+                                    </p>
+                                    <p><strong>Species: </strong> 
+                                        {mill.wood_species ? mill.wood_species.map((wood, index) => {
+                                            const prefix = (0 < index) ? ', ' : '';
+                                            return prefix + wood.name;
+                                        }) : ''}
+                                    </p>
+                                    <p><strong>Mill Type: </strong> {
+                                        mill.mill_types ? mill.mill_types.map((millType, index) => {
+                                            const prefix = (0 < index) ? ', ' : '';                                            
+                                            return prefix + millType.name;
+                                        }) : ''
+                                    }</p>
+                                </li>
+                            )}
+                        </ul>
 
                     </div>
-                    <ul className="flex flex-col justify-evenly items-stretch gap-1 max-w-[335px] lg:max-w-xl">
-                        
-                        {mills.map(mill => 
-                            <li className="bg-beluga text-black p-8 " key={mill.match_id}>
-                                <h2 className="font-extrabold text-velvet text-lg">
-                                    <Link 
-                                        href={show(mill.match_id)}
-                                        className="hover:underline"
-                                    >
-                                        {mill.mill_name}
-                                    </Link>
-                                </h2>
-                                <address>
-                                    {mill.physical_address}
-                                    <br />
-                                    {mill.physical_address_two}
-                                </address>
-                                <p>
-                                    <Link 
-                                        href={`https://maps.google.com/?q=${mill.latitude},${mill.longitude}`}
-                                        target="_blank"
-                                    >
-                                        Map This Location
-                                    </Link>
-                                </p>
-                                <p><strong>Species: </strong> 
-                                    {mill.wood_species ? mill.wood_species.map((wood, index) => {
-                                        const prefix = (0 < index) ? ', ' : '';
-                                        return prefix + wood.name;
-                                    }) : ''}
-                                </p>
-                                <p><strong>Mill Type: </strong> {
-                                    mill.mill_types ? mill.mill_types.map((millType, index) => {
-                                        const prefix = (0 < index) ? ', ' : '';                                            
-                                        return prefix + millType.name;
-                                    }) : ''
-                                }</p>
-                            </li>
-                        )}
-                    </ul>
                 </div>
                 <div className="hidden h-14.5 lg:block"></div>
             </div>
