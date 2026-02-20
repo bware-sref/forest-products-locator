@@ -15,9 +15,10 @@ class MillResourceCollection extends ResourceCollection
     public function toArray(Request $request): array
     {
         // return parent::toArray($request);
-        return [
-            'type' => 'FeatureCollection',
-            'features' => $this->collection,
-        ];
+        // return [
+        //     'type' => 'FeatureCollection',
+        //     'features' => $this->collection,
+        // ];
+        return $this->collection->toArray();
     }
 }

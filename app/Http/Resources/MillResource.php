@@ -18,53 +18,52 @@ class MillResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
+        /**
+         * try to grab state info before building our array
+         */        
+        $state = $this->whenLoaded('state');
+        $county = $this->whenLoaded('county');
+        $millType = $this->whenLoaded('millTypes');
+        $woodSpecies = $this->whenLoaded('woodSpecies');
+
+        // dd($millType);
+
         return [
-            'type' => 'Feature',
-            'geometry' => [
-                'type' => 'Point',
-                'coordinates' => [
-                    /**
-                     * NOTE: positions are ordered as x, y, z.
-                     * So instead of "normal" [latitude, longitude] (a.k.a., [y, x]), 
-                     * TL;DR, we need to reverse them to put x (longitude) first
-                     * 
-                     */
-                    $this->whenNotNull((float) $this->longitude, 0),
-                    $this->whenNotNull((float) $this->latitude, 0),
-                ],
-            ],
-            /**
-             * Per spec, each Feature can (and should) have an id property.
-             * Weird that no examples I've seen actually use it.
-             */
+            // mill model properties
             'id' => $this->match_id,
-            'properties' => [
-                // mill model properties
-                'match_id' => $this->match_id,
-                'name' => $this->mill_name,
-                'physical_address' => $this->whenNotNull($this->physical_address),
-                'physical_city' => $this->whenNotNull($this->physical_city),
-                'physical_state' => $this->whenNotNull($this->physical_state),
-                'physical_zip' => $this->whenNotNull($this->physical_zip),
-                'mailing_address' => $this->whenNotNull($this->mailing_address),
-                'mailing_city' => $this->whenNotNull($this->mailing_city),
-                'mailing_state' => $this->whenNotNull($this->mailing_state),
-                'mailing_zip' => $this->whenNotNull($this->mailing_zip),
-                'telephone' => $this->whenNotNull($this->telephone),
-                'fax' => $this->whenNotNull($this->fax),
-                'email' => $this->whenNotNull($this->email),
-                'web_site' => $this->whenNotNull($this->web_site),
-                /**
-                 * add lat & long for debugging purposes
-                 */
-                'latitude' => $this->whenNotNull((float) $this->latitude, 0),
-                'longitude' => $this->whenNotNull((float) $this->longitude, 0),
-                'mill_types' => MillTypeResource::collection($this->whenLoaded('millTypes')),
-                'wood_species' => WoodSpeciesResource::collection($this->whenLoaded('woodSpecies')),
-                'state' => new StateResource($this->whenLoaded('state')),
-                'county' => new CountyResource($this->whenLoaded('county')),
-            ],
+            'match_id' => $this->match_id,
+            'name' => $this->mill_name,
+            'physical_address' => $this->whenNotNull($this->physical_address),
+            'physical_city' => $this->whenNotNull($this->physical_city),
+            'physical_state' => $this->whenNotNull($this->physical_state),
+            'physical_zip' => $this->whenNotNull($this->physical_zip),
+            'mailing_address' => $this->whenNotNull($this->mailing_address),
+            'mailing_city' => $this->whenNotNull($this->mailing_city),
+            'mailing_state' => $this->whenNotNull($this->mailing_state),
+            'mailing_zip' => $this->whenNotNull($this->mailing_zip),
+            'telephone' => $this->whenNotNull($this->telephone),
+            'fax' => $this->whenNotNull($this->fax),
+            'email' => $this->whenNotNull($this->email),
+            'web_site' => $this->whenNotNull($this->web_site),
+            'latitude' => $this->whenNotNull((float) $this->latitude, 0),
+            'longitude' => $this->whenNotNull((float) $this->longitude, 0),
+            /**
+             * We may want to flatten these into strings
+             * Except State probably needs to have name and abbreviation
+             * in that case we could simply use two separate properties
+             */
+            // $this->mergeWhen($this->whenLoaded('millTypes'), []),
+            'mill_types' => MillTypeResource::collection($this->whenLoaded('millTypes')),
+            'wood_species' => WoodSpeciesResource::collection($this->whenLoaded('woodSpecies')),
+            // 'state' => new StateResource($this->whenLoaded('state')),
+            $this->mergeWhen($this->whenLoaded('state'), [
+                'state' => $state->abbreviation,
+                'state_name' => $state->name,
+            ]),
+            $this->mergeWhen($this->whenLoaded('county'), [
+                'county' => $county->name,
+            ]),
+            // 'county' => new CountyResource($this->whenLoaded('county')),
         ];
     }
 }

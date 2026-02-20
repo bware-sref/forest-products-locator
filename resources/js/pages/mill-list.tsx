@@ -12,7 +12,10 @@ import {
     Link,
     usePage,
 } from '@inertiajs/react';
-import { useState } from 'react';
+import { 
+    // useEffect,
+    useState,    
+} from 'react';
 import {
     InputGroup,
     InputGroupAddon,
@@ -71,16 +74,20 @@ export default function MillList() {
     return (
         <AppLayout>
             <Head title={pageTitle} />
+            {/**
+             * full screen-width wrapper
+             */}
             <div className="flex min-h-screen flex-col items-center p-6 text-velvet lg:justify-center lg:p-8">
+                {/**
+                 * content column: max-width 1280px
+                 */}
                 <div className="flex flex-col w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 px-5">
+
                     <div className="flex w-full flex-row items-stretch max-w-83.75">
                         <div className="grid gap-1 bg-nature p-8 w-full">
                             <h2 className="text-xl font-bold text-beluga pb-2">Mill List</h2>
                             {/**
-                             * Turns out we can't use the default MapSearchControl for multiple reasons.
-                             * The main on is that it won't fn let you style the fn input element, FFnS
-                             * Also, the designs don't include a zoom control or locate button.
-                             * Also also, dark mode is still enabled for some reason.
+                             * mess
                              */}
                             <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
                                 <InputGroupInput 

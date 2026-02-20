@@ -88,7 +88,7 @@ export function AppFooter() {
                                 ))}
                             </NavigationMenuList>
                         </NavigationMenu>
-                        <div className="mx-auto md:ml-auto flex max-w-[168px] justify-self-end">
+                        <div className="mx-auto md:ml-auto flex max-w-42 justify-self-end">
                             <Link
                                 href={sGSF.href}
                                 className=""
