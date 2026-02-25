@@ -70,8 +70,8 @@ export interface Mill {
     // accessor!
     physical_address_two?: string;
     // relationships are represented as...other types!
-    state?: State;
-    county?: County;
+    state?: State|string;
+    county?: County|string;
     mill_types?: MillType[];
     wood_species?: WoodSpecies[];
     [key: string]: unknown; // This allows for additional properties...
