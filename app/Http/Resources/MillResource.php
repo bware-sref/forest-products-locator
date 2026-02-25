@@ -32,7 +32,7 @@ class MillResource extends JsonResource
             // mill model properties
             'id' => $this->match_id,
             'match_id' => $this->match_id,
-            'name' => $this->mill_name,
+            'mill_name' => $this->mill_name,
             'physical_address' => $this->whenNotNull($this->physical_address),
             'physical_city' => $this->whenNotNull($this->physical_city),
             'physical_state' => $this->whenNotNull($this->physical_state),
