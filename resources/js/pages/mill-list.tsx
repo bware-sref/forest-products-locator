@@ -13,7 +13,7 @@ import {
     usePage,
 } from '@inertiajs/react';
 import { 
-    // useEffect,
+    useEffect,
     useState,    
 } from 'react';
 import {
@@ -41,6 +41,7 @@ import {
     // ArrowRight,
     SearchIcon
 } from 'lucide-react';
+import { fetchMills } from "@/lib/api"
 import { show } from '@/actions/App/Http/Controllers/MillController';
 
 export default function MillList() {
@@ -51,12 +52,14 @@ export default function MillList() {
         // counties: County[];
         millTypes?: MillType[];
         woodSpecies?: WoodSpecies[];
+        millsApiUrl: string;
     }>();
     const pageTitle = 'Mill List';
     // const mills = page.props.mills || [];
     // const states = page.props.states || [];
 
-    const [mills] = useState(page.props.mills);
+    // const [mills, setMills] = useState(page.props.mills || []);
+    const [mills, setMills] = useState<Mill[]>([]);
     // const counties = page.props.counties || [];
     // const millTypes = page.props.millTypes || [];
     // const woodSpecies = page.props.woodSpecies || [];
@@ -70,6 +73,24 @@ export default function MillList() {
 
     // console.log('mills[0].wood_species', mills[0].wood_species || 'no wood_species?');
     // console.log('mills[0].mill_types', mills[0].mill_types || 'no mill_types?');
+
+    const searchParams = {
+        // 'state': "GA",
+        // 's': '',
+    };
+
+    useEffect(() => {
+        // react docs recommend using an ignore flag
+        let ignore = false;
+        setMills([]);
+        fetchMills(page.props.millsApiUrl, searchParams).then(result => {
+            // console.log('fetchMIlls: ', result);
+            setMills(result);
+        });
+        return () => {
+            ignore = true;
+        }
+    }, []); // empty dependencies make it run on page load
 
     return (
         <AppLayout>
@@ -111,9 +132,8 @@ export default function MillList() {
                      * Mill List
                      */}
                     <div className="flex flex-row max-w-83.75">
-                        <ul className="flex flex-col justify-evenly items-stretch gap-1">
-                            
-                            {mills.map(mill => 
+                        <ul className="flex flex-col justify-evenly items-stretch gap-1">                            
+                            {(mills && mills.length && mills.length > 0) ? mills.map(mill => 
                                 <li className="bg-beluga text-black p-8 " key={mill.match_id}>
                                     <h2 className="font-extrabold text-velvet text-lg">
                                         <Link 
@@ -149,7 +169,7 @@ export default function MillList() {
                                         }) : ''
                                     }</p>
                                 </li>
-                            )}
+                            ) : (<li className="bg-beluga text-black p-8 min-h-screen">Loading...</li>)}
                         </ul>
 
                     </div>
