@@ -83,7 +83,7 @@ export default function Welcome() {
             {/**
              * Cards!
              */}
-            <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col md:flex-row w-full lg:w-7xl max-w-[100vw] xl:max-w-7xl items-stretch justify-between gap-8 lg:gap-6 Xbg-pink-400">
+            <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col md:flex-row w-full md:w-6xl lg:w-7xl max-w-full xl:max-w-7xl items-stretch justify-between gap-8 lg:gap-6 Xbg-pink-400">
                 {cards.map( card =>
                 <Card key={card.key} className="w-full md:w-55 lg:w-70 lg:max-w-70 xl:w-87.5 xl:max-w-95 pt-0 border-0 rounded-2xl">
                     <CardHeader className="bg-coupe py-4 xl:py-6 rounded-t-2xl">
