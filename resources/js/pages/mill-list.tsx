@@ -82,9 +82,9 @@ export default function MillList() {
     useEffect(() => {
         // react docs recommend using an ignore flag
         let ignore = false;
-        setMills([]);
+        // setMills([]);
         fetchMills(page.props.millsApiUrl, searchParams).then(result => {
-            // console.log('fetchMIlls: ', result);
+            console.log('fetchMIlls: ', result);
             setMills(result);
         });
         return () => {
@@ -133,7 +133,7 @@ export default function MillList() {
                      */}
                     <div className="flex flex-row max-w-83.75">
                         <ul className="flex flex-col justify-evenly items-stretch gap-1">                            
-                            {(mills && mills.length && mills.length > 0) ? mills.map(mill => 
+                            {(mills.length > 0) ? mills.map(mill => 
                                 <li className="bg-beluga text-black p-8 " key={mill.match_id}>
                                     <h2 className="font-extrabold text-velvet text-lg">
                                         <Link 

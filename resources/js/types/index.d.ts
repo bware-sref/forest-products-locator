@@ -46,6 +46,7 @@ export interface Mill {
     id: number;
     match_id: string;
     mill_id?: string;
+    // It's mill_name on the model, so I'm intentionally making a redundant field
     mill_name?: string;
     latitude?: string;
     longitude?: string;
