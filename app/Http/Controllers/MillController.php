@@ -24,11 +24,10 @@ class MillController extends Controller
         // make sure to eagerly load relationships!
         // let's omit the state and county from this query because we can easily map back to them with Mill data
         // $mills = Mill::with(['millTypes', 'woodSpecies', 'state', 'county'])->get();
-        $mills = Mill::with([
-                'millTypes',
-                'woodSpecies'
-            ])->get();
-        
+        // $mills = Mill::with([
+        //         'millTypes',
+        //         'woodSpecies'
+        //     ])->get();
 
         // we can collect values for filtering UI here
         // whichever is faster
@@ -37,7 +36,7 @@ class MillController extends Controller
         // probably something we can crib from the old version.
 
         return Inertia::render('mill-list', [
-            'mills' => $mills->toArray(),
+            // 'mills' => $mills->toArray(),
             /**
              * we can forego the counties by just loading them onto the states
              * still need to only load the counties that have mills though
@@ -50,6 +49,9 @@ class MillController extends Controller
             // 'counties' => Inertia::once(fn() => County::has('mills')->get()->load('state')->toArray()),
             'millTypes' => Inertia::once(fn() => MillType::all()->toArray()),
             'woodSpecies' => Inertia::once(fn() => WoodSpecies::all()->toArray()),
+
+            // easy way to inform the front end of the api url
+            'millsApiUrl' => route('api.v1.mills'),
         ]);
     }
 
