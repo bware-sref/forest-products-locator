@@ -61,7 +61,7 @@ class MillResource extends JsonResource
                 'state_name' => $state->name,
             ]),
             $this->mergeWhen($this->whenLoaded('county'), [
-                'county' => $county->name,
+                'county' => !empty($county) && property_exists($county, 'name') ? $county->name : '',
             ]),
             // 'county' => new CountyResource($this->whenLoaded('county')),
         ];
