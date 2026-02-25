@@ -13,23 +13,30 @@ import {
     usePage,
 } from '@inertiajs/react';
 import { 
+    ChangeEventHandler,
     useEffect,
     useState,    
 } from 'react';
+import {
+    Field,
+    FieldDescription,
+    FieldGroup,
+    FieldLabel,
+} from "@/components/ui/field";
 import {
     InputGroup,
     InputGroupAddon,
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group";
-// import {
-//     Combobox,
-//     ComboboxContent,
-//     ComboboxEmpty,
-//     ComboboxInput,
-//     ComboboxItem,
-//     ComboboxList,
-// } from "@/components/ui/combobox";
+import {
+    Combobox,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxList,
+} from "@/components/ui/combobox";
 // import { Button } from '@/components/ui/button';
 // import {
 //     Card,
@@ -44,10 +51,11 @@ import {
 import { fetchMills } from "@/lib/api"
 import { show } from '@/actions/App/Http/Controllers/MillController';
 
+
 export default function MillList() {
     // const page = usePage<SharedData>();
     const page = usePage<{
-        mills: Mill[];
+        // mills: Mill[];
         states: State[];
         // counties: County[];
         millTypes?: MillType[];
@@ -55,8 +63,13 @@ export default function MillList() {
         millsApiUrl: string;
     }>();
     const pageTitle = 'Mill List';
-    // const mills = page.props.mills || [];
-    // const states = page.props.states || [];
+
+    // states should always be the same...unless a state doesn't have a particular millType or woodSpecies?
+    // map to peel off the counties before shoving into the combobox
+    const states: State[] = page.props.states.map((state) => ({id: state.id, name: state.name, abbreviation: state.abbreviation}));
+
+    console.log('page.props.states: ', page.props.states);
+    console.log('states: ', states);
 
     // const [mills, setMills] = useState(page.props.mills || []);
     const [mills, setMills] = useState<Mill[]>([]);
@@ -65,26 +78,24 @@ export default function MillList() {
     // const woodSpecies = page.props.woodSpecies || [];
 
 
-    // console.log('mills[0]: ', mills[0]);
-    // console.log('states[0]: ', states[0] || 'no state[0]');
-    // console.log('counties[0]: ', counties[0] || 'no counties');
-    // console.log('millTypes: ', millTypes);
-    // console.log('woodSpecies: ', woodSpecies);
 
-    // console.log('mills[0].wood_species', mills[0].wood_species || 'no wood_species?');
-    // console.log('mills[0].mill_types', mills[0].mill_types || 'no mill_types?');
+    const [searchParams, setSearchParams] = useState<Object>({});
 
-    const searchParams = {
-        // 'state': "GA",
-        // 's': '',
-    };
+    // const handleStateSelectChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
+    //     console.log('handleStateSelectChange!', event.target.value);
+    // };
 
+    /**
+     * Here's where we fetch the mill data on page load!
+     */
     useEffect(() => {
-        // react docs recommend using an ignore flag
+        // react docs recommend using an ignore flag to prevent useEffect running twice
+        /**
+         * fun fact, when running in development mode (i.e., npm run dev), React does all fetch requests twice!
+         */
         let ignore = false;
         // setMills([]);
         fetchMills(page.props.millsApiUrl, searchParams).then(result => {
-            console.log('fetchMIlls: ', result);
             setMills(result);
         });
         return () => {
@@ -92,6 +103,10 @@ export default function MillList() {
         }
     }, []); // empty dependencies make it run on page load
 
+
+    /**
+     * Render!
+     */
     return (
         <AppLayout>
             <Head title={pageTitle} />
@@ -110,28 +125,68 @@ export default function MillList() {
                             {/**
                              * mess
                              */}
-                            <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
-                                <InputGroupInput 
-                                    id="searchMills"
-                                    className="text-velvet dark:text-velvet"
-                                    placeholder="Search mills..."
-                                />
-                                <InputGroupAddon align="inline-end">
-                                    <InputGroupButton                            
-                                        aria-label="Search"
-                                        title="Search"
-                                        size="icon-sm"
+                            <FieldGroup>
+                                <Field>
+                                    <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
+                                        <InputGroupInput 
+                                            id="searchMills"
+                                            className="text-velvet dark:text-velvet"
+                                            placeholder="Search mills..."
+                                        />
+                                        <InputGroupAddon align="inline-end">
+                                            <InputGroupButton                            
+                                                aria-label="Search"
+                                                title="Search"
+                                                size="icon-sm"
+                                            >
+                                                <SearchIcon />
+                                            </InputGroupButton>
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                </Field>
+                                <Field>
+                                    <FieldLabel className="text-white">State:</FieldLabel>                                    
+                                    <Combobox
+                                        items={states}
+                                        itemToStringLabel={(state: State) => state.name}
+                                        itemToStringValue={(state: State) => state.abbreviation}
+                                        defaultValue={null}
                                     >
-                                        <SearchIcon />
-                                    </InputGroupButton>
-                                </InputGroupAddon>
-                            </InputGroup>
+                                        <ComboboxInput 
+                                            placeholder="Select a state" 
+                                            className="bg-beluga text-velvet"
+                                        />
+                                        <ComboboxContent className="bg-beluga text-velvet">
+                                            <ComboboxEmpty>When would this happen?</ComboboxEmpty>
+                                            <ComboboxList className="bg-beluga text-velvet">
+                                                {(state) => (
+                                                    <ComboboxItem
+                                                        key={state.abbreviation}
+                                                        value={state}
+                                                    >
+                                                        {state.name}
+                                                    </ComboboxItem>
+                                                )}
+                                            </ComboboxList>
+                                        </ComboboxContent>
+
+                                    {/* <select id="stateSelector">
+                                        <option value="">Select a State</option>
+                                        {(states.length < 1) ? '' : states.map(state => 
+                                        <option key={state.abbreviation} value={state.abbreviation}>{state.name}</option>
+                                        )}
+                                    </select> */}
+                                    </Combobox>
+                                </Field>
+                            </FieldGroup>
+                            <div>
+                            </div>
                         </div>                            
                     </div>
                     {/**
                      * Mill List
                      */}
-                    <div className="flex flex-row max-w-83.75">
+                    <div className="flex flex-row w-83.75 max-w-83.75">
                         <ul className="flex flex-col justify-evenly items-stretch gap-1">                            
                             {(mills.length > 0) ? mills.map(mill => 
                                 <li className="bg-beluga text-black p-8 " key={mill.match_id}>
@@ -169,7 +224,7 @@ export default function MillList() {
                                         }) : ''
                                     }</p>
                                 </li>
-                            ) : (<li className="bg-beluga text-black p-8 min-h-screen">Loading...</li>)}
+                            ) : (<li className="bg-beluga text-black p-8 min-h-screen w-83.75">Loading...</li>)}
                         </ul>
 
                     </div>
