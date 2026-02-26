@@ -36,6 +36,7 @@ class MillController extends Controller
         // probably something we can crib from the old version.
 
         return Inertia::render('mill-list-page', [
+            'pageTitle' => 'Mill List',
             // 'mills' => $mills->toArray(),
             /**
              * we can forego the counties by just loading them onto the states
