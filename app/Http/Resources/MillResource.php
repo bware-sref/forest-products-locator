@@ -37,6 +37,7 @@ class MillResource extends JsonResource
             'physical_city' => $this->whenNotNull($this->physical_city),
             'physical_state' => $this->whenNotNull($this->physical_state),
             'physical_zip' => $this->whenNotNull($this->physical_zip),
+            'physical_address_two' => $this->whenNotNull($this->physical_address_two),
             'mailing_address' => $this->whenNotNull($this->mailing_address),
             'mailing_city' => $this->whenNotNull($this->mailing_city),
             'mailing_state' => $this->whenNotNull($this->mailing_state),
