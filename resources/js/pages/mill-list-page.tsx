@@ -32,16 +32,21 @@ import { show } from '@/actions/App/Http/Controllers/MillController';
 import MillFilters from '@/components/mill-filters';
 
 interface Dictionary<T> {
-    [key: string]: T | undefined;
+    [key: string]: T;
 }
+type CountiesByState = Record<string, County[]>;
+
 const getCountiesByState = function (states: State[]) {
-    let countiesByState: Dictionary<County[]> = {};
+    const countiesByState: CountiesByState = {};
     for (const state of states) {
-        countiesByState[state.abbreviation] = state.counties;
+        if (typeof state.counties !== undefined) {
+            countiesByState[state.abbreviation] = state.counties || [];
+        }
     }
+    return countiesByState;
 }
 
-export default function MillList() {
+export default function MillListPage() {
     // const page = usePage<SharedData>();
     const page = usePage<{
         // mills: Mill[];
@@ -55,20 +60,22 @@ export default function MillList() {
 
     // states should always be the same...unless a state doesn't have a particular millType or woodSpecies?
     // map to peel off the counties before shoving into the combobox
-    const states: State[] = page.props.states.map((state) => ({id: state.id, name: state.name, abbreviation: state.abbreviation}));
-    const countiesByState: {} = page.props.states.map(state => {
+    const states: State[] = page.props.states.map((state) => ({
+        id: state.id,
+        name: state.name,
+        abbreviation: state.abbreviation
+    }));
 
-    });
+    const countiesByState = getCountiesByState(states);
 
     const [selectedState, setSelectedState] = useState<State|null>(null);
-
-    // console.log('page.props.states: ', page.props.states);
-    // console.log('states: ', states);
+    const [counties, setCounties] = useState<County[]>([]);
+    const [selectedCounty, setSelectedCounty] = useState<County|null>(null);
+    const [selectedMillType, setSelectedMillType] = useState<MillType|null>(null);
+    const [selectedWoodSpecies, setSelectedWoodSpecies] = useState<WoodSpecies|null>(null);
 
     const [mills, setMills] = useState<Mill[]>([]);
-    // const counties = page.props.counties || [];
-    // const millTypes = page.props.millTypes || [];
-    // const woodSpecies = page.props.woodSpecies || [];
+    const [searchParams, setSearchParams] = useState<Object>({});
 
     const handleStateSelectChange = function (stateAbbreviation: Event|string) {
         console.log('in handleStateSelectChange, stateChanged!', stateAbbreviation);
@@ -77,16 +84,11 @@ export default function MillList() {
         for (const state of states) {
             if (state.abbreviation === stateAbbreviation) {
                 setSelectedState(state);
+                setCounties(countiesByState[stateAbbreviation]);
                 break;
             }
         };
     }
-
-    const [searchParams, setSearchParams] = useState<Object>({});
-
-    // const handleStateSelectChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
-    //     console.log('handleStateSelectChange!', event.target.value);
-    // };
 
     /**
      * Here's where we fetch the mill data on page load!
