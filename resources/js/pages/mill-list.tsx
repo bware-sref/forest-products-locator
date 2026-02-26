@@ -1,11 +1,10 @@
 import AppLayout from '@/layouts/app-layout';
 import { 
-    // type SharedData,
-    // type County,
+    type County,
     type Mill,
     type MillType,
     type State,
-    type WoodSpecies
+    type WoodSpecies,
 } from '@/types';
 import { 
     Head,
@@ -13,39 +12,10 @@ import {
     usePage,
 } from '@inertiajs/react';
 import { 
-    ChangeEventHandler,
     useEffect,
     useState,    
 } from 'react';
-import {
-    Field,
-    FieldDescription,
-    FieldGroup,
-    FieldLabel,
-} from "@/components/ui/field";
-import {
-    InputGroup,
-    InputGroupAddon,
-    InputGroupButton,
-    InputGroupInput,
-} from "@/components/ui/input-group";
-// import {
-//     Combobox,
-//     ComboboxContent,
-//     ComboboxEmpty,
-//     ComboboxInput,
-//     ComboboxItem,
-//     ComboboxList,
-// } from "@/components/ui/combobox";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    // SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+
 // import { Button } from '@/components/ui/button';
 // import {
 //     Card,
@@ -59,7 +29,17 @@ import {
 } from 'lucide-react';
 import { fetchMills } from "@/lib/api"
 import { show } from '@/actions/App/Http/Controllers/MillController';
+import MillFilters from '@/components/mill-filters';
 
+interface Dictionary<T> {
+    [key: string]: T | undefined;
+}
+const getCountiesByState = function (states: State[]) {
+    let countiesByState: Dictionary<County[]> = {};
+    for (const state of states) {
+        countiesByState[state.abbreviation] = state.counties;
+    }
+}
 
 export default function MillList() {
     // const page = usePage<SharedData>();
@@ -76,17 +56,31 @@ export default function MillList() {
     // states should always be the same...unless a state doesn't have a particular millType or woodSpecies?
     // map to peel off the counties before shoving into the combobox
     const states: State[] = page.props.states.map((state) => ({id: state.id, name: state.name, abbreviation: state.abbreviation}));
+    const countiesByState: {} = page.props.states.map(state => {
+
+    });
+
+    const [selectedState, setSelectedState] = useState<State|null>(null);
 
     // console.log('page.props.states: ', page.props.states);
     // console.log('states: ', states);
 
-    // const [mills, setMills] = useState(page.props.mills || []);
     const [mills, setMills] = useState<Mill[]>([]);
     // const counties = page.props.counties || [];
     // const millTypes = page.props.millTypes || [];
     // const woodSpecies = page.props.woodSpecies || [];
 
-
+    const handleStateSelectChange = function (stateAbbreviation: Event|string) {
+        console.log('in handleStateSelectChange, stateChanged!', stateAbbreviation);
+        console.log('update Counties!');
+        setSearchParams({state: stateAbbreviation});
+        for (const state of states) {
+            if (state.abbreviation === stateAbbreviation) {
+                setSelectedState(state);
+                break;
+            }
+        };
+    }
 
     const [searchParams, setSearchParams] = useState<Object>({});
 
@@ -112,6 +106,18 @@ export default function MillList() {
         }
     }, []); // empty dependencies make it run on page load
 
+    useEffect(() => {
+        console.log('state changed!')
+    }, [selectedState]);
+
+    // let mfProps: MillFiltersProps = {
+    //     'headline': 'Mill List',
+    //     'states': states,
+    //     'counties': [],
+    //     'millTypes': page.props.millTypes,
+    //     'woodSpecies': page.props.woodSpecies,
+    //     'onStateSelectChange': handleStateSelectChange,
+    // }
 
     /**
      * Render!
@@ -127,58 +133,16 @@ export default function MillList() {
                  * content column: max-width 1280px
                  */}
                 <div className="flex flex-col w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 px-5">
+                    {/**
+                     * Mill Filters
+                     */}
+                    <MillFilters 
+                        states={states}                        
+                        millTypes={page.props.millTypes}
+                        woodSpecies={page.props.woodSpecies}
+                        onStateSelectChange={handleStateSelectChange}
+                    />
 
-                    <div className="flex w-full flex-row items-stretch max-w-83.75">
-                        <div className="grid gap-1 bg-nature p-8 w-full">
-                            <h2 className="text-xl font-bold text-beluga pb-2">Mill List</h2>
-                            {/**
-                             * mess
-                             */}
-                            <FieldGroup>
-                                <Field>
-                                    <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
-                                        <InputGroupInput 
-                                            id="s"
-                                            className="text-velvet dark:text-velvet"
-                                            placeholder="Search mills..."
-                                        />
-                                        <InputGroupAddon align="inline-end">
-                                            <InputGroupButton                            
-                                                aria-label="Search"
-                                                title="Search"
-                                                size="icon-sm"
-                                            >
-                                                <SearchIcon />
-                                            </InputGroupButton>
-                                        </InputGroupAddon>
-                                    </InputGroup>
-                                </Field>
-                                <Field>
-                                    <FieldLabel 
-                                        htmlFor="state"
-                                        className="text-white"
-                                        >State:</FieldLabel>
-                                    <Select defaultValue="">
-                                        <SelectTrigger id="state">
-                                            <SelectValue placeholder="Select a state" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                {states.map(state => 
-                                                    <SelectItem 
-                                                        key={state.abbreviation}
-                                                        value={state.abbreviation}
-                                                    >{state.name}</SelectItem>
-                                                )}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                </Field>
-                            </FieldGroup>
-                            <div>
-                            </div>
-                        </div>                            
-                    </div>
                     {/**
                      * Mill List
                      */}
