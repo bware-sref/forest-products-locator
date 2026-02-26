@@ -29,14 +29,23 @@ import {
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group";
+// import {
+//     Combobox,
+//     ComboboxContent,
+//     ComboboxEmpty,
+//     ComboboxInput,
+//     ComboboxItem,
+//     ComboboxList,
+// } from "@/components/ui/combobox";
 import {
-    Combobox,
-    ComboboxContent,
-    ComboboxEmpty,
-    ComboboxInput,
-    ComboboxItem,
-    ComboboxList,
-} from "@/components/ui/combobox";
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    // SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 // import { Button } from '@/components/ui/button';
 // import {
 //     Card,
@@ -68,8 +77,8 @@ export default function MillList() {
     // map to peel off the counties before shoving into the combobox
     const states: State[] = page.props.states.map((state) => ({id: state.id, name: state.name, abbreviation: state.abbreviation}));
 
-    console.log('page.props.states: ', page.props.states);
-    console.log('states: ', states);
+    // console.log('page.props.states: ', page.props.states);
+    // console.log('states: ', states);
 
     // const [mills, setMills] = useState(page.props.mills || []);
     const [mills, setMills] = useState<Mill[]>([]);
@@ -89,8 +98,8 @@ export default function MillList() {
      * Here's where we fetch the mill data on page load!
      */
     useEffect(() => {
-        // react docs recommend using an ignore flag to prevent useEffect running twice
         /**
+         * react docs recommend using an ignore flag to prevent useEffect running twice
          * fun fact, when running in development mode (i.e., npm run dev), React does all fetch requests twice!
          */
         let ignore = false;
@@ -129,7 +138,7 @@ export default function MillList() {
                                 <Field>
                                     <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
                                         <InputGroupInput 
-                                            id="searchMills"
+                                            id="s"
                                             className="text-velvet dark:text-velvet"
                                             placeholder="Search mills..."
                                         />
@@ -145,38 +154,25 @@ export default function MillList() {
                                     </InputGroup>
                                 </Field>
                                 <Field>
-                                    <FieldLabel className="text-white">State:</FieldLabel>                                    
-                                    <Combobox
-                                        items={states}
-                                        itemToStringLabel={(state: State) => state.name}
-                                        itemToStringValue={(state: State) => state.abbreviation}
-                                        defaultValue={null}
-                                    >
-                                        <ComboboxInput 
-                                            placeholder="Select a state" 
-                                            className="bg-beluga text-velvet"
-                                        />
-                                        <ComboboxContent className="bg-beluga text-velvet">
-                                            <ComboboxEmpty>When would this happen?</ComboboxEmpty>
-                                            <ComboboxList className="bg-beluga text-velvet">
-                                                {(state) => (
-                                                    <ComboboxItem
+                                    <FieldLabel 
+                                        htmlFor="state"
+                                        className="text-white"
+                                        >State:</FieldLabel>
+                                    <Select defaultValue="">
+                                        <SelectTrigger id="state">
+                                            <SelectValue placeholder="Select a state" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                {states.map(state => 
+                                                    <SelectItem 
                                                         key={state.abbreviation}
-                                                        value={state}
-                                                    >
-                                                        {state.name}
-                                                    </ComboboxItem>
+                                                        value={state.abbreviation}
+                                                    >{state.name}</SelectItem>
                                                 )}
-                                            </ComboboxList>
-                                        </ComboboxContent>
-
-                                    {/* <select id="stateSelector">
-                                        <option value="">Select a State</option>
-                                        {(states.length < 1) ? '' : states.map(state => 
-                                        <option key={state.abbreviation} value={state.abbreviation}>{state.name}</option>
-                                        )}
-                                    </select> */}
-                                    </Combobox>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
                                 </Field>
                             </FieldGroup>
                             <div>
