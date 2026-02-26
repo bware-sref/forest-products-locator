@@ -30,10 +30,8 @@ import {
 import { fetchMills } from "@/lib/api"
 import { show } from '@/actions/App/Http/Controllers/MillController';
 import MillFilters from '@/components/mill-filters';
+import MillList from '@/components/mill-list';
 
-interface Dictionary<T> {
-    [key: string]: T;
-}
 type CountiesByState = Record<string, County[]>;
 
 const getCountiesByState = function (states: State[]) {
@@ -54,6 +52,7 @@ export default function MillListPage() {
         // counties: County[];
         millTypes?: MillType[];
         woodSpecies?: WoodSpecies[];
+        pageTitle?: string;
         millsApiUrl: string;
     }>();
     const pageTitle = 'Mill List';
@@ -101,6 +100,7 @@ export default function MillListPage() {
         let ignore = false;
         // setMills([]);
         fetchMills(page.props.millsApiUrl, searchParams).then(result => {
+            console.log('mills!', result);
             setMills(result);
         });
         return () => {
@@ -111,15 +111,6 @@ export default function MillListPage() {
     useEffect(() => {
         console.log('state changed!')
     }, [selectedState]);
-
-    // let mfProps: MillFiltersProps = {
-    //     'headline': 'Mill List',
-    //     'states': states,
-    //     'counties': [],
-    //     'millTypes': page.props.millTypes,
-    //     'woodSpecies': page.props.woodSpecies,
-    //     'onStateSelectChange': handleStateSelectChange,
-    // }
 
     /**
      * Render!
@@ -144,52 +135,10 @@ export default function MillListPage() {
                         woodSpecies={page.props.woodSpecies}
                         onStateSelectChange={handleStateSelectChange}
                     />
-
                     {/**
                      * Mill List
                      */}
-                    <div className="flex flex-row w-83.75 max-w-83.75">
-                        <ul className="flex flex-col justify-evenly items-stretch gap-1">                            
-                            {(mills.length > 0) ? mills.map(mill => 
-                                <li className="bg-beluga text-black p-8 " key={mill.match_id}>
-                                    <h2 className="font-extrabold text-velvet text-lg">
-                                        <Link 
-                                            href={show(mill.match_id)}
-                                            className="hover:underline"
-                                        >
-                                            {mill.mill_name}
-                                        </Link>
-                                    </h2>
-                                    <address>
-                                        {mill.physical_address}
-                                        <br />
-                                        {mill.physical_address_two}
-                                    </address>
-                                    <p>
-                                        <Link 
-                                            href={`https://maps.google.com/?q=${mill.latitude},${mill.longitude}`}
-                                            target="_blank"
-                                        >
-                                            Map This Location
-                                        </Link>
-                                    </p>
-                                    <p><strong>Species: </strong> 
-                                        {mill.wood_species ? mill.wood_species.map((wood, index) => {
-                                            const prefix = (0 < index) ? ', ' : '';
-                                            return prefix + wood.name;
-                                        }) : ''}
-                                    </p>
-                                    <p><strong>Mill Type: </strong> {
-                                        mill.mill_types ? mill.mill_types.map((millType, index) => {
-                                            const prefix = (0 < index) ? ', ' : '';                                            
-                                            return prefix + millType.name;
-                                        }) : ''
-                                    }</p>
-                                </li>
-                            ) : (<li className="bg-beluga text-black p-8 min-h-screen w-83.75">Loading...</li>)}
-                        </ul>
-
-                    </div>
+                    <MillList mills={mills} />
                 </div>
                 <div className="hidden h-14.5 lg:block"></div>
             </div>
