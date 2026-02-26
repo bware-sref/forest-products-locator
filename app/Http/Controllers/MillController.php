@@ -35,7 +35,7 @@ class MillController extends Controller
         // also need to figure out distance filtering
         // probably something we can crib from the old version.
 
-        return Inertia::render('mill-list', [
+        return Inertia::render('mill-list-page', [
             // 'mills' => $mills->toArray(),
             /**
              * we can forego the counties by just loading them onto the states
