@@ -8,7 +8,6 @@ import {
 } from '@/types';
 import { 
     Head,
-    Link,
     usePage,
 } from '@inertiajs/react';
 import { 
@@ -16,22 +15,15 @@ import {
     useState,    
 } from 'react';
 
-// import { Button } from '@/components/ui/button';
-// import {
-//     Card,
-//     CardContent,
-//     CardHeader,
-//     CardTitle,
-// } from "@/components/ui/card";
-import {
-    // ArrowRight,
-    SearchIcon
-} from 'lucide-react';
 import { fetchMills } from "@/lib/api"
-import { show } from '@/actions/App/Http/Controllers/MillController';
 import MillFilters from '@/components/mill-filters';
 import MillList from '@/components/mill-list';
 
+
+/**
+ * type for mapping counties by state
+ * I wonder if I can just do an inline type?
+ */
 type CountiesByState = Record<string, County[]>;
 
 const getCountiesByState = function (states: State[]) {
@@ -55,17 +47,18 @@ export default function MillListPage() {
         pageTitle?: string;
         millsApiUrl: string;
     }>();
-    const pageTitle = 'Mill List';
+    const pageTitle = page.props.pageTitle;
 
     // states should always be the same...unless a state doesn't have a particular millType or woodSpecies?
     // map to peel off the counties before shoving into the combobox
+    // does it make more sense to strip the counties on the server side?
     const states: State[] = page.props.states.map((state) => ({
         id: state.id,
         name: state.name,
         abbreviation: state.abbreviation
     }));
 
-    const countiesByState = getCountiesByState(states);
+    const countiesByState: CountiesByState = getCountiesByState(page.props.states);    
 
     const [selectedState, setSelectedState] = useState<State|null>(null);
     const [counties, setCounties] = useState<County[]>([]);
@@ -77,8 +70,6 @@ export default function MillListPage() {
     const [searchParams, setSearchParams] = useState<Object>({});
 
     const handleStateSelectChange = function (stateAbbreviation: Event|string) {
-        console.log('in handleStateSelectChange, stateChanged!', stateAbbreviation);
-        console.log('update Counties!');
         setSearchParams({state: stateAbbreviation});
         for (const state of states) {
             if (state.abbreviation === stateAbbreviation) {
@@ -90,6 +81,19 @@ export default function MillListPage() {
                 break;
             }
         };
+    }
+
+    const handleCountySelectChange = function (countyId: Event|string) {
+        console.log('in handleCountySelectChange...', countyId);
+        // setSelectedCounty(countyId)
+    }
+
+    const handleMillTypeSelectChange = function (millTypeId: Event|string) {
+        console.log('in handleMillTypeSelectChange...', millTypeId);
+    }
+
+    const handleWoodSpeciesSelectChange = function (woodSpeciesId: Event|string) {
+        console.log('in handleWoodSpeciesSelectChange', woodSpeciesId);
     }
 
     /**
@@ -115,6 +119,7 @@ export default function MillListPage() {
          * empty dependencies make it run on page load
          * but should it be watching mills?
          * or should it watch searchParameters?
+         * or waiting for a form submission?
          */
     }, [selectedState]); // 
 
@@ -140,10 +145,14 @@ export default function MillListPage() {
                      * Mill Filters
                      */}
                     <MillFilters 
-                        states={states}                        
+                        states={states}
+                        counties={counties}
                         millTypes={page.props.millTypes}
                         woodSpecies={page.props.woodSpecies}
                         onStateSelectChange={handleStateSelectChange}
+                        onCountySelectChange={handleCountySelectChange}
+                        onMillTypesSelectChange={handleMillTypeSelectChange}
+                        onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
                     />
                     {/**
                      * Mill List
