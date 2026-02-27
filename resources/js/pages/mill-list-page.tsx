@@ -84,6 +84,9 @@ export default function MillListPage() {
             if (state.abbreviation === stateAbbreviation) {
                 setSelectedState(state);
                 setCounties(countiesByState[stateAbbreviation]);
+                /**
+                 * do we need to update the millTypes and WoodSpecies?
+                 */
                 break;
             }
         };
@@ -100,8 +103,10 @@ export default function MillListPage() {
         let ignore = false;
         // setMills([]);
         fetchMills(page.props.millsApiUrl, searchParams).then(result => {
-            console.log('mills!', result);
-            setMills(result);
+            if (!ignore) {
+                // console.log('mills!', result);
+                setMills(result);
+            }
         });
         return () => {
             ignore = true;
