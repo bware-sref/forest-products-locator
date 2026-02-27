@@ -42,7 +42,6 @@ class MillController extends Controller
              * we can forego the counties by just loading them onto the states
              * still need to only load the counties that have mills though
              */
-            // 'states' => Inertia::once(fn() => State::has('mills')->get()->toArray()),
             'states' => Inertia::once(fn() => State::has('mills')->with([
                 'counties' => function ($query) {
                     $query->select('id', 'name', 'state_id')
@@ -50,8 +49,8 @@ class MillController extends Controller
                         ->orderBy('name', 'asc');
             }])->get(['id', 'name', 'abbreviation'])->toArray()),
             // 'counties' => Inertia::once(fn() => County::has('mills')->get()->load('state')->toArray()),
-            'millTypes' => Inertia::once(fn() => MillType::all()->toArray()),
-            'woodSpecies' => Inertia::once(fn() => WoodSpecies::all()->toArray()),
+            'millTypes' => Inertia::once(fn() => MillType::get(['id', 'name'])->toArray()),
+            'woodSpecies' => Inertia::once(fn() => WoodSpecies::get(['id', 'name'])->toArray()),
 
             // easy way to inform the front end of the api url
             'millsApiUrl' => route('api.v1.mills'),
