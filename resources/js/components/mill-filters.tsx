@@ -90,11 +90,13 @@ export default function MillFilters({...props}: MillFiltersProps) {
                                 className="text-velvet dark:text-velvet"
                                 placeholder="Search mills..."
                             />
+                            {/* */}
                             <InputGroupAddon align="inline-end">
                                 <InputGroupButton                            
-                                    aria-label="Search"
-                                    title="Search"
+                                    aria-label="Search mills"
+                                    title="Search mills"
                                     size="icon-sm"
+                                    className="bg-coupe text-beluga rounded-full"
                                 >
                                     <SearchIcon />
                                 </InputGroupButton>
@@ -111,11 +113,11 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             onValueChange={props.onStateSelectChange}                            
                         >
                             <SelectTrigger id="state"
-                                className="bg-beluga text-velvet"
+                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet!"
                             >
                                 <SelectValue 
                                     placeholder="Select a state"
-                                    className="bg-beluga text-velvet"
+                                    className="bg-beluga! text-velvet"
                                 />
                             </SelectTrigger>
                             <SelectContent className="bg-beluga text-velvet">

@@ -1,4 +1,9 @@
-
+/**
+ * 
+ * @param {string} url 
+ * @param {Object} params 
+ * @returns 
+ */
 export async function fetchMills(url, params) {
     const urlParams = new URLSearchParams(params);
     try {

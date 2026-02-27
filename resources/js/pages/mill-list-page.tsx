@@ -106,7 +106,12 @@ export default function MillListPage() {
         return () => {
             ignore = true;
         }
-    }, []); // empty dependencies make it run on page load
+        /**
+         * empty dependencies make it run on page load
+         * but should it be watching mills?
+         * or should it watch searchParameters?
+         */
+    }, [selectedState]); // 
 
     useEffect(() => {
         console.log('state changed!')
