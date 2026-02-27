@@ -60,7 +60,7 @@ export interface MillFiltersProps {
      */
     // onTextSearchChange: (event: Event) => void;
     onStateSelectChange: (event: Event|string) => void;
-    // onCountySelectChange: (event: Event) => void;
+    onCountySelectChange: (event: Event|string) => void;
     // onMillTypesSelectChange: (event: Event) => void;
     // onWoodSpeciesSelectChange: (event: Event) => void;
 }
@@ -69,9 +69,10 @@ export default function MillFilters({...props}: MillFiltersProps) {
 
     const headline = props.headline || 'Mill List';
     const states = props.states;
-    const counties = props.counties;
+    const counties = props.counties || [];
     const millTypes = props.millTypes;
     const woodSpecies = props.woodSpecies;
+    const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
     return (
         <div className="flex w-full flex-row items-stretch max-w-83.75">
@@ -127,6 +128,36 @@ export default function MillFilters({...props}: MillFiltersProps) {
                                             key={state.abbreviation}
                                             value={state.abbreviation}
                                         >{state.name}</SelectItem>
+                                    )}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field>
+                        <FieldLabel 
+                            htmlFor="county"
+                            className="text-white"
+                            >County:</FieldLabel>
+                        <Select 
+                            defaultValue=""
+                            onValueChange={props.onCountySelectChange}
+                            disabled={countiesDisabled}
+                        >
+                            <SelectTrigger id="county"
+                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&>span>svg]:opacity-100"
+                            >
+                                <SelectValue 
+                                    placeholder="Select a county"
+                                    className="bg-beluga! text-velvet"
+                                />
+                            </SelectTrigger>
+                            <SelectContent className="bg-beluga text-velvet">
+                                <SelectGroup className="bg-beluga text-velvet">
+                                    {counties && counties.length > 0 && counties.map(county => 
+                                        <SelectItem 
+                                            key={county.id}
+                                            value={county.id.toString()}
+                                        >{county.name}</SelectItem>
                                     )}
                                 </SelectGroup>
                             </SelectContent>
