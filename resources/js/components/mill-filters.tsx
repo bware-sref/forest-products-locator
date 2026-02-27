@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import {
     type County,
     type MillType,
@@ -13,7 +13,7 @@ import {
 // } from 'react';
 import {
     Field,
-    FieldDescription,
+    // FieldDescription,
     FieldGroup,
     FieldLabel,
 } from "@/components/ui/field";
@@ -36,6 +36,7 @@ import {
 import {
     SearchIcon
 } from 'lucide-react';
+import { FilterSelect } from "@/components/filter-select";
 
 /**
  * MillFilters needs:
@@ -61,8 +62,8 @@ export interface MillFiltersProps {
     // onTextSearchChange: (event: Event) => void;
     onStateSelectChange: (event: Event|string) => void;
     onCountySelectChange: (event: Event|string) => void;
-    // onMillTypesSelectChange: (event: Event) => void;
-    // onWoodSpeciesSelectChange: (event: Event) => void;
+    onMillTypesSelectChange: (event: Event|string) => void;
+    onWoodSpeciesSelectChange: (event: Event|string) => void;
 }
 
 export default function MillFilters({...props}: MillFiltersProps) {
@@ -81,7 +82,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                 {/**
                  * mess
                  */}
-                <FieldGroup>
+                <FieldGroup className="gap-5">
                     {/* text search */}
                     <Field>
                         <FieldLabel className="sr-only" htmlFor="s">Text Search</FieldLabel>
@@ -104,6 +105,9 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             </InputGroupAddon>
                         </InputGroup>
                     </Field>
+                    <div>User location stuff</div>
+                    <div>City, State  ZIP that we need a reverse geocoding service to determine.</div>
+                    {/* state selector */}
                     <Field>
                         <FieldLabel 
                             htmlFor="state"
@@ -114,7 +118,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             onValueChange={props.onStateSelectChange}                            
                         >
                             <SelectTrigger id="state"
-                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet!"
+                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100"
                             >
                                 <SelectValue 
                                     placeholder="Select a state"
@@ -133,6 +137,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             </SelectContent>
                         </Select>
                     </Field>
+                    {/* county selector */}
                     <Field>
                         <FieldLabel 
                             htmlFor="county"
@@ -144,7 +149,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             disabled={countiesDisabled}
                         >
                             <SelectTrigger id="county"
-                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&>span>svg]:opacity-100"
+                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100"
                             >
                                 <SelectValue 
                                     placeholder="Select a county"
@@ -163,6 +168,22 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             </SelectContent>
                         </Select>
                     </Field>
+                    {/** Mill Types */}
+                    <FilterSelect 
+                        id="millTypes"
+                        labelText="Mill Type:"
+                        placeholder="Select a Mill Type..."
+                        options={millTypes}
+                        callback={props.onMillTypesSelectChange}
+                    />
+                    {/** Wood Species */}
+                    <FilterSelect 
+                        id="woodSpecies"
+                        labelText="Wood Species"
+                        placeholder="Select a Wood Species..."
+                        options={woodSpecies}
+                        callback={props.onWoodSpeciesSelectChange}
+                    />
                 </FieldGroup>
                 <div>
                 </div>
