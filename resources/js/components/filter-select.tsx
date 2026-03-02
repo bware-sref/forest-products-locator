@@ -63,7 +63,7 @@ export function FilterSelect<T extends HasNameAndId>({
                 disabled={isDisabled}
             >
                 <SelectTrigger id={id}
-                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100"
+                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100 focus-visible:ring-coupe"
                 >
                     <SelectValue 
                         placeholder={placeholder}
