@@ -124,7 +124,8 @@ export default function MillListPage() {
     }, [selectedState]); // 
 
     useEffect(() => {
-        console.log('state changed!')
+        console.log('state changed!');
+        console.log('this means we need to update the counties, mill types, and wood species');
     }, [selectedState]);
 
     /**
