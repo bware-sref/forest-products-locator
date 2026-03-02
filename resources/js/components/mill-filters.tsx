@@ -86,7 +86,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                     {/* text search */}
                     <Field>
                         <FieldLabel className="sr-only" htmlFor="s">Text Search</FieldLabel>
-                        <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
+                        <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga has-[[data-slot=input-group-control]:focus-visible]:ring-coupe">
                             <InputGroupInput 
                                 id="s"
                                 className="text-velvet dark:text-velvet"
@@ -118,7 +118,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             onValueChange={props.onStateSelectChange}                            
                         >
                             <SelectTrigger id="state"
-                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100"
+                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100 focus-visible:ring-coupe"
                             >
                                 <SelectValue 
                                     placeholder="Select a state"
@@ -149,7 +149,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             disabled={countiesDisabled}
                         >
                             <SelectTrigger id="county"
-                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100"
+                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100 focus-visible:ring-coupe"
                             >
                                 <SelectValue 
                                     placeholder="Select a county"
