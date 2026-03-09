@@ -105,8 +105,8 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             </InputGroupAddon>
                         </InputGroup>
                     </Field>
-                    <div>User location stuff</div>
-                    <div>City, State  ZIP that we need a reverse geocoding service to determine.</div>
+                    <div className="text-beluga"><strong>Filter by Location</strong></div>
+                    <div className="text-beluga">We need a reverse geocoding service to determine City, State ZIP from coordinates.</div>
                     {/* state selector */}
                     <Field>
                         <FieldLabel 
@@ -179,8 +179,8 @@ export default function MillFilters({...props}: MillFiltersProps) {
                     {/** Wood Species */}
                     <FilterSelect 
                         id="woodSpecies"
-                        labelText="Wood Species"
-                        placeholder="Select a Wood Species..."
+                        labelText="Wood Type:"
+                        placeholder="Select a Wood Type..."
                         options={woodSpecies}
                         callback={props.onWoodSpeciesSelectChange}
                     />
