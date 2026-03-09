@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+// use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 /**
  * @property int $id
@@ -56,5 +60,25 @@ class State extends Model
     public function mills(): HasMany
     {
         return $this->hasMany(Mill::class);
+    }
+
+    /**
+     * Simple-ish way to query mill types by State via basic Eloquent.
+     * It still might be more managable to just install the package that adds deep relationships.
+     */
+    public function millTypes(?int $stateId = null): Collection
+    {
+        $stateId ??= $this->id;
+        $millTypes = DB::table('mill_types')
+            ->join('mill_mill_type', 'mill_types.id', '=', 'mill_mill_type.mill_type_id')
+            ->whereIn('mill_mill_type.mill_id', function (Builder $query) use ($stateId) {
+                $query->select('id')
+                    ->from('mills')
+                    ->where('mills.state_id', $stateId);
+            })
+            ->select('mill_types.id', 'mill_types.name')
+            ->distinct()
+            ->get();
+        return $millTypes;
     }
 }
