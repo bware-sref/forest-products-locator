@@ -40,7 +40,7 @@ class MillResourceRequest extends FormRequest
              * state - should we allow full names or just abbreviations?
              * county - most useful when combined with state
              */
-            's' => [
+            'q' => [
                 'sometimes',
                 'nullable',
                 'string',

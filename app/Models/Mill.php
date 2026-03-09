@@ -210,8 +210,8 @@ class Mill extends Model
          */
         $query = Mill::with(['millTypes', 'woodSpecies', 'state', 'county']);
         
-        if (!empty($validated['s'])) {
-            $query->whereLike('mill_name', '%' . $validated['s'] . '%');
+        if (!empty($validated['q'])) {
+            $query->whereLike('mill_name', '%' . $validated['q'] . '%');
         }
 
         if (!empty($validated['millType'])) {

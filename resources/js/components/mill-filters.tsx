@@ -85,10 +85,10 @@ export default function MillFilters({...props}: MillFiltersProps) {
                 <FieldGroup className="gap-5">
                     {/* text search */}
                     <Field>
-                        <FieldLabel className="sr-only" htmlFor="s">Text Search</FieldLabel>
+                        <FieldLabel className="sr-only" htmlFor="q">Text Search</FieldLabel>
                         <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga has-[[data-slot=input-group-control]:focus-visible]:ring-coupe">
                             <InputGroupInput 
-                                id="s"
+                                id="q"
                                 className="text-velvet dark:text-velvet"
                                 placeholder="Search mills..."
                             />
