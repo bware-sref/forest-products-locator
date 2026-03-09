@@ -6,14 +6,8 @@ import {
     type WoodSpecies,
     // type MillFiltersProps,
 } from '@/types';
-// import { 
-//     ChangeEventHandler,
-//     useEffect,
-//     useState,    
-// } from 'react';
 import {
     Field,
-    // FieldDescription,
     FieldGroup,
     FieldLabel,
 } from "@/components/ui/field";
@@ -32,11 +26,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-// import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
     SearchIcon
 } from 'lucide-react';
 import { FilterSelect } from "@/components/filter-select";
+import { ChangeEvent, MouseEventHandler } from 'react';
 
 /**
  * MillFilters needs:
@@ -59,11 +54,14 @@ export interface MillFiltersProps {
     /**
      * Probably need props for selected values of each select box.
      */
-    // onTextSearchChange: (event: Event) => void;
-    onStateSelectChange: (event: Event|string) => void;
-    onCountySelectChange: (event: Event|string) => void;
-    onMillTypesSelectChange: (event: Event|string) => void;
-    onWoodSpeciesSelectChange: (event: Event|string) => void;
+    onTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    onStateSelectChange: (stateId: string) => void;
+    onCountySelectChange: (countyId: string) => void;
+    onMillTypesSelectChange: (millTypeId: string) => void;
+    onWoodSpeciesSelectChange: (woodSpeciesId: string) => void;
+
+    // add to that ClearFilters
+    onClearFiltersClick: MouseEventHandler; //(event: MouseEvent) => void;
 }
 
 export default function MillFilters({...props}: MillFiltersProps) {
@@ -74,6 +72,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const millTypes = props.millTypes;
     const woodSpecies = props.woodSpecies;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
+    
 
     return (
         <div className="flex w-full flex-row items-stretch max-w-83.75">
@@ -91,6 +90,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                                 id="q"
                                 className="text-velvet dark:text-velvet"
                                 placeholder="Search mills..."
+                                onChange={props.onTextSearchChange}
                             />
                             {/* */}
                             <InputGroupAddon align="inline-end">
@@ -184,9 +184,13 @@ export default function MillFilters({...props}: MillFiltersProps) {
                         options={woodSpecies}
                         callback={props.onWoodSpeciesSelectChange}
                     />
-                </FieldGroup>
                 <div>
+                    <Button
+                        onClick={props.onClearFiltersClick}
+                        className="bg-beluga text-coupe hover:text-beluga"
+                    >Clear Filters</Button>
                 </div>
+                </FieldGroup>
             </div>                            
         </div>
 
