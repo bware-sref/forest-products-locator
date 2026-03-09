@@ -34,7 +34,7 @@ export interface FilterSelectProps<T extends HasNameAndId> {
     optionKeyKey?: string;
     optionValueKey?: string;
     optionTextKey?: string;
-    callback?: (event: Event|string) => void;
+    callback?: (value: string) => void;
     [key: string]: unknown; // allow for additional props
 }
 
