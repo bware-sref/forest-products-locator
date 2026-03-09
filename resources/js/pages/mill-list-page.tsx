@@ -11,13 +11,20 @@ import {
     usePage,
 } from '@inertiajs/react';
 import { 
+    ChangeEvent,
+    MouseEventHandler,
+    useCallback,
     useEffect,
-    useState,    
+    useState,
+    // useMemo,
 } from 'react';
 
 import { fetchMills } from "@/lib/api"
 import MillFilters from '@/components/mill-filters';
 import MillList from '@/components/mill-list';
+// custom hook to prevent firing events too frequently
+import useDebounce from '@/lib/useDebounce';
+
 
 
 /**
@@ -26,6 +33,14 @@ import MillList from '@/components/mill-list';
  */
 type CountiesByState = Record<string, County[]>;
 
+/**
+ * Two, no Three things:
+ * 1) update the State selector to use state.id instead of state.abbreviation
+ * 2) update this method to key counties by state.id instead of state.abbreviation
+ * 3) update API search to use state.id instead of state.abbreviation
+ * @param states 
+ * @returns 
+ */
 const getCountiesByState = function (states: State[]) {
     const countiesByState: CountiesByState = {};
     for (const state of states) {
@@ -60,6 +75,7 @@ export default function MillListPage() {
 
     const countiesByState: CountiesByState = getCountiesByState(page.props.states);    
 
+    const [textSearch, setTextSearch] = useState<string>('');
     const [selectedState, setSelectedState] = useState<State|null>(null);
     const [counties, setCounties] = useState<County[]>([]);
     const [selectedCounty, setSelectedCounty] = useState<County|null>(null);
@@ -68,6 +84,20 @@ export default function MillListPage() {
 
     const [mills, setMills] = useState<Mill[]>([]);
     const [searchParams, setSearchParams] = useState<Object>({});
+
+    const handleTextSearchChange = function (event: ChangeEvent<HTMLInputElement>) {
+        console.log(`textSearchChange event! value: ${event.target.value}`);
+        debouncedTextSearch();
+        setTextSearch(event.target.value);
+    }
+
+    const textSearchCallback = useCallback(() => {
+        console.log(`(debounced?) textSearchCallback textSearch: ${textSearch}`);
+    }, [textSearch]);
+
+    // debounce text input changes to prevent excess API calls
+    // actually, if there's a search button, we shouldn't search immediately when form element values change...
+    const debouncedTextSearch = useDebounce(textSearchCallback, 500);
 
     const handleStateSelectChange = function (stateAbbreviation: Event|string) {
         setSearchParams({state: stateAbbreviation});
@@ -83,9 +113,13 @@ export default function MillListPage() {
         };
     }
 
-    const handleCountySelectChange = function (countyId: Event|string) {
+    const handleCountySelectChange = function (countyId: string) {
+        
         console.log('in handleCountySelectChange...', countyId);
-        // setSelectedCounty(countyId)
+        console.log('need to look up the County in the list of counties by state...or just in the list of counties...');
+        // or just in the list of counties...
+        const county = counties.find((c) => c.id == parseInt(countyId)) || null;
+        setSelectedCounty(county);
     }
 
     const handleMillTypeSelectChange = function (millTypeId: Event|string) {
@@ -94,6 +128,19 @@ export default function MillListPage() {
 
     const handleWoodSpeciesSelectChange = function (woodSpeciesId: Event|string) {
         console.log('in handleWoodSpeciesSelectChange', woodSpeciesId);
+    }
+
+    /**
+     * It's possible this should only exist within the component.
+     * @param event 
+     */
+    const handleClearFiltersClick: MouseEventHandler<HTMLButtonElement> = function (event) {
+        console.log('Clear Filters clicked!', event);
+        setTextSearch('');
+        setSelectedState(null);
+        setSelectedCounty(null);
+        setSelectedMillType(null);
+        setSelectedWoodSpecies(null);
     }
 
     /**
@@ -150,10 +197,12 @@ export default function MillListPage() {
                         counties={counties}
                         millTypes={page.props.millTypes}
                         woodSpecies={page.props.woodSpecies}
+                        onTextSearchChange={handleTextSearchChange}
                         onStateSelectChange={handleStateSelectChange}
                         onCountySelectChange={handleCountySelectChange}
                         onMillTypesSelectChange={handleMillTypeSelectChange}
                         onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
+                        onClearFiltersClick={handleClearFiltersClick}
                     />
                     {/**
                      * Mill List
