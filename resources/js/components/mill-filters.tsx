@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import {
-    SearchIcon
+    SearchIcon,
+    TextSearch
 } from 'lucide-react';
 import { FilterSelect } from "@/components/filter-select";
 import { ChangeEvent, MouseEventHandler } from 'react';
@@ -47,6 +48,7 @@ import { ChangeEvent, MouseEventHandler } from 'react';
  */
 export interface MillFiltersProps {
     headline?: string;
+    textSearch?: string;
     states: State[];
     counties?: County[];
     millTypes?: MillType[];
@@ -72,7 +74,23 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const millTypes = props.millTypes;
     const woodSpecies = props.woodSpecies;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
-    
+    const formElementIds = [
+        'q',
+        'state',
+        'county',
+        'millTypes',
+        'woodSpecies',
+    ];
+
+    const clearFilters = () => {
+        formElementIds.forEach((id) => {
+            const el = document.getElementById(id) as HTMLInputElement;
+            if (el) {
+                el.value = '';
+            }
+        })
+
+    };
 
     return (
         <div className="flex w-full flex-row items-stretch max-w-83.75">
@@ -90,6 +108,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                                 id="q"
                                 className="text-velvet dark:text-velvet"
                                 placeholder="Search mills..."
+                                value={props.textSearch || ''}
                                 onChange={props.onTextSearchChange}
                             />
                             {/* */}
@@ -105,8 +124,10 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             </InputGroupAddon>
                         </InputGroup>
                     </Field>
+                    {/* 
                     <div className="text-beluga"><strong>Filter by Location</strong></div>
                     <div className="text-beluga">We need a reverse geocoding service to determine City, State ZIP from coordinates.</div>
+                    */}
                     {/* state selector */}
                     <Field>
                         <FieldLabel 

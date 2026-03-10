@@ -192,7 +192,8 @@ export default function MillListPage() {
                     {/**
                      * Mill Filters
                      */}
-                    <MillFilters 
+                    <MillFilters
+                        textSearch={textSearch}
                         states={states}
                         counties={counties}
                         millTypes={page.props.millTypes}
