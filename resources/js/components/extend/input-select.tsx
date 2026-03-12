@@ -166,6 +166,7 @@ export const InputSelectTrigger = React.forwardRef<
     className?: string;
     children?: (v: SelectOption) => React.ReactNode;
     style?: React.CSSProperties;
+    id?: string;
   }
 >(
   (
@@ -184,6 +185,7 @@ export const InputSelectTrigger = React.forwardRef<
       className,
       style,
       children,
+      id,
     },
     ref,
   ) => {
@@ -205,6 +207,7 @@ export const InputSelectTrigger = React.forwardRef<
           className,
         )}
         style={style}
+        {...(id ? {id: id}: {})}
       >
         {selectedValue ? (
           <div className="flex items-center justify-between w-full">
