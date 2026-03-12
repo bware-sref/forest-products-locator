@@ -116,3 +116,16 @@ export interface County {
     state?: State;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+/**
+ * For shadcn-components-extend InputSelect
+ */
+import { Dispatch, SetStateAction } from "react";
+
+export type SetState<T> = Dispatch<SetStateAction<T>>;
+
+export type SelectOption = {
+  value: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+};
