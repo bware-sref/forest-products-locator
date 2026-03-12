@@ -100,6 +100,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
     return (
         <div className="flex w-full flex-row items-stretch max-w-83.75">
             <div className="grid gap-1 bg-nature p-8 w-full">
+                {/** This should perhaps be an h1 */}
                 <h2 className="text-xl font-bold text-beluga pb-2">{headline}</h2>
                 {/**
                  * mess
@@ -141,6 +142,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                     And MF!, the damn thing doesn't accept an id attribute...
                     Nor does it even use actual form elements (except for the search input and button trigger)...
                     */}
+                    {/* state selector */}
                     <Field>
                         <FieldLabel 
                             htmlFor="state"
@@ -162,40 +164,32 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             }
                         </InputSelect>
                     </Field>
-                    {/* state selector */}
-                    {/*
+
+                    {/** new-fangled county */}
                     <Field>
                         <FieldLabel 
-                            htmlFor="state"
+                            htmlFor="county"
                             className="text-white"
-                            >State:</FieldLabel>
-                        <Select 
-                            defaultValue=""
-                            onValueChange={props.onStateSelectChange}                            
+                            >County:</FieldLabel>
+                        <InputSelect
+                            options={counties as SelectOption[]}
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            onValueChange={props.onCountySelectChange}
+                            placeholder="Select a county..."
+                            disabled={countiesDisabled}
                         >
-                            <SelectTrigger id="state"
-                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100 focus-visible:ring-coupe"
-                            >
-                                <SelectValue 
-                                    placeholder="Select a state"
-                                    className="bg-beluga! text-velvet"
+                            {(provided) => (
+                                <InputSelectTrigger 
+                                    {...provided}
+                                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9"
+                                    id="county"
                                 />
-                            </SelectTrigger>
-                            <SelectContent className="bg-beluga text-velvet">
-                                <SelectGroup className="bg-beluga text-velvet">
-                                    {states.length > 0 && states.map(state => 
-                                        <SelectItem 
-                                            key={state.abbreviation}
-                                            value={state.abbreviation}
-                                        >{state.name}</SelectItem>
-                                    )}
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                            )                                
+                            }
+                        </InputSelect>
                     </Field>
-                    */}
                     {/* county selector */}
-                    <Field>
+                    {/* <Field>
                         <FieldLabel 
                             htmlFor="county"
                             className="text-white"
@@ -224,7 +218,8 @@ export default function MillFilters({...props}: MillFiltersProps) {
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
-                    </Field>
+                    </Field> */}
+
                     {/** Mill Types */}
                     <FilterSelect 
                         id="millTypes"
