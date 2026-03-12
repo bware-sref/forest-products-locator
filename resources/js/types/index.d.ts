@@ -81,7 +81,9 @@ export interface Mill {
 export interface MillType {
     id: number;
     name: string;
-    mills?: Mill[];   
+    mills?: Mill[];
+    value?: string;
+    label?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
@@ -89,6 +91,8 @@ export interface WoodSpecies {
     id: number;
     name: string;
     mills?: Mill[];
+    value?: string;
+    label?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
@@ -116,6 +120,8 @@ export interface County {
     fips_code?: string; // string to allow for leading zeros
     gnis_code?: string; // string to allow for leading zeros
     state?: State;
+    value?: string;
+    label?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
