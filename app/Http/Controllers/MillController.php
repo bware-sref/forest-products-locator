@@ -47,7 +47,9 @@ class MillController extends Controller
                     $query->select('id', 'name', 'state_id')
                         ->has('mills')
                         ->orderBy('name', 'asc');
-            }])->get(['id', 'name', 'abbreviation'])->toArray()),
+            }])->get(['id', 'name', 'abbreviation'])
+                ->append(['value', 'label'])
+                ->toArray()),
             // 'counties' => Inertia::once(fn() => County::has('mills')->get()->load('state')->toArray()),
             'millTypes' => Inertia::once(fn() => MillType::get(['id', 'name'])->toArray()),
             'woodSpecies' => Inertia::once(fn() => WoodSpecies::get(['id', 'name'])->toArray()),
