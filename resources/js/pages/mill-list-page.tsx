@@ -45,7 +45,8 @@ const getCountiesByState = function (states: State[]) {
     const countiesByState: CountiesByState = {};
     for (const state of states) {
         if (typeof state.counties !== undefined) {
-            countiesByState[state.abbreviation] = state.counties || [];
+            // key by state.id instead of state.abbreviation because stuff
+            countiesByState[state.id] = state.counties || [];
         }
     }
     return countiesByState;
@@ -70,7 +71,9 @@ export default function MillListPage() {
     const states: State[] = page.props.states.map((state) => ({
         id: state.id,
         name: state.name,
-        abbreviation: state.abbreviation
+        abbreviation: state.abbreviation,
+        value: String(state.id),
+        label: state.name,
     }));
 
     const countiesByState: CountiesByState = getCountiesByState(page.props.states);    
@@ -99,10 +102,13 @@ export default function MillListPage() {
     // actually, if there's a search button, we shouldn't search immediately when form element values change...
     const debouncedTextSearch = useDebounce(textSearchCallback, 500);
 
+    // update to use state.id instead of state.abbreviation
+    // also need to update the API and Request to accept the state ID instead
     const handleStateSelectChange = function (stateAbbreviation: Event|string) {
         setSearchParams({state: stateAbbreviation});
         for (const state of states) {
-            if (state.abbreviation === stateAbbreviation) {
+            // if (state.abbreviation === stateAbbreviation) {
+            if (String(state.id) === stateAbbreviation) {
                 setSelectedState(state);
                 setCounties(countiesByState[stateAbbreviation]);
                 /**
