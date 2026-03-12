@@ -65,8 +65,15 @@
     --sidebar-border: var(--color-beluga); */
 
     /** this is where we actually set the theme colors using the values defined above. */
-    --color-background: var(--color-nature); /* var(--background); */
-    --color-foreground: var(--color-beluga); /* var(--foreground); */
+    /**
+     * we need to swap these I think...
+     */
+    /* --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-background: var(--color-nature);
+    --color-foreground: var(--color-beluga); */
+    --color-background: var(--color-beluga);
+    --color-foreground: var(--color-velvet);
 
     --color-card: var(--color-beluga); /* var(--card); */
     --color-card-foreground: var(--color-black); /*var(--card-foreground);*/
