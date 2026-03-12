@@ -41,7 +41,7 @@ export default function MillList({mills, children, ...props}: MillListProps) {
     return (
         <div className="flex flex-row w-83.75 max-w-83.75">
             <ul className="flex flex-col justify-evenly items-stretch gap-1">                            
-                {(mills.length > 0) ? mills.map(mill => 
+                {(mills && mills.length > 0) ? mills.map(mill => 
                     <li className="bg-beluga text-black p-8 " key={mill.match_id}>
                         <h2 className="font-extrabold text-velvet text-lg">
                             <Link 
