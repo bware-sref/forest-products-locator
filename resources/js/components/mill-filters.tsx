@@ -4,6 +4,7 @@ import {
     type MillType,
     type State,
     type WoodSpecies,
+    type SelectOption,
     // type MillFiltersProps,
 } from '@/types';
 import {
@@ -33,6 +34,10 @@ import {
 } from 'lucide-react';
 import { FilterSelect } from "@/components/filter-select";
 import { ChangeEvent, MouseEventHandler } from 'react';
+import {
+    InputSelect,
+    InputSelectTrigger,
+} from "@/components/extend/input-select";
 
 /**
  * MillFilters needs:
@@ -128,7 +133,37 @@ export default function MillFilters({...props}: MillFiltersProps) {
                     <div className="text-beluga"><strong>Filter by Location</strong></div>
                     <div className="text-beluga">We need a reverse geocoding service to determine City, State ZIP from coordinates.</div>
                     */}
+                    {/* 
+                    new-fangled state selector
+                    except it requires a specific structure for its options...
+                    value: string
+                    label: string
+                    And MF!, the damn thing doesn't accept an id attribute...
+                    Nor does it even use actual form elements (except for the search input and button trigger)...
+                    */}
+                    <Field>
+                        <FieldLabel 
+                            htmlFor="state"
+                            className="text-white"
+                            >State:</FieldLabel>
+                        <InputSelect
+                            options={states as SelectOption[]}
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            onValueChange={props.onStateSelectChange}
+                            placeholder="Select a state..."
+                        >
+                            {(provided) => (
+                                <InputSelectTrigger 
+                                    {...provided}
+                                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9"
+                                    id="state"
+                                />
+                            )                                
+                            }
+                        </InputSelect>
+                    </Field>
                     {/* state selector */}
+                    {/*
                     <Field>
                         <FieldLabel 
                             htmlFor="state"
@@ -158,6 +193,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             </SelectContent>
                         </Select>
                     </Field>
+                    */}
                     {/* county selector */}
                     <Field>
                         <FieldLabel 
