@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -49,6 +49,27 @@ class State extends Model
         'longitude',
         'polygon',
     ];
+
+
+    /**
+     * add attributes to facilitate use with option values
+     */
+    protected $appends = ['value', 'label'];
+
+    protected function value(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->id,
+        );
+    }
+
+    protected function label(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->name,
+        );
+    }
+
 
     // hasMany Counties
     public function counties(): HasMany
