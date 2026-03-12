@@ -72,8 +72,8 @@ export default function MillListPage() {
         id: state.id,
         name: state.name,
         abbreviation: state.abbreviation,
-        value: String(state.id),
-        label: state.name,
+        value: state.value || String(state.id),
+        label: state.label || state.name,
     }));
 
     const countiesByState: CountiesByState = getCountiesByState(page.props.states);    
@@ -104,13 +104,15 @@ export default function MillListPage() {
 
     // update to use state.id instead of state.abbreviation
     // also need to update the API and Request to accept the state ID instead
-    const handleStateSelectChange = function (stateAbbreviation: Event|string) {
-        setSearchParams({state: stateAbbreviation});
+    const handleStateSelectChange = function (optionValue: Event|string) {
+        // searchParams should only be set if we find the state, no?
+        setSearchParams({state: optionValue});
         for (const state of states) {
             // if (state.abbreviation === stateAbbreviation) {
-            if (String(state.id) === stateAbbreviation) {
+            // if (String(state.id) === stateAbbreviation) {
+            if (state.value === optionValue) {
                 setSelectedState(state);
-                setCounties(countiesByState[stateAbbreviation]);
+                setCounties(countiesByState[optionValue]);
                 /**
                  * do we need to update the millTypes and WoodSpecies?
                  */
