@@ -100,6 +100,8 @@ export interface State {
     longitude?: string;
     counties?: County[];
     mills?: Mill[];
+    value?: string;
+    label?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
@@ -128,4 +130,5 @@ export type SelectOption = {
   value: string;
   label: string;
   icon?: React.ComponentType<{ className?: string }>;
+  [key: string]: unknown; // allow for additional properties
 };
