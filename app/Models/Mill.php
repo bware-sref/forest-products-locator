@@ -228,7 +228,9 @@ class Mill extends Model
 
         if (!empty($validated['state'])) {
             $query->whereHas('state', function (Builder $query) use ($validated) {
-                $query->where('abbreviation', $validated['state']);
+                // update to use id instead of abbreviation
+                // $query->where('abbreviation', $validated['state']);
+                $query->where('id', $validated['state']);
             });
         }
 

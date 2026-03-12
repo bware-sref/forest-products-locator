@@ -69,7 +69,9 @@ class MillResourceRequest extends FormRequest
             'state' => [
                 'sometimes',
                 'nullable',
-                Rule::exists('states','abbreviation'),
+                // update to use id instead of abbreviation
+                // Rule::exists('states','abbreviation'),
+                Rule::exists('states','id'),
             ],
             'county' => [
                 'sometimes',
