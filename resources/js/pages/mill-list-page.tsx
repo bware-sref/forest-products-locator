@@ -86,7 +86,7 @@ export default function MillListPage() {
     const [selectedWoodSpecies, setSelectedWoodSpecies] = useState<WoodSpecies|null>(null);
 
     const [mills, setMills] = useState<Mill[]>([]);
-    const [searchParams, setSearchParams] = useState<Object>({});
+    const [searchParams, setSearchParams] = useState<object>({});
 
     const handleTextSearchChange = function (event: ChangeEvent<HTMLInputElement>) {
         console.log(`textSearchChange event! value: ${event.target.value}`);
