@@ -102,4 +102,24 @@ class State extends Model
             ->get();
         return $millTypes;
     }
+
+
+    /**
+     * Simple-ish way to query woodSpecies by State via Eloquent.
+     */
+    public function woodSpecies(?int $stateId = null): Collection
+    {
+        $stateId ??= $this->id;
+        $woodSpecies = DB::table('wood_species')
+            ->join('mill_wood_species', 'wood_species.id', '=', 'mill_wood_species.wood_species_id')
+            ->whereIn('mill_wood_species.mill_id', function (Builder $query) use ($stateId) {
+                $query->select('id')
+                    ->from('mills')
+                    ->where('mills.state_id', $stateId);
+            })
+            ->select('wood_species.id', 'wood_species.name')
+            ->distinct()
+            ->get();
+        return $woodSpecies;
+    }
 }
