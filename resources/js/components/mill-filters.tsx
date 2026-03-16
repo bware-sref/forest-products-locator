@@ -18,21 +18,21 @@ import {
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    // SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+// import {
+//     Select,
+//     SelectContent,
+//     SelectGroup,
+//     SelectItem,
+//     SelectLabel,
+//     SelectTrigger,
+//     SelectValue,
+// } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import {
     SearchIcon,
-    TextSearch
+    // TextSearch
 } from 'lucide-react';
-import { FilterSelect } from "@/components/filter-select";
+// import { FilterSelect } from "@/components/filter-select";
 import { ChangeEvent, MouseEventHandler } from 'react';
 import {
     InputSelect,
@@ -79,23 +79,23 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const millTypes = props.millTypes;
     const woodSpecies = props.woodSpecies;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
-    const formElementIds = [
-        'q',
-        'state',
-        'county',
-        'millTypes',
-        'woodSpecies',
-    ];
+    // const formElementIds = [
+    //     'q',
+    //     'state',
+    //     'county',
+    //     'millType',
+    //     'woodSpecies',
+    // ];
 
-    const clearFilters = () => {
-        formElementIds.forEach((id) => {
-            const el = document.getElementById(id) as HTMLInputElement;
-            if (el) {
-                el.value = '';
-            }
-        })
+    // const clearFilters = () => {
+    //     formElementIds.forEach((id) => {
+    //         const el = document.getElementById(id) as HTMLInputElement;
+    //         if (el) {
+    //             el.value = '';
+    //         }
+    //     })
 
-    };
+    // };
 
     return (
         <div className="flex w-full flex-row items-stretch max-w-83.75">

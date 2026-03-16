@@ -1,17 +1,17 @@
 import { 
-    type County,
+    // type County,
     type Mill,
-    type MillType,
-    type State,
-    type WoodSpecies,
+    // type MillType,
+    // type State,
+    // type WoodSpecies,
 } from '@/types';
 import { 
     Link,
 } from '@inertiajs/react';
 import { 
     ReactNode,
-    useEffect,
-    useState,    
+    // useEffect,
+    // useState,    
 } from 'react';
 
 // import { Button } from '@/components/ui/button';
