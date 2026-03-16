@@ -115,6 +115,7 @@ export default function MillListPage() {
                 setCounties(countiesByState[optionValue]);
                 /**
                  * do we need to update the millTypes and WoodSpecies?
+                 * Only if we have millTypes and woodSpecies available by state.
                  */
                 break;
             }
