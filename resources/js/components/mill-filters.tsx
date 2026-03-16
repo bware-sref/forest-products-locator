@@ -160,12 +160,11 @@ export default function MillFilters({...props}: MillFiltersProps) {
                                     className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9"
                                     id="state"
                                 />
-                            )                                
-                            }
+                            )}
                         </InputSelect>
                     </Field>
 
-                    {/** new-fangled county */}
+                    {/* county selector */}
                     <Field>
                         <FieldLabel 
                             htmlFor="county"
@@ -184,64 +183,60 @@ export default function MillFilters({...props}: MillFiltersProps) {
                                     className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9"
                                     id="county"
                                 />
-                            )                                
-                            }
+                            )}
                         </InputSelect>
                     </Field>
-                    {/* county selector */}
-                    {/* <Field>
-                        <FieldLabel 
-                            htmlFor="county"
-                            className="text-white"
-                            >County:</FieldLabel>
-                        <Select 
-                            defaultValue=""
-                            onValueChange={props.onCountySelectChange}
-                            disabled={countiesDisabled}
-                        >
-                            <SelectTrigger id="county"
-                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet [&_svg:not([class*='text-'])]:text-velvet! [&_svg]:opacity-100 focus-visible:ring-coupe"
-                            >
-                                <SelectValue 
-                                    placeholder="Select a county"
-                                    className="bg-beluga! text-velvet"
-                                />
-                            </SelectTrigger>
-                            <SelectContent className="bg-beluga text-velvet">
-                                <SelectGroup className="bg-beluga text-velvet">
-                                    {counties && counties.length > 0 && counties.map(county => 
-                                        <SelectItem 
-                                            key={county.id}
-                                            value={county.id.toString()}
-                                        >{county.name}</SelectItem>
-                                    )}
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </Field> */}
 
-                    {/** Mill Types */}
-                    <FilterSelect 
-                        id="millTypes"
-                        labelText="Mill Type:"
-                        placeholder="Select a Mill Type..."
-                        options={millTypes}
-                        callback={props.onMillTypesSelectChange}
-                    />
+                    {/** Mill Type */}
+                    <Field>
+                        <FieldLabel 
+                            htmlFor="millType"
+                            className="text-white"
+                            >Mill Type:</FieldLabel>
+                        <InputSelect
+                            options={millTypes as SelectOption[]}
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            onValueChange={props.onMillTypesSelectChange}
+                            placeholder="Select a mill type..."
+                        >
+                            {(provided) => (
+                                <InputSelectTrigger 
+                                    {...provided}
+                                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9"
+                                    id="millType"
+                                />
+                            )}
+                        </InputSelect>
+                    </Field>
+
                     {/** Wood Species */}
-                    <FilterSelect 
-                        id="woodSpecies"
-                        labelText="Wood Type:"
-                        placeholder="Select a Wood Type..."
-                        options={woodSpecies}
-                        callback={props.onWoodSpeciesSelectChange}
-                    />
-                <div>
-                    <Button
-                        onClick={props.onClearFiltersClick}
-                        className="bg-beluga text-coupe hover:text-beluga"
-                    >Clear Filters</Button>
-                </div>
+                    <Field>
+                        <FieldLabel 
+                            htmlFor="woodSpecies"
+                            className="text-white"
+                            >Wood Type:</FieldLabel>
+                        <InputSelect
+                            options={woodSpecies as SelectOption[]}
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            onValueChange={props.onWoodSpeciesSelectChange}
+                            placeholder="Select a wood type..."
+                        >
+                            {(provided) => (
+                                <InputSelectTrigger 
+                                    {...provided}
+                                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9"
+                                    id="woodSpecies"
+                                />
+                            )}
+                        </InputSelect>
+                    </Field>
+
+                    <div>
+                        <Button
+                            onClick={props.onClearFiltersClick}
+                            className="bg-beluga text-coupe hover:text-beluga"
+                        >Clear Filters</Button>
+                    </div>
                 </FieldGroup>
             </div>                            
         </div>
