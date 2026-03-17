@@ -44,7 +44,7 @@ type CountiesByState = Record<string, County[]>;
 const getCountiesByState = function (states: State[]) {
     const countiesByState: CountiesByState = {};
     for (const state of states) {
-        if (typeof state.counties !== undefined) {
+        if (typeof state.counties !== 'undefined') {
             // key by state.id instead of state.abbreviation because stuff
             countiesByState[state.id] = state.counties || [];
         }
@@ -128,15 +128,27 @@ export default function MillListPage() {
         console.log('need to look up the County in the list of counties by state...or just in the list of counties...');
         // or just in the list of counties...
         const county = counties.find((c) => c.id == parseInt(countyId)) || null;
-        setSelectedCounty(county);
+        if (county !== selectedCounty) {
+            setSelectedCounty(county);
+        }
     }
 
-    const handleMillTypeSelectChange = function (millTypeId: Event|string) {
+    const handleMillTypeSelectChange = function (millTypeId: string) {
         console.log('in handleMillTypeSelectChange...', millTypeId);
+        const millType = page.props.millTypes ? 
+            (page.props.millTypes.find((mt) => mt.id == parseInt(millTypeId)) || null) : null;
+        if (millType !== selectedMillType) {
+            setSelectedMillType(millType);
+        }
     }
 
-    const handleWoodSpeciesSelectChange = function (woodSpeciesId: Event|string) {
-        console.log('in handleWoodSpeciesSelectChange', woodSpeciesId);
+    const handleWoodSpeciesSelectChange = function (woodSpeciesId: string) {
+        console.log('in handleWoodSpeciesSelectChange: ', woodSpeciesId);
+        const woodSpecies = page.props.woodSpecies ? 
+            (page.props.woodSpecies.find((w) => w.id == parseInt(woodSpeciesId)) || null) : null;
+        if (woodSpecies !== selectedWoodSpecies) {
+            setSelectedWoodSpecies(woodSpecies);
+        }
     }
 
     /**
@@ -177,7 +189,7 @@ export default function MillListPage() {
          * or should it watch searchParameters?
          * or waiting for a form submission?
          */
-    }, [selectedState]); // 
+    }, [selectedState]);
 
     useEffect(() => {
         console.log('state changed!');
