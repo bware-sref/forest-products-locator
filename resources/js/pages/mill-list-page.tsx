@@ -95,13 +95,20 @@ export default function MillListPage() {
      * @param event 
      */
     const handleTextSearchChange = function (event: ChangeEvent<HTMLInputElement>) {
-        console.log(`textSearchChange event! value: ${event.target.value}`);
+        // console.log(`textSearchChange event! value: ${event.target.value}`);
         debouncedTextSearch();
         setSearchText(event.target.value);
     }
 
     const textSearchCallback = useCallback(() => {
-        console.log(`(debounced?) textSearchCallback textSearch: ${searchText}`);
+        // console.log(`(debounced?) textSearchCallback textSearch: ${searchText}`);
+        const newParams = buildSearchParams({
+            q: searchText,
+        });
+        if ('' == searchText && newParams.q) {
+            delete newParams.q;
+        }
+        setSearchParams(newParams);
     }, [searchText]);
 
     // debounce text input changes to prevent excess API calls
