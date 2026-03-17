@@ -76,7 +76,9 @@ class MillResourceRequest extends FormRequest
             'county' => [
                 'sometimes',
                 'nullable',
-                'exists:counties,name',
+                // update to use id instead of name?
+                // 'exists:counties,name',
+                Rule::exists('counties', 'id'),
             ],
         ];
     }
