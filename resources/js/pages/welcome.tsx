@@ -53,7 +53,7 @@ export default function Welcome() {
                 alt="Lumber"
                 pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
             >
-                <div className="flex flex-col gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe Xbg-red-500/30">
+                <div className="flex flex-col gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
                     <h1 className="text-5xl font-bold my-6">
                         Welcome to the Primary Forest Products Locator
                     </h1>
