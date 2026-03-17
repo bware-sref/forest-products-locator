@@ -25,6 +25,7 @@ import MillFilters from '@/components/mill-filters';
 import MillList from '@/components/mill-list';
 // custom hook to prevent firing events too frequently
 import useDebounce from '@/lib/useDebounce';
+import { unset } from 'lodash-es';
 
 /**
  * type for mapping counties by state
@@ -114,11 +115,30 @@ export default function MillListPage() {
         // searchParams should only be set if we find the state, no?
         // Setting searchParams becomes the thing that triggers the API call.
         // also, we should only setSearchParams if we find the state value and the state value is different.
+        // or, if state is cleared!
         if (selectedState && selectedState.value == optionValue) {
             console.log('selectedState has not changed...', {selectedState, optionValue});
             return;
         }
 
+        if ('' == optionValue) {
+            console.log('clearing selectedState: ', {optionValue});
+            setSelectedState(null);
+            setCounties([]);
+            const newParams = {
+                state: '', //null,
+                county: '', //null,
+            };
+            console.log('attempting to build params from ', {newParams});
+            console.log('that is weird. newParams has county');
+            // I wonder if we build new params and then unset the fields we want to clear before passing on the setSearchParams()
+            // probably doing extra re-renders
+            const sp = buildSearchParams(newParams);
+            unset(sp, 'state');
+            unset(sp, 'county');
+            setSearchParams(sp);
+            return;
+        }
         // pretty sure that removing setSearchParams is going to cause the mill list to stop updating...
         // yep, good guess.
         // setSearchParams({state: optionValue});
@@ -127,10 +147,15 @@ export default function MillListPage() {
             if (state.value === optionValue) {
                 setSelectedState(state);
                 setCounties(countiesByState[optionValue]);
+                // update searchParams without using useEffect!
+                setSearchParams(buildSearchParams({
+                    state: optionValue,
+                }));
                 /**
                  * do we need to update the millTypes and WoodSpecies?
                  * Only if we have millTypes and woodSpecies available by state.
                  */
+                // note that selectedState will still have the previous state at this point.
                 console.log('selectedState!', selectedState);
                 break;
             }
@@ -149,6 +174,10 @@ export default function MillListPage() {
         if (county !== selectedCounty) {
             console.log('county !== selectedCounty, updating: ', {county, selectedCounty});
             setSelectedCounty(county);
+            // update searchParams without using useEffect!
+            setSearchParams(buildSearchParams({
+                county: countyId,
+            }));
         }
     }
 
@@ -163,6 +192,10 @@ export default function MillListPage() {
         if (millType !== selectedMillType) {
             console.log('millType changed!', {millType, selectedMillType});
             setSelectedMillType(millType);
+            // update searchParams without using useEffect!
+            setSearchParams(buildSearchParams({
+                millType: millTypeId,
+            }));
         }
     }
 
@@ -177,6 +210,10 @@ export default function MillListPage() {
         if (woodSpecies !== selectedWoodSpecies) {
             console.log('woodSpecies changed!', {woodSpecies, selectedWoodSpecies});
             setSelectedWoodSpecies(woodSpecies);
+            // update searchParams without using useEffect!
+            setSearchParams(buildSearchParams({
+                woodSpecies: woodSpeciesId,
+            }));
         }
     }
 
@@ -192,6 +229,61 @@ export default function MillListPage() {
         setSelectedMillType(null);
         setSelectedWoodSpecies(null);
     }
+
+    /**
+     * generic handler for onClearAllOptions
+     */
+    const handleClearAllOptions = () => {
+        console.log('handling clearAllOptions...');
+    };
+
+
+    /**
+     * Collect input values and assemble into a SearchParams object.
+     * Hmm...when this gets invoked, the respective selected<T> values haven't been updated.
+     * Or at least the most recently updated hasn't been.
+     * I guess we need to pass the most recently updated value to this method?
+     * @param p
+     * @returns SearchParams
+     */
+    const buildSearchParams = function(p?: SearchParams): SearchParams {
+        // const params: SearchParams = {};
+        // intialize in case no params
+        const params: SearchParams = p || {};
+
+        console.log('buildingSearchParams...', {
+            p,
+            params,
+            searchParams,
+            searchText,
+            selectedState,
+            selectedCounty,
+            selectedMillType,
+            selectedWoodSpecies
+        });
+
+        // need to check existence of state variable and state variable value before assigning
+        // also, we now need to check if this value was passed via params
+        if (!params.state && selectedState && selectedState.value) {
+            params.state = selectedState.value;
+        }
+        if (!params.county && selectedCounty && selectedCounty.value) {
+            params.county = selectedCounty.value;
+        }
+        if (!params.millType && selectedMillType && selectedMillType.value) {
+            params.millType = selectedMillType.value;
+        }
+        if (!params.woodSpecies && selectedWoodSpecies && selectedWoodSpecies.value) {
+            params.woodSpecies = selectedWoodSpecies.value;
+        }
+        // oh right, searchText is the odd ball WRT having a value member
+        if (searchText) {
+            params.q = searchText;
+        }
+        console.log('built search params: ', params);
+        return params;
+    }
+
 
     /**
      * Here's where we fetch the mill data on page load!
@@ -227,52 +319,55 @@ export default function MillListPage() {
     }, [page.props.millsApiUrl, searchParams]);
 
     // make this effect depend on all the selected input values
-    // q -> searchText
-    useEffect(() => {
-        // just add all the values to searchParams and see what happens
-        // empty result happens
-        // we may need to check differences between current searchParams and the dependent values
-        console.log('when usingEffect to try to fetch mills...', {
-            searchParams,
-            searchText,
-            selectedState,
-            selectedCounty,
-            selectedMillType,
-            selectedWoodSpecies
-        });
-        const params: SearchParams = {};
-        // selectedValue, searchParamKey
-        // need to check existence of state variable, state variable value and searchParams.key
-        // before comparing to searchParams.
-        // do we even care if they're different from the searchParams values (if any)?
-        // probably not, but let's do overkill first
-        if (selectedState && selectedState.value) {// && searchParams.state && selectedState.value !== searchParams.state) {
-            params.state = selectedState.value;
-        }
-        if (selectedCounty && selectedCounty.value) { // && selectedCounty.value !== searchParams.county) {
-            params.county = selectedCounty.value;
-        }
-        if (selectedMillType && selectedMillType.value) {
-            params.millType = selectedMillType.value;
-        }
-        if (selectedWoodSpecies && selectedWoodSpecies.value) {
-            params.woodSpecies = selectedWoodSpecies.value;
-        }
-        // oh right, searchText is the odd ball WRT having a value member
-        if (searchText) {
-            params.q = searchText;
-        }
-        console.log('setting search params: ', params);
-        setSearchParams(params);
-        // setSearchParams({
-        //     q: searchText,
-        //     state: selectedState,
-        //     county: selectedCounty,
-        //     millType: selectedMillType,
-        //     woodSpecies: selectedWoodSpecies,
-        // });
+    // es-lint thinks I don't need an effect for this
+    // more specifically, it doesn't like that I call setSearchParams() in useEffect()
+    // I think the idea is that the event handlers for each input should trigger updating searchParams
+    // instead of using useEffect to do it.
+    // useEffect(() => {
+    //     // just add all the values to searchParams and see what happens
+    //     // empty result happens
+    //     // we may need to check differences between current searchParams and the dependent values
+    //     // console.log('when usingEffect to try to fetch mills...', {
+    //     //     searchParams,
+    //     //     searchText,
+    //     //     selectedState,
+    //     //     selectedCounty,
+    //     //     selectedMillType,
+    //     //     selectedWoodSpecies
+    //     // });
+    //     const params: SearchParams = {};
+    //     // selectedValue, searchParamKey
+    //     // need to check existence of state variable, state variable value and searchParams.key
+    //     // before comparing to searchParams.
+    //     // do we even care if they're different from the searchParams values (if any)?
+    //     // probably not, but let's do overkill first
+    //     if (selectedState && selectedState.value) {// && searchParams.state && selectedState.value !== searchParams.state) {
+    //         params.state = selectedState.value;
+    //     }
+    //     if (selectedCounty && selectedCounty.value) { // && selectedCounty.value !== searchParams.county) {
+    //         params.county = selectedCounty.value;
+    //     }
+    //     if (selectedMillType && selectedMillType.value) {
+    //         params.millType = selectedMillType.value;
+    //     }
+    //     if (selectedWoodSpecies && selectedWoodSpecies.value) {
+    //         params.woodSpecies = selectedWoodSpecies.value;
+    //     }
+    //     // oh right, searchText is the odd ball WRT having a value member
+    //     if (searchText) {
+    //         params.q = searchText;
+    //     }
+    //     console.log('setting search params: ', params);
+    //     setSearchParams(params);
+    //     // setSearchParams({
+    //     //     q: searchText,
+    //     //     state: selectedState,
+    //     //     county: selectedCounty,
+    //     //     millType: selectedMillType,
+    //     //     woodSpecies: selectedWoodSpecies,
+    //     // });
 
-    }, [searchText, selectedState, selectedCounty, selectedMillType, selectedWoodSpecies]);
+    // }, [searchText, selectedState, selectedCounty, selectedMillType, selectedWoodSpecies]);
 
 
     // useEffect(() => {
@@ -310,6 +405,11 @@ export default function MillListPage() {
                         onMillTypesSelectChange={handleMillTypeSelectChange}
                         onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
                         onClearFiltersClick={handleClearFiltersClick}
+                        // clearing filters doesn't do what I want
+//                        onClearState={handleClearAllOptions}
+                        // onClearCounty={handleClearAllOptions}
+                        // onClearMillType={handleClearAllOptions}
+                        // onClearWoodSpecies={() => handleWoodSpeciesSelectChange('')}
                     />
                     {/**
                      * Mill List
