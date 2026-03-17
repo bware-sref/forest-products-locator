@@ -11,6 +11,7 @@ use App\Http\Resources\MillResource;
 use App\Http\Resources\MillResourceCollection;
 use App\Models\Mill;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class MillResourceController extends Controller
@@ -20,6 +21,8 @@ class MillResourceController extends Controller
      */
     public function index(MillResourceRequest $request)
     {
+        // log what we receive here 
+        // Log::debug('MillResourceRequest!', collect($request->input())->toArray());
         // filter Mills based on request parameters
         // do we want to make a model method for this?
         // yes.
