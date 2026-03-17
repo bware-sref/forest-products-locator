@@ -23,6 +23,8 @@ class MillResource extends JsonResource
          */        
         $state = $this->whenLoaded('state');
         $county = $this->whenLoaded('county');
+        // county comes in as a model object
+        // dd($county);
         $millType = $this->whenLoaded('millTypes');
         $woodSpecies = $this->whenLoaded('woodSpecies');
 
@@ -61,8 +63,12 @@ class MillResource extends JsonResource
                 'state' => $state->abbreviation,
                 'state_name' => $state->name,
             ]),
+            // I forgot why I wanted to make this more complex...
             $this->mergeWhen($this->whenLoaded('county'), [
-                'county' => !empty($county) && property_exists($county, 'name') ? $county->name : '',
+                // 'county' => !empty($county) && property_exists($county, 'name') ? $county->name : '',
+                // because $county is a Model, it doesn't have an actual property named "name",
+                // therefore property_exists() returns false.
+                'county' => $county->name ?? '',
             ]),
             // 'county' => new CountyResource($this->whenLoaded('county')),
         ];
