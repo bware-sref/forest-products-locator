@@ -216,13 +216,16 @@ class Mill extends Model
 
         if (!empty($validated['millType'])) {
             $query->whereHas('millTypes', function (Builder $query) use ($validated) {
-                $query->where('name', $validated['millType']);
+                // update to use id instead of name
+                // prefix id with DB table name to disambiguate!
+                $query->where('mill_types.id', $validated['millType']);
             });
         }
 
         if (!empty($validated['woodSpecies'])) {
             $query->whereHas('woodSpecies', function (Builder $query) use ($validated) {
-                $query->where('name', $validated['woodSpecies']);
+                // update to use id instead of name
+                $query->where('wood_species.id', $validated['woodSpecies']);
             });
         }
 
@@ -230,13 +233,14 @@ class Mill extends Model
             $query->whereHas('state', function (Builder $query) use ($validated) {
                 // update to use id instead of abbreviation
                 // $query->where('abbreviation', $validated['state']);
-                $query->where('id', $validated['state']);
+                $query->where('states.id', $validated['state']);
             });
         }
 
         if (!empty($validated['county'])) {
             $query->whereHas('county', function (Builder $query) use ($validated) {
-                $query->where('name', $validated['county']);
+                // update to use id instead of name
+                $query->where('counties.id', $validated['county']);
             });
         }
 
