@@ -52,19 +52,24 @@ class MillResourceRequest extends FormRequest
             'millType' => [
                 'sometimes',
                 'nullable',
-                'string',
-                'max:24'
+                // 'string',
+                // 'max:24'
+                'integer',
+                Rule::exists('mill_types', 'id'),
             ],
             /**
              * Okay.
              * At this time, woodSpecies does not need to be an array because there are only 2 so allowing multiselect is a
              * long way to handle not doing anything.
+             * Also, need to update woodSpecies to be an integer
              */
             'woodSpecies' => [
                 'sometimes',
                 'nullable',
-                'string',
-                'max:12',
+                'integer',
+                Rule::exists('wood_species', 'id'),
+                // 'string',
+                // 'max:12',
             ],
             'state' => [
                 'sometimes',
