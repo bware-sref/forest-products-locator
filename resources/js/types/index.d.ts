@@ -138,3 +138,11 @@ export type SelectOption = {
   icon?: React.ComponentType<{ className?: string }>;
   [key: string]: unknown; // allow for additional properties
 };
+
+export type SearchParams = {
+    q?: string;
+    state?: string;
+    county?: string;
+    millType?: string;
+    woodSpecies?: string;
+};
