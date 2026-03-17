@@ -111,32 +111,41 @@ export default function MillListPage() {
     // update to use state.id instead of state.abbreviation
     // also need to update the API and Request to accept the state ID instead
     const handleStateSelectChange = function (optionValue: string) {
-        console.log('handlingStateSelectChange...', {selectedState, optionValue});
+        // console.log('handlingStateSelectChange...', {selectedState, optionValue});
         // searchParams should only be set if we find the state, no?
         // Setting searchParams becomes the thing that triggers the API call.
         // also, we should only setSearchParams if we find the state value and the state value is different.
         // or, if state is cleared!
         if (selectedState && selectedState.value == optionValue) {
-            console.log('selectedState has not changed...', {selectedState, optionValue});
+            // console.log('selectedState has not changed...', {selectedState, optionValue});
             return;
         }
 
+        // handle clearing state value
         if ('' == optionValue) {
-            console.log('clearing selectedState: ', {optionValue});
-            setSelectedState(null);
+            // console.log('clearing selectedState: ', {optionValue});
+            // I think setting state already happened
+            // setSelectedState(null);
             setCounties([]);
-            const newParams = {
-                state: '', //null,
-                county: '', //null,
-            };
-            console.log('attempting to build params from ', {newParams});
-            console.log('that is weird. newParams has county');
+            // const newParams = {
+            //     state: '', //null,
+            //     county: '', //null,
+            // };
+            // console.log('attempting to build params from ', {newParams});
+            // console.log('that is weird. newParams has county');
             // I wonder if we build new params and then unset the fields we want to clear before passing on the setSearchParams()
             // probably doing extra re-renders
-            const sp = buildSearchParams(newParams);
-            unset(sp, 'state');
-            unset(sp, 'county');
-            setSearchParams(sp);
+            // destructuring to remove object properties?
+            // const newParams = buildSearchParams();
+            // if (newParams.state) {
+            //     delete newParams.state;
+            // }
+            // if (newParams.county) {
+            //     delete newParams.county;
+            // }
+            const {state, county, ...newParams} = buildSearchParams();
+            // unset(sp, 'county');
+            setSearchParams(newParams);
             return;
         }
         // pretty sure that removing setSearchParams is going to cause the mill list to stop updating...
@@ -156,7 +165,7 @@ export default function MillListPage() {
                  * Only if we have millTypes and woodSpecies available by state.
                  */
                 // note that selectedState will still have the previous state at this point.
-                console.log('selectedState!', selectedState);
+                // console.log('selectedState!', selectedState);
                 break;
             }
         };
@@ -167,12 +176,19 @@ export default function MillListPage() {
      * @param countyId 
      */
     const handleCountySelectChange = function (countyId: string) {        
-        console.log('in handleCountySelectChange...', countyId);
+        // console.log('in handleCountySelectChange...', countyId);
         // console.log('need to look up the County in the list of counties by state...or just in the list of counties...');
+        if ('' == countyId) {
+            // I think nulling this value may ahve already happened...
+            // setSelectedCounty(null);
+            const {county, ...newParams} = buildSearchParams();
+            setSearchParams(newParams);
+            return;
+        }
         // or just in the list of counties...
         const county = counties.find((c) => c.id == parseInt(countyId)) || null;
         if (county !== selectedCounty) {
-            console.log('county !== selectedCounty, updating: ', {county, selectedCounty});
+            // console.log('county !== selectedCounty, updating: ', {county, selectedCounty});
             setSelectedCounty(county);
             // update searchParams without using useEffect!
             setSearchParams(buildSearchParams({
@@ -186,11 +202,16 @@ export default function MillListPage() {
      * @param millTypeId 
      */
     const handleMillTypeSelectChange = function (millTypeId: string) {
-        console.log('in handleMillTypeSelectChange...', millTypeId);
+        if ('' == millTypeId) {
+            const {millType, ...newParams} = buildSearchParams();
+            setSearchParams(newParams);
+            return;
+        }
+        // console.log('in handleMillTypeSelectChange...', millTypeId);
         const millType = page.props.millTypes ? 
             (page.props.millTypes.find((mt) => mt.id == parseInt(millTypeId)) || null) : null;
         if (millType !== selectedMillType) {
-            console.log('millType changed!', {millType, selectedMillType});
+            // console.log('millType changed!', {millType, selectedMillType});
             setSelectedMillType(millType);
             // update searchParams without using useEffect!
             setSearchParams(buildSearchParams({
@@ -204,11 +225,16 @@ export default function MillListPage() {
      * @param woodSpeciesId 
      */
     const handleWoodSpeciesSelectChange = function (woodSpeciesId: string) {
-        console.log('in handleWoodSpeciesSelectChange: ', woodSpeciesId);
+        if ('' == woodSpeciesId) {
+            const {woodSpecies, ...newParams} = buildSearchParams();
+            setSearchParams(newParams);
+            return;
+        }
+        // console.log('in handleWoodSpeciesSelectChange: ', woodSpeciesId);
         const woodSpecies = page.props.woodSpecies ? 
             (page.props.woodSpecies.find((w) => w.id == parseInt(woodSpeciesId)) || null) : null;
         if (woodSpecies !== selectedWoodSpecies) {
-            console.log('woodSpecies changed!', {woodSpecies, selectedWoodSpecies});
+            // console.log('woodSpecies changed!', {woodSpecies, selectedWoodSpecies});
             setSelectedWoodSpecies(woodSpecies);
             // update searchParams without using useEffect!
             setSearchParams(buildSearchParams({
@@ -231,14 +257,6 @@ export default function MillListPage() {
     }
 
     /**
-     * generic handler for onClearAllOptions
-     */
-    const handleClearAllOptions = () => {
-        console.log('handling clearAllOptions...');
-    };
-
-
-    /**
      * Collect input values and assemble into a SearchParams object.
      * Hmm...when this gets invoked, the respective selected<T> values haven't been updated.
      * Or at least the most recently updated hasn't been.
@@ -251,16 +269,16 @@ export default function MillListPage() {
         // intialize in case no params
         const params: SearchParams = p || {};
 
-        console.log('buildingSearchParams...', {
-            p,
-            params,
-            searchParams,
-            searchText,
-            selectedState,
-            selectedCounty,
-            selectedMillType,
-            selectedWoodSpecies
-        });
+        // console.log('buildingSearchParams...', {
+        //     p,
+        //     params,
+        //     searchParams,
+        //     searchText,
+        //     selectedState,
+        //     selectedCounty,
+        //     selectedMillType,
+        //     selectedWoodSpecies
+        // });
 
         // need to check existence of state variable and state variable value before assigning
         // also, we now need to check if this value was passed via params
@@ -280,7 +298,7 @@ export default function MillListPage() {
         if (searchText) {
             params.q = searchText;
         }
-        console.log('built search params: ', params);
+        // console.log('built search params: ', params);
         return params;
     }
 
