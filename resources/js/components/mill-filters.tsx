@@ -79,13 +79,6 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const millTypes = props.millTypes;
     const woodSpecies = props.woodSpecies;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
-    // const formElementIds = [
-    //     'q',
-    //     'state',
-    //     'county',
-    //     'millType',
-    //     'woodSpecies',
-    // ];
 
     // const clearFilters = () => {
     //     formElementIds.forEach((id) => {
@@ -153,6 +146,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onStateSelectChange}
                             placeholder="Select a state..."
+                            clearable={true}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -176,6 +170,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             onValueChange={props.onCountySelectChange}
                             placeholder="Select a county..."
                             disabled={countiesDisabled}
+                            clearable={true}                            
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -198,6 +193,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onMillTypesSelectChange}
                             placeholder="Select a mill type..."
+                            clearable={true}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -220,6 +216,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onWoodSpeciesSelectChange}
                             placeholder="Select a wood type..."
+                            clearable={true}                            
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
