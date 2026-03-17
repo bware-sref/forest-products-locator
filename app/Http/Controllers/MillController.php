@@ -40,7 +40,11 @@ class MillController extends Controller
             // 'mills' => $mills->toArray(),
             /**
              * we can forego the counties by just loading them onto the states
-             * still need to only load the counties that have mills though
+             * still need to only load the counties that have mills though.
+             * 
+             * Dagnabbit!
+             * We can't use with() to fetch each states millTypes and woodSpecies...
+             * Maybe I should just install the deep relationship package?
              */
             'states' => Inertia::once(fn() => State::has('mills')->with([
                 'counties' => function ($query) {
