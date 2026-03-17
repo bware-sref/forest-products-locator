@@ -32,7 +32,8 @@ export default function useDebounce(callback: () => void, delay: number = 500) {
         return debounce(func, delay);
         // es-lint says 'delay' is a dependency and either add the dependency or remove the dependency array.
         // I wonder how it will react to the latter...
-    }, []);
+        // delay added to dependencies...seems fine for now...
+    }, [delay]);
 
     return debouncedCallback;
 }
