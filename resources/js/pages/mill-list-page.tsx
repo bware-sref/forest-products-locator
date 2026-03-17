@@ -62,6 +62,7 @@ export default function MillListPage() {
         woodSpecies?: WoodSpecies[];
         pageTitle?: string;
         millsApiUrl: string;
+        // do we need to allow for GET search parameters to be passed from the controller?
     }>();
     const pageTitle = page.props.pageTitle;
 
@@ -189,6 +190,10 @@ export default function MillListPage() {
          * or should it watch searchParameters?
          * or waiting for a form submission?
          */
+    // }, [selectedState]);
+    // es-lint says millsApiUrl and searchParams are dependencies of useEffect, so add them or remove the array.
+    // This method does seem like it should watch searchParams rather than just selectedState, but maybe not?
+    // if we use a submit button instead of immediately refreshing the mill list, this is not the same issue.
     }, [selectedState]);
 
     useEffect(() => {
