@@ -21,12 +21,18 @@ class MillResourceController extends Controller
      */
     public function index(MillResourceRequest $request)
     {
-        // log what we receive here 
-        // Log::debug('MillResourceRequest!', collect($request->input())->toArray());
         // filter Mills based on request parameters
         // do we want to make a model method for this?
         // yes.
         $mills = Mill::apiSearch($request->validated());
+
+        // log requests that yield empty results.
+        if (1 > count($mills)) {
+            Log::debug('Empty Mill API request result: ', [
+                'request.input' => collect($request->input())->toArray(),
+                // 'mills' => $mills->toArray()
+            ]);
+        }
         if ($request->input('geojson')) {
             return new GeoJsonMillResourceCollection($mills);
         }
