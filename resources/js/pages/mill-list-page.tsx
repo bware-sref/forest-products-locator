@@ -78,7 +78,7 @@ export default function MillListPage() {
 
     const countiesByState: CountiesByState = getCountiesByState(page.props.states);    
 
-    const [textSearch, setTextSearch] = useState<string>('');
+    const [searchText, setSearchText] = useState<string>('');
     const [selectedState, setSelectedState] = useState<State|null>(null);
     const [counties, setCounties] = useState<County[]>([]);
     const [selectedCounty, setSelectedCounty] = useState<County|null>(null);
@@ -86,17 +86,22 @@ export default function MillListPage() {
     const [selectedWoodSpecies, setSelectedWoodSpecies] = useState<WoodSpecies|null>(null);
 
     const [mills, setMills] = useState<Mill[]>([]);
-    const [searchParams, setSearchParams] = useState<object>({});
+    // should we initialize searchParams with an empty object, or an object with all the keys having null values?
+    const [searchParams, setSearchParams] = useState<SearchParams>({});
 
+    /**
+     * Handle typing events in the text search field.
+     * @param event 
+     */
     const handleTextSearchChange = function (event: ChangeEvent<HTMLInputElement>) {
         console.log(`textSearchChange event! value: ${event.target.value}`);
         debouncedTextSearch();
-        setTextSearch(event.target.value);
+        setSearchText(event.target.value);
     }
 
     const textSearchCallback = useCallback(() => {
-        console.log(`(debounced?) textSearchCallback textSearch: ${textSearch}`);
-    }, [textSearch]);
+        console.log(`(debounced?) textSearchCallback textSearch: ${searchText}`);
+    }, [searchText]);
 
     // debounce text input changes to prevent excess API calls
     // actually, if there's a search button, we shouldn't search immediately when form element values change...
@@ -157,7 +162,7 @@ export default function MillListPage() {
      */
     const handleClearFiltersClick: MouseEventHandler<HTMLButtonElement> = function (event) {
         console.log('Clear Filters clicked!', event);
-        setTextSearch('');
+        setSearchText('');
         setSelectedState(null);
         setSelectedCounty(null);
         setSelectedMillType(null);
@@ -189,7 +194,6 @@ export default function MillListPage() {
          * or should it watch searchParameters?
          * or waiting for a form submission?
          */
-    // }, [selectedState]);
     // es-lint says millsApiUrl and searchParams are dependencies of useEffect, so add them or remove the array.
     // This method does seem like it should watch searchParams rather than just selectedState, but maybe not?
     // if we use a submit button instead of immediately refreshing the mill list, this is not the same issue.
