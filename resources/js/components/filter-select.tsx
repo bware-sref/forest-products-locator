@@ -45,14 +45,14 @@ export function FilterSelect<T extends HasNameAndId>({
     isDisabled = false,
     defaultValue = '',
     options = [],
-    optionKeyKey = 'id',
-    optionValueKey = 'name',
-    optionTextKey = 'name',
+    // optionKeyKey = 'id',
+    // optionValueKey = 'name',
+    // optionTextKey = 'name',
     callback,
     ...props
 }: FilterSelectProps<T>) {
     return (
-        <Field>
+        <Field {...props}>
             <FieldLabel 
                 htmlFor={id}
                 className="text-white"
