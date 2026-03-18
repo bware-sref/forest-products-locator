@@ -91,6 +91,53 @@ export default function MillListPage() {
     const [searchParams, setSearchParams] = useState<SearchParams>({});
 
     /**
+     * Collect input values and assemble into a SearchParams object.
+     * Hmm...when this gets invoked, the respective selected<T> values haven't been updated.
+     * Or at least the most recently updated hasn't been.
+     * I guess we need to pass the most recently updated value to this method?
+     * @param p
+     * @returns SearchParams
+     */
+    const buildSearchParams = function(p?: SearchParams): SearchParams {
+        // const params: SearchParams = {};
+        // intialize in case no params
+        const params: SearchParams = p || {};
+
+        // console.log('buildingSearchParams...', {
+        //     p,
+        //     params,
+        //     searchParams,
+        //     searchText,
+        //     selectedState,
+        //     selectedCounty,
+        //     selectedMillType,
+        //     selectedWoodSpecies
+        // });
+
+        // need to check existence of state variable and state variable value before assigning
+        // also, we now need to check if this value was passed via params
+        if (!params.state && selectedState && selectedState.value) {
+            params.state = selectedState.value;
+        }
+        if (!params.county && selectedCounty && selectedCounty.value) {
+            params.county = selectedCounty.value;
+        }
+        if (!params.millType && selectedMillType && selectedMillType.value) {
+            params.millType = selectedMillType.value;
+        }
+        if (!params.woodSpecies && selectedWoodSpecies && selectedWoodSpecies.value) {
+            params.woodSpecies = selectedWoodSpecies.value;
+        }
+        // oh right, searchText is the odd ball WRT having a value member
+        if (searchText) {
+            params.q = searchText;
+        }
+        // console.log('built search params: ', params);
+        return params;
+    }
+
+
+    /**
      * Handle typing events in the text search field.
      * @param event 
      */
@@ -263,51 +310,6 @@ export default function MillListPage() {
         setSelectedWoodSpecies(null);
     }
 
-    /**
-     * Collect input values and assemble into a SearchParams object.
-     * Hmm...when this gets invoked, the respective selected<T> values haven't been updated.
-     * Or at least the most recently updated hasn't been.
-     * I guess we need to pass the most recently updated value to this method?
-     * @param p
-     * @returns SearchParams
-     */
-    const buildSearchParams = function(p?: SearchParams): SearchParams {
-        // const params: SearchParams = {};
-        // intialize in case no params
-        const params: SearchParams = p || {};
-
-        // console.log('buildingSearchParams...', {
-        //     p,
-        //     params,
-        //     searchParams,
-        //     searchText,
-        //     selectedState,
-        //     selectedCounty,
-        //     selectedMillType,
-        //     selectedWoodSpecies
-        // });
-
-        // need to check existence of state variable and state variable value before assigning
-        // also, we now need to check if this value was passed via params
-        if (!params.state && selectedState && selectedState.value) {
-            params.state = selectedState.value;
-        }
-        if (!params.county && selectedCounty && selectedCounty.value) {
-            params.county = selectedCounty.value;
-        }
-        if (!params.millType && selectedMillType && selectedMillType.value) {
-            params.millType = selectedMillType.value;
-        }
-        if (!params.woodSpecies && selectedWoodSpecies && selectedWoodSpecies.value) {
-            params.woodSpecies = selectedWoodSpecies.value;
-        }
-        // oh right, searchText is the odd ball WRT having a value member
-        if (searchText) {
-            params.q = searchText;
-        }
-        // console.log('built search params: ', params);
-        return params;
-    }
 
 
     /**
