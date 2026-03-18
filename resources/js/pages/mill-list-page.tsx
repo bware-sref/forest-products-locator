@@ -25,7 +25,7 @@ import MillFilters from '@/components/mill-filters';
 import MillList from '@/components/mill-list';
 // custom hook to prevent firing events too frequently
 import useDebounce from '@/lib/useDebounce';
-import { unset } from 'lodash-es';
+// import { unset } from 'lodash-es';
 
 /**
  * type for mapping counties by state
