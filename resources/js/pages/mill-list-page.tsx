@@ -156,7 +156,9 @@ export default function MillListPage() {
             delete newParams.q;
         }
         setSearchParams(newParams);
-    }, [searchText]);
+        // es-lint says buildSearchParams is a missing dependency
+    // }, [searchText]);
+    }, [searchText, buildSearchParams]);
 
     // debounce text input changes to prevent excess API calls
     // actually, if there's a search button, we shouldn't search immediately when form element values change...
@@ -189,16 +191,17 @@ export default function MillListPage() {
             // console.log('that is weird. newParams has county');
             // I wonder if we build new params and then unset the fields we want to clear before passing on the setSearchParams()
             // probably doing extra re-renders
+            const newParams = buildSearchParams();
+            if (newParams.state) {
+                delete newParams.state;
+            }
+            if (newParams.county) {
+                delete newParams.county;
+            }
             // destructuring to remove object properties?
-            // const newParams = buildSearchParams();
-            // if (newParams.state) {
-            //     delete newParams.state;
-            // }
-            // if (newParams.county) {
-            //     delete newParams.county;
-            // }
-            const {state, county, ...newParams} = buildSearchParams();
-            // unset(sp, 'county');
+            // es-lint doesn't approve of setting state and county without using them, so destructuring is a no go.
+            // const {state, county, ...newParams} = buildSearchParams();
+
             setSearchParams(newParams);
             return;
         }
@@ -235,7 +238,12 @@ export default function MillListPage() {
         if ('' == countyId) {
             // I think nulling this value may ahve already happened...
             // setSelectedCounty(null);
-            const {county, ...newParams} = buildSearchParams();
+            // es-lint doesn't like destructuring to delete because we assign but don't use the values we extract
+            // const {county, ...newParams} = buildSearchParams();
+            const newParams = buildSearchParams();
+            if (newParams.county) {
+                delete newParams.county;
+            }
             setSearchParams(newParams);
             return;
         }
@@ -257,7 +265,12 @@ export default function MillListPage() {
      */
     const handleMillTypeSelectChange = function (millTypeId: string) {
         if ('' == millTypeId) {
-            const {millType, ...newParams} = buildSearchParams();
+            // es-lint doesn't like destructuring to remove object members
+            // const {millType, ...newParams} = buildSearchParams();
+            const newParams = buildSearchParams();
+            if (newParams.millType) {
+                delete newParams.millType;
+            }
             setSearchParams(newParams);
             return;
         }
@@ -280,7 +293,12 @@ export default function MillListPage() {
      */
     const handleWoodSpeciesSelectChange = function (woodSpeciesId: string) {
         if ('' == woodSpeciesId) {
-            const {woodSpecies, ...newParams} = buildSearchParams();
+            // es-lint doesn't like destructuring to remove object members
+            // const {woodSpecies, ...newParams} = buildSearchParams();
+            const newParams = buildSearchParams();
+            if (newParams.woodSpecies) {
+                delete newParams.woodSpecies;
+            }
             setSearchParams(newParams);
             return;
         }
