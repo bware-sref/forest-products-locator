@@ -24,7 +24,7 @@ import { fetchMills } from "@/lib/api"
 import MillFilters from '@/components/mill-filters';
 import MillList from '@/components/mill-list';
 // custom hook to prevent firing events too frequently
-import useDebounce from '@/lib/useDebounce';
+import useDebounce from '@/hooks/use-debounce';
 // import { unset } from 'lodash-es';
 
 /**
