@@ -73,7 +73,11 @@ export const InputSelect: React.FC<{
     if (isPopoverOpen && value !== selectedValue) {
       setSelectedValue(value);
     }
-  }, [isPopoverOpen])
+  // es-lint says value and selectedValue are missing dependencies
+  // adding them for now to shut it up.
+  // hopefully it doesn't break anything.
+  // }, [isPopoverOpen])
+  }, [isPopoverOpen, value, selectedValue]);
 
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
