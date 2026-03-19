@@ -95,6 +95,8 @@ export default function MillListPage() {
      * Hmm...when this gets invoked, the respective selected<T> values haven't been updated.
      * Or at least the most recently updated hasn't been.
      * I guess we need to pass the most recently updated value to this method?
+     * It might also be useful to add a parameter for the current searchParams so that we can extract this method
+     * definition from the render...
      * @param p
      * @returns SearchParams
      */
@@ -136,17 +138,6 @@ export default function MillListPage() {
         return params;
     }
 
-
-    /**
-     * Handle typing events in the text search field.
-     * @param event 
-     */
-    const handleTextSearchChange = function (event: ChangeEvent<HTMLInputElement>) {
-        // console.log(`textSearchChange event! value: ${event.target.value}`);
-        debouncedTextSearch();
-        setSearchText(event.target.value);
-    }
-
     const textSearchCallback = useCallback(() => {
         // console.log(`(debounced?) textSearchCallback textSearch: ${searchText}`);
         const newParams = buildSearchParams({
@@ -163,6 +154,16 @@ export default function MillListPage() {
     // debounce text input changes to prevent excess API calls
     // actually, if there's a search button, we shouldn't search immediately when form element values change...
     const debouncedTextSearch = useDebounce(textSearchCallback, 500);
+
+    /**
+     * Handle typing events in the text search field.
+     * @param event 
+     */
+    const handleTextSearchChange = function (event: ChangeEvent<HTMLInputElement>) {
+        console.log(`textSearchChange event! value: ${event.target.value}`);
+        setSearchText(event.target.value);
+        debouncedTextSearch();
+    }
 
     // update to use state.id instead of state.abbreviation
     // also need to update the API and Request to accept the state ID instead
