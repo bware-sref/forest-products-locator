@@ -172,13 +172,14 @@ export default function MillListPage() {
     , [textSearchCallback]);
 
     /**
-     * clean up the debounced method when this component unmounts
+     * cleaning up the debounced method "when this component unmounts" with useEffect
+     * prevents the debounced method from firing because it gets canceled on every render.
      */
-    useEffect(() => {
-        return () => {
-            debouncedTextSearch.cancel();
-        };
-    }, [debouncedTextSearch]);
+    // useEffect(() => {
+    //     return () => {
+    //         debouncedTextSearch.cancel();
+    //     };
+    // }, [debouncedTextSearch]);
 
 
     /**
