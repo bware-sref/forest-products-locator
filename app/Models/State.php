@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 /**
  * @property int $id
@@ -46,6 +50,27 @@ class State extends Model
         'polygon',
     ];
 
+
+    /**
+     * add attributes to facilitate use with option values
+     */
+    protected $appends = ['value', 'label'];
+
+    protected function value(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->id,
+        );
+    }
+
+    protected function label(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->name,
+        );
+    }
+
+
     // hasMany Counties
     public function counties(): HasMany
     {
@@ -56,5 +81,45 @@ class State extends Model
     public function mills(): HasMany
     {
         return $this->hasMany(Mill::class);
+    }
+
+    /**
+     * Simple-ish way to query mill types by State via basic Eloquent.
+     * It still might be more managable to just install the package that adds deep relationships.
+     */
+    public function millTypes(?int $stateId = null): Collection
+    {
+        $stateId ??= $this->id;
+        $millTypes = DB::table('mill_types')
+            ->join('mill_mill_type', 'mill_types.id', '=', 'mill_mill_type.mill_type_id')
+            ->whereIn('mill_mill_type.mill_id', function (Builder $query) use ($stateId) {
+                $query->select('id')
+                    ->from('mills')
+                    ->where('mills.state_id', $stateId);
+            })
+            ->select('mill_types.id', 'mill_types.name')
+            ->distinct()
+            ->get();
+        return $millTypes;
+    }
+
+
+    /**
+     * Simple-ish way to query woodSpecies by State via Eloquent.
+     */
+    public function woodSpecies(?int $stateId = null): Collection
+    {
+        $stateId ??= $this->id;
+        $woodSpecies = DB::table('wood_species')
+            ->join('mill_wood_species', 'wood_species.id', '=', 'mill_wood_species.wood_species_id')
+            ->whereIn('mill_wood_species.mill_id', function (Builder $query) use ($stateId) {
+                $query->select('id')
+                    ->from('mills')
+                    ->where('mills.state_id', $stateId);
+            })
+            ->select('wood_species.id', 'wood_species.name')
+            ->distinct()
+            ->get();
+        return $woodSpecies;
     }
 }

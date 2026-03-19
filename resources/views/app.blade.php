@@ -38,9 +38,19 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+{{--
+        default favicon mess
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+--}}
+        {{-- Favicon generator mess --}}
+        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="Primary Forest Products Locator" />
+        <link rel="manifest" href="/site.webmanifest" />
 
         {{-- Google Fonts used in Figma designs (also available at fonts.bunny.net) --}}
         <link rel="preconnect" href="https://fonts.bunny.net">

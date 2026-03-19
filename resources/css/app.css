@@ -39,13 +39,16 @@
     oklch(0.5509 0.0282 137.85)
     "zucchini cream" #97A88D;
     oklch(0.7107 0.0429 133.87)
+    "sonic silver" #757575;
+    oklch(0.5624 0 0)
     specifying colors in oklch allows using tailwind named color scale utility classes, e.g., 
     */    
     --color-beluga: oklch(0.9577 0.0017 247.84); /* #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
-    --color-coupe: oklch(0.3754 0.0306 222.53); /*#2f454d;  card heading background */
+    --color-coupe: oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card heading background */
     --color-nature: oklch(0.5509 0.0282 137.85); /* #6a7666;  footer background */
     --color-velvet: oklch(0.2481 0.0095 53.04); /* #25201d; top nav foreground */
     --color-zucchini: oklch(0.7107 0.0429 133.87); /* #97a88d; top nav bg */
+    --color-sonic: oklch(0.5624 0 0); /* text search placeholder */
 
     /** override default bg, fg, et al */
     /** except this apparently is not how to do it */
@@ -62,8 +65,15 @@
     --sidebar-border: var(--color-beluga); */
 
     /** this is where we actually set the theme colors using the values defined above. */
-    --color-background: var(--color-nature); /* var(--background); */
-    --color-foreground: var(--color-beluga); /*(var(--foreground); */
+    /**
+     * we need to swap these I think...
+     */
+    /* --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-background: var(--color-nature);
+    --color-foreground: var(--color-beluga); */
+    --color-background: var(--color-beluga);
+    --color-foreground: var(--color-velvet);
 
     --color-card: var(--color-beluga); /* var(--card); */
     --color-card-foreground: var(--color-black); /*var(--card-foreground);*/

@@ -17,6 +17,7 @@ class StateResource extends JsonResource
         // return parent::toArray($request);
         return [
             'name' => $this->name,
+            'abbreviation' => $this->abbreviation,
         ];
     }
 }
