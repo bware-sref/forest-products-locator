@@ -17,15 +17,12 @@ import {
     useCallback,
     useEffect,
     useState,
-    // useMemo,
+    useMemo,
 } from 'react';
-
+import { debounce } from 'lodash-es';
 import { fetchMills } from "@/lib/api"
 import MillFilters from '@/components/mill-filters';
 import MillList from '@/components/mill-list';
-// custom hook to prevent firing events too frequently
-import useDebounce from '@/hooks/use-debounce';
-// import { unset } from 'lodash-es';
 
 /**
  * type for mapping counties by state
@@ -53,11 +50,9 @@ const getCountiesByState = function (states: State[]) {
 }
 
 export default function MillListPage() {
-    // const page = usePage<SharedData>();
+    // counties are attached to states
     const page = usePage<{
-        // mills: Mill[];
         states: State[];
-        // counties: County[];
         millTypes?: MillType[];
         woodSpecies?: WoodSpecies[];
         pageTitle?: string;
@@ -69,6 +64,9 @@ export default function MillListPage() {
     // states should always be the same...unless a state doesn't have a particular millType or woodSpecies?
     // map to peel off the counties before shoving into the combobox
     // does it make more sense to strip the counties on the server side?
+    // :shrug:
+    // it makes sense to extract this method from the render if possible
+    // we could also combine this with separating counties from states
     const states: State[] = page.props.states.map((state) => ({
         id: state.id,
         name: state.name,
@@ -77,8 +75,16 @@ export default function MillListPage() {
         label: state.label || state.name,
     }));
 
+    /**
+     * Do we need to do this on every re-render?
+     * Perhaps useMemo()?
+     * Or useRef?
+     */
     const countiesByState: CountiesByState = getCountiesByState(page.props.states);    
 
+    // state variables
+    // I wonder...would using a single state variable for searchParams instead of all these separate values work?
+    // by "work", I mean "functional equivalence"
     const [searchText, setSearchText] = useState<string>('');
     const [selectedState, setSelectedState] = useState<State|null>(null);
     const [counties, setCounties] = useState<County[]>([]);
@@ -86,21 +92,19 @@ export default function MillListPage() {
     const [selectedMillType, setSelectedMillType] = useState<MillType|null>(null);
     const [selectedWoodSpecies, setSelectedWoodSpecies] = useState<WoodSpecies|null>(null);
 
+    // mills still needs to be a distinct state variable
     const [mills, setMills] = useState<Mill[]>([]);
     // should we initialize searchParams with an empty object, or an object with all the keys having null values?
     const [searchParams, setSearchParams] = useState<SearchParams>({});
 
     /**
      * Collect input values and assemble into a SearchParams object.
-     * Hmm...when this gets invoked, the respective selected<T> values haven't been updated.
-     * Or at least the most recently updated hasn't been.
-     * I guess we need to pass the most recently updated value to this method?
-     * It might also be useful to add a parameter for the current searchParams so that we can extract this method
-     * definition from the render...
-     * @param p
+     * React compiler said it needs to be wrapped in useCallback().
+     * 
+     * @param p - any search parameters that should override the current values
      * @returns SearchParams
      */
-    const buildSearchParams = function(p?: SearchParams): SearchParams {
+    const buildSearchParams = useCallback(function(p?: SearchParams): SearchParams {
         // const params: SearchParams = {};
         // intialize in case no params
         const params: SearchParams = p || {};
@@ -136,62 +140,78 @@ export default function MillListPage() {
         }
         // console.log('built search params: ', params);
         return params;
-    }
+    }, [selectedState, selectedCounty, selectedMillType, selectedWoodSpecies, searchText]);
 
-    const textSearchCallback = useCallback(() => {
-        // console.log(`(debounced?) textSearchCallback textSearch: ${searchText}`);
+    /**
+     * Text input change handler.
+     * We debounce this method before attaching it to an element.
+     *
+     * @param value     - the value of the text input
+     */
+    const textSearchCallback = useCallback((value: string) => {
+        // console.log(`in textSearchCallback, value = "${value}"`);
         const newParams = buildSearchParams({
-            q: searchText,
+            q: value,
         });
-        if ('' == searchText && newParams.q) {
+        if ('' === value && newParams.q) {
             delete newParams.q;
         }
         setSearchParams(newParams);
-        // es-lint says buildSearchParams is a missing dependency
-    // }, [searchText]);
-    }, [searchText, buildSearchParams]);
+        // console.log('updated searchParams: ', newParams);
+    }, [buildSearchParams]);
 
-    // debounce text input changes to prevent excess API calls
-    // actually, if there's a search button, we shouldn't search immediately when form element values change...
-    const debouncedTextSearch = useDebounce(textSearchCallback, 500);
+    /**
+     * Holy mother of pony!
+     * useMemo() (rather than useCallback()) was apparently the solution!
+     */
+    const debouncedTextSearch = useMemo(() =>
+        debounce((value: string) => {
+            // console.log(`inside debounce, value = "${value}"`);
+            textSearchCallback(value);
+        }, 500)
+    , [textSearchCallback]);
+
+    /**
+     * clean up the debounced method when this component unmounts
+     */
+    useEffect(() => {
+        return () => {
+            debouncedTextSearch.cancel();
+        };
+    }, [debouncedTextSearch]);
+
 
     /**
      * Handle typing events in the text search field.
      * @param event 
      */
     const handleTextSearchChange = function (event: ChangeEvent<HTMLInputElement>) {
-        console.log(`textSearchChange event! value: ${event.target.value}`);
+        // console.log(`textSearchChange event! value: ${event.target.value}`);
         setSearchText(event.target.value);
-        debouncedTextSearch();
-    }
+        debouncedTextSearch(event.target.value);
+        // console.log('should see a debouncedTextSearch happening at some point...');
+    }    
 
-    // update to use state.id instead of state.abbreviation
-    // also need to update the API and Request to accept the state ID instead
+    /**
+     * Handle changes to the State "select/combobox"
+     * 
+     * @param optionValue   - the currently selected State
+     * @returns
+     */
     const handleStateSelectChange = function (optionValue: string) {
         // console.log('handlingStateSelectChange...', {selectedState, optionValue});
-        // searchParams should only be set if we find the state, no?
-        // Setting searchParams becomes the thing that triggers the API call.
-        // also, we should only setSearchParams if we find the state value and the state value is different.
-        // or, if state is cleared!
+        // abort if value is unchanged
         if (selectedState && selectedState.value == optionValue) {
-            // console.log('selectedState has not changed...', {selectedState, optionValue});
             return;
         }
 
         // handle clearing state value
         if ('' == optionValue) {
-            // console.log('clearing selectedState: ', {optionValue});
-            // I think setting state already happened
-            // setSelectedState(null);
+            // if no State selected, clear the county list (which should also trigger disabling the field)
             setCounties([]);
-            // const newParams = {
-            //     state: '', //null,
-            //     county: '', //null,
-            // };
-            // console.log('attempting to build params from ', {newParams});
-            // console.log('that is weird. newParams has county');
-            // I wonder if we build new params and then unset the fields we want to clear before passing on the setSearchParams()
-            // probably doing extra re-renders
+
+            // build new search parameters then delete the items we don't need before passing to setSearchParams().
+            // aside: perhaps buildSearchParams should remove null values since they cause the API to return empty
             const newParams = buildSearchParams();
             if (newParams.state) {
                 delete newParams.state;
@@ -199,17 +219,13 @@ export default function MillListPage() {
             if (newParams.county) {
                 delete newParams.county;
             }
-            // destructuring to remove object properties?
-            // es-lint doesn't approve of setting state and county without using them, so destructuring is a no go.
-            // const {state, county, ...newParams} = buildSearchParams();
 
             setSearchParams(newParams);
             return;
         }
-        // pretty sure that removing setSearchParams is going to cause the mill list to stop updating...
-        // yep, good guess.
-        // setSearchParams({state: optionValue});
 
+        // if state has actually been changed and it's not empty, loop over list of states to find the 
+        // new state's counties.
         for (const state of states) {
             if (state.value === optionValue) {
                 setSelectedState(state);
@@ -222,25 +238,21 @@ export default function MillListPage() {
                  * do we need to update the millTypes and WoodSpecies?
                  * Only if we have millTypes and woodSpecies available by state.
                  */
-                // note that selectedState will still have the previous state at this point.
-                // console.log('selectedState!', selectedState);
                 break;
             }
         };
     }
 
     /**
-     * This could probably be further simplified if selectedCounty was not a County
+     * Handle changes for the County input
      * @param countyId 
      */
     const handleCountySelectChange = function (countyId: string) {        
         // console.log('in handleCountySelectChange...', countyId);
-        // console.log('need to look up the County in the list of counties by state...or just in the list of counties...');
+        
+        // handle clearing the county
         if ('' == countyId) {
-            // I think nulling this value may ahve already happened...
-            // setSelectedCounty(null);
-            // es-lint doesn't like destructuring to delete because we assign but don't use the values we extract
-            // const {county, ...newParams} = buildSearchParams();
+            // build new search params then delete county
             const newParams = buildSearchParams();
             if (newParams.county) {
                 delete newParams.county;
@@ -248,7 +260,8 @@ export default function MillListPage() {
             setSearchParams(newParams);
             return;
         }
-        // or just in the list of counties...
+
+        // if we have a non-empty county, update search params
         const county = counties.find((c) => c.id == parseInt(countyId)) || null;
         if (county !== selectedCounty) {
             // console.log('county !== selectedCounty, updating: ', {county, selectedCounty});
@@ -261,13 +274,14 @@ export default function MillListPage() {
     }
 
     /**
-     * Same old, probably simpler to make selectedMillType an int or string instead of a MillType
+     * Handle changes to millType
      * @param millTypeId 
      */
     const handleMillTypeSelectChange = function (millTypeId: string) {
+        // handle clearing
         if ('' == millTypeId) {
             // es-lint doesn't like destructuring to remove object members
-            // const {millType, ...newParams} = buildSearchParams();
+            // so rebuild search params and then delete millType
             const newParams = buildSearchParams();
             if (newParams.millType) {
                 delete newParams.millType;
@@ -289,7 +303,7 @@ export default function MillListPage() {
     }
 
     /**
-     * Same old, probably simpler to make selectedWoodSpecies an int or string instead of a WoodSpecies
+     * Handle changes to woodSpecies
      * @param woodSpeciesId 
      */
     const handleWoodSpeciesSelectChange = function (woodSpeciesId: string) {
@@ -317,7 +331,7 @@ export default function MillListPage() {
     }
 
     /**
-     * It's possible this should only exist within the component.
+     * Handle clearing all filters
      * @param event 
      */
     const handleClearFiltersClick: MouseEventHandler<HTMLButtonElement> = function (event) {
@@ -328,8 +342,6 @@ export default function MillListPage() {
         setSelectedMillType(null);
         setSelectedWoodSpecies(null);
     }
-
-
 
     /**
      * Here's where we fetch the mill data on page load!
@@ -364,65 +376,11 @@ export default function MillListPage() {
     // }, [selectedState]);
     }, [page.props.millsApiUrl, searchParams]);
 
-    // make this effect depend on all the selected input values
-    // es-lint thinks I don't need an effect for this
-    // more specifically, it doesn't like that I call setSearchParams() in useEffect()
-    // I think the idea is that the event handlers for each input should trigger updating searchParams
-    // instead of using useEffect to do it.
-    // useEffect(() => {
-    //     // just add all the values to searchParams and see what happens
-    //     // empty result happens
-    //     // we may need to check differences between current searchParams and the dependent values
-    //     // console.log('when usingEffect to try to fetch mills...', {
-    //     //     searchParams,
-    //     //     searchText,
-    //     //     selectedState,
-    //     //     selectedCounty,
-    //     //     selectedMillType,
-    //     //     selectedWoodSpecies
-    //     // });
-    //     const params: SearchParams = {};
-    //     // selectedValue, searchParamKey
-    //     // need to check existence of state variable, state variable value and searchParams.key
-    //     // before comparing to searchParams.
-    //     // do we even care if they're different from the searchParams values (if any)?
-    //     // probably not, but let's do overkill first
-    //     if (selectedState && selectedState.value) {// && searchParams.state && selectedState.value !== searchParams.state) {
-    //         params.state = selectedState.value;
-    //     }
-    //     if (selectedCounty && selectedCounty.value) { // && selectedCounty.value !== searchParams.county) {
-    //         params.county = selectedCounty.value;
-    //     }
-    //     if (selectedMillType && selectedMillType.value) {
-    //         params.millType = selectedMillType.value;
-    //     }
-    //     if (selectedWoodSpecies && selectedWoodSpecies.value) {
-    //         params.woodSpecies = selectedWoodSpecies.value;
-    //     }
-    //     // oh right, searchText is the odd ball WRT having a value member
-    //     if (searchText) {
-    //         params.q = searchText;
-    //     }
-    //     console.log('setting search params: ', params);
-    //     setSearchParams(params);
-    //     // setSearchParams({
-    //     //     q: searchText,
-    //     //     state: selectedState,
-    //     //     county: selectedCounty,
-    //     //     millType: selectedMillType,
-    //     //     woodSpecies: selectedWoodSpecies,
-    //     // });
 
-    // }, [searchText, selectedState, selectedCounty, selectedMillType, selectedWoodSpecies]);
-
-
-    // useEffect(() => {
-    //     console.log('state changed!');
-    //     console.log('this means we need to update the counties, mill types, and wood species');
-    // }, [selectedState]);
 
     /**
      * Render!
+     * Except the entire MillListPage() is actually considered render
      */
     return (
         <AppLayout>
