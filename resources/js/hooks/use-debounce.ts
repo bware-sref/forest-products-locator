@@ -12,6 +12,11 @@ import { debounce } from 'lodash-es';
  * @returns 
  */
 export default function useDebounce(callback: () => void, delay: number = 500) {
+    // comments on the site where I lifted this suggest removing useEffect() and simply assigning callback to ref when instantiated.
+    // giving that a whirl
+    // doesn't seem to work...
+    // const ref = useRef(callback);
+
     // es-lint change 'any' to 'unknown'
     const ref = useRef<unknown>(null);
 
@@ -23,6 +28,10 @@ export default function useDebounce(callback: () => void, delay: number = 500) {
         ref.current = callback;
     }, [callback]);
 
+    // oookay!
+    // useMemo() is for caching the result of invoking a function when its dependencies have whatever specific values.
+    // If/when the dependency values change, a new memo is created (or something like that).
+    // useCallback() is for caching functions themselves.
     const debouncedCallback = useMemo(() => {
         const func = () => {
             if (ref.current && typeof ref.current == 'function') {
