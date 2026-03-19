@@ -24,11 +24,10 @@ class MillController extends Controller
         // make sure to eagerly load relationships!
         // let's omit the state and county from this query because we can easily map back to them with Mill data
         // $mills = Mill::with(['millTypes', 'woodSpecies', 'state', 'county'])->get();
-        $mills = Mill::with([
-                'millTypes',
-                'woodSpecies'
-            ])->get();
-        
+        // $mills = Mill::with([
+        //         'millTypes',
+        //         'woodSpecies'
+        //     ])->get();
 
         // we can collect values for filtering UI here
         // whichever is faster
@@ -36,20 +35,31 @@ class MillController extends Controller
         // also need to figure out distance filtering
         // probably something we can crib from the old version.
 
-        return Inertia::render('mill-list', [
-            'mills' => $mills->toArray(),
+        return Inertia::render('mill-list-page', [
+            'pageTitle' => 'Mill List',
+            // 'mills' => $mills->toArray(),
             /**
              * we can forego the counties by just loading them onto the states
-             * still need to only load the counties that have mills though
+             * still need to only load the counties that have mills though.
+             * 
+             * Dagnabbit!
+             * We can't use with() to fetch each states millTypes and woodSpecies...
+             * Maybe I should just install the deep relationship package?
              */
-            // 'states' => Inertia::once(fn() => State::has('mills')->get()->toArray()),
             'states' => Inertia::once(fn() => State::has('mills')->with([
                 'counties' => function ($query) {
-                    $query->select('id', 'name', 'state_id')->has('mills');
-            }])->get(['id', 'name'])->toArray()),
+                    $query->select('id', 'name', 'state_id')
+                        ->has('mills')
+                        ->orderBy('name', 'asc');
+            }])->get(['id', 'name', 'abbreviation'])
+                ->append(['value', 'label'])
+                ->toArray()),
             // 'counties' => Inertia::once(fn() => County::has('mills')->get()->load('state')->toArray()),
-            'millTypes' => Inertia::once(fn() => MillType::all()->toArray()),
-            'woodSpecies' => Inertia::once(fn() => WoodSpecies::all()->toArray()),
+            'millTypes' => Inertia::once(fn() => MillType::get(['id', 'name'])->toArray()),
+            'woodSpecies' => Inertia::once(fn() => WoodSpecies::get(['id', 'name'])->toArray()),
+
+            // easy way to inform the front end of the api url
+            'millsApiUrl' => route('api.v1.mills'),
         ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,6 +68,25 @@ class County extends Model
         // this is state_id local to our DB
         'state_id',
     ];
+
+    /**
+     * add attributes to facilitate use with option values
+     */
+    protected $appends = ['value', 'label'];
+
+    protected function value(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->id,
+        );
+    }
+
+    protected function label(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->name,
+        );
+    }
 
     /**
      * County hasMany Mills

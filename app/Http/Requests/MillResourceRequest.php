@@ -40,7 +40,7 @@ class MillResourceRequest extends FormRequest
              * state - should we allow full names or just abbreviations?
              * county - most useful when combined with state
              */
-            's' => [
+            'q' => [
                 'sometimes',
                 'nullable',
                 'string',
@@ -52,29 +52,38 @@ class MillResourceRequest extends FormRequest
             'millType' => [
                 'sometimes',
                 'nullable',
-                'string',
-                'max:24'
+                // 'string',
+                // 'max:24'
+                'integer',
+                Rule::exists('mill_types', 'id'),
             ],
             /**
              * Okay.
              * At this time, woodSpecies does not need to be an array because there are only 2 so allowing multiselect is a
              * long way to handle not doing anything.
+             * Also, need to update woodSpecies to be an integer
              */
             'woodSpecies' => [
                 'sometimes',
                 'nullable',
-                'string',
-                'max:12',
+                'integer',
+                Rule::exists('wood_species', 'id'),
+                // 'string',
+                // 'max:12',
             ],
             'state' => [
                 'sometimes',
                 'nullable',
-                Rule::exists('states','abbreviation'),
+                // update to use id instead of abbreviation
+                // Rule::exists('states','abbreviation'),
+                Rule::exists('states','id'),
             ],
             'county' => [
                 'sometimes',
                 'nullable',
-                'exists:counties,name',
+                // update to use id instead of name?
+                // 'exists:counties,name',
+                Rule::exists('counties', 'id'),
             ],
         ];
     }

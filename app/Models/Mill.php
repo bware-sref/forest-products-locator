@@ -210,31 +210,39 @@ class Mill extends Model
          */
         $query = Mill::with(['millTypes', 'woodSpecies', 'state', 'county']);
         
-        if (!empty($validated['s'])) {
-            $query->whereLike('mill_name', '%' . $validated['s'] . '%');
+        // add match_id to the fields that get compared to q
+        if (!empty($validated['q'])) {
+            $query->whereLike('mill_name', '%' . $validated['q'] . '%')
+                ->orWhereLike('match_id', '%' .$validated['q'] . '%');
         }
 
         if (!empty($validated['millType'])) {
             $query->whereHas('millTypes', function (Builder $query) use ($validated) {
-                $query->where('name', $validated['millType']);
+                // update to use id instead of name
+                // prefix id with DB table name to disambiguate!
+                $query->where('mill_types.id', $validated['millType']);
             });
         }
 
         if (!empty($validated['woodSpecies'])) {
             $query->whereHas('woodSpecies', function (Builder $query) use ($validated) {
-                $query->where('name', $validated['woodSpecies']);
+                // update to use id instead of name
+                $query->where('wood_species.id', $validated['woodSpecies']);
             });
         }
 
         if (!empty($validated['state'])) {
             $query->whereHas('state', function (Builder $query) use ($validated) {
-                $query->where('abbreviation', $validated['state']);
+                // update to use id instead of abbreviation
+                // $query->where('abbreviation', $validated['state']);
+                $query->where('states.id', $validated['state']);
             });
         }
 
         if (!empty($validated['county'])) {
             $query->whereHas('county', function (Builder $query) use ($validated) {
-                $query->where('name', $validated['county']);
+                // update to use id instead of name
+                $query->where('counties.id', $validated['county']);
             });
         }
 

@@ -46,6 +46,7 @@ export interface Mill {
     id: number;
     match_id: string;
     mill_id?: string;
+    // It's mill_name on the model, so I'm intentionally making a redundant field
     mill_name?: string;
     latitude?: string;
     longitude?: string;
@@ -70,8 +71,8 @@ export interface Mill {
     // accessor!
     physical_address_two?: string;
     // relationships are represented as...other types!
-    state?: State;
-    county?: County;
+    state?: State|string;
+    county?: County|string;
     mill_types?: MillType[];
     wood_species?: WoodSpecies[];
     [key: string]: unknown; // This allows for additional properties...
@@ -80,7 +81,9 @@ export interface Mill {
 export interface MillType {
     id: number;
     name: string;
-    mills?: Mill[];   
+    mills?: Mill[];
+    value?: string;
+    label?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
@@ -88,6 +91,8 @@ export interface WoodSpecies {
     id: number;
     name: string;
     mills?: Mill[];
+    value?: string;
+    label?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
@@ -99,6 +104,8 @@ export interface State {
     longitude?: string;
     counties?: County[];
     mills?: Mill[];
+    value?: string;
+    label?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
@@ -113,5 +120,29 @@ export interface County {
     fips_code?: string; // string to allow for leading zeros
     gnis_code?: string; // string to allow for leading zeros
     state?: State;
+    value?: string;
+    label?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+/**
+ * For shadcn-components-extend InputSelect
+ */
+import { Dispatch, SetStateAction } from "react";
+
+export type SetState<T> = Dispatch<SetStateAction<T>>;
+
+export type SelectOption = {
+  value: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  [key: string]: unknown; // allow for additional properties
+};
+
+export type SearchParams = {
+    q?: string;
+    state?: string;
+    county?: string;
+    millType?: string;
+    woodSpecies?: string;
+};
