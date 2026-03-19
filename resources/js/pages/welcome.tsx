@@ -92,7 +92,7 @@ export default function Welcome() {
                                 href={card.href}
                                 className="text-beluga flex justify-between text-[27px]"
                             >
-                                <span className="underline inline">{card.title}</span>
+                                <span className="underline inline hover:no-underline">{card.title}</span>
                                 <CircleArrowRight 
                                     data-icon="inline-end"
                                     size={40}

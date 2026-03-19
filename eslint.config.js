@@ -38,7 +38,9 @@ export default [
             'bootstrap/ssr',
             'tailwind.config.js',
             'resources/js/mill-map.js',
-            'resources/js/us-state-polygon-coords.js'
+            'resources/js/us-state-polygon-coords.js',
+            // don't lint Laravel's mess
+            'resources/js/actions',
         ],
     },
     prettier, // Turn off all rules that might conflict with Prettier
