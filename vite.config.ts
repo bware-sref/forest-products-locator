@@ -26,7 +26,9 @@ export default defineConfig({
             png: { quality: 80 },
         }),
         wayfinder({
-            formVariants: true,
+            // I think this controls the --with-form cli arg
+            // formVariants: true,
+            formVariants: false,
         }),
     ],
     esbuild: {
