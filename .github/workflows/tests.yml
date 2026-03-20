@@ -33,6 +33,9 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
+      - name: Create SQLite database file
+        run: touch database/database.sqlite
+
       - name: Install Node Dependencies
         run: npm ci
 
