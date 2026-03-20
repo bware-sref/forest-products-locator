@@ -62,7 +62,19 @@ services:
         networks:
             - sail
         depends_on:
-            - mysql    
+            - mysql
+    # add mailhog to simplify mail testing
+    mailhog:
+        image: mailhog/mailhog:latest
+        container_name: mailhog
+        restart: always
+        ports:
+            - "1025:1025" # SMTP server port
+            - "8025:8025" # Web UI port
+        logging:
+            driver: 'none' # Optional: disables verbose MailHog container logs
+        networks:
+            - sail
 networks:
     sail:
         driver: bridge
