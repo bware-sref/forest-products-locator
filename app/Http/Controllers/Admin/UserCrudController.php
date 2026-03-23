@@ -44,8 +44,11 @@ class UserCrudController extends CrudController
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');
          */
-        CRUD::column('name');
-        CRUD::column('email');
+        // CRUD::column('name');
+        // CRUD::column('email');
+
+        // alternatively, pass an array to setColumns()
+        CRUD::setColumns(['name', 'email']);
     }
 
     /**
