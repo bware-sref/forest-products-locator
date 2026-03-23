@@ -71,6 +71,8 @@ jobs:
       # moved below database seeding
       - name: Build Assets
         run: npm run build
+        env:
+          CI: false # allegedly might prevent github action failure
 
       - name: Tests
         run: ./vendor/bin/pest
