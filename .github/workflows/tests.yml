@@ -33,6 +33,7 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
+      # added to prevent "file not found" error that caused the tests to fail
       - name: Create SQLite database file
         run: touch database/database.sqlite
 
@@ -42,10 +43,15 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-#      - name: Wayfinder (all by itself)
-#        run: php artisan wayfinder:generate --with-form
+      # The following step is what "npm run build" ultimately chokes on.
+      # When run as a separate step, it results in an HttpException.
+      # "Users do not have an associated email address"
+      # That made me suspect that DB migrations and seeders need to run before doing npm run build,
+      # but that didn't help.
+      - name: Wayfinder (all by itself)
+        run: php artisan wayfinder:generate --with-form
+
       # moving this lower in the flow
-      # that "User no associated email" makes me kinda feel like DB migrations and seeders need to run before doing npm run build
 #      - name: Build Assets
 #        run: npm run build
 
