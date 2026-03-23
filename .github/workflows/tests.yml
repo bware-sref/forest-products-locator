@@ -65,8 +65,8 @@ jobs:
       # "Users do not have an associated email address"
       # That made me suspect that DB migrations and seeders need to run before doing npm run build,
       # but that didn't help.
-      - name: Wayfinder (all by itself)
-        run: php artisan wayfinder:generate --with-form
+#      - name: Wayfinder (all by itself)
+#        run: php artisan wayfinder:generate --with-form
           
       # moved below database seeding
       - name: Build Assets
