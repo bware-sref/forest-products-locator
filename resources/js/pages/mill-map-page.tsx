@@ -44,24 +44,25 @@ export default function MillMapPage() {
         <AppLayout>
             <Head title={page.props.pageTitle} />
             {/* full screen-width wrapper */}
-            <div className="flex flex-col w-full min-h-screen items-center Xp-6 text-velvet lg:justify-center Xlg:p-8">
+            <div className="flex flex-col w-full min-h-screen items-center text-velvet lg:justify-center">
                 {/* content column: max-width 1280px */}
-                <div className="flex flex-col w-full Xmax-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 Xpx-5">
-                    <MillFilters
-                        headline={page.props.pageTitle}
-                        textSearch={searchText}
-                        states={states}
-                        counties={counties}
-                        millTypes={page.props.millTypes}
-                        woodSpecies={page.props.woodSpecies}
-                        onTextSearchChange={handleTextSearchChange}
-                        onStateSelectChange={handleStateSelectChange}
-                        onCountySelectChange={handleCountySelectChange}
-                        onMillTypesSelectChange={handleMillTypeSelectChange}
-                        onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
-                        onClearFiltersClick={handleClearFiltersClick}
-                    />
-                    <MillMap mills={mills} />
+                <div className="flex flex-col w-full items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
+                    <MillMap mills={mills}>
+                        <MillFilters
+                            headline={page.props.pageTitle}
+                            textSearch={searchText}
+                            states={states}
+                            counties={counties}
+                            millTypes={page.props.millTypes}
+                            woodSpecies={page.props.woodSpecies}
+                            onTextSearchChange={handleTextSearchChange}
+                            onStateSelectChange={handleStateSelectChange}
+                            onCountySelectChange={handleCountySelectChange}
+                            onMillTypesSelectChange={handleMillTypeSelectChange}
+                            onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
+                            onClearFiltersClick={handleClearFiltersClick}
+                        />
+                    </MillMap>
                 </div>
                 <div className="hidden h-14.5 lg:block"></div>
             </div>
