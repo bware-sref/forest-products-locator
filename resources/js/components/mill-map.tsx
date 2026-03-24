@@ -40,6 +40,7 @@ import { show } from "@/actions/App/Http/Controllers/MillController"
 
 /**
  * Currently, the only children we expect would be the mill-filters component.
+ * In the future, there might be more children, e.g., wmsLayers?
  * 
  * @param millMapProps
  * @returns 
@@ -67,7 +68,8 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 url={wmsServer}
                 layers={wmsLayers}
             />
-*/}            
+*/}
+            {/** MapCircle should only display after the user has clicked the locator button */}
             <MapCircle 
                 center={WARNELL_COORDINATES}
                 radius={Math.ceil((100* 5280)/3)}
