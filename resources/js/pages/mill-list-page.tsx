@@ -105,20 +105,8 @@ export default function MillListPage() {
      * @returns SearchParams
      */
     const buildSearchParams = useCallback(function(p?: SearchParams): SearchParams {
-        // const params: SearchParams = {};
         // intialize in case no params
         const params: SearchParams = p || {};
-
-        // console.log('buildingSearchParams...', {
-        //     p,
-        //     params,
-        //     searchParams,
-        //     searchText,
-        //     selectedState,
-        //     selectedCounty,
-        //     selectedMillType,
-        //     selectedWoodSpecies
-        // });
 
         // need to check existence of state variable and state variable value before assigning
         // also, we now need to check if this value was passed via params
@@ -138,7 +126,6 @@ export default function MillListPage() {
         if (searchText) {
             params.q = searchText;
         }
-        // console.log('built search params: ', params);
         return params;
     }, [selectedState, selectedCounty, selectedMillType, selectedWoodSpecies, searchText]);
 
@@ -149,7 +136,6 @@ export default function MillListPage() {
      * @param value     - the value of the text input
      */
     const textSearchCallback = useCallback((value: string) => {
-        // console.log(`in textSearchCallback, value = "${value}"`);
         const newParams = buildSearchParams({
             q: value,
         });
@@ -157,7 +143,6 @@ export default function MillListPage() {
             delete newParams.q;
         }
         setSearchParams(newParams);
-        // console.log('updated searchParams: ', newParams);
     }, [buildSearchParams]);
 
     /**
@@ -166,31 +151,17 @@ export default function MillListPage() {
      */
     const debouncedTextSearch = useMemo(() =>
         debounce((value: string) => {
-            // console.log(`inside debounce, value = "${value}"`);
             textSearchCallback(value);
         }, 500)
     , [textSearchCallback]);
-
-    /**
-     * cleaning up the debounced method "when this component unmounts" with useEffect
-     * prevents the debounced method from firing because it gets canceled on every render.
-     */
-    // useEffect(() => {
-    //     return () => {
-    //         debouncedTextSearch.cancel();
-    //     };
-    // }, [debouncedTextSearch]);
-
 
     /**
      * Handle typing events in the text search field.
      * @param event 
      */
     const handleTextSearchChange = function (event: ChangeEvent<HTMLInputElement>) {
-        // console.log(`textSearchChange event! value: ${event.target.value}`);
         setSearchText(event.target.value);
         debouncedTextSearch(event.target.value);
-        // console.log('should see a debouncedTextSearch happening at some point...');
     }    
 
     /**
@@ -200,7 +171,6 @@ export default function MillListPage() {
      * @returns
      */
     const handleStateSelectChange = function (optionValue: string) {
-        // console.log('handlingStateSelectChange...', {selectedState, optionValue});
         // abort if value is unchanged
         if (selectedState && selectedState.value == optionValue) {
             return;
@@ -248,9 +218,7 @@ export default function MillListPage() {
      * Handle changes for the County input
      * @param countyId 
      */
-    const handleCountySelectChange = function (countyId: string) {        
-        // console.log('in handleCountySelectChange...', countyId);
-        
+    const handleCountySelectChange = function (countyId: string) {
         // handle clearing the county
         if ('' == countyId) {
             // build new search params then delete county
@@ -265,7 +233,6 @@ export default function MillListPage() {
         // if we have a non-empty county, update search params
         const county = counties.find((c) => c.id == parseInt(countyId)) || null;
         if (county !== selectedCounty) {
-            // console.log('county !== selectedCounty, updating: ', {county, selectedCounty});
             setSelectedCounty(county);
             // update searchParams without using useEffect!
             setSearchParams(buildSearchParams({
@@ -290,11 +257,10 @@ export default function MillListPage() {
             setSearchParams(newParams);
             return;
         }
-        // console.log('in handleMillTypeSelectChange...', millTypeId);
+
         const millType = page.props.millTypes ? 
             (page.props.millTypes.find((mt) => mt.id == parseInt(millTypeId)) || null) : null;
         if (millType !== selectedMillType) {
-            // console.log('millType changed!', {millType, selectedMillType});
             setSelectedMillType(millType);
             // update searchParams without using useEffect!
             setSearchParams(buildSearchParams({
@@ -310,7 +276,6 @@ export default function MillListPage() {
     const handleWoodSpeciesSelectChange = function (woodSpeciesId: string) {
         if ('' == woodSpeciesId) {
             // es-lint doesn't like destructuring to remove object members
-            // const {woodSpecies, ...newParams} = buildSearchParams();
             const newParams = buildSearchParams();
             if (newParams.woodSpecies) {
                 delete newParams.woodSpecies;
@@ -318,11 +283,10 @@ export default function MillListPage() {
             setSearchParams(newParams);
             return;
         }
-        // console.log('in handleWoodSpeciesSelectChange: ', woodSpeciesId);
+
         const woodSpecies = page.props.woodSpecies ? 
             (page.props.woodSpecies.find((w) => w.id == parseInt(woodSpeciesId)) || null) : null;
         if (woodSpecies !== selectedWoodSpecies) {
-            // console.log('woodSpecies changed!', {woodSpecies, selectedWoodSpecies});
             setSelectedWoodSpecies(woodSpecies);
             // update searchParams without using useEffect!
             setSearchParams(buildSearchParams({
@@ -336,7 +300,6 @@ export default function MillListPage() {
      * @param event 
      */
     const handleClearFiltersClick: MouseEventHandler<HTMLButtonElement> = function (event) {
-        console.log('Clear Filters clicked!', event);
         setSearchText('');
         setSelectedState(null);
         setSelectedCounty(null);
@@ -354,10 +317,8 @@ export default function MillListPage() {
          */
         let ignore = false;
         // setting mills as empty list would trigger the "Loading" state of the millList
-        // setMills([]);
         fetchMills(page.props.millsApiUrl, searchParams).then(result => {
             if (!ignore) {
-                // console.log('mills!', result);
                 // should we check for errors before setting the mill list?
                 setMills(result);
             }
@@ -374,7 +335,6 @@ export default function MillListPage() {
     // es-lint says millsApiUrl and searchParams are dependencies of useEffect, so add them or remove the array.
     // This method does seem like it should watch searchParams rather than just selectedState, but maybe not?
     // if we use a submit button instead of immediately refreshing the mill list, this is not the same issue.
-    // }, [selectedState]);
     }, [page.props.millsApiUrl, searchParams]);
 
 
@@ -410,11 +370,6 @@ export default function MillListPage() {
                         onMillTypesSelectChange={handleMillTypeSelectChange}
                         onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
                         onClearFiltersClick={handleClearFiltersClick}
-                        // clearing filters doesn't do what I want
-//                        onClearState={handleClearAllOptions}
-                        // onClearCounty={handleClearAllOptions}
-                        // onClearMillType={handleClearAllOptions}
-                        // onClearWoodSpecies={() => handleWoodSpeciesSelectChange('')}
                     />
                     {/**
                      * Mill List

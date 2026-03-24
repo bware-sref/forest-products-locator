@@ -1,11 +1,9 @@
-// import { cn } from "@/lib/utils";
 import {
     type County,
     type MillType,
     type State,
     type WoodSpecies,
     type SelectOption,
-    // type MillFiltersProps,
 } from '@/types';
 import {
     Field,
@@ -18,21 +16,10 @@ import {
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group";
-// import {
-//     Select,
-//     SelectContent,
-//     SelectGroup,
-//     SelectItem,
-//     SelectLabel,
-//     SelectTrigger,
-//     SelectValue,
-// } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import {
     SearchIcon,
-    // TextSearch
 } from 'lucide-react';
-// import { FilterSelect } from "@/components/filter-select";
 import { ChangeEvent, MouseEventHandler } from 'react';
 import {
     InputSelect,
@@ -68,7 +55,7 @@ export interface MillFiltersProps {
     onWoodSpeciesSelectChange: (woodSpeciesId: string) => void;
 
     // add to that ClearFilters
-    onClearFiltersClick: MouseEventHandler; //(event: MouseEvent) => void;
+    onClearFiltersClick: MouseEventHandler;
 }
 
 export default function MillFilters({...props}: MillFiltersProps) {
@@ -79,16 +66,6 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const millTypes = props.millTypes;
     const woodSpecies = props.woodSpecies;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
-
-    // const clearFilters = () => {
-    //     formElementIds.forEach((id) => {
-    //         const el = document.getElementById(id) as HTMLInputElement;
-    //         if (el) {
-    //             el.value = '';
-    //         }
-    //     })
-
-    // };
 
     return (
         <div className="flex w-full flex-row items-stretch max-w-83.75">
@@ -123,18 +100,6 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             </InputGroupAddon>
                         </InputGroup>
                     </Field>
-                    {/* 
-                    <div className="text-beluga"><strong>Filter by Location</strong></div>
-                    <div className="text-beluga">We need a reverse geocoding service to determine City, State ZIP from coordinates.</div>
-                    */}
-                    {/* 
-                    new-fangled state selector
-                    except it requires a specific structure for its options...
-                    value: string
-                    label: string
-                    And MF!, the damn thing doesn't accept an id attribute...
-                    Nor does it even use actual form elements (except for the search input and button trigger)...
-                    */}
                     {/* state selector */}
                     <Field>
                         <FieldLabel 
