@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
 import { ComplexMap } from '@/components/complex-map';
 
-export default function MillMap() {
+export default function OldMillMap() {
     // const page = usePage<SharedData>();
     const pageTitle = "Mill Map";
     // temporary work-around for unused properties lint
