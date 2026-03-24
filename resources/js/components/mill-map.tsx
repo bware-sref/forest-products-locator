@@ -3,7 +3,7 @@
 "use client"
 
 import {
-    Mill,
+    // Mill,
     MillMapProps,
 } from '@/types';
 import { 
@@ -19,23 +19,13 @@ import {
     // MapZoomControl,
 } from "@/components/ui/map"
 import type { LatLngExpression } from "leaflet";
-import { MapPinIcon, Pin, SearchIcon } from "lucide-react";
 import {
-    InputGroup,
-    InputGroupAddon,
-    InputGroupButton,
-    InputGroupInput,
-} from "@/components/ui/input-group";
-// import {
-//     Combobox,
-//     ComboboxContent,
-//     ComboboxEmpty,
-//     ComboboxInput,
-//     ComboboxItem,
-//     ComboboxList,
-// } from "@/components/ui/combobox";
+    MapPinIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Link } from "@inertiajs/react";
+import { show } from "@/actions/App/Http/Controllers/MillController"
 
 // the Leaflet docs keep the ? on the URL :shrug:
 // const wmsServer = 'https://www.mrlc.gov/geoserver/NLCD_Canopy/wms?';  // SERVICE=WMS&REQUEST=GetCapabilities
@@ -101,7 +91,39 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                     position={[parseFloat(mill.latitude || '0'), parseFloat(mill.longitude || '0')]}
                     icon={<MapPinIcon className="size-6 stroke-velvet" />}
                 >
-                    <MapPopup className="w-56">{mill.mill_name}</MapPopup>
+                    <MapPopup className="w-56">
+                        <div className="flex flex-col text-left text-velvet text-[16px]">
+                            <h3 className="font-extrabold text-lg">{mill.mill_name}</h3>
+                            <address>
+                                {mill.physical_address}
+                                <br />
+                                {mill.physical_address_two}
+                            </address>
+                            <p><strong>Species: </strong> 
+                                {mill.wood_species ? mill.wood_species.map((wood, index) => {
+                                    const prefix = (0 < index) ? ', ' : '';
+                                    return prefix + wood.name;
+                                }) : ''}
+                            </p>
+                            <p>
+                                <strong>Mill Type: </strong> {
+                                mill.mill_types ? mill.mill_types.map((millType, index) => {
+                                    const prefix = (0 < index) ? ', ' : '';                                            
+                                    return prefix + millType.name;
+                                }) : ''
+                            }</p>                                                    
+                            <p>
+                                <Link 
+                                    href={show(mill.match_id)}
+                                    className="underline hover:no-underline"
+                                    target="_blank"
+                                >
+                                    More Information...
+                                </Link>
+
+                            </p>
+                        </div>
+                    </MapPopup>
                 </MapMarker>
             ))}
 
@@ -121,38 +143,9 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 </MapPopup>
             )}
             <MapControlContainer 
-                className="absolute top-5 left-5 z-1000 Xgrid Xgap-1 Xbg-nature Xp-8 Xflex w-full flex-row items-stretch max-w-83.75">
+                className="absolute top-5 left-5 z-1000 w-full items-stretch max-w-83.75">
                 {/** children are mill-filters */}
                 {children}
-
-                {/* <h2 className="text-xl font-bold text-beluga">Mill Map</h2> */}
-                {/**
-                 * Turns out we can't use the default MapSearchControl for multiple reasons.
-                 * The main on is that it won't fn let you style the fn input element, FFnS
-                 * Also, the designs don't include a zoom control or locate button.
-                 * Also also, dark mode is still enabled for some reason.
-                 */}
-                {/* <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
-                    <InputGroupInput 
-                        id="searchMills"
-                        className="text-velvet dark:text-velvet"
-                        placeholder="Search mills..."
-                    />
-                    <InputGroupAddon align="inline-end">
-                        <InputGroupButton                            
-                            aria-label="Search"
-                            title="Search"
-                            size="icon-sm"
-                        >
-                            <SearchIcon />
-                        </InputGroupButton>
-                    </InputGroupAddon>
-                </InputGroup> */}
-                {/* <MapSearchControl
-                    id="mapSearchControl"
-                    className="static rounded-4xl"
-                />
-                <MapZoomControl className="static hidden" /> */}
             </MapControlContainer>
         </Map>
     )
