@@ -19,7 +19,7 @@ import {
     // MapZoomControl,
 } from "@/components/ui/map"
 import type { LatLngExpression } from "leaflet";
-import { MapPinIcon, SearchIcon } from "lucide-react";
+import { MapPinIcon, Pin, SearchIcon } from "lucide-react";
 import {
     InputGroup,
     InputGroupAddon,
@@ -93,6 +93,18 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                     <MapPopup className="w-56">{pin.name}</MapPopup>
                 </MapMarker>
             ))}
+
+            {/** Mills! */}
+            {mills.map((mill) => (
+                <MapMarker
+                    key={mill.match_id}
+                    position={[parseFloat(mill.latitude || '0'), parseFloat(mill.longitude || '0')]}
+                    icon={<MapPinIcon className="size-6 stroke-velvet" />}
+                >
+                    <MapPopup className="w-56">{mill.mill_name}</MapPopup>
+                </MapMarker>
+            ))}
+
             <MapLocateControl 
                 onLocationFound={(location) =>
                     setMyCoordinates(location.latlng)
@@ -109,15 +121,18 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 </MapPopup>
             )}
             <MapControlContainer 
-                className="absolute top-5 left-5 z-1000 grid gap-1 bg-nature p-8">
-                <h2 className="text-xl font-bold text-beluga">Mill Map</h2>
+                className="absolute top-5 left-5 z-1000 Xgrid Xgap-1 Xbg-nature Xp-8 Xflex w-full flex-row items-stretch max-w-83.75">
+                {/** children are mill-filters */}
+                {children}
+
+                {/* <h2 className="text-xl font-bold text-beluga">Mill Map</h2> */}
                 {/**
                  * Turns out we can't use the default MapSearchControl for multiple reasons.
                  * The main on is that it won't fn let you style the fn input element, FFnS
                  * Also, the designs don't include a zoom control or locate button.
                  * Also also, dark mode is still enabled for some reason.
                  */}
-                <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
+                {/* <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga">
                     <InputGroupInput 
                         id="searchMills"
                         className="text-velvet dark:text-velvet"
@@ -132,7 +147,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                             <SearchIcon />
                         </InputGroupButton>
                     </InputGroupAddon>
-                </InputGroup>
+                </InputGroup> */}
                 {/* <MapSearchControl
                     id="mapSearchControl"
                     className="static rounded-4xl"
