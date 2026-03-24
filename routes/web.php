@@ -17,9 +17,10 @@ Route::get('/', function () {
  * mill-list
  * about-us
  */
-Route::get('/mill-map', function () {
-    return Inertia::render('mill-map', []);
-})->name('mill-map');
+
+// Consider changing the name of the controller action.
+Route::get('/mill-map', [MillController::class, 'map'])
+    ->name('mill-map');
 
 // Route mill-list to MillController::index()
 Route::get('/mill-list', [MillController::class, 'index'])
