@@ -4,6 +4,7 @@ import {
     type State,
     type WoodSpecies,
     type SelectOption,
+    type SearchParams,
 } from '@/types';
 import {
     Field,
@@ -47,7 +48,10 @@ export interface MillFiltersProps {
     woodSpecies?: WoodSpecies[];
     /**
      * Probably need props for selected values of each select box.
+     * Or just use searchParams?
      */
+    searchParams?: SearchParams;
+
     onTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
     onStateSelectChange: (stateId: string) => void;
     onCountySelectChange: (countyId: string) => void;
@@ -112,6 +116,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             onValueChange={props.onStateSelectChange}
                             placeholder="Select a state..."
                             clearable={true}
+                            value={props.searchParams && props.searchParams.state ? props.searchParams.state : ''}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
