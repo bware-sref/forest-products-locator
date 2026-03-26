@@ -1,0 +1,283 @@
+import {
+    type ChangeEvent,
+    type MouseEventHandler,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
+import { debounce } from 'lodash-es';
+import {
+    type County,
+    type Mill,
+    type MillType,
+    type SearchParams,
+    type State,
+    type WoodSpecies,
+} from '@/types';
+import { fetchMills } from '@/lib/api';
+
+/**
+ * Maps state IDs to their county lists.
+ * Keyed by state.id (as a string, since object keys are always strings).
+ */
+type CountiesByState = Record<string, County[]>;
+
+/**
+ * Builds a lookup table of counties keyed by state ID from the full states list.
+ * Defined outside the hook so it isn't recreated on every render.
+ */
+function buildCountiesByState(states: State[]): CountiesByState {
+    const result: CountiesByState = {};
+    for (const state of states) {
+        if (state.counties !== undefined) {
+            result[state.id] = state.counties;
+        }
+    }
+    return result;
+}
+
+/**
+ * Strips county-stripped State objects suitable for the filter dropdowns.
+ * Defined outside the hook so it isn't recreated on every render.
+ */
+function normaliseStates(states: State[]): State[] {
+    return states.map((state) => ({
+        id: state.id,
+        name: state.name,
+        abbreviation: state.abbreviation,
+        value: state.value ?? String(state.id),
+        label: state.label ?? state.name,
+    }));
+}
+
+export interface UseMillsProps {
+    /** The mills API endpoint URL, passed down from Inertia page props */
+    millsApiUrl: string;
+    /** Full states list including nested counties, from Inertia page props */
+    rawStates: State[];
+    /** Mill types for the filter dropdown, from Inertia page props */
+    millTypes?: MillType[];
+    /** Wood species for the filter dropdown, from Inertia page props */
+    woodSpecies?: WoodSpecies[];
+}
+
+export interface UseMillsReturn {
+    // --- Data ---
+    mills: Mill[];
+    /** County list for the county dropdown; populated once a state is selected */
+    counties: County[];
+    /**
+     * State objects stripped of their nested county lists, ready to pass
+     * straight into the MillFilters component.
+     */
+    states: State[];
+
+    // --- Current filter values (for controlled inputs in MillFilters) ---
+    searchText: string;
+    searchParams: SearchParams;
+
+    // --- Event handlers to wire directly to MillFilters props ---
+    handleTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    handleStateSelectChange: (optionValue: string) => void;
+    handleCountySelectChange: (countyId: string) => void;
+    handleMillTypeSelectChange: (millTypeId: string) => void;
+    handleWoodSpeciesSelectChange: (woodSpeciesId: string) => void;
+    handleClearFiltersClick: MouseEventHandler<HTMLButtonElement>;
+}
+
+/**
+ * Encapsulates all mill-related state, filter handlers, and API fetching so
+ * that both MillListPage and MillMapPage can share identical behaviour without
+ * duplicating any logic.
+ *
+ * Usage:
+ * ```tsx
+ * const { mills, states, counties, searchText, searchParams, ...handlers } = useMills({
+ *     millsApiUrl: page.props.millsApiUrl,
+ *     rawStates: page.props.states,
+ *     millTypes: page.props.millTypes,
+ *     woodSpecies: page.props.woodSpecies,
+ * });
+ * ```
+ */
+export function useMills({
+    millsApiUrl,
+    rawStates,
+    millTypes,
+    woodSpecies,
+}: UseMillsProps): UseMillsReturn {
+
+    // ---------------------------------------------------------------------------
+    // Derived-but-stable data (safe to compute once per prop change via useMemo)
+    // ---------------------------------------------------------------------------
+
+    const states = useMemo(() => normaliseStates(rawStates), [rawStates]);
+    const countiesByState = useMemo(() => buildCountiesByState(rawStates), [rawStates]);
+
+    // ---------------------------------------------------------------------------
+    // State
+    // ---------------------------------------------------------------------------
+
+    /** The raw string value of the text search input (drives the controlled input) */
+    const [searchText, setSearchText] = useState<string>('');
+
+    /**
+     * County list for the county dropdown.
+     * UI-only — not part of searchParams — so it stays as its own state variable.
+     */
+    const [counties, setCounties] = useState<County[]>([]);
+
+    /**
+     * Single source of truth for all active filter values.
+     * Watching this in the fetch useEffect replaces the previous pattern of
+     * maintaining separate selectedState/selectedCounty/etc. variables.
+     */
+    const [searchParams, setSearchParams] = useState<SearchParams>({});
+
+    // ---------------------------------------------------------------------------
+    // Mills data
+    // ---------------------------------------------------------------------------
+
+    const [mills, setMills] = useState<Mill[]>([]);
+
+    useEffect(() => {
+        // AbortController lets us cancel the previous request if searchParams
+        // changes before the fetch resolves, replacing the old `ignore` flag.
+        const controller = new AbortController();
+
+        fetchMills(millsApiUrl, searchParams, controller.signal).then((result) => {
+            setMills(result);
+        });
+
+        return () => {
+            controller.abort();
+        };
+    }, [millsApiUrl, searchParams]);
+
+    // ---------------------------------------------------------------------------
+    // Text search — debounced so we don't fire on every keystroke
+    // ---------------------------------------------------------------------------
+
+    /**
+     * The inner callback that actually updates searchParams.
+     * Wrapped in useCallback so the debounce reference stays stable.
+     */
+    const applyTextSearch = useCallback((value: string) => {
+        setSearchParams((prev) => {
+            const next = { ...prev };
+            if (value) {
+                next.q = value;
+            } else {
+                delete next.q;
+            }
+            return next;
+        });
+    }, []);
+
+    const debouncedTextSearch = useMemo(
+        () => debounce((value: string) => applyTextSearch(value), 500),
+        [applyTextSearch],
+    );
+
+    const handleTextSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setSearchText(value);
+        debouncedTextSearch(value);
+    }, [debouncedTextSearch]);
+
+    // ---------------------------------------------------------------------------
+    // Select handlers
+    // ---------------------------------------------------------------------------
+
+    const handleStateSelectChange = useCallback((optionValue: string) => {
+        if (optionValue === '') {
+            // Clearing state also clears the county dropdown and removes both
+            // params so the API isn't called with a stale county value.
+            setCounties([]);
+            setSearchParams((prev) => {
+                const next = { ...prev };
+                delete next.state;
+                delete next.county;
+                return next;
+            });
+            return;
+        }
+
+        setCounties(countiesByState[optionValue] ?? []);
+        setSearchParams((prev) => ({
+            ...prev,
+            state: optionValue,
+            // Changing state should also clear any previously selected county
+            // so the county dropdown resets to a consistent empty state.
+            ...(prev.county ? { county: undefined } : {}),
+        }));
+    }, [countiesByState]);
+
+    const handleCountySelectChange = useCallback((countyId: string) => {
+        setSearchParams((prev) => {
+            const next = { ...prev };
+            if (countyId === '') {
+                delete next.county;
+            } else {
+                next.county = countyId;
+            }
+            return next;
+        });
+    }, []);
+
+    const handleMillTypeSelectChange = useCallback((millTypeId: string) => {
+        // Confirm the ID resolves to a known MillType before updating params.
+        // This guards against stale or spoofed values from the dropdown.
+        const resolved = millTypes?.find((mt) => mt.id === parseInt(millTypeId));
+
+        setSearchParams((prev) => {
+            const next = { ...prev };
+            if (millTypeId === '' || !resolved) {
+                delete next.millType;
+            } else {
+                next.millType = millTypeId;
+            }
+            return next;
+        });
+    }, [millTypes]);
+
+    const handleWoodSpeciesSelectChange = useCallback((woodSpeciesId: string) => {
+        const resolved = woodSpecies?.find((w) => w.id === parseInt(woodSpeciesId));
+
+        setSearchParams((prev) => {
+            const next = { ...prev };
+            if (woodSpeciesId === '' || !resolved) {
+                delete next.woodSpecies;
+            } else {
+                next.woodSpecies = woodSpeciesId;
+            }
+            return next;
+        });
+    }, [woodSpecies]);
+
+    const handleClearFiltersClick: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
+        setSearchText('');
+        setCounties([]);
+        // Resetting to an empty object triggers the fetch useEffect, which will
+        // re-fetch the unfiltered mill list — fixing the previous bug where
+        // clearing filters didn't actually refresh the data.
+        setSearchParams({});
+    }, []);
+
+    // ---------------------------------------------------------------------------
+
+    return {
+        mills,
+        counties,
+        states,
+        searchText,
+        searchParams,
+        handleTextSearchChange,
+        handleStateSelectChange,
+        handleCountySelectChange,
+        handleMillTypeSelectChange,
+        handleWoodSpeciesSelectChange,
+        handleClearFiltersClick,
+    };
+}

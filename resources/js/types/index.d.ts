@@ -1,3 +1,11 @@
+/**
+ * For shadcn-components-extend InputSelect
+ */
+import { 
+    Dispatch,
+    ReactNode,
+    SetStateAction,
+} from "react";
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -125,11 +133,6 @@ export interface County {
     [key: string]: unknown; // This allows for additional properties...
 }
 
-/**
- * For shadcn-components-extend InputSelect
- */
-import { Dispatch, SetStateAction } from "react";
-
 export type SetState<T> = Dispatch<SetStateAction<T>>;
 
 export type SelectOption = {
@@ -146,3 +149,16 @@ export type SearchParams = {
     millType?: string;
     woodSpecies?: string;
 };
+
+/**
+ * for mill map
+ * It's the same as MillListProps, so it should probably just be one type for both.
+ */
+export interface MillMapProps {
+    mills: Mill[];
+    children?: ReactNode;
+    [key: string]: unknown;
+}
+
+// just extend without adding or overriding anything
+export interface MillListProps extends MillMapProps {};

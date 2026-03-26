@@ -1,6 +1,8 @@
 import { 
     // type County,
-    type Mill,
+    // weird, VSCode doesn't consider Mill type to be used.
+    // type Mill,
+    type MillListProps,
     // type MillType,
     // type State,
     // type WoodSpecies,
@@ -8,30 +10,9 @@ import {
 import { 
     Link,
 } from '@inertiajs/react';
-import { 
-    ReactNode,
-    // useEffect,
-    // useState,    
-} from 'react';
 
-// import { Button } from '@/components/ui/button';
-// import {
-//     Card,
-//     CardContent,
-//     CardHeader,
-//     CardTitle,
-// } from "@/components/ui/card";
-// import {
-//     ArrowRight,
-//     // SearchIcon
-// } from 'lucide-react';
 import { show } from '@/actions/App/Http/Controllers/MillController';
 
-export interface MillListProps {
-    mills: Mill[];
-    children?: ReactNode;
-    [key: string]: unknown;
-}
 
 /**
  * Maybe we want to allow children to inform the no mills state?
