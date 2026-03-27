@@ -1,11 +1,10 @@
-// import { cn } from "@/lib/utils";
 import {
     type County,
     type MillType,
     type State,
     type WoodSpecies,
     type SelectOption,
-    // type MillFiltersProps,
+    type SearchParams,
 } from '@/types';
 import {
     Field,
@@ -18,21 +17,11 @@ import {
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group";
-// import {
-//     Select,
-//     SelectContent,
-//     SelectGroup,
-//     SelectItem,
-//     SelectLabel,
-//     SelectTrigger,
-//     SelectValue,
-// } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import {
     SearchIcon,
-    // TextSearch
 } from 'lucide-react';
-// import { FilterSelect } from "@/components/filter-select";
 import { ChangeEvent, MouseEventHandler } from 'react';
 import {
     InputSelect,
@@ -61,6 +50,8 @@ export interface MillFiltersProps {
     /**
      * Probably need props for selected values of each select box.
      */
+    searchParams?: SearchParams;
+
     onTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
     onStateSelectChange: (stateId: string) => void;
     onCountySelectChange: (countyId: string) => void;
@@ -68,7 +59,14 @@ export interface MillFiltersProps {
     onWoodSpeciesSelectChange: (woodSpeciesId: string) => void;
 
     // add to that ClearFilters
-    onClearFiltersClick: MouseEventHandler; //(event: MouseEvent) => void;
+    onClearFiltersClick: MouseEventHandler;
+    /**
+     * Incremented by the parent when all filters are cleared. Applied as the
+     * `key` prop on each InputSelect so React remounts them, resetting their
+     * internal state and restoring the placeholder label.
+     */
+    filterResetKey?: number;
+    isLoading?: boolean;
 }
 
 export default function MillFilters({...props}: MillFiltersProps) {
@@ -78,17 +76,9 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const counties = props.counties || [];
     const millTypes = props.millTypes;
     const woodSpecies = props.woodSpecies;
+    const filterResetKey = props.filterResetKey ?? 0;
+    const isLoading = props.isLoading ?? false;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
-
-    // const clearFilters = () => {
-    //     formElementIds.forEach((id) => {
-    //         const el = document.getElementById(id) as HTMLInputElement;
-    //         if (el) {
-    //             el.value = '';
-    //         }
-    //     })
-
-    // };
 
     return (
         <div className="flex w-full flex-row items-stretch max-w-83.75">
@@ -123,18 +113,6 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             </InputGroupAddon>
                         </InputGroup>
                     </Field>
-                    {/* 
-                    <div className="text-beluga"><strong>Filter by Location</strong></div>
-                    <div className="text-beluga">We need a reverse geocoding service to determine City, State ZIP from coordinates.</div>
-                    */}
-                    {/* 
-                    new-fangled state selector
-                    except it requires a specific structure for its options...
-                    value: string
-                    label: string
-                    And MF!, the damn thing doesn't accept an id attribute...
-                    Nor does it even use actual form elements (except for the search input and button trigger)...
-                    */}
                     {/* state selector */}
                     <Field>
                         <FieldLabel 
@@ -142,11 +120,12 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="text-white"
                             >State:</FieldLabel>
                         <InputSelect
+                            key={filterResetKey}
                             options={states as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onStateSelectChange}
                             placeholder="Select a state..."
-                            clearable={true}
+                            clearable={true}                            
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -165,6 +144,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="text-white"
                             >County:</FieldLabel>
                         <InputSelect
+                            key={filterResetKey}
                             options={counties as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onCountySelectChange}
@@ -189,6 +169,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="text-white"
                             >Mill Type:</FieldLabel>
                         <InputSelect
+                            key={filterResetKey}
                             options={millTypes as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onMillTypesSelectChange}
@@ -212,6 +193,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="text-white"
                             >Wood Type:</FieldLabel>
                         <InputSelect
+                            key={filterResetKey}
                             options={woodSpecies as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onWoodSpeciesSelectChange}
@@ -228,11 +210,14 @@ export default function MillFilters({...props}: MillFiltersProps) {
                         </InputSelect>
                     </Field>
 
-                    <div>
+                    <div className="flex flex-row">
                         <Button
                             onClick={props.onClearFiltersClick}
                             className="bg-beluga text-coupe hover:text-beluga"
                         >Clear Filters</Button>
+                        {isLoading ? (
+                            <Spinner data-icon="inline-end" className="ml-auto size-8" />
+                        ) : ''}
                     </div>
                 </FieldGroup>
             </div>                            
