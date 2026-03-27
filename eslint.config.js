@@ -41,6 +41,8 @@ export default [
             'resources/js/us-state-polygon-coords.js',
             // don't lint Laravel's mess
             'resources/js/actions',
+            // same for Backpack and Basset
+            'storage/app/public/basset',
         ],
     },
     prettier, // Turn off all rules that might conflict with Prettier
