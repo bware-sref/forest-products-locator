@@ -1,6 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
 import {
-    type Mill,
     type MillType,
     type State,
     type WoodSpecies,

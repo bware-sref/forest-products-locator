@@ -151,14 +151,12 @@ export type SearchParams = {
 };
 
 /**
- * for mill map
+ * for mill map and mill list
  * It's the same as MillListProps, so it should probably just be one type for both.
  */
-export interface MillMapProps {
+export interface MillListProps {
     mills: Mill[];
     children?: ReactNode;
     [key: string]: unknown;
 }
 
-// just extend without adding or overriding anything
-export interface MillListProps extends MillMapProps {};
