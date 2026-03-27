@@ -48,7 +48,6 @@ export interface MillFiltersProps {
     woodSpecies?: WoodSpecies[];
     /**
      * Probably need props for selected values of each select box.
-     * Or just use searchParams?
      */
     searchParams?: SearchParams;
 
@@ -60,6 +59,12 @@ export interface MillFiltersProps {
 
     // add to that ClearFilters
     onClearFiltersClick: MouseEventHandler;
+    /**
+     * Incremented by the parent when all filters are cleared. Applied as the
+     * `key` prop on each InputSelect so React remounts them, resetting their
+     * internal state and restoring the placeholder label.
+     */
+    filterResetKey?: number;    
 }
 
 export default function MillFilters({...props}: MillFiltersProps) {
@@ -69,6 +74,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const counties = props.counties || [];
     const millTypes = props.millTypes;
     const woodSpecies = props.woodSpecies;
+    const filterResetKey = props.filterResetKey ?? 0;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
     return (
@@ -111,12 +117,12 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="text-white"
                             >State:</FieldLabel>
                         <InputSelect
+                            key={filterResetKey}
                             options={states as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onStateSelectChange}
                             placeholder="Select a state..."
-                            clearable={true}
-                            value={props.searchParams && props.searchParams.state ? props.searchParams.state : ''}
+                            clearable={true}                            
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -135,6 +141,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="text-white"
                             >County:</FieldLabel>
                         <InputSelect
+                            key={filterResetKey}
                             options={counties as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onCountySelectChange}
@@ -159,6 +166,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="text-white"
                             >Mill Type:</FieldLabel>
                         <InputSelect
+                            key={filterResetKey}
                             options={millTypes as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onMillTypesSelectChange}
@@ -182,6 +190,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             className="text-white"
                             >Wood Type:</FieldLabel>
                         <InputSelect
+                            key={filterResetKey}
                             options={woodSpecies as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
                             onValueChange={props.onWoodSpeciesSelectChange}

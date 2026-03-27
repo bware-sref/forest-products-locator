@@ -76,6 +76,12 @@ export interface UseMillsReturn {
     // --- Current filter values (for controlled inputs in MillFilters) ---
     searchText: string;
     searchParams: SearchParams;
+    /**
+     * Increments each time filters are cleared. Pass as the `key` prop on each
+     * InputSelect in MillFilters so React remounts them, wiping their internal
+     * selected-value state and resetting the displayed label to the placeholder.
+     */
+    filterResetKey: number;
 
     // --- Event handlers to wire directly to MillFilters props ---
     handleTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -127,6 +133,13 @@ export function useMills({
      * UI-only — not part of searchParams — so it stays as its own state variable.
      */
     const [counties, setCounties] = useState<County[]>([]);
+
+    /**
+     * Incremented by handleClearFiltersClick. Passed to MillFilters as a prop
+     * and applied as the `key` on each InputSelect, causing React to remount
+     * them and reset their internal selectedValue state to the placeholder.
+     */
+    const [filterResetKey, setFilterResetKey] = useState<number>(0);
 
     /**
      * Single source of truth for all active filter values.
@@ -259,6 +272,7 @@ export function useMills({
     const handleClearFiltersClick: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
         setSearchText('');
         setCounties([]);
+        setFilterResetKey((k) => k + 1);
         // Resetting to an empty object triggers the fetch useEffect, which will
         // re-fetch the unfiltered mill list — fixing the previous bug where
         // clearing filters didn't actually refresh the data.
@@ -273,6 +287,7 @@ export function useMills({
         states,
         searchText,
         searchParams,
+        filterResetKey,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,

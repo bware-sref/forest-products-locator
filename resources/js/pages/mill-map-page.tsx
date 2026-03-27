@@ -28,6 +28,7 @@ export default function MillMapPage() {
         counties,
         searchText,
         searchParams,
+        filterResetKey,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,
@@ -44,8 +45,11 @@ export default function MillMapPage() {
     return (
         <AppLayout>
             <Head title={page.props.pageTitle} />
-            {/* full screen-width wrapper */}
-            <div className="flex flex-col w-full min-h-screen items-center text-velvet lg:justify-center">
+            {/* 
+                full screen-width wrapper
+                height should be screen-height minus the header height, h-20 (~5rem) 
+            */}
+            <div className="flex flex-col w-full h-[calc(100vh-4rem)] items-center text-velvet lg:justify-center">
                 {/* content column: max-width 1280px */}
                 <div className="flex flex-col w-full items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
                     <MillMap mills={mills}>
@@ -53,6 +57,7 @@ export default function MillMapPage() {
                             headline={page.props.pageTitle}
                             textSearch={searchText}
                             searchParams={searchParams}
+                            filterResetKey={filterResetKey}
                             states={states}
                             counties={counties}
                             millTypes={page.props.millTypes}
