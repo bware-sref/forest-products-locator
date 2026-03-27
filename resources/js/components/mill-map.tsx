@@ -105,19 +105,20 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                                     <br />
                                     {mill.physical_address_two}
                                 </address>
-                                <p><strong>Species: </strong> 
-                                    {mill.wood_species ? mill.wood_species.map((wood, index) => {
+                                <p>
+                                    <strong>Species: </strong>
+                                    {mill.wood_species?.map((wood, index) => {
                                         const prefix = (0 < index) ? ', ' : '';
                                         return prefix + wood.name;
-                                    }) : ''}
+                                    })}
                                 </p>
                                 <p>
-                                    <strong>Mill Type: </strong> {
-                                    mill.mill_types ? mill.mill_types.map((millType, index) => {
+                                    <strong>Mill Type: </strong>
+                                    {mill.mill_types?.map((millType, index) => {
                                         const prefix = (0 < index) ? ', ' : '';                                            
                                         return prefix + millType.name;
-                                    }) : ''
-                                }</p>                                                    
+                                    })}
+                                </p>                                                    
                                 <p>
                                     <Link 
                                         href={show(mill.match_id)}
