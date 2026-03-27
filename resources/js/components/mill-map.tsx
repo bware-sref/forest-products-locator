@@ -3,7 +3,7 @@
 "use client"
 
 import {
-    MillMapProps,
+    MillListProps,
 } from '@/types';
 import { 
     Map,
@@ -49,7 +49,7 @@ const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
  * @param millMapProps
  * @returns 
  */
-export default function MillMap({mills, children, ...props}: MillMapProps) {
+export default function MillMap({mills, children}: MillListProps) {
     // const WARNELL_COORDINATES = [33.9439, -83.3769] satisfies LatLngExpression
     // const PINS = [
     //     {
