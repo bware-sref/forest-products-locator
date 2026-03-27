@@ -3,7 +3,6 @@
 "use client"
 
 import {
-    // Mill,
     MillMapProps,
 } from '@/types';
 import { 
@@ -14,7 +13,6 @@ import {
     MapMarker,
     MapMarkerClusterGroup,
     MapPopup,
-    // MapSearchControl,
     MapTileLayer,
     // MapWMSTileLayer,
     // MapZoomControl,
