@@ -29,6 +29,7 @@ export default function MillMapPage() {
         searchText,
         searchParams,
         filterResetKey,
+        isLoading,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,
@@ -58,6 +59,7 @@ export default function MillMapPage() {
                             textSearch={searchText}
                             searchParams={searchParams}
                             filterResetKey={filterResetKey}
+                            isLoading={isLoading}
                             states={states}
                             counties={counties}
                             millTypes={page.props.millTypes}

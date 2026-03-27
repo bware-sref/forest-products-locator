@@ -18,6 +18,7 @@ import {
     InputGroupInput,
 } from "@/components/ui/input-group";
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import {
     SearchIcon,
 } from 'lucide-react';
@@ -64,7 +65,8 @@ export interface MillFiltersProps {
      * `key` prop on each InputSelect so React remounts them, resetting their
      * internal state and restoring the placeholder label.
      */
-    filterResetKey?: number;    
+    filterResetKey?: number;
+    isLoading?: boolean;
 }
 
 export default function MillFilters({...props}: MillFiltersProps) {
@@ -75,6 +77,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const millTypes = props.millTypes;
     const woodSpecies = props.woodSpecies;
     const filterResetKey = props.filterResetKey ?? 0;
+    const isLoading = props.isLoading ?? false;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
     return (
@@ -207,11 +210,14 @@ export default function MillFilters({...props}: MillFiltersProps) {
                         </InputSelect>
                     </Field>
 
-                    <div>
+                    <div className="flex flex-row">
                         <Button
                             onClick={props.onClearFiltersClick}
                             className="bg-beluga text-coupe hover:text-beluga"
                         >Clear Filters</Button>
+                        {isLoading ? (
+                            <Spinner data-icon="inline-end" className="ml-auto size-8" />
+                        ) : ''}
                     </div>
                 </FieldGroup>
             </div>                            

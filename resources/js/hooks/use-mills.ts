@@ -83,6 +83,11 @@ export interface UseMillsReturn {
      */
     filterResetKey: number;
 
+    /**
+     * monitor API loading state
+     */
+    isLoading: boolean;
+
     // --- Event handlers to wire directly to MillFilters props ---
     handleTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
     handleStateSelectChange: (optionValue: string) => void;
@@ -148,6 +153,11 @@ export function useMills({
      */
     const [searchParams, setSearchParams] = useState<SearchParams>({});
 
+    /**
+     * add isLoading state variable to make API loading state visible to other components
+     */
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
     // ---------------------------------------------------------------------------
     // Mills data
     // ---------------------------------------------------------------------------
@@ -159,12 +169,18 @@ export function useMills({
         // changes before the fetch resolves, replacing the old `ignore` flag.
         const controller = new AbortController();
 
+        // indicate we're loading
+        setIsLoading(true);
+
         fetchMills(millsApiUrl, searchParams, controller.signal).then((result) => {
             setMills(result);
+        }).finally(() => {
+            setIsLoading(false);
         });
 
         return () => {
             controller.abort();
+            setIsLoading(false);
         };
     }, [millsApiUrl, searchParams]);
 
@@ -288,6 +304,7 @@ export function useMills({
         searchText,
         searchParams,
         filterResetKey,
+        isLoading,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,
