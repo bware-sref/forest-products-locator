@@ -3,6 +3,7 @@ import {
     type MouseEventHandler,
     useCallback,
     useEffect,
+    useEffectEvent,
     useMemo,
     useState,
 } from 'react';
@@ -157,6 +158,11 @@ export function useMills({
      * add isLoading state variable to make API loading state visible to other components
      */
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    // make useEffectEvent wrapper to allow updating isLoading during useEffect
+    const updateIsLoading = useEffectEvent((loadingValue: boolean) => {
+        setIsLoading(loadingValue);
+    });
+
 
     // ---------------------------------------------------------------------------
     // Mills data
@@ -170,7 +176,7 @@ export function useMills({
         const controller = new AbortController();
 
         // indicate we're loading
-        setIsLoading(true);
+        updateIsLoading(true);
 
         fetchMills(millsApiUrl, searchParams, controller.signal).then((result) => {
             setMills(result);
