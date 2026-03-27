@@ -28,6 +28,7 @@ export default function MillMapPage() {
         counties,
         searchText,
         searchParams,
+        filterResetKey,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,
@@ -53,6 +54,7 @@ export default function MillMapPage() {
                             headline={page.props.pageTitle}
                             textSearch={searchText}
                             searchParams={searchParams}
+                            filterResetKey={filterResetKey}
                             states={states}
                             counties={counties}
                             millTypes={page.props.millTypes}
