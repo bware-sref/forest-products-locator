@@ -17,6 +17,7 @@ import {
     // MapWMSTileLayer,
     // MapZoomControl,
 } from "@/components/ui/map"
+import { MapGestureHandler } from '@/components/extend/map-gesture-handler';
 import type { LatLngExpression } from "leaflet";
 import {
     MapPinIcon,
@@ -63,6 +64,7 @@ export default function MillMap({mills, children, ...props}: MillMapProps) {
 
     return (
         <Map center={MAP_CENTER} zoom={5}>
+            <MapGestureHandler />
             <MapTileLayer 
             />
 {/*
