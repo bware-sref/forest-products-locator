@@ -28,6 +28,7 @@ export default function MillListPage() {
         counties,
         searchText,
         filterResetKey,
+        isLoading,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,
@@ -55,6 +56,7 @@ export default function MillListPage() {
                         millTypes={page.props.millTypes}
                         woodSpecies={page.props.woodSpecies}
                         filterResetKey={filterResetKey}
+                        isLoading={isLoading}
                         onTextSearchChange={handleTextSearchChange}
                         onStateSelectChange={handleStateSelectChange}
                         onCountySelectChange={handleCountySelectChange}
