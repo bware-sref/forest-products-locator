@@ -25,6 +25,10 @@ class StoreMillRequest extends FormRequest
         return [
             /**
              * mill_names are not currently unique...
+             * there are 7 named "Westrock" plus 13 more whose name includes "westrock"
+             * we could handle this several ways:
+             *  - update existing mills to ensure unique mill_names
+             *  - we could still use unique here ensure that no new mills are submitted with duplicate names
              */
             'mill_name'=> 'required|string|unique:mills,mill_name|max:255',
             /**
