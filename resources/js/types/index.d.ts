@@ -66,7 +66,13 @@ export interface Mill {
     physical_zip?: string;
     mailing_address?: string;
     mailing_city?: string;
-    mailing_state?: string;
+    // mailing_state may become a State|string
+    mailing_state?: State|string;
+    // need to add mailing_state_id after adding the relation to the Model
+    mailing_state_id?: State|number;
+    // need to add mailing_county_id after adding the relation to the Model
+    mailing_county?: County|string|number;
+    mailing_county_id?: County|number;
     mailing_zip?: string;
     telephone?: string;
     fax?: string;
