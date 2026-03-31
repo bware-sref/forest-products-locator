@@ -61,14 +61,6 @@ class MillController extends Controller
 
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreMillRequest $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      * 
      * NOTE: to avoid the need to create redirects for all individual mill pages,
@@ -85,7 +77,41 @@ class MillController extends Controller
             'county',
         ]);
         return Inertia::render('mill-list-item', [
+            'pageTitle' => $mill->mill_name . ' | Details',
             'mills' => [$mill],
+        ]);
+    }
+
+    /**
+     * Display the Mill form
+     */
+    public function create()
+    {
+        return Inertia::render('add-business', [
+            'pageTitle' => 'Add Your Business',
+            ...$this->getData()
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * Accepts POST from create (mill form)
+     */
+    public function store(StoreMillRequest $request)
+    {
+        //
+    }
+
+    /**
+     * We need edit(Mill $mill) if we allow submitting corrections to Mill data
+     * It might be useful to make edit-business a separate page component...
+     */
+    public function edit(Mill $mill)
+    {
+        return Inertia::render('add-business', [
+            'pageTitle' => 'Edit Mill',
+            'mill' => $mill,
+            ...$this->getData()
         ]);
     }
 
@@ -108,7 +134,7 @@ class MillController extends Controller
     /**
      * wrapper for fetching and bundling the data used by mill-map and mill-list
      */
-    protected function getData(Request $request): array
+    protected function getData(?Request $request = null): array
     {
         return [
             /**
