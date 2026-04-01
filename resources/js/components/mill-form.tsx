@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
+import { storeMill } from "@/routes";
+import { router } from '@inertiajs/react';
 
 import {
     type State,
@@ -12,7 +14,11 @@ import {
     type MillType,
     type WoodSpecies,
 } from '@/types';
-
+import {
+    // type CountiesByState,
+    // buildCountiesByState,
+    normalizeStates,
+} from '@/hooks/use-mills';
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -24,102 +30,32 @@ import {
 } from "@/components/ui/card"
 import {
   Field,
-  FieldDescription,
+//   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroupTextarea,
-} from "@/components/ui/input-group"
+// import {
+//   InputGroup,
+//   InputGroupAddon,
+//   InputGroupText,
+//   InputGroupTextarea,
+// } from "@/components/ui/input-group"
 import {
     Select,
+    SelectContent,
+    SelectItem,
     SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 
-/**
- * It would be wonderful if formSchema translated immediately to MillFormParams
- */
-const formSchema = z.object({
-  mill_name: z
-    .string()
-    .min(2, "Mill Name must be at least 2 characters.")
-    .max(255, "Mill Name must be at most 255 characters."),
-  physical_address: z
-    .string()
-    .min(5, 'Address must be at least 5 characters.')
-    .max(255, 'Address must be at most 255 characters.')
-    // .nullish()
-    .optional()
-    // .or(z.literal(''))
-    // .default('')
-    ,
-  physical_city: z
-    .string()
-    .min(3, 'City must be at least 3 characters.')
-    .max(255, 'City must be at most 255 characters.')
-    .optional()
-    // .nullish()
-    ,
-  state_id: z
-    .int(),
-  physical_zip: z
-    .string()
-    .min(5, 'ZIP Code must be at least 5 characters.')
-    .max(10, 'ZIP Code must be at most 10 characters.')
-    .optional()
-    // .nullish()
-    ,
-  // do we want to add counties yet?
-  // I ask because county_id select would need to update when state changes
-  // which is fine, but seems a tad advanced for the first pass
-  /**
-   * more fields!
-   * we should be able to copy and paste the mailing_* fields once we build the physical versions
-   * mailing_address
-   * mailing_city
-   * mailing_state_id
-   * mailing_zip
-   * mailing_county_id
-   */
-  // telephone
-  // fax
-  // email
-  // web_site
-  // size
-  // year
-  telephone: z
-    .string()
-    .min(10, 'Telephone must be at least 10 characters.')
-    .max(17, 'Telephone must be at most 17 characters.')
-    .optional(),
-  fax: z
-    .string()
-    .min(10, 'Fax must be at least 10 characters.')
-    .max(17, 'Fax must be at most 17 characters.')
-    .optional(),
-  email: z
-    .email()
-    .optional(),
-  web_site: z.url({
-        protocol: /^https?$/,
-        hostname: z.regexes.domain
-    })
-    .optional(),
-  size: z
-    .string()
-    .max(255, 'Size must be at most 255 characters.')
-    .optional(),
-  description: z
-    .string()
-    .min(5, "Description must be at least 20 characters.")
-    .max(100, "Description must be at most 100 characters.")
-    .optional(),
-})
+import {
+    millFormSchema
+} from '@/lib/zod-schemas';
+
+
+type MillFormData = z.infer<typeof millFormSchema>;
 
 /**
  * 
@@ -127,52 +63,80 @@ const formSchema = z.object({
  * On top of that, we also need to be able to pass values for each field.
  */
 export interface MillFormProps {
+    headline?: string;
     states: State[];
     counties?: County[];
     millTypes: MillType[];
     woodSpecies: WoodSpecies[];
+    // don't know if we even need form data
+    // how are validation errors pushed back to the view?
+    // Inertia sends errors in page.errors
     formData?: object;
 }
 
 export function MillForm({...props}: MillFormProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      mill_name: "",      
-      physical_address: "",
-      physical_city: "",
-      state_id: 0,
-      physical_zip: '',
-      telephone: '',
-      fax: '',
-      email: '',
-      web_site: '',
-      size: '',
-      description: "",
-    },
-  })
+    const headline = props.headline || 'Add Your Business';
+    const states = React.useMemo(() => normalizeStates(props.states), [props.states]);
+    // const countiesByState = React.useMemo(() => buildCountiesByState(props.states), [props.states]);
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as React.CSSProperties,
-    })
-  }
+    // const form = useForm<z.infer<typeof millFormSchema>>({
+    const form = useForm<MillFormData>({
+        resolver: zodResolver(millFormSchema),
+        mode: 'onBlur',
+        defaultValues: {
+            // I want to extract these into the zod-schemas file as well
+            mill_name: "",      
+            physical_address: "",
+            physical_city: "",
+            state_id: '',
+            physical_zip: '',
+            telephone: '',
+            fax: '',
+            email: '',
+            web_site: '',
+            size: '',
+        },
+    });
+
+    function onSubmit(data: z.infer<typeof millFormSchema>) {
+        /**
+         * toast will silently fail if the page does not also include a Toaster component somewhere.
+         * To wit, I have added Toaster to the bottom of app-layout.
+         */
+        // toast("You submitted the following values:", {
+        //     closeButton: true,
+        //     duration: Infinity,
+        //     description: (
+        //         <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
+        //         <code>{JSON.stringify(data, null, 2)}</code>
+        //         </pre>
+        //     ),
+        //     position: "bottom-right",
+        //     classNames: {
+        //         content: "flex flex-col gap-2",
+        //     },
+        //     style: {
+        //         "--border-radius": "calc(var(--radius)  + 4px)",
+        //     } as React.CSSProperties,
+        // })
+
+        router.post(storeMill(), data, {
+            onError: (errors) => {
+                // Manually map Inertia server side errors bak to React Hook Form
+                Object.keys(errors).forEach((key) => {
+                    form.setError(key as keyof z.infer<typeof millFormSchema>, {
+                        type: 'server',
+                        message: errors[key],
+                    })
+                })
+            }
+        })
+    }
 
   return (
     <Card className="w-full sm:max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Add Your Business</CardTitle>
+        <CardTitle>{headline}</CardTitle>
         <CardDescription>
           Help us improve by submitting mills that are not in our system.
         </CardDescription>
@@ -185,12 +149,12 @@ export function MillForm({...props}: MillFormProps) {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="mill_name">
+                  <FieldLabel htmlFor={field.name}>
                     Mill Name
                   </FieldLabel>
                   <Input
                     {...field}
-                    id="mill_name"
+                    id={field.name} //"mill_name"
                     aria-invalid={fieldState.invalid}
                     placeholder="Sawyer's Mill"
                     autoComplete="off"
@@ -222,7 +186,7 @@ export function MillForm({...props}: MillFormProps) {
                 </Field>
               )}
             />
-            
+
             <div className="grid grid-cols-3 gap-4">
                 <Controller
                 name="physical_city"
@@ -245,28 +209,65 @@ export function MillForm({...props}: MillFormProps) {
                     </Field>
                 )}
                 />
-                <div>placeholder for state select</div>
+
+                <Controller
+                    name="state_id"
+                    control={form.control}
+                    render={({field, fieldState}) => (
+                        <Field
+                            orientation="responsive"
+                            data-invalid={fieldState.invalid}
+                        >
+                            <FieldLabel htmlFor="state_id">
+                                State
+                            </FieldLabel>
+                            <Select
+                                name={field.name}
+                                value={field.value}                                
+                                onValueChange={field.onChange}
+                            >
+                                <SelectTrigger
+                                    id="state_id"
+                                    aria-invalid={fieldState.invalid}
+                                    className="min-w-25"
+                                >
+                                    <SelectValue placeholder="State" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {states.map((state) => (
+                                        <SelectItem key={state.value} value={String(state.value)}>
+                                            {state.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {fieldState.invalid && (
+                                <FieldError errors={[fieldState.error]} />
+                            )}
+                        </Field>
+                    )}
+                />
                         
                 <Controller
-                name="physical_zip"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="physical_zip">
-                        ZIP
-                    </FieldLabel>
-                    <Input
-                        {...field}                    
-                        id="physical_zip"
-                        aria-invalid={fieldState.invalid}
-                        placeholder="90210"
-                        autoComplete="off"
-                    />
-                    {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
+                    name="physical_zip"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor="physical_zip">
+                            ZIP
+                        </FieldLabel>
+                        <Input
+                            {...field}                    
+                            id="physical_zip"
+                            aria-invalid={fieldState.invalid}
+                            placeholder="90210"
+                            autoComplete="off"
+                        />
+                        {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                        )}
+                        </Field>
                     )}
-                    </Field>
-                )}
                 />
             </div>
             <Controller
@@ -374,7 +375,7 @@ export function MillForm({...props}: MillFormProps) {
                 </Field>
               )}
             />
-
+{/**
             <Controller
               name="description"
               control={form.control}
@@ -407,6 +408,7 @@ export function MillForm({...props}: MillFormProps) {
                 </Field>
               )}
             />
+ */}            
           </FieldGroup>
         </form>
       </CardContent>
@@ -415,7 +417,7 @@ export function MillForm({...props}: MillFormProps) {
           <Button type="button" variant="outline" onClick={() => form.reset()}>
             Reset
           </Button>
-          <Button type="submit" form="form-rhf-demo">
+          <Button type="submit" form="form-submit-mill">
             Submit
           </Button>
         </Field>
