@@ -89,7 +89,12 @@ class MillController extends Controller
     {
         return Inertia::render('add-business', [
             'pageTitle' => 'Add Your Business',
-            ...$this->getData()
+            'states' => Inertia::once(fn() => 
+                State::withCounties(
+                    cols: ['id', 'name', 'abbreviation'],
+                    countyCols: ['id', 'name', 'state_id']            
+                )->toArray()
+            ),
         ]);
     }
 
@@ -153,8 +158,12 @@ class MillController extends Controller
             }])->get(['id', 'name', 'abbreviation'])
                 ->append(['value', 'label'])
                 ->toArray()),
-            'millTypes' => Inertia::once(fn() => MillType::get(['id', 'name'])->toArray()),
-            'woodSpecies' => Inertia::once(fn() => WoodSpecies::get(['id', 'name'])->toArray()),
+            
+            /**
+             * Move millTypes and woodSpecies to HandleInertiaRequests::shareOnce() because they are used on multiple pages
+             * and rarely, if ever, change.
+             * Could probably do the same with millsApiUrl but hold off
+             */
 
             // easy way to inform the front end of the api url
             'millsApiUrl' => route('api.v1.mills'),            
