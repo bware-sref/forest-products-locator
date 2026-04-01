@@ -106,17 +106,35 @@ class MillController extends Controller
     {
         if ($request->validated()) {
 
-            Inertia::flash([
+            return Inertia::flash([
                 'message' => 'Successfully submitted Mill!',
                 'newMillId' =>  rand(1187, 2000),
+            ])->render('add-business', [
+                'pageTitle' => 'Add Your Business',
+                'states' => Inertia::once(fn() => 
+                    State::getWithCounties(
+                        cols: ['id', 'name', 'abbreviation'],
+                        countyCols: ['id', 'name', 'state_id']
+                    )->toArray()
+                ),
             ]);
-            return back();
+            // return back();
             // pretend to save the mill
             // return Inertia::render('add-business', [
             //     'pageTitle' => 'Successfully Added Your Business',
                 
             // ]);
         }
+        
+        return Inertia::render('add-business', [
+            'pageTitle' => 'Add Your Business',
+            'states' => Inertia::once(fn() => 
+                State::getWithCounties(
+                    cols: ['id', 'name', 'abbreviation'],
+                    countyCols: ['id', 'name', 'state_id']
+                )->toArray()
+            ),
+        ]);
     }
 
     /**
