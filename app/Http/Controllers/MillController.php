@@ -90,7 +90,7 @@ class MillController extends Controller
         return Inertia::render('add-business', [
             'pageTitle' => 'Add Your Business',
             'states' => Inertia::once(fn() => 
-                State::withCounties(
+                State::getWithCounties(
                     cols: ['id', 'name', 'abbreviation'],
                     countyCols: ['id', 'name', 'state_id']            
                 )->toArray()

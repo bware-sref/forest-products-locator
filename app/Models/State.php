@@ -122,4 +122,40 @@ class State extends Model
             ->get();
         return $woodSpecies;
     }
+
+    /**
+     * getMillStates()
+     * Fetches States which have Mills along with their Counties (which have Mills)
+     * The latter portions may end up being optional...via options!
+     * 
+     */
+    public static function getMillStates(?bool $withCounties = true): Collection
+    {
+        $states = State::has('mills');
+        if ($withCounties) {
+            $states->with([
+                'counties' => function ($query) {
+                    $query->select('id', 'name', 'state_id')
+                        ->has('mills')
+                        ->orderBy('name', 'asc');
+            }]);
+        }
+        return $states->get(['id', 'name', 'abbreviation'])
+            ->append(['value', 'label']);
+    }
+
+    public static function getWithCounties(?array $cols = ['*'], ?array $countyCols = ['*'], ?bool $keyForSelect = true): Collection
+    {
+        $states = State::select($cols)
+            ->with([
+                'counties' => function ($query) use ($countyCols) {
+                    $query->select($countyCols)
+                        ->orderBy('name', 'asc');
+            }])->get();
+        
+        if ($keyForSelect) {
+            $states->append(['value', 'label']);
+        }
+        return $states;
+    }
 }
