@@ -59,7 +59,8 @@ class State extends Model
     protected function value(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->id,
+            // casting the value attribute to a string here might have saved us some headache earlier on
+            get: fn () => (string) $this->id,
         );
     }
 
