@@ -22,13 +22,13 @@ import { fetchMills } from '@/lib/api';
  * Maps state IDs to their county lists.
  * Keyed by state.id (as a string, since object keys are always strings).
  */
-type CountiesByState = Record<string, County[]>;
+export type CountiesByState = Record<string, County[]>;
 
 /**
  * Builds a lookup table of counties keyed by state ID from the full states list.
  * Defined outside the hook so it isn't recreated on every render.
  */
-function buildCountiesByState(states: State[]): CountiesByState {
+export function buildCountiesByState(states: State[]): CountiesByState {
     const result: CountiesByState = {};
     for (const state of states) {
         if (state.counties !== undefined) {
@@ -42,7 +42,7 @@ function buildCountiesByState(states: State[]): CountiesByState {
  * Strips county-stripped State objects suitable for the filter dropdowns.
  * Defined outside the hook so it isn't recreated on every render.
  */
-function normaliseStates(states: State[]): State[] {
+export function normaliseStates(states: State[]): State[] {
     return states.map((state) => ({
         id: state.id,
         name: state.name,
