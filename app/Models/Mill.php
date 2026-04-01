@@ -173,6 +173,10 @@ class Mill extends Model
         return $this->belongsTo(County::class);
     }
 
+    /**
+     * @todo: add mailingState and mailingCounty relationships
+     */
+
     // hasMany MillTypes
     public function millTypes(): BelongsToMany
     {
