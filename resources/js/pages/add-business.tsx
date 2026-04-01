@@ -32,7 +32,7 @@ export default function AddBusiness() {
                 </div>
                 {/** I keep forgetting to wonder about the element below */}
                 <div className="hidden h-14.5 lg:block"></div>
-            </div>             
+            </div>
         </AppLayout>
     );
 }
