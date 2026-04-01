@@ -30,11 +30,19 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+export interface FlashDataType {
+    toast?: {
+        type: "success" | "error";
+        message: string;
+    }
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
     sidebarOpen: boolean;
+    flash: FlashDataType;
     [key: string]: unknown;
 }
 
@@ -63,6 +71,7 @@ export interface Mill {
     physical_city?: string;
     county_name?: string;
     physical_state?: string;
+    state_id?: State|number;
     physical_zip?: string;
     mailing_address?: string;
     mailing_city?: string;
