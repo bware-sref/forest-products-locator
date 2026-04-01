@@ -12,7 +12,8 @@ class StoreMillRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // anyone is allowed to do this
+        return true; // false;
     }
 
     /**
