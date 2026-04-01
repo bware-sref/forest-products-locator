@@ -27,6 +27,13 @@ Route::get('/mill-list', [MillController::class, 'index'])
     ->name('mill-list');
 
 /**
+ * Add a Business
+ * MillController?
+ */
+Route::get('/add-business', [MillController::class, 'create'])
+    ->name('add-business');
+
+/**
  * Show details of Mill specified by mill.match_id
  */
 Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
@@ -47,14 +54,6 @@ Route::get('/about-us', function () {
 Route::get('/state-resources', function () {
     return Inertia::render('state-resources', []);
 })->name('state-resources');
-
-/**
- * Add a Business
- * MillController?
- */
-Route::get('/add-business', function () {
-    return Inertia::render('add-business', []);
-})->name('add-business');
 
 /**
  * FAQ
