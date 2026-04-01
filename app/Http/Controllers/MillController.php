@@ -104,7 +104,19 @@ class MillController extends Controller
      */
     public function store(StoreMillRequest $request)
     {
-        //
+        if ($request->validated()) {
+
+            Inertia::flash([
+                'message' => 'Successfully submitted Mill!',
+                'newMillId' =>  rand(1187, 2000),
+            ]);
+            return back();
+            // pretend to save the mill
+            // return Inertia::render('add-business', [
+            //     'pageTitle' => 'Successfully Added Your Business',
+                
+            // ]);
+        }
     }
 
     /**
