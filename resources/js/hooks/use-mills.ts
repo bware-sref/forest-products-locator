@@ -42,7 +42,7 @@ export function buildCountiesByState(states: State[]): CountiesByState {
  * Strips county-stripped State objects suitable for the filter dropdowns.
  * Defined outside the hook so it isn't recreated on every render.
  */
-export function normaliseStates(states: State[]): State[] {
+export function normalizeStates(states: State[]): State[] {
     return states.map((state) => ({
         id: state.id,
         name: state.name,
@@ -124,7 +124,7 @@ export function useMills({
     // Derived-but-stable data (safe to compute once per prop change via useMemo)
     // ---------------------------------------------------------------------------
 
-    const states = useMemo(() => normaliseStates(rawStates), [rawStates]);
+    const states = useMemo(() => normalizeStates(rawStates), [rawStates]);
     const countiesByState = useMemo(() => buildCountiesByState(rawStates), [rawStates]);
 
     // ---------------------------------------------------------------------------
