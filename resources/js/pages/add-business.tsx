@@ -24,16 +24,15 @@ export default function AddBusiness() {
             <Head title={pageTitle} />
             <div className="flex min-h-screen flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature">
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-83.75 flex-col-reverse lg:max-w-4xl lg:flex-row">
-                        <MillForm 
-                            states={page.props.states}
-                            millTypes={page.props.millTypes}
-                            woodSpecies={page.props.woodSpecies}
-                        />
-                    </main>
+                    <MillForm 
+                        states={page.props.states}
+                        millTypes={page.props.millTypes}
+                        woodSpecies={page.props.woodSpecies}
+                    />
                 </div>
+                {/** I keep forgetting to wonder about the element below */}
                 <div className="hidden h-14.5 lg:block"></div>
-            </div>
+            </div>             
         </AppLayout>
     );
 }
