@@ -47,7 +47,7 @@ export function normalizeStates(states: State[]): State[] {
         id: state.id,
         name: state.name,
         abbreviation: state.abbreviation,
-        value: state.value ?? String(state.id),
+        value: String(state.value) ?? String(state.id),
         label: state.label ?? state.name,
     }));
 }
