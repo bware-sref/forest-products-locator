@@ -32,6 +32,8 @@ Route::get('/mill-list', [MillController::class, 'index'])
  */
 Route::get('/add-business', [MillController::class, 'create'])
     ->name('add-business');
+Route::post('/mill', [MillController::class, 'store'])
+    ->name('store-mill');
 
 /**
  * Show details of Mill specified by mill.match_id
