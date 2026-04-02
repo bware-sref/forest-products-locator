@@ -122,6 +122,20 @@ class Mill extends Model
         // foreign keys
         'state_id',
         'county_id',
+        // more foreign keys!
+        'mailing_state_id',
+        'mailing_county_id',
+
+        /**
+         * new fields to handle user submitted mills
+         */
+        'status',
+        'submitter_email',
+        'submitter_ip',
+        'approve_hash',
+        'reject_hash',
+        'reviewed_at',
+
     ];
 
     /**
@@ -174,8 +188,17 @@ class Mill extends Model
     }
 
     /**
-     * @todo: add mailingState and mailingCounty relationships
+     * @tada: add mailingState and mailingCounty relationships
      */
+    public function mailingState(): BelongsTo
+    {
+        return $this->belongsTo(State::class, 'mailing_state_id');
+    }
+
+    public function mailingCounty(): BelongsTo
+    {
+        return $this->belongsTo(County::class, 'mailing_county_id');
+    }
 
     // hasMany MillTypes
     public function millTypes(): BelongsToMany
