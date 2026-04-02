@@ -60,6 +60,7 @@ class State extends Model
     {
         return Attribute::make(
             // casting the value attribute to a string here might have saved us some headache earlier on
+            // except normalizeStates broke when I removed the string cast it contained/s
             get: fn () => (string) $this->id,
         );
     }
@@ -82,6 +83,12 @@ class State extends Model
     public function mills(): HasMany
     {
         return $this->hasMany(Mill::class);
+    }
+
+    // inverse of mailingState relationship
+    public function mailingMills(): HasMany
+    {
+        return $this->hasMany(Mill::class, 'mailing_state_id');
     }
 
     /**
