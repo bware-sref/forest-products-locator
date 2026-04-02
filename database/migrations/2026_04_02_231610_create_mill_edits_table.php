@@ -15,9 +15,7 @@ return new class extends Migration
         Schema::create('mill_edits', function (Blueprint $table) {
             $table->id();
             /**
-             * Columns from FPL/N export
-             * Resist the urge (for now at least) to break addresses out into a separate table.
-             * Allow every column except match_id to be nullable and default to null.
+             * Mill this edit applies to 
              */
             $table->foreignId('mill_id')
                 ->constrained()
