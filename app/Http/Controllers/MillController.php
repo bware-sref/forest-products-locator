@@ -106,11 +106,13 @@ class MillController extends Controller
     {
         if ($request->validated()) {
             $flash = [
+                'type' => 'success',
                 'message' => 'Successfully submitted Mill!',
                 'newMillId' =>  rand(1187, 2000),
             ];
         } else {
             $flash = [
+                'type' => 'error',
                 'message' => 'There are issues with your submission.',
             ];
         }

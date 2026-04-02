@@ -34,7 +34,17 @@ export interface FlashDataType {
     toast?: {
         type: "success" | "error";
         message: string;
+        [key: string]: unknown;
     }
+}
+
+/**
+ * Is this necessary?
+ * Dunno.
+ */
+export interface ErrorValueType {
+    errors: string[];
+    [key: string]: unknown;
 }
 
 export interface SharedData {
