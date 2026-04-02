@@ -4,7 +4,7 @@ namespace App\Enums;
 
 enum PublicationStatus: string
 {
-    case Published = 'published';
+    case Approved = 'approved';
     case Pending = 'pending';
     case Rejected = 'rejected';
 }
