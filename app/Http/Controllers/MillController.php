@@ -105,36 +105,17 @@ class MillController extends Controller
     public function store(StoreMillRequest $request)
     {
         if ($request->validated()) {
-
-            return Inertia::flash([
+            $flash = [
                 'message' => 'Successfully submitted Mill!',
                 'newMillId' =>  rand(1187, 2000),
-            ])->render('add-business', [
-                'pageTitle' => 'Add Your Business',
-                'states' => Inertia::once(fn() => 
-                    State::getWithCounties(
-                        cols: ['id', 'name', 'abbreviation'],
-                        countyCols: ['id', 'name', 'state_id']
-                    )->toArray()
-                ),
-            ]);
-            // return back();
-            // pretend to save the mill
-            // return Inertia::render('add-business', [
-            //     'pageTitle' => 'Successfully Added Your Business',
-                
-            // ]);
+            ];
+        } else {
+            $flash = [
+                'message' => 'There are issues with your submission.',
+            ];
         }
-        
-        return Inertia::render('add-business', [
-            'pageTitle' => 'Add Your Business',
-            'states' => Inertia::once(fn() => 
-                State::getWithCounties(
-                    cols: ['id', 'name', 'abbreviation'],
-                    countyCols: ['id', 'name', 'state_id']
-                )->toArray()
-            ),
-        ]);
+        Inertia::flash($flash);
+        return to_route('add-business');        
     }
 
     /**

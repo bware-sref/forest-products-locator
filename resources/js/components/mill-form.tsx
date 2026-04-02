@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import * as z from "zod"
 import { storeMill } from "@/routes";
 import { router } from '@inertiajs/react';
+// import { FlashData, GlobalEvent } from '@inertiajs/core';
 
 import {
     type State,
@@ -121,6 +122,18 @@ export function MillForm({...props}: MillFormProps) {
         // })
 
         router.post(storeMill(), data, {
+            onFlash: (flash) => {
+              console.log('flash: ', flash);
+              if (flash.message) {
+                toast("The server responded: ", {
+                  description: (
+                    <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
+                    <code>{JSON.stringify(flash, null, 2)}</code>
+                    </pre>
+                  ),
+                });
+              }
+            },
             onError: (errors) => {
                 // Manually map Inertia server side errors bak to React Hook Form
                 Object.keys(errors).forEach((key) => {
