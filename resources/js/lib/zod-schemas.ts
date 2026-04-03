@@ -88,15 +88,13 @@ export const millFormSchema =  z.object({
     // we may want to define (or duh, find) a regex for phone numbers
     telephone: z
         .string()
-        .min(10, 'Telephone must be at least 10 characters.')
-        .max(17, 'Telephone must be at most 17 characters.')
+        .regex(/^\+?1?(\s*[\-\.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[\-\.]\s*|\s+)?[0-9]{3}(\s*[\-\.]\s*|\s+)?[0-9]{4}$/, 'Telephone must be a valid US phone number.')
         .optional()
         .or(z.literal('')),
 
     fax: z
         .string()
-        .min(10, 'Fax must be at least 10 characters.')
-        .max(17, 'Fax must be at most 17 characters.')
+        .regex(/^\+?1?(\s*[\-\.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[\-\.]\s*|\s+)?[0-9]{3}(\s*[\-\.]\s*|\s+)?[0-9]{4}$/, 'Fax must be a valid US phone number.')
         .optional()
         .or(z.literal('')),
 
