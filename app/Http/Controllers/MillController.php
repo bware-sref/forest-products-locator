@@ -23,28 +23,6 @@ class MillController extends Controller
         return Inertia::render('mill-list-page', [
             'pageTitle' => 'Mill List',
             ...$this->getData($request),
-            /**
-             * we can forego the counties by just loading them onto the states
-             * still need to only load the counties that have mills though.
-             * 
-             * Dagnabbit!
-             * We can't use with() to fetch each states millTypes and woodSpecies...
-             * Maybe I should just install the deep relationship package?
-             */
-            // 'states' => Inertia::once(fn() => State::has('mills')->with([
-            //     'counties' => function ($query) {
-            //         $query->select('id', 'name', 'state_id')
-            //             ->has('mills')
-            //             ->orderBy('name', 'asc');
-            // }])->get(['id', 'name', 'abbreviation'])
-            //     ->append(['value', 'label'])
-            //     ->toArray()),
-            // // 'counties' => Inertia::once(fn() => County::has('mills')->get()->load('state')->toArray()),
-            // 'millTypes' => Inertia::once(fn() => MillType::get(['id', 'name'])->toArray()),
-            // 'woodSpecies' => Inertia::once(fn() => WoodSpecies::get(['id', 'name'])->toArray()),
-
-            // // easy way to inform the front end of the api url
-            // 'millsApiUrl' => route('api.v1.mills'),
         ]);
     }
 
@@ -110,6 +88,8 @@ class MillController extends Controller
          *  - poll amazon to lookup lat & long
          *  - lookup county? maybe, depends on what comes back from the geocode request
          */
+        $data = $request->validated();
+        Log::debug('validated data', $data);
         if ($request->validated()) {
             $flash = [
                 'type' => 'success',
