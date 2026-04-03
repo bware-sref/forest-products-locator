@@ -46,6 +46,10 @@ class StoreMillRequest extends FormRequest
             /**
              * latitude and longitude can be filled via reverse geolookup
              */
+
+            // if present and true, use the same values for mailing address as physical address
+            'mailing_address_same_as_physical' => 'boolean|nullable',
+
             /**
              * county_id can be filled in based on state and reverse geolookup
              * we could also allow it here...
@@ -90,8 +94,12 @@ class StoreMillRequest extends FormRequest
             'year' => 'numeric|nullable|max:4',
 
             /**
-             * if we're going with a separate table for user-submitted Mills, which I think we probably should, we should probably add a
-             * field for capturing the submitter's email address
+             * @todo: add millTypes array
+             * @todo: add woodSpecies array
+             */
+
+            /**
+             * @todo: add submitter_email
              */
 
         ];
