@@ -137,8 +137,8 @@ export interface State {
     longitude?: string;
     counties?: County[];
     mills?: Mill[];
-    value?: string;
-    label?: string;
+    value: string;
+    label: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
