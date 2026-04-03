@@ -7,7 +7,6 @@ import { toast } from "sonner"
 import * as z from "zod"
 import { storeMill } from "@/routes";
 import { router } from '@inertiajs/react';
-// import { FlashData, GlobalEvent } from '@inertiajs/core';
 
 import {
     type State,
@@ -29,6 +28,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Field,
 //   FieldDescription,
@@ -39,12 +39,6 @@ import {
   FieldSet,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-// import {
-//   InputGroup,
-//   InputGroupAddon,
-//   InputGroupText,
-//   InputGroupTextarea,
-// } from "@/components/ui/input-group"
 import {
     Select,
     SelectContent,
@@ -54,15 +48,14 @@ import {
 } from '@/components/ui/select';
 import {
   ControlledCombobox,
-  // type ControlledComboboxProps,
-  // type HasValueAndLabel,
 } from "@/components/extend/controlled-combobox";
-
-
+import { ControlledInput } from "@/components/extend/controlled-input";
+import { ControlledSelect } from "@/components/extend/controlled-select";
 import {
     millFormSchema
 } from '@/lib/zod-schemas';
-import { Checkbox } from "@/components/ui/checkbox"
+
+
 
 
 type MillFormData = z.infer<typeof millFormSchema>;
@@ -187,136 +180,47 @@ export function MillForm({...props}: MillFormProps) {
         <form id="form-submit-mill" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
 
-            <Controller
-              name="mill_name"
+            <ControlledInput
               control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Mill Name
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder=""
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              name="mill_name"
+              label="Mill Name"
+              placeholder=""
             />
 
             {/** Physical Address */}
             <FieldSet id="physical_address_wrap">
               <FieldLegend>Physical Address</FieldLegend>
-              <Controller
-                name="physical_address"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Street Address
-                    </FieldLabel>
-                    <Input
-                      {...field}                    
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="123 Sawyer's Mill Rd"
-                      autoComplete="off"
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+                <ControlledInput
+                  control={form.control}
+                  name="physical_address"
+                  label="Street Address"
+                  placeholder=""
+                />
 
               <div className="grid grid-cols-3 gap-4 mt-3">
 
-                  <Controller
-                  name="physical_city"
+                <ControlledInput
                   control={form.control}
-                  render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor={field.name}>
-                          City
-                      </FieldLabel>
-                      <Input
-                          {...field}                    
-                          id={field.name}
-                          aria-invalid={fieldState.invalid}
-                          placeholder="Milltown"
-                          autoComplete="off"
-                      />
-                      {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                      )}
-                      </Field>
-                  )}
-                  />
+                  name="physical_city"
+                  label="City"
+                  placeholder=""
+                />
 
-                  <Controller
-                      name="state_id"
-                      control={form.control}
-                      render={({field, fieldState}) => (
-                          <Field
-                              orientation="responsive"
-                              data-invalid={fieldState.invalid}
-                          >
-                              <FieldLabel htmlFor={field.name}>
-                                  State
-                              </FieldLabel>
-                              <Select
-                                  name={field.name}
-                                  value={field.value}                                
-                                  onValueChange={field.onChange}
-                              >
-                                  <SelectTrigger
-                                      id={field.name}
-                                      aria-invalid={fieldState.invalid}
-                                      className="min-w-25"
-                                  >
-                                      <SelectValue placeholder="State" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                      {states.map((state) => (
-                                          <SelectItem key={state.value} value={String(state.value)}>
-                                              {state.label}
-                                          </SelectItem>
-                                      ))}
-                                  </SelectContent>
-                              </Select>
-                              {fieldState.invalid && (
-                                  <FieldError errors={[fieldState.error]} />
-                              )}
-                          </Field>
-                      )}
-                  />
-                          
-                  <Controller
-                      name="physical_zip"
-                      control={form.control}
-                      render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid}>
-                          <FieldLabel htmlFor={field.name}>
-                              ZIP
-                          </FieldLabel>
-                          <Input
-                              {...field}                    
-                              id={field.name}
-                              aria-invalid={fieldState.invalid}
-                              placeholder="90210"
-                              autoComplete="off"
-                          />
-                          {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                          )}
-                          </Field>
-                      )}
-                  />
+                <ControlledSelect
+                  control={form.control}
+                  name="state_id"
+                  label="State"
+                  items={states}
+                  placeholder=""
+                />
+
+                <ControlledInput
+                    control={form.control}
+                    name="physical_zip"
+                    label="ZIP"
+                    placeholder=""
+                />
+                
               </div>
             </FieldSet>
             {/** end Physical Address */}
@@ -344,222 +248,74 @@ export function MillForm({...props}: MillFormProps) {
             {/** Mailing Address */}
             <FieldSet id="mailing_address_wrap" className={!watchMailingSameAsPhysical ? '' : 'hidden'}>
               <FieldLegend>Mailing Address</FieldLegend>
-              <Controller
-                name="mailing_address"
+
+              <ControlledInput
                 control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Street Address
-                    </FieldLabel>
-                    <Input
-                      {...field}                    
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="123 Sawyer's Mill Rd"
-                      autoComplete="off"
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+                name="mailing_address"
+                label="Street Address"
+                placeholder=""
               />
 
               <div className="grid grid-cols-3 gap-4 mt-3">
 
-                  <Controller
-                  name="mailing_city"
+                <ControlledInput
                   control={form.control}
-                  render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor={field.name}>
-                          City
-                      </FieldLabel>
-                      <Input
-                          {...field}                    
-                          id={field.name}
-                          aria-invalid={fieldState.invalid}
-                          placeholder="Milltown"
-                          autoComplete="off"
-                      />
-                      {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                      )}
-                      </Field>
-                  )}
-                  />
+                  name="mailing_city"
+                  label="City"
+                  placeholder=""
+                />
 
-                  <Controller
-                      name="mailing_state_id"
-                      control={form.control}
-                      render={({field, fieldState}) => (
-                          <Field
-                              orientation="responsive"
-                              data-invalid={fieldState.invalid}
-                          >
-                              <FieldLabel htmlFor={field.name}>
-                                State
-                              </FieldLabel>
-                              <Select
-                                  name={field.name}
-                                  value={field.value}                                
-                                  onValueChange={field.onChange}
-                              >
-                                  <SelectTrigger
-                                      id={field.name}
-                                      aria-invalid={fieldState.invalid}
-                                      className="min-w-25"
-                                  >
-                                      <SelectValue placeholder="State" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                      {states.map((state) => (
-                                          <SelectItem key={state.value} value={String(state.value)}>
-                                              {state.label}
-                                          </SelectItem>
-                                      ))}
-                                  </SelectContent>
-                              </Select>
-                              {fieldState.invalid && (
-                                  <FieldError errors={[fieldState.error]} />
-                              )}
-                          </Field>
-                      )}
-                  />
-                          
-                  <Controller
-                      name="mailing_zip"
-                      control={form.control}
-                      render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid}>
-                          <FieldLabel htmlFor={field.name}>
-                              ZIP
-                          </FieldLabel>
-                          <Input
-                              {...field}                    
-                              id={field.name}
-                              aria-invalid={fieldState.invalid}
-                              placeholder="90210"
-                              autoComplete="off"
-                          />
-                          {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                          )}
-                          </Field>
-                      )}
-                  />
+                <ControlledSelect
+                  control={form.control}
+                  name="mailing_state_id"
+                  label="State"
+                  items={states}
+                  placeholder=""
+                />
+                  
+                <ControlledInput
+                    control={form.control}
+                    name="mailing_zip"
+                    label="ZIP"
+                    placeholder=""
+                />
+
               </div>
             </FieldSet>{/** end mailing Address */}
 
-            <Controller
+            <ControlledInput 
+              control={form.control}
               name="telephone"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Telephone
-                  </FieldLabel>
-                  <Input
-                    {...field}                    
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="555.867.5309"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              label="Telephone"
+              placeholder=""
             />
 
-            <Controller
+            <ControlledInput
+              control={form.control}
               name="fax"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Fax
-                  </FieldLabel>
-                  <Input
-                    {...field}                    
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="555.867.5309"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              label="Fax"
+              placeholder=""
             />
 
-            <Controller
+            <ControlledInput
+              control={form.control}
               name="email"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Email
-                  </FieldLabel>
-                  <Input
-                    {...field}                    
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="mill.email@example.com"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              label="Email"
+              placeholder=""
             />
 
-            <Controller
+            <ControlledInput
+              control={form.control}
               name="web_site"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Website URL
-                  </FieldLabel>
-                  <Input
-                    {...field}                    
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="https://primary.forestproductslocator.org"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              label="Mill Website"
+              placeholder="Please include the full URL, including http:// or https://"
             />
 
-            <Controller
-              name="size"
+            <ControlledInput
               control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Mill Size
-                  </FieldLabel>
-                  <Input
-                    {...field}                    
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Small? Medium? Large? 2?"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              name="size"
+              label="Mill Size"
+              placeholder=""
             />
 
             {/** we need to use combobox to allow multiple selections */}
@@ -584,62 +340,13 @@ export function MillForm({...props}: MillFormProps) {
               multiple              
             />
 
-            <Controller
-              name="submitter_email"
+            <ControlledInput
               control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Your Email
-                  </FieldLabel>
-                  <Input
-                    {...field}                    
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="your.email@example.com"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              name="submitter_email"
+              label="Your Email"
+              placeholder=""
             />
 
-{/**
-            <Controller
-              name="description"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-description">
-                    Description
-                  </FieldLabel>
-                  <InputGroup>
-                    <InputGroupTextarea
-                      {...field}
-                      id="form-rhf-demo-description"
-                      placeholder="These is a placeholder..."
-                      rows={6}
-                      className="min-h-24 resize-none"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    <InputGroupAddon align="block-end">
-                      <InputGroupText className="tabular-nums">
-                        {field.value ? field.value.length : 0}/100 characters
-                      </InputGroupText>
-                    </InputGroupAddon>
-                  </InputGroup>
-                  <FieldDescription>
-                    FieldDescription placeholder
-                  </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
- */}            
           </FieldGroup>
         </form>
       </CardContent>
