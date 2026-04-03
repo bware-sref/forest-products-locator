@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
     Control,
     Controller,
@@ -19,23 +20,34 @@ export function ControlledInput<FormValues extends FieldValues>({
     name,
     label,
     placeholder,
+    autoComplete = "off",
     ...props
 }: {
     control: Control<FormValues>;
     name: Path<FormValues>;
     label: string;
     placeholder?: string;
+    autoComplete?: HTMLInputAutoCompleteAttribute;    
     [key: string]: unknown;
 }) {
-    const autoComplete = props.autoComplete || "off";
+    const fieldClassName = props.fieldClassName ?? "";
+    const labelClassName = props.labelClassName ?? "";
+    const inputClassName = props.inputClassName ?? "";
+
     return (
-        <Controller
+        <Controller            
             name={name}
             control={control}
             render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                    {label}
+                <Field 
+                    data-invalid={fieldState.invalid}
+                    className={cn(fieldClassName)}
+                >
+                    <FieldLabel
+                        htmlFor={field.name}
+                        className={cn(labelClassName)}
+                    >
+                        {label}
                     </FieldLabel>
                     <Input
                         {...field}
@@ -43,6 +55,7 @@ export function ControlledInput<FormValues extends FieldValues>({
                         aria-invalid={fieldState.invalid}
                         placeholder={placeholder}
                         autoComplete={autoComplete as HTMLInputAutoCompleteAttribute}
+                        className={cn(inputClassName)}
                     />
                     {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />

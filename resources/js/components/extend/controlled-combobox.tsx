@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
     Control,
     Controller,
@@ -54,6 +55,11 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
     ...props
 }: ControlledComboboxProps<FormValues, Item>) {
 
+    // hacky way to deal with props that avoids es-lint errors about unused variables and also allows us to pass through any additional props to the Combobox component
+    const fieldClassName = props.fieldClassName ?? "";
+    const labelClassName = props.labelClassName ?? "";
+    
+
     const getItemLabel = (item: Item) => {
         console.log("Getting label for item:", item);
         if (itemToLabel) {
@@ -80,8 +86,16 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
             control={control}
             name={name}
             render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+                <Field 
+                    data-invalid={fieldState.invalid}
+                    className={cn(fieldClassName)}
+                >
+                    <FieldLabel
+                        htmlFor={field.name}
+                        className={cn(labelClassName)}
+                    >
+                        {label}
+                    </FieldLabel>
 
                     <Combobox
                         value={field.value as unknown as string | string[]}
@@ -97,7 +111,7 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
                                     
                                     <ComboboxChip 
                                         key={item}
-                                        >
+                                    >
                                         {itemsKeyedByValue[item] || item}
                                     </ComboboxChip>
                                 ))}
