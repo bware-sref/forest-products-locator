@@ -104,6 +104,12 @@ class MillController extends Controller
      */
     public function store(StoreMillRequest $request)
     {
+        /**
+         * if the request validates, we need to flesh out the data before storing it
+         * flesh out means:
+         *  - poll amazon to lookup lat & long
+         *  - lookup county? maybe, depends on what comes back from the geocode request
+         */
         if ($request->validated()) {
             $flash = [
                 'type' => 'success',
