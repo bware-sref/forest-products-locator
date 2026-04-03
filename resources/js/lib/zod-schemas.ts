@@ -41,6 +41,14 @@ export const millFormSchema =  z.object({
     // I'm not sure we ever want to add County if we are able to look it up
     // I ask because county_id select would need to update when state changes
     // which is fine, but seems a tad advanced for the first pass
+    // how about a checkbox for specifying that street and mailing addresses are the same?
+    mailing_address_same_as_physical: z
+        .boolean(),
+        // .optional()
+        /**
+         * FYI, default() makes the field optional, but it doesn't work with checkboxes because they always submit a value (true or false)
+         */
+        // .default(true),
 
     /**
      * more fields!
@@ -51,6 +59,31 @@ export const millFormSchema =  z.object({
      * mailing_zip
      * mailing_county_id
      */
+    mailing_address: z
+        .string()
+        .min(5, 'Address must be at least 5 characters.')
+        .max(255, 'Address must be at most 255 characters.')
+        .optional()
+        .or(z.literal('')),
+
+    mailing_city: z
+        .string()
+        .min(3, 'City must be at least 3 characters.')
+        .max(255, 'City must be at most 255 characters.')
+        .optional()
+        .or(z.literal('')),
+
+    mailing_state_id: z
+        .string()
+        .optional()
+        .or(z.literal('')),
+
+    // probably should add a regex for 
+    mailing_zip: z
+        .string()
+        .regex(/^\d{5}(-\d{4})?$/, 'ZIP Code must be at least 5 digits. Optional 4-digit suffix must follow a "-", ex: 12345-6789.')
+        .optional()
+        .or(z.literal('')),
 
     // we may want to define (or duh, find) a regex for phone numbers
     telephone: z
@@ -85,6 +118,18 @@ export const millFormSchema =  z.object({
         .optional()
         .or(z.literal('')),
 
-    // millTypes
-    // woodSpecies
+    // millTypes - array containing zero or more string mill_type_ids
+    mill_types: z
+        .array(z.string()),
+        // .default([]),
+
+    // woodSpecies - array containing zero or more string wood_species_ids
+    wood_species: z
+        .array(z.string()),
+        // .default([]),
+
+    // submitter_email - required
+    submitter_email: z
+        .email(),
+
 });
