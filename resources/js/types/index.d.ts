@@ -30,13 +30,13 @@ export interface NavItem {
     isActive?: boolean;
 }
 
-export interface FlashDataType {
-    toast?: {
-        type: "success" | "error";
-        message: string;
-        [key: string]: unknown;
-    }
-}
+// export interface FlashDataType {
+//     toast?: {
+//         type?: "success" | "error" | string;
+//         message: string;
+//         [key: string]: unknown;
+//     }
+// }
 
 /**
  * Is this necessary?
