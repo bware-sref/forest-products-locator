@@ -94,13 +94,22 @@ class StoreMillRequest extends FormRequest
             'year' => 'numeric|nullable|max:4',
 
             /**
-             * @todo: add millTypes array
-             * @todo: add woodSpecies array
+             * @tada: add millTypes array
+             * @tada: add woodSpecies array
              */
+            'mill_types' => 'array|nullable',
+            'mill_types.*' => 'numeric|exists:mill_types,id',
+            'wood_species' => 'array|nullable',
+            'wood_species.*' => 'numeric|exists:wood_species,id',
 
             /**
-             * @todo: add submitter_email
+             * @tada: add submitter_email
              */
+            'submitter_email' => [
+                Rule::email()
+                    ->rfcCompliant(strict: true) // check for strict RFC compliance
+                    ->preventSpoofing() // prevent sneaky, lookalike Unicode characters
+            ],
 
         ];
     }
