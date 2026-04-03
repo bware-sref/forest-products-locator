@@ -10,13 +10,14 @@ import {
   Combobox,
   ComboboxChip,
   ComboboxChips,
+  ComboboxChipsInput,
   ComboboxContent,
 //   ComboboxEmpty,
   ComboboxItem,
 //   ComboboxInput,
   ComboboxList,
   ComboboxValue,
-  ComboboxChipsInput,
+  useComboboxAnchor,
 } from "@/components/ui/combobox";
 import {
   Field,
@@ -58,7 +59,9 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
     // hacky way to deal with props that avoids es-lint errors about unused variables and also allows us to pass through any additional props to the Combobox component
     const fieldClassName = props.fieldClassName ?? "";
     const labelClassName = props.labelClassName ?? "";
-    
+    const chipsClassName = props.chipsClassName ?? "w-full max-w-sm";
+
+    const anchor = useComboboxAnchor();
 
     const getItemLabel = (item: Item) => {
         console.log("Getting label for item:", item);
@@ -105,7 +108,9 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
                         autoHighlight
                         {...(props as React.ComponentPropsWithoutRef<typeof Combobox>)}
                     >
-                        <ComboboxChips>
+                        <ComboboxChips 
+                            ref={anchor}
+                            className={cn(chipsClassName)}>
                             <ComboboxValue>
                                 {field.value.map((item: string) => (
                                     
@@ -121,7 +126,7 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
                                 // placeholder={placeholder}
                             />
                         </ComboboxChips>
-                        <ComboboxContent>
+                        <ComboboxContent anchor={anchor}>
                             {/* <ComboboxEmpty>No results found.</ComboboxEmpty> */}
                             <ComboboxList>
                                 {items.map((item) => (
