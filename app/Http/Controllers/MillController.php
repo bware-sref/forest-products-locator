@@ -87,8 +87,10 @@ class MillController extends Controller
          * flesh out means:
          *  - poll amazon to lookup lat & long
          *  - lookup county? maybe, depends on what comes back from the geocode request
+         *  - add the submitter's IP to the data
          */
-        $data = $request->validated();
+        // $data = $request->validated();
+        $data = $request->safe()->all();
         Log::debug('validated data', $data);
         if ($request->validated()) {
             $flash = [
