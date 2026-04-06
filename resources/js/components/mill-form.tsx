@@ -38,21 +38,22 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+// import { Input } from "@/components/ui/input"
+// import {
+//     Select,
+//     SelectContent,
+//     SelectItem,
+//     SelectTrigger,
+//     SelectValue,
+// } from '@/components/ui/select';
 import {
   ControlledCombobox,
 } from "@/components/extend/controlled-combobox";
 import { ControlledInput } from "@/components/extend/controlled-input";
 import { ControlledSelect } from "@/components/extend/controlled-select";
 import {
-    millFormSchema
+    millFormSchema,
+    doesZodRequire,
 } from '@/lib/zod-schemas';
 
 
@@ -174,6 +175,8 @@ export function MillForm({...props}: MillFormProps) {
         <CardTitle>{headline}</CardTitle>
         <CardDescription>
           Help us improve by submitting mills that are not in our system.
+          <br />
+          Required fields are marked with an asterisk (<span className="text-destructive">*</span>).
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -185,6 +188,7 @@ export function MillForm({...props}: MillFormProps) {
               name="mill_name"
               label="Mill Name"
               placeholder=""
+              required={doesZodRequire(millFormSchema, 'mill_name')}
             />
 
             {/** Physical Address */}
@@ -195,6 +199,7 @@ export function MillForm({...props}: MillFormProps) {
                   name="physical_address"
                   label="Street Address"
                   placeholder=""
+                  required={doesZodRequire(millFormSchema, 'physical_address')}
                 />
 
               <div className="grid grid-cols-3 gap-4 mt-3">
@@ -204,6 +209,7 @@ export function MillForm({...props}: MillFormProps) {
                   name="physical_city"
                   label="City"
                   placeholder=""
+                  required={doesZodRequire(millFormSchema, 'physical_city')}
                 />
 
                 <ControlledSelect
@@ -212,6 +218,7 @@ export function MillForm({...props}: MillFormProps) {
                   label="State"
                   items={states}
                   placeholder=""
+                  required={doesZodRequire(millFormSchema, 'state_id')}
                 />
 
                 <ControlledInput
@@ -219,6 +226,7 @@ export function MillForm({...props}: MillFormProps) {
                     name="physical_zip"
                     label="ZIP"
                     placeholder=""
+                    required={doesZodRequire(millFormSchema, 'physical_zip')}
                 />
                 
               </div>
@@ -288,6 +296,7 @@ export function MillForm({...props}: MillFormProps) {
               name="telephone"
               label="Telephone"
               placeholder=""
+              required={doesZodRequire(millFormSchema, 'telephone')}
             />
 
             <ControlledInput
@@ -295,6 +304,7 @@ export function MillForm({...props}: MillFormProps) {
               name="fax"
               label="Fax"
               placeholder=""
+              required={doesZodRequire(millFormSchema, 'fax')}
             />
 
             <ControlledInput
@@ -302,6 +312,7 @@ export function MillForm({...props}: MillFormProps) {
               name="email"
               label="Email"
               placeholder=""
+              required={doesZodRequire(millFormSchema, 'email')}
             />
 
             <ControlledInput
@@ -309,6 +320,7 @@ export function MillForm({...props}: MillFormProps) {
               name="web_site"
               label="Mill Website"
               placeholder="Please include the full URL, including http:// or https://"
+              required={doesZodRequire(millFormSchema, 'web_site')}
             />
 
             <ControlledInput
@@ -316,6 +328,7 @@ export function MillForm({...props}: MillFormProps) {
               name="size"
               label="Mill Size"
               placeholder=""
+              required={doesZodRequire(millFormSchema, 'size')}
             />
 
             {/** we need to use combobox to allow multiple selections */}
@@ -345,6 +358,7 @@ export function MillForm({...props}: MillFormProps) {
               name="submitter_email"
               label="Your Email"
               placeholder=""
+              required={doesZodRequire(millFormSchema, 'submitter_email')}
             />
 
           </FieldGroup>
