@@ -2,8 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PublicationStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+
+use function Symfony\Component\Clock\now;
 
 class StoreMillRequest extends FormRequest
 {
@@ -30,8 +36,10 @@ class StoreMillRequest extends FormRequest
              * we could handle this several ways:
              *  - update existing mills to ensure unique mill_names
              *  - we could still use unique here ensure that no new mills are submitted with duplicate names
+             *  - if we reject duplicate names, we prevent multiple submissions for the same mill, which is good, but we also prevent submissions for mills that share a name with an existing mill, which is bad.
              */
-            'mill_name'=> 'required|string|unique:mills,mill_name|max:255',
+            // 'mill_name'=> 'required|string|unique:mills,mill_name|max:255',
+            'mill_name'=> 'required|string|min:2|max:255',
             /**
              * match_id can be created with slugify
              * still needs to be unique
@@ -113,4 +121,72 @@ class StoreMillRequest extends FormRequest
 
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        Log::debug('Running prepareForValidation() with data: ', $this->all());
+        $this->merge([
+            // 'mailing_address_same_as_physical' => $this->boolean('mailing_address_same_as_physical'),
+            'submitter_ip' => $this->ip(),
+            'status' => PublicationStatus::Pending->value,
+            // if and when approved, we can consider changing the match_id to a cleaner slug, but for now, let's just ensure uniqueness by appending a suffix based on the number of existing mills with the same base slug.
+            'match_id' => Str::slug($this->mill_name) . '-' . Carbon::now(),
+        ]);
+
+        // if mailing and physical addresses are the same, copy physical address fields to mailing address fields
+        if ($this->input('mailing_address_same_as_physical') && 
+            (!empty($this->input('physical_address')) || 
+                !empty($this->input('physical_city')) || 
+                // state_id is required, so we can assume it's not empty if the validation passed, but we'll check it anyway
+                !empty($this->input('state_id')) || 
+                !empty($this->input('physical_zip'))
+            )) {
+            Log::debug('mailing_address_same_as_physical is true, copying physical address fields to mailing address fields');
+            $this->merge([
+                'mailing_address' => $this->input('physical_address'),
+                'mailing_city' => $this->input('physical_city'),
+                'mailing_state_id' => $this->input('state_id'),
+                'mailing_zip' => $this->input('physical_zip'),
+            ]);
+        }
+
+        // also, we need to add approve and reject hashes to the data so that we can include them in the email to the admin for approving or rejecting the mill submission without having to log in to the admin panel and find the mill record.
+
+        Log::debug('Data after merging additional fields in prepareForValidation(): ', $this->all());
+    }
+
+
+    /**
+     * after validation, we need to "flesh out" the data by:
+     *  - adding submitter's IP address
+     *  - set status to "pending"
+     *  - generate a unique slug for match_id
+     *  - what is our strategy for handling duplicate match_id slugs?
+     *      query for the slug with possible suffixes, e.g., 'slug%'
+     *      sort the results by match_id in descending order
+     *     if the base slug exists, add a suffix of -2, -3, etc. based on the number of existing slugs
+     *  - also, we need to check to see if mailing and physical addresses are the same and if so, copy the physical address fields to the mailing address fields
+     *  - do we want to normalize phone numbers here too?
+     *  - preg replace all non-digit characters, ltrim leading 1 if present, and then reformat as 123.456.7890
+     * passedValidation() doesn't seem to do anything, so I'm doing this in prepareForValidation() instead, which runs before validation and allows us to modify the data before it is validated.
+     */
+    // protected function passedValidation(): void
+    // {
+        // Log::debug('Running passedValidation() to flesh out data', $this->all());
+        // $this->replace([
+        //     'submitter_ip' => $this->ip(),
+        //     'status' => PublicationStatus::Pending->value,
+        //     'match_id' => Str::slug($this->mill_name),
+        // ]);
+
+        // if mailing and physical addresses are the same, copy physical address fields to mailing address fields
+        // if ($this->input('mailing_address_same_as_physical')) {
+        //     $this->replace([
+        //         'mailing_address' => $this->input('physical_address'),
+        //         'mailing_city' => $this->input('physical_city'),
+        //         'mailing_state_id' => $this->input('state_id'),
+        //         'mailing_zip' => $this->input('physical_zip'),
+        //     ]);
+        // }
+    // }
 }
