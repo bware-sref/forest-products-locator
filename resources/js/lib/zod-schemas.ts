@@ -1,6 +1,12 @@
 // Externalize our Zod schemas to clean up components
 import { z } from 'zod';
 
+// attempting to safeParse() undefined is the "correct" way to determine if a field is required in Zod 4.
+export function doesZodRequire(schema: z.ZodObject<any>, field: string): boolean {
+    const fieldSchema = schema.shape[field];
+    return !fieldSchema.safeParse(undefined).success;
+}
+
 export const millFormSchema =  z.object({
 
     mill_name: z
