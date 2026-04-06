@@ -27,12 +27,22 @@ export function ControlledInput<FormValues extends FieldValues>({
     name: Path<FormValues>;
     label: string;
     placeholder?: string;
-    autoComplete?: HTMLInputAutoCompleteAttribute;    
+    autoComplete?: HTMLInputAutoCompleteAttribute;
+    required?: boolean;
+    fieldClassName?: string;
+    labelClassName?: string;
+    inputClassName?: string;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "name"> & {
     [key: string]: unknown;
 }) {
     const fieldClassName = props.fieldClassName ?? "";
     const labelClassName = props.labelClassName ?? "";
     const inputClassName = props.inputClassName ?? "";
+
+    // if we make this required, we want to add the required attribute to the input element, but we also want to add a visual indicator to the label and field. We can do this by checking if the required prop is true or if any of the classNames include "required". This way, we can support both explicit and implicit ways of marking a field as required.
+    const required = props.required ||fieldClassName.includes("required");
+
+    
 
     return (
         <Controller            
@@ -41,7 +51,7 @@ export function ControlledInput<FormValues extends FieldValues>({
             render={({ field, fieldState }) => (
                 <Field 
                     data-invalid={fieldState.invalid}
-                    className={cn(fieldClassName)}
+                    className={cn(fieldClassName + (required ? " required" : ""))}
                 >
                     <FieldLabel
                         htmlFor={field.name}

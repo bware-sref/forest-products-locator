@@ -44,13 +44,15 @@ export function ControlledSelect<FormValues extends FieldValues, Item extends Se
     items,
     multiple = false,
     placeholder,
-    orientation = "responsive",
+    orientation = "responsive",    
     ...props
 }: ControlledSelectProps<FormValues, Item>) {
     
-    const fieldClassName = props.fieldClassName ?? "";
+    const fieldClassName = String(props.fieldClassName) ?? "";
     const labelClassName = props.labelClassName ?? "";
     const selectTriggerClassName = props.selectTriggerClassName ?? "min-w-25";
+
+    const required = props.required || fieldClassName.includes("required");
 
     return (
         <Controller
@@ -60,7 +62,7 @@ export function ControlledSelect<FormValues extends FieldValues, Item extends Se
                 <Field
                     orientation={orientation}
                     data-invalid={fieldState.invalid}
-                    className={cn(fieldClassName)}
+                    className={cn(fieldClassName + (required ? " required" : ""))}
                 >
                     <FieldLabel
                         htmlFor={field.name}
