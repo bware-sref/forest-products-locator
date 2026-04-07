@@ -57,7 +57,7 @@ class StoreMillRequest extends FormRequest
                 'nullable',
                 'max:10',
             ],
-            
+
             /**
              * latitude and longitude can be filled via reverse geolookup
              */
@@ -131,7 +131,8 @@ class StoreMillRequest extends FormRequest
             'year' => [
                 'numeric',
                 'nullable',
-                'max:4',
+                'min:1800',
+                'max:'.date('Y'),
             ],
 
             /**
