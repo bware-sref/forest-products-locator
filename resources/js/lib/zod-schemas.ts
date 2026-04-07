@@ -24,9 +24,10 @@ export const millFormSchema =  z.object({
         // or() with a literal is the magic that makes optional work properly
         .or(z.literal('')),
 
+    // the shortest US city name is 2 characters, so we can use that as our min length
     physical_city: z
         .string()
-        .min(3, 'City must be at least 3 characters.')
+        .min(2, 'City must be at least 2 characters.')
         .max(255, 'City must be at most 255 characters.')
         .optional()
         .or(z.literal('')),
@@ -74,7 +75,7 @@ export const millFormSchema =  z.object({
 
     mailing_city: z
         .string()
-        .min(3, 'City must be at least 3 characters.')
+        .min(2, 'City must be at least 2 characters.')
         .max(255, 'City must be at most 255 characters.')
         .optional()
         .or(z.literal('')),
@@ -118,7 +119,13 @@ export const millFormSchema =  z.object({
 
     size: z
         .string()
-        .max(255, 'Size must be at most 255 characters.')
+        .max(255, 'Mill Size must be at most 255 characters.')
+        .optional()
+        .or(z.literal('')),
+
+    year: z
+        .string()
+        .regex(/^\d{4}$/, 'Year Established must be a 4-digit year, e.g., 2026.')
         .optional()
         .or(z.literal('')),
 
