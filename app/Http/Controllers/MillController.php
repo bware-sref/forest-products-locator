@@ -113,7 +113,11 @@ class MillController extends Controller
                  */
                 $millTypeIds = $data['mill_types'] ?? [];
                 $woodSpeciesIds = $data['wood_species'] ?? [];
-                unset($data['mill_types'], $data['wood_species']);
+                unset(
+                    $data['mill_types'],
+                    $data['wood_species'],
+                    $data['mailing_address_same_as_physical'], // this is only used for mutating the data and doesn't need to be stored
+                );
 
                 Log::debug('Creating mill with data', $data);
 
