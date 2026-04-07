@@ -53,11 +53,10 @@ import { ControlledInput } from "@/components/extend/controlled-input";
 import { ControlledSelect } from "@/components/extend/controlled-select";
 import {
     millFormSchema,
+    type MillFormData,
     doesZodRequire,
 } from '@/lib/zod-schemas';
 
-
-type MillFormData = z.infer<typeof millFormSchema>;
 
 /**
  * 
