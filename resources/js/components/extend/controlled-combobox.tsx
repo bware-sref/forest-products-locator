@@ -57,7 +57,7 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
 }: ControlledComboboxProps<FormValues, Item>) {
 
     // hacky way to deal with props that avoids es-lint errors about unused variables and also allows us to pass through any additional props to the Combobox component
-    const fieldClassName = String(props.fieldClassName) ?? "";
+    const fieldClassName = String(props.fieldClassName ?? "");
     const labelClassName = props.labelClassName ?? "";
     const chipsClassName = props.chipsClassName ?? "w-full max-w-sm";
 
@@ -125,7 +125,7 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
                             </ComboboxValue>
                             <ComboboxChipsInput
                                 id={field.name}
-                                // placeholder={placeholder}
+                                placeholder={placeholder}
                             />
                         </ComboboxChips>
                         <ComboboxContent anchor={anchor}>

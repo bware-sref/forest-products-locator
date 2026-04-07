@@ -42,13 +42,13 @@ export function ControlledSelect<FormValues extends FieldValues, Item extends Se
     name,
     label,
     items,
-    multiple = false,
+    // multiple = false,
     placeholder,
     orientation = "responsive",    
     ...props
 }: ControlledSelectProps<FormValues, Item>) {
     
-    const fieldClassName = String(props.fieldClassName) ?? "";
+    const fieldClassName = String(props.fieldClassName ?? "");
     const labelClassName = props.labelClassName ?? "";
     const selectTriggerClassName = props.selectTriggerClassName ?? "min-w-25";
 

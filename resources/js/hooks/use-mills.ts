@@ -47,7 +47,8 @@ export function normalizeStates(states: State[]): State[] {
         id: state.id,
         name: state.name,
         abbreviation: state.abbreviation,
-        value: String(state.value) ?? String(state.id),
+        // eslint complained about using String on the left-hand side of ?? which causes the left-hand side to always be a string and thus never nullish. But we need to ensure the value is a string for the select component, so we have to use String() here.
+        value: state.value ?? String(state.id),
         label: state.label ?? state.name,
     }));
 }

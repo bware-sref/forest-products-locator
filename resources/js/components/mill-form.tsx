@@ -57,8 +57,6 @@ import {
 } from '@/lib/zod-schemas';
 
 
-
-
 type MillFormData = z.infer<typeof millFormSchema>;
 
 /**
@@ -116,7 +114,7 @@ export function MillForm({...props}: MillFormProps) {
         name: "mailing_address_same_as_physical",
     });
 
-    function onSubmit(data: z.infer<typeof millFormSchema>) {
+    function onSubmit(data: MillFormData) {
         /**
          * toast will silently fail if the page does not also include a Toaster component somewhere.
          * To wit, I have added Toaster to the bottom of app-layout.

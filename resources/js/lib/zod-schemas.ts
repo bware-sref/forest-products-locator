@@ -2,6 +2,8 @@
 import { z } from 'zod';
 
 // attempting to safeParse() undefined is the "correct" way to determine if a field is required in Zod 4.
+// es-lint doesn't like ZodObject<any>, so we have to use a type assertion to get around it, but that's fine because we know our schema is a ZodObject.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function doesZodRequire(schema: z.ZodObject<any>, field: string): boolean {
     const fieldSchema = schema.shape[field];
     return !fieldSchema.safeParse(undefined).success;
@@ -95,13 +97,15 @@ export const millFormSchema =  z.object({
     // we may want to define (or duh, find) a regex for phone numbers
     telephone: z
         .string()
-        .regex(/^\+?1?(\s*[\-\.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[\-\.]\s*|\s+)?[0-9]{3}(\s*[\-\.]\s*|\s+)?[0-9]{4}$/, 'Telephone must be a valid US phone number.')
+        // eslint complains that escaping - and . in the character class is unnecessary.
+        // but that's only because - is first, and I guess also because escaping . in a character class is unnecessary?
+        .regex(/^\+?1?(\s*[-.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[-.]\s*|\s+)?[0-9]{3}(\s*[-.]\s*|\s+)?[0-9]{4}$/, 'Telephone must be a valid US phone number.')
         .optional()
         .or(z.literal('')),
 
     fax: z
         .string()
-        .regex(/^\+?1?(\s*[\-\.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[\-\.]\s*|\s+)?[0-9]{3}(\s*[\-\.]\s*|\s+)?[0-9]{4}$/, 'Fax must be a valid US phone number.')
+        .regex(/^\+?1?(\s*[-.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[-.]\s*|\s+)?[0-9]{3}(\s*[-.]\s*|\s+)?[0-9]{4}$/, 'Fax must be a valid US phone number.')
         .optional()
         .or(z.literal('')),
 

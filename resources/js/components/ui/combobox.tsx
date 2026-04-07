@@ -274,6 +274,8 @@ function ComboboxChip({
 
 function ComboboxChipsInput({
   className,
+  // eslint complains that children is defined but never used, but we need to include it in the props in order to prevent it from being passed through to the ComboboxPrimitive.Input component, which would cause an error because ComboboxPrimitive.Input does not expect children.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   children,
   ...props
 }: ComboboxPrimitive.Input.Props) {
