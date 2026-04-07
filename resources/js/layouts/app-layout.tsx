@@ -14,14 +14,27 @@ interface AppLayoutProps {
 /**
  * Per InertiaJS docs, it seems like it would be good centralize the toasting flash data
  */
+function handleFlashData(flash: PageFlashData) {
+    console.log("Handling flash data:", flash);
+    
+    if (flash.success || flash.type === 'success') {
+        toast.success(String(flash.message || 'Success!'));
+    }
+
+    if (flash.error || flash.type === 'error') {
+        toast.error(String(flash.message || 'An error occurred.'));
+    }
+
+    // we can add more types of flash messages here as needed
+}
 
 export default ({ children, breadcrumbs, flash, ...props }: AppLayoutProps) => (
     <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
         {children}
-        <Toaster />
-        
+        <Toaster />        
         <>
-        {flash && console.log('flash!', flash)}
+            {/** wrap flash data handling in a fragment */}
+            {flash && handleFlashData(flash)}
         </>
     </AppLayoutTemplate>
 );
