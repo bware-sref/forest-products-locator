@@ -66,9 +66,7 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
     const anchor = useComboboxAnchor();
 
     const getItemLabel = (item: Item) => {
-        console.log("Getting label for item:", item);
         if (itemToLabel) {
-            console.log("Using itemToLabel for item:", item, itemToLabel(item));
             return itemToLabel(item);
         }
         
