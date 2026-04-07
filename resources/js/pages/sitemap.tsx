@@ -14,7 +14,6 @@ export default function StateResources() {
             <Head title={pageTitle} />
             <div className="flex min-h-screen flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature">
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
                         <ul>
                             <li>
                                 <h2>State Your Name</h2>
@@ -24,7 +23,6 @@ export default function StateResources() {
                                 <p><strong>Mill Type:</strong> Sawmill</p>
                             </li>
                         </ul>
-                    </main>
                 </div>
                 <div className="hidden h-14.5 lg:block"></div>
             </div>

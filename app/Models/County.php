@@ -97,6 +97,14 @@ class County extends Model
     }
 
     /**
+     * Inverse of Mill::mailingCounty()
+     */
+    public function mailingMills(): HasMany
+    {
+        return $this->hasMany(Mill::class, 'mailing_county_id');
+    }
+
+    /**
      * County belongsTo State
      */
     public function state(): BelongsTo

@@ -30,11 +30,29 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+// export interface FlashDataType {
+//     toast?: {
+//         type?: "success" | "error" | string;
+//         message: string;
+//         [key: string]: unknown;
+//     }
+// }
+
+/**
+ * Is this necessary?
+ * Dunno.
+ */
+export interface ErrorValueType {
+    errors: string[];
+    [key: string]: unknown;
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
     sidebarOpen: boolean;
+    flash: FlashDataType;
     [key: string]: unknown;
 }
 
@@ -63,10 +81,17 @@ export interface Mill {
     physical_city?: string;
     county_name?: string;
     physical_state?: string;
+    state_id?: State|number;
     physical_zip?: string;
     mailing_address?: string;
     mailing_city?: string;
-    mailing_state?: string;
+    // mailing_state may become a State|string
+    mailing_state?: State|string;
+    // need to add mailing_state_id after adding the relation to the Model
+    mailing_state_id?: State|number;
+    // need to add mailing_county_id after adding the relation to the Model
+    mailing_county?: County|string|number;
+    mailing_county_id?: County|number;
     mailing_zip?: string;
     telephone?: string;
     fax?: string;
@@ -90,8 +115,8 @@ export interface MillType {
     id: number;
     name: string;
     mills?: Mill[];
-    value?: string;
-    label?: string;
+    value: string;
+    label: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
@@ -99,8 +124,8 @@ export interface WoodSpecies {
     id: number;
     name: string;
     mills?: Mill[];
-    value?: string;
-    label?: string;
+    value: string;
+    label: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
@@ -112,8 +137,8 @@ export interface State {
     longitude?: string;
     counties?: County[];
     mills?: Mill[];
-    value?: string;
-    label?: string;
+    value: string;
+    label: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 

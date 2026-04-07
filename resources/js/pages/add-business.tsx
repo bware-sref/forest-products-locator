@@ -1,31 +1,36 @@
+import {
+    type County,
+    type MillType,
+    type State,
+    type WoodSpecies,
+} from '@/types';
 import AppLayout from '@/layouts/app-layout';
-// import { type SharedData } from '@/types';
-// import { Head, usePage } from '@inertiajs/react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
+import { MillForm } from '@/components/mill-form';
 
 export default function AddBusiness() {
-    // const page = usePage<SharedData>();
-    const pageTitle = 'Add Your Business';
-    // temporary work-around for unused properties lint
-    // page.props.pageTitle = pageTitle;
+    const page = usePage<{
+        pageTitle?: string;
+        states: State[];
+        counties?: County[];
+        millTypes: MillType[];
+        woodSpecies: WoodSpecies[];
+        // we may need to add something standard in order to catch errors
+    }>();
+    const pageTitle = page.props.pageTitle || 'Add Your Business';
 
     return (
         <AppLayout>
             <Head title={pageTitle} />
             <div className="flex min-h-screen flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature">
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
-                        <ul>
-                            <li>
-                                <h2>State Your Business Name</h2>
-                                <p>State Your Business Address</p>
-                                <p>Map This Location</p>
-                                <p><strong>Species:</strong> Hardwood &amp; Softwood</p>
-                                <p><strong>Mill Type:</strong> Sawmill</p>
-                            </li>
-                        </ul>
-                    </main>
+                    <MillForm 
+                        states={page.props.states}
+                        millTypes={page.props.millTypes}
+                        woodSpecies={page.props.woodSpecies}
+                    />
                 </div>
+                {/** I keep forgetting to wonder about the element below */}
                 <div className="hidden h-14.5 lg:block"></div>
             </div>
         </AppLayout>
