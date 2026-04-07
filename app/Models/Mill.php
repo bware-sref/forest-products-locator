@@ -162,9 +162,10 @@ class Mill extends Model
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => 
                 self::buildAddress(
-                    $attributes['physical_city'],
-                    $attributes['physical_state'],
-                    $attributes['physical_zip']
+                    $attributes['physical_city'] ?? '',
+                    // hopefully averting an undefined array key error
+                    $attributes['physical_state'] ?? '',
+                    $attributes['physical_zip'] ?? ''
                 )
         );
     }
@@ -174,9 +175,9 @@ class Mill extends Model
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => 
                 self::buildAddress(
-                    $attributes['mailing_city'],
-                    $attributes['mailing_state'],
-                    $attributes['mailing_zip']
+                    $attributes['mailing_city'] ?? '',
+                    $attributes['mailing_state'] ?? '',
+                    $attributes['mailing_zip'] ?? ''
                 )
         );
     }
