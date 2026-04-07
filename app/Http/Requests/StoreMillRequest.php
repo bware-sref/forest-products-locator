@@ -49,8 +49,15 @@ class StoreMillRequest extends FormRequest
             // not allowing null effectively makes state_id required
             // so let's make it required
             'state_id' => 'required|numeric|exists:states,id',
-            // 12345-6789
-            'physical_zip' => 'string|nullable|max:10',
+
+            // regex for zip? 12345-6789
+            'physical_zip' => [
+                'string',
+                'regex:/^\d{5}(-\d{4})?$/',
+                'nullable',
+                'max:10',
+            ],
+            
             /**
              * latitude and longitude can be filled via reverse geolookup
              */
@@ -70,10 +77,29 @@ class StoreMillRequest extends FormRequest
              * - command to backfill mailing_state_ids
              */
             'mailing_state_id' => 'numeric|nullable|exists:states,id',
-            'mailing_zip' => 'string|nullable|max:10',
-            // +1 (123) 456-7890 <- 17 characters
-            'telephone' => 'string|nullable|max:17',
-            'fax' => 'string|nullable|max:17',
+
+            // regex for zip?
+            'mailing_zip' => [
+                'string',
+                'regex:/^\d{5}(-\d{4})?$/',
+                'nullable',
+                'max:10',
+            ],
+
+            // +1 (123) 456-7890 <- 17 characters            
+            'telephone' => [
+                'string',
+                'nullable',
+                'regex:/^\+?1?(\s*[\-\.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[\-\.]\s*|\s+)?[0-9]{3}(\s*[\-\.]\s*|\s+)?[0-9]{4}$/',
+                'max:17',
+            ],
+            'fax' => [
+                'string',
+                'nullable',
+                'regex:/^\+?1?(\s*[\-\.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[\-\.]\s*|\s+)?[0-9]{3}(\s*[\-\.]\s*|\s+)?[0-9]{4}$/',
+                'max:17',
+            ],
+
             'email' => [
                 'nullable',
                 Rule::email()
@@ -83,23 +109,30 @@ class StoreMillRequest extends FormRequest
                     // validateMxRecord() requires PHP intl extension
                     // we may only want to do this for capturing submitter's email
             ],
+
             /**
              * only allow URLs with http or https protocol
              * should we allow URLs without a protocol?
              * probably, then we'll have to do our validation separately and maybe mutate the data
              */
             'web_site' => 'nullable|url:http,https|max:255',
+
             /**
              * MillType and WoodSpecies need to be arrays of numeric ids.
              * I need to look up how to handle that.
              */
             'size' => 'string|nullable|max:255',
+
             /**
              * is year the year it was established or what?
              * doesn't matter
              * the DB contains both 4-digit years and 10-digit dates mm/dd/yyyy
              */
-            'year' => 'numeric|nullable|max:4',
+            'year' => [
+                'numeric',
+                'nullable',
+                'max:4',
+            ],
 
             /**
              * @tada: add millTypes array
