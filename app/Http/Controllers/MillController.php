@@ -10,6 +10,7 @@ use App\Models\MillType;
 use App\Models\State;
 use App\Models\WoodSpecies;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -88,23 +89,59 @@ class MillController extends Controller
          *  - poll amazon to lookup lat & long
          *  - lookup county? maybe, depends on what comes back from the geocode request
          *  - add the submitter's IP to the data
+         * since "flesh out" includes an external API call, we should probably dispatch a job to handle it and just store the validated data for now (whoa, quoth the Neo).
          */
         // $data = $request->validated();
-        $data = $request->safe()->all();
-        Log::debug('validated data', $data);
-        if ($request->validated()) {
-            $flash = [
-                'type' => 'success',
-                'message' => 'Successfully submitted Mill!',
-                'newMillId' =>  rand(1187, 2000),
-            ];
-        } else {
-            $flash = [
+        $data = $request->all();
+        Log::debug('Mills::store() request->all() data', $data);
+
+        /**
+         * I don't think we need to wrap all this in a conditional because if the validation fails, it will automatically redirect back with errors and old input, so we won't even get to this point if the data is invalid.
+         */
+
+        try {
+
+            /**
+             * Let's use a transaction here because we need to ensure that the mill record is created before we can attach the mill types and wood species, and we don't want to end up with orphaned records if something goes wrong.
+             */
+            DB::transaction(function () use ($data) {
+                /**
+                 * we need to handle the mill types and wood species separately because they are many-to-many relationships and require the mill record to be created first so we can get its ID for the pivot tables.
+                 */
+                /**
+                 * peel off mill_types and wood_species from the data and handle them separately after the mill record is created.
+                 */
+                $millTypeIds = $data['mill_types'] ?? [];
+                $woodSpeciesIds = $data['wood_species'] ?? [];
+                unset($data['mill_types'], $data['wood_species']);
+
+                Log::debug('Creating mill with data', $data);
+
+                $newMill = Mill::create($data);
+
+                // attach mill types and wood species
+                if (!empty($millTypeIds)) {
+                    $newMill->millTypes()->attach($millTypeIds);
+                }
+                if (!empty($woodSpeciesIds)) {
+                    $newMill->woodSpecies()->attach($woodSpeciesIds);
+                }
+
+                $msg = sprintf('Successfully submitted "%s" (Mill #%d!)', $newMill->mill_name, $newMill->id);
+                Inertia::flash([
+                    'type' => 'success',
+                    'message' => $msg,
+                ]);
+            }, attempts: 3);
+        } catch (\Exception $e) {
+            Log::error('Error creating mill', ['error' => $e->getMessage()]);
+            Inertia::flash([
                 'type' => 'error',
-                'message' => 'There are issues with your submission.',
-            ];
+                'message' => 'An error occurred while submitting your Mill. Please try again.',
+            ]);
         }
-        Inertia::flash($flash);
+
+        // Inertia::flash($flash);
         return to_route('add-business');        
     }
 
