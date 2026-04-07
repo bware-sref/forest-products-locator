@@ -25,27 +25,66 @@ Route::get('/mill-map', [MillController::class, 'map'])
 // Route mill-list to MillController::index()
 Route::get('/mill-list', [MillController::class, 'index'])
     ->name('mill-list');
+
+/**
+ * Add a Business
+ * MillController?
+ */
+Route::get('/add-business', [MillController::class, 'create'])
+    ->name('add-business');
+Route::post('/mill', [MillController::class, 'store'])
+    ->name('store-mill');
+
+/**
+ * Show details of Mill specified by mill.match_id
+ */
 Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
     ->name('mill-list-item');
 
+/**
+ * About Us
+ * pages controller?
+ */
 Route::get('/about-us', function () {
     return Inertia::render('about-us', []);
 })->name('about-us');
+
+/**
+ * State Resources
+ * will probably get its own controller
+ */
 Route::get('/state-resources', function () {
     return Inertia::render('state-resources', []);
 })->name('state-resources');
-Route::get('/add-business', function () {
-    return Inertia::render('add-business', []);
-})->name('add-business');
+
+/**
+ * FAQ
+ * PagesController
+ */
 Route::get('/faq', function () {
     return Inertia::render('faq', []);
 })->name('faq');
+
+/**
+ * Contact
+ * PagesController
+ */
 Route::get('/contact', function () {
     return Inertia::render('contact', []);
 })->name('contact');
+
+/**
+ * Site Map
+ * use a generator of some sort?
+ */
 Route::get('/sitemap', function () {
     return Inertia::render('sitemap', []);
 })->name('sitemap');
+
+/**
+ * Accessibility
+ * PagesController
+ */
 Route::get('/accessibility', function () {
     return Inertia::render('accessibility', []);
 })->name('accessibility');

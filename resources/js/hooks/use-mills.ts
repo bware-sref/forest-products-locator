@@ -22,13 +22,13 @@ import { fetchMills } from '@/lib/api';
  * Maps state IDs to their county lists.
  * Keyed by state.id (as a string, since object keys are always strings).
  */
-type CountiesByState = Record<string, County[]>;
+export type CountiesByState = Record<string, County[]>;
 
 /**
  * Builds a lookup table of counties keyed by state ID from the full states list.
  * Defined outside the hook so it isn't recreated on every render.
  */
-function buildCountiesByState(states: State[]): CountiesByState {
+export function buildCountiesByState(states: State[]): CountiesByState {
     const result: CountiesByState = {};
     for (const state of states) {
         if (state.counties !== undefined) {
@@ -42,11 +42,12 @@ function buildCountiesByState(states: State[]): CountiesByState {
  * Strips county-stripped State objects suitable for the filter dropdowns.
  * Defined outside the hook so it isn't recreated on every render.
  */
-function normaliseStates(states: State[]): State[] {
+export function normalizeStates(states: State[]): State[] {
     return states.map((state) => ({
         id: state.id,
         name: state.name,
         abbreviation: state.abbreviation,
+        // eslint complained about using String on the left-hand side of ?? which causes the left-hand side to always be a string and thus never nullish. But we need to ensure the value is a string for the select component, so we have to use String() here.
         value: state.value ?? String(state.id),
         label: state.label ?? state.name,
     }));
@@ -124,7 +125,7 @@ export function useMills({
     // Derived-but-stable data (safe to compute once per prop change via useMemo)
     // ---------------------------------------------------------------------------
 
-    const states = useMemo(() => normaliseStates(rawStates), [rawStates]);
+    const states = useMemo(() => normalizeStates(rawStates), [rawStates]);
     const countiesByState = useMemo(() => buildCountiesByState(rawStates), [rawStates]);
 
     // ---------------------------------------------------------------------------

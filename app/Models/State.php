@@ -59,7 +59,9 @@ class State extends Model
     protected function value(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->id,
+            // casting the value attribute to a string here might have saved us some headache earlier on
+            // except normalizeStates broke when I removed the string cast it contained/s
+            get: fn () => (string) $this->id,
         );
     }
 
@@ -81,6 +83,12 @@ class State extends Model
     public function mills(): HasMany
     {
         return $this->hasMany(Mill::class);
+    }
+
+    // inverse of mailingState relationship
+    public function mailingMills(): HasMany
+    {
+        return $this->hasMany(Mill::class, 'mailing_state_id');
     }
 
     /**
@@ -121,5 +129,41 @@ class State extends Model
             ->distinct()
             ->get();
         return $woodSpecies;
+    }
+
+    /**
+     * getMillStates()
+     * Fetches States which have Mills along with their Counties (which have Mills)
+     * The latter portions may end up being optional...via options!
+     * 
+     */
+    public static function getMillStates(?bool $withCounties = true): Collection
+    {
+        $states = State::has('mills');
+        if ($withCounties) {
+            $states->with([
+                'counties' => function ($query) {
+                    $query->select('id', 'name', 'state_id')
+                        ->has('mills')
+                        ->orderBy('name', 'asc');
+            }]);
+        }
+        return $states->get(['id', 'name', 'abbreviation'])
+            ->append(['value', 'label']);
+    }
+
+    public static function getWithCounties(?array $cols = ['*'], ?array $countyCols = ['*'], ?bool $keyForSelect = true): Collection
+    {
+        $states = State::select($cols)
+            ->with([
+                'counties' => function ($query) use ($countyCols) {
+                    $query->select($countyCols)
+                        ->orderBy('name', 'asc');
+            }])->get();
+        
+        if ($keyForSelect) {
+            $states->append(['value', 'label']);
+        }
+        return $states;
     }
 }

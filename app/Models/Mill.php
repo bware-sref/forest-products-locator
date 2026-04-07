@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Enums\PublicationStatus;
+use App\Models\Scopes\ApprovedScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\hasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
@@ -84,6 +89,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
  * @mixin \Eloquent
  */
 #[TypeScript]
+#[ScopedBy([ApprovedScope::class])]
 class Mill extends Model
 {
     /** @use HasFactory<\Database\Factories\MillFactory> */
@@ -122,6 +128,20 @@ class Mill extends Model
         // foreign keys
         'state_id',
         'county_id',
+        // more foreign keys!
+        'mailing_state_id',
+        'mailing_county_id',
+
+        /**
+         * new fields to handle user submitted mills
+         */
+        'status',
+        'submitter_email',
+        'submitter_ip',
+        'approve_hash',
+        'reject_hash',
+        'reviewed_at',
+
     ];
 
     /**
@@ -142,9 +162,10 @@ class Mill extends Model
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => 
                 self::buildAddress(
-                    $attributes['physical_city'],
-                    $attributes['physical_state'],
-                    $attributes['physical_zip']
+                    $attributes['physical_city'] ?? '',
+                    // hopefully averting an undefined array key error
+                    $attributes['physical_state'] ?? '',
+                    $attributes['physical_zip'] ?? ''
                 )
         );
     }
@@ -154,9 +175,9 @@ class Mill extends Model
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => 
                 self::buildAddress(
-                    $attributes['mailing_city'],
-                    $attributes['mailing_state'],
-                    $attributes['mailing_zip']
+                    $attributes['mailing_city'] ?? '',
+                    $attributes['mailing_state'] ?? '',
+                    $attributes['mailing_zip'] ?? ''
                 )
         );
     }
@@ -173,18 +194,41 @@ class Mill extends Model
         return $this->belongsTo(County::class);
     }
 
-    // hasMany MillTypes
+    /**
+     * @tada: add mailingState and mailingCounty relationships
+     */
+    public function mailingState(): BelongsTo
+    {
+        return $this->belongsTo(State::class, 'mailing_state_id');
+    }
+
+    public function mailingCounty(): BelongsTo
+    {
+        return $this->belongsTo(County::class, 'mailing_county_id');
+    }
+
+    // belongsToMany MillTypes
     public function millTypes(): BelongsToMany
     {
         return $this->belongsToMany(MillType::class);
     }
 
-    // hasMany Species
+    // belongsToMany WoodSpecies
     public function woodSpecies(): BelongsToMany
     {
         return $this->belongsToMany(WoodSpecies::class);
     }
 
+    // hasMany MillEdits
+    public function millEdits(): hasMany
+    {
+        return $this->hasMany(MillEdits::class);
+    }
+
+
+    /**
+     * helper to jam together the second line of addresses
+     */
     protected static function buildAddress(string $city = '', string $state = '', string $zip = ''): string
     {
         $address = sprintf(
@@ -194,15 +238,20 @@ class Mill extends Model
             $zip
         );
 
+        // note the comma among the trimmed characters
+        // it handles the case of empty city values
         return trim($address, " \n\r\t\v\0,");
     }
 
+    /**
+     * creates and executes a query based on the pre-validated API parameters
+     */
     public static function apiSearch($validated = [])
     {
         /**
          * we need to check for the following:
          * and I almost forgot that everything except mill_name needs to query a relationship
-         * - s
+         * - q
          * - millType
          * - woodSpecies
          * - state
@@ -247,5 +296,22 @@ class Mill extends Model
         }
 
         return $query->get();
+    }
+
+    /**
+     * Scopes!
+     * as indicated by the #[Scope] attribute/decorator
+     */
+
+    #[Scope]
+    protected function pending(Builder $query): void
+    {
+        $query->where('status', PublicationStatus::Pending);
+    }
+
+    #[Scope]
+    protected function rejected(Builder $query): void
+    {
+        $query->where('status', PublicationStatus::Rejected);
     }
 }

@@ -249,3 +249,13 @@ disabling dark for now
     @apply font-[inherit];
     }
 }
+
+/**
+  * Utility for marking form field as required based on presence of "required" in className.
+  */
+@utility required {
+    & label::after {
+        content: "*";
+        @apply text-destructive ml-0.5;
+    }
+}
