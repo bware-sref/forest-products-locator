@@ -1,14 +1,6 @@
 // Externalize our Zod schemas to clean up components
 import { z } from 'zod';
 
-// attempting to safeParse() undefined is the "correct" way to determine if a field is required in Zod 4.
-// es-lint doesn't like ZodObject<any>, so we have to use a type assertion to get around it, but that's fine because we know our schema is a ZodObject.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function doesZodRequire(schema: z.ZodObject<any>, field: string): boolean {
-    const fieldSchema = schema.shape[field];
-    return !fieldSchema.safeParse(undefined).success;
-}
-
 export const millFormSchema =  z.object({
 
     mill_name: z
@@ -148,3 +140,20 @@ export const millFormSchema =  z.object({
         .email(),
 
 });
+
+// this is the type we will use for our form data, which we can infer from our schema
+export type MillFormData = z.infer<typeof millFormSchema>;
+// export interface IMillFormSchema extends z.infer<typeof millFormSchema> {
+//     [key: string]: unknown; // This allows for additional properties...
+// }
+
+// attempting to safeParse() undefined is the "correct" way to determine if a field is required in Zod 4.
+// es-lint doesn't like ZodObject<any>
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+export function doesZodRequire(schema: z.ZodObject<any>, field: string): boolean {
+// export function doesZodRequire<T extends z.ZodTypeAny>(schema: z.ZodObject<T>, field: string): boolean {
+// export function doesZodRequire<T extends z.ZodRawShape>(schema: z.ZodObject<T>, field: string): boolean {
+    const fieldSchema = schema.shape[field];
+    return !fieldSchema.safeParse(undefined).success;
+}
+
