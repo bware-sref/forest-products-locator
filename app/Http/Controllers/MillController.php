@@ -128,6 +128,7 @@ class MillController extends Controller
                 }
 
                 $msg = sprintf('Successfully submitted "%s" (Mill #%d!)', $newMill->mill_name, $newMill->id);
+                Log::debug($msg, ['millData' => $newMill->toArray()]);
                 Inertia::flash([
                     'type' => 'success',
                     'message' => $msg,
