@@ -104,6 +104,7 @@ export function MillForm({...props}: MillFormProps) {
             email: '',
             web_site: '',
             size: '',
+            year: '',
             mill_types: [],
             wood_species: [],
             submitter_email: '',
@@ -329,6 +330,14 @@ export function MillForm({...props}: MillFormProps) {
               label="Mill Size"
               placeholder=""
               required={doesZodRequire(millFormSchema, 'size')}
+            />
+
+            <ControlledInput
+              control={form.control}
+              name="year"
+              label="Year Established"
+              placeholder=""
+              required={doesZodRequire(millFormSchema, 'year')}
             />
 
             {/** we need to use combobox to allow multiple selections */}
