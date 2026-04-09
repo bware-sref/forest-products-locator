@@ -91,6 +91,11 @@ class State extends Model
         return $this->hasMany(Mill::class, 'mailing_state_id');
     }
 
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
+    }
+
     /**
      * Simple-ish way to query mill types by State via basic Eloquent.
      * It still might be more managable to just install the package that adds deep relationships.
