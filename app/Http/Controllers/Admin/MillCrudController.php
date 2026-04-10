@@ -46,7 +46,11 @@ class MillCrudController extends CrudController
          * - CRUD::column('price')->type('number');
          */
         CRUD::column('mill_name')->type('text');
-        CRUD::column('match_id')->type('text');
+        // match_id just cruds it up
+        // CRUD::column([
+        //     'name' => 'match_id',
+        //     'label' => 'Match ID',
+        // ])->type('text');
         CRUD::column('physical_address')->type('text');
         CRUD::column('physical_city')->type('text');
         CRUD::column('state_id')
@@ -135,6 +139,22 @@ class MillCrudController extends CrudController
             'name' => 'physical_zip',
             'label' => 'Zip Code',
             'type' => 'text',
+        ])->tab('Physical Address');
+        CRUD::field([
+            'name' => 'latitude',
+            'label' => 'Latitude',
+            'type' => 'number',
+            'attributes' => [
+                'step' => 'any',
+            ],
+        ])->tab('Physical Address');
+        CRUD::field([
+            'name' => 'longitude',
+            'label' => 'Longitude',
+            'type' => 'number',
+            'attributes' => [
+                'step' => 'any',
+            ],
         ])->tab('Physical Address');
         // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
 
