@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\MillEditsRequest;
+use App\Http\Requests\MillEditRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
- * Class MillEditsCrudController
+ * Class MillEditCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class MillEditsCrudController extends CrudController
+class MillEditCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -26,9 +26,9 @@ class MillEditsCrudController extends CrudController
      */
     public function setup()
     {
-        CRUD::setModel(\App\Models\MillEdits::class);
+        CRUD::setModel(\App\Models\MillEdit::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/mill-edits');
-        CRUD::setEntityNameStrings('mill edits', 'mill edits');
+        CRUD::setEntityNameStrings('mill edit', 'mill edit');
     }
 
     /**
@@ -55,7 +55,7 @@ class MillEditsCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(MillEditsRequest::class);
+        CRUD::setValidation(MillEditRequest::class);
         CRUD::setFromDb(); // set fields from db columns.
 
         /**
