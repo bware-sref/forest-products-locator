@@ -224,7 +224,7 @@ class Mill extends Model
     // hasMany MillEdits
     public function millEdits(): hasMany
     {
-        return $this->hasMany(MillEdits::class);
+        return $this->hasMany(MillEdit::class);
     }
 
 

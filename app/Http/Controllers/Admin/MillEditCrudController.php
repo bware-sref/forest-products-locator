@@ -28,7 +28,7 @@ class MillEditCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\MillEdit::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/mill-edits');
-        CRUD::setEntityNameStrings('mill edit', 'mill edit');
+        CRUD::setEntityNameStrings('mill edit', 'mill edits');
     }
 
     /**
