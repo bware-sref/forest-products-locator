@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\PublicationStatus;
 use App\Models\Scopes\ApprovedScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -92,6 +93,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[ScopedBy([ApprovedScope::class])]
 class Mill extends Model
 {
+    use CrudTrait;
     /** @use HasFactory<\Database\Factories\MillFactory> */
     use HasFactory;
 
@@ -222,7 +224,7 @@ class Mill extends Model
     // hasMany MillEdits
     public function millEdits(): hasMany
     {
-        return $this->hasMany(MillEdits::class);
+        return $this->hasMany(MillEdit::class);
     }
 
 

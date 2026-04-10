@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\PublicationStatus;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,8 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class MillEdits extends Model
+class MillEdit extends Model
 {
+    use CrudTrait;
     /** @use HasFactory<\Database\Factories\MillEditsFactory> */
     use HasFactory;
 
@@ -33,7 +35,7 @@ class MillEdits extends Model
      */
     public function mill(): BelongsTo
     {
-        return $this->belongsTo('mill');
+        return $this->belongsTo(Mill::class);
     }
 
     /**
