@@ -15,8 +15,8 @@ interface HeroProps extends ImgHTMLAttributes<HTMLPictureElement> {
 }
 
 export default function Hero({src, alt, pictureClassName = 'max-w-full', imageClassName = 'max-w-full', sources = [], children = ''}:HeroProps) {
-    const sourceList = sources.map(source => 
-        <source srcSet={source.srcSet} media={source.media} />
+    const sourceList = sources.map((source, index) => 
+        <source srcSet={source.srcSet} media={source.media} key={index}/>
     );
     return (
         <div className="hero grid grid-cols-1 grid-rows-1 w-full max-w-full">
