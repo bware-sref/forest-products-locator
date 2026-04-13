@@ -55,7 +55,7 @@ export function AppFooter() {
                 <div className="mx-auto flex flex-col px-5 md:flex-row lg:h-20 items-center md:max-w-6xl lg:max-w-7xl ">
                     {/* Desktop Navigation */}
                     <div className="h-full items-stretch md:items-center space-x-6 flex flex-col md:flex-row w-full">
-                        <NavigationMenu className="flex flex-col md:flex-row justify-stretch h-full items-stretch md:-ml-4 w-full md:w-auto max-w-full border-b md:border-0 pb-5 md:pb-0">
+                        <NavigationMenu className="flex flex-col md:flex-row justify-stretch h-full items-stretch md:-ml-4 w-full md:w-auto max-w-full pb-5 md:pb-0">
                             <NavigationMenuList className="flex flex-col md:flex-row h-full items-center justify-items-start md:items-stretch md:space-x-2 md:justify-items-end">
                                 {mainNavItems.map((item, index) => (
                                     <NavigationMenuItem
