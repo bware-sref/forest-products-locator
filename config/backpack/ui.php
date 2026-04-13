@@ -46,7 +46,7 @@ return [
     // ----
 
     // Project name - shown in the window title
-    'project_name' => 'Backpack Admin Panel',
+    'project_name' => 'Admin Panel',
 
     // Content of the HTML meta robots tag to prevent indexing and link following
     'meta_robots_content' => 'noindex, nofollow',
@@ -63,7 +63,7 @@ return [
     'home_link' => '',
 
     // Menu logo. You can replace this with an <img> tag if you have a logo.
-    'project_logo' => '<b>Back</b>pack',
+    'project_logo' => '<img src="/favicon-96x96.png" alt="" style="height: 32px; margin-right: 8px;"><span class="text-sm">Forest Products Locator</span>',
 
     // Show / hide breadcrumbs on admin panel pages.
     'breadcrumbs' => true,
@@ -76,17 +76,17 @@ return [
     'developer_name' => 'Cristian Tabacitu',
 
     // Developer website. Link in footer. Type false if you want to hide it.
-    'developer_link' => 'http://tabacitu.ro',
+    'developer_link' => false, //'http://tabacitu.ro',
 
     // Show powered by Laravel Backpack in the footer? true/false
-    'show_powered_by' => true,
+    'show_powered_by' => false,
 
     // ---------
     // DASHBOARD
     // ---------
 
     // Show "Getting Started with Backpack" info block?
-    'show_getting_started' => env('APP_ENV') == 'local',
+    'show_getting_started' => false, //env('APP_ENV') == 'local',
 
     // -------------
     // GLOBAL STYLES

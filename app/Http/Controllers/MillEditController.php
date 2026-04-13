@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreMillEditsRequest;
-use App\Http\Requests\UpdateMillEditsRequest;
-use App\Models\MillEdits;
+use App\Http\Requests\StoreMillEditRequest;
+use App\Http\Requests\UpdateMillEditRequest;
+use App\Models\MillEdit;
 
-class MillEditsController extends Controller
+class MillEditController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class MillEditsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMillEditsRequest $request)
+    public function store(StoreMillEditRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class MillEditsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(MillEdits $millEdits)
+    public function show(MillEdit $millEdits)
     {
         //
     }
@@ -43,7 +43,7 @@ class MillEditsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MillEdits $millEdits)
+    public function edit(MillEdit $millEdits)
     {
         //
     }
@@ -51,7 +51,7 @@ class MillEditsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMillEditsRequest $request, MillEdits $millEdits)
+    public function update(UpdateMillEditRequest $request, MillEdit $millEdits)
     {
         //
     }
@@ -59,7 +59,7 @@ class MillEditsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MillEdits $millEdits)
+    public function destroy(MillEdit $millEdits)
     {
         //
     }

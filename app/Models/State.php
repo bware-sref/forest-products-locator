@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -39,8 +40,29 @@ use Illuminate\Support\Collection;
  */
 class State extends Model
 {
+    use CrudTrait;
     /** @use HasFactory<\Database\Factories\StateFactory> */
     use HasFactory;
+
+    /**
+     * List of southern state abbreviations.
+     * These are our primary area of focus, though we are open to expanding to other states in the future.
+     */
+    public static $southernStates = [
+        'AL',
+        'AR',
+        'FL',
+        'GA',
+        'KY',
+        'LA',
+        'MS',
+        'NC',
+        'OK',
+        'SC',
+        'TN',
+        'TX',
+        'VA',
+    ];
 
     protected $fillable = [
         'name',
@@ -50,12 +72,17 @@ class State extends Model
         'polygon',
     ];
 
+    /**
+     * add attributes to facilitate use with select option values
+     */
+    protected $appends = [
+        'value',
+        'label',
+    ];
 
     /**
-     * add attributes to facilitate use with option values
+     * Attribute Accessors
      */
-    protected $appends = ['value', 'label'];
-
     protected function value(): Attribute
     {
         return Attribute::make(
@@ -72,7 +99,9 @@ class State extends Model
         );
     }
 
-
+    /**
+     * Relationships
+     */
     // hasMany Counties
     public function counties(): HasMany
     {
@@ -89,6 +118,11 @@ class State extends Model
     public function mailingMills(): HasMany
     {
         return $this->hasMany(Mill::class, 'mailing_state_id');
+    }
+
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
     }
 
     /**
@@ -132,6 +166,10 @@ class State extends Model
     }
 
     /**
+     * Query helper methods
+     */
+
+    /**
      * getMillStates()
      * Fetches States which have Mills along with their Counties (which have Mills)
      * The latter portions may end up being optional...via options!
@@ -152,6 +190,15 @@ class State extends Model
             ->append(['value', 'label']);
     }
 
+    /**
+     * getWithCounties()
+      * Fetches States along with their Counties.
+      * Both States and Counties can be filtered by passing an array of columns to select.
+      * By default, all columns are selected for both States and Counties.
+      * The $keyForSelect parameter determines whether to append 'value' and 'label' attributes to the State models, which can be useful for select inputs in the frontend.
+      * By default, $keyForSelect is true, meaning 'value' and 'label' will be appended to the State models. If set to false, these attributes will not be appended.
+     * This method is primarily intended for fetching States and their Counties for use in select inputs, but it can be used in other contexts as well.
+     */
     public static function getWithCounties(?array $cols = ['*'], ?array $countyCols = ['*'], ?bool $keyForSelect = true): Collection
     {
         $states = State::select($cols)
