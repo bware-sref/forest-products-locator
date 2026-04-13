@@ -13,7 +13,20 @@ import {
 import { ArrowRightIcon, CircleArrowRight } from 'lucide-react';
 // import heroImage from '@img/lumber-flipped@2x.jpg';
 import heroFallback from '@img/lumber-flipped.jpg';
+import mobileHero from '@img/lumber-flipped-390w.jpg';
+import mobileHero2x from '@img/lumber-flipped-780w.jpg';
 import { millMap, millList, stateResources, addBusiness } from '@/routes';
+
+const heroSources = [
+    {
+        srcSet: mobileHero,
+        media: '(max-width: 390px)',
+    },
+    {
+        srcSet: mobileHero2x + ' 2x',
+        media: '(max-width: 768px)',
+    },
+];
 
 export default function Welcome() {
     // const page = usePage<SharedData>();
@@ -52,6 +65,7 @@ export default function Welcome() {
                 src={heroFallback}
                 alt="Lumber"
                 pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
+                sources={heroSources}
             >
                 <div className="flex flex-col gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
                     <h1 className="text-5xl font-bold my-6">
