@@ -63,7 +63,11 @@ export default function MillMap({mills, children}: MillListProps) {
     )
 
     return (
-        <Map center={MAP_CENTER} zoom={5}>
+        <Map 
+            className='min-h-[calc(100vh-6rem)] lg:min-h-96'
+            center={MAP_CENTER}
+            zoom={5}
+        >
             <MapGestureHandler />
             <MapTileLayer 
             />
@@ -134,6 +138,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                     </MapMarker>
                 ))}
             </MapMarkerClusterGroup>
+
             <MapLocateControl 
                 onLocationFound={(location) =>
                     setMyCoordinates(location.latlng)
@@ -141,6 +146,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 onLocationError={(error) => toast.error(error.message)}
                 watch
             />
+
             {/** MapCircle should only display after the user has clicked the locator button */}
             {myCoordinates && (
                 <>
@@ -157,6 +163,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                     </MapPopup>
                 </>
             )}
+
             <MapControlContainer 
                 className="absolute top-5 left-5 z-1000 w-full items-stretch max-w-83.75">
                 {/** children are mill-filters */}
