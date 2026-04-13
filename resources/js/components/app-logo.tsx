@@ -22,7 +22,7 @@ export default function AppLogo() {
                     alt={alt}
                     className="size-18 fill-current text-velvet dark:text-velvet" />
             </div>
-            <div className="ml-1 grid text-left text-2xl text-wrap lg:max-w-[195px]">
+            <div className="ml-1 grid text-left text-2xl text-wrap lg:max-w-48.75 mr-5">
                 <span className="mb-0.5 text-wrap leading-tight font-bold font-serif">
                     { name }
                 </span>

@@ -107,14 +107,14 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="mr-2 h-[34px] w-[34px]"
+                                    className="mr-2 h-8.5 w-8.5"
                                 >
                                     <Menu className="h-5 w-5" />
                                 </Button>
                             </SheetTrigger>
                             <SheetContent
                                 side="left"
-                                className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar"
+                                className="flex h-full w-full flex-col items-stretch justify-between bg-sidebar"
                             >
                                 <SheetTitle className="sr-only">
                                     Navigation Menu
@@ -139,7 +139,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                 <Link
                                                     key={item.title}
                                                     href={item.href}
-                                                    className="flex items-center space-x-2 font-medium"
+                                                    className="flex items-center space-x-2 font-medium text-lg"
                                                 >
                                                     {item.icon && (
                                                         <Icon
@@ -230,7 +230,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     size="icon"
                                     className="group h-9 w-9 cursor-pointer"
                                 >
-                                    <Search className="!size-5 opacity-80 group-hover:opacity-100" />
+                                    <Search className="size-5! opacity-80 group-hover:opacity-100" />
                                 </Button>
                                 <div className="hidden lg:flex">
                                     {rightNavItems.map((item) => (
