@@ -72,6 +72,7 @@ export function AppFooter() {
                                                 ) && activeItemStyles,
                                                 'h-9 cursor-pointer px-3 bg-none font-bold text-xl',
                                             )}
+                                            {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
                                         >
                                             {item.icon && (
                                                 <Icon

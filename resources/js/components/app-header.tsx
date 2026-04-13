@@ -23,6 +23,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { 
     Menu,
     // Search,
+    TreePine,
     XIcon,
 } from 'lucide-react';
 import AppLogo from './app-logo';
@@ -164,10 +165,11 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                         ) && mobileActiveItemStyles,
                                                         "flex items-center space-x-2 font-bold text-3xl justify-end"
                                                     )}
+                                                    {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
                                                 >
-                                                    {item.icon && (
+                                                    {isSameUrl(page.url, item.href) && (
                                                         <Icon
-                                                            iconNode={item.icon}
+                                                            iconNode={TreePine}
                                                             className="h-5 w-5"
                                                         />
                                                     )}
@@ -226,6 +228,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                 ) && activeItemStyles,
                                                 'h-9 cursor-pointer px-3 bg-none font-bold text-xl',
                                             )}
+                                            {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
                                         >
                                             {item.icon && (
                                                 <Icon
