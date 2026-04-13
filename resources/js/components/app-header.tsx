@@ -77,6 +77,8 @@ const rightNavItems: NavItem[] = [
 const activeItemStyles =
     'text-velvet-900 dark:bg-velvet-800 dark:text-velvet-100';
 
+const mobileActiveItemStyles = '';
+
 interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
 }
@@ -111,7 +113,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <Button
                                     variant="ghost"
                                     size="lg"
-                                    className="mr-2 h-8.5 w-8.5 [&_svg:not([class*='size-'])]:size-8"
+                                    className="mr-2 h-8.5 w-8.5 [&_svg:not([class*='size-'])]:size-14"
                                 >
                                     {isOpen ? (
                                         <XIcon className="h-5 w-5" />
@@ -155,7 +157,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                 <Link
                                                     key={item.title}
                                                     href={item.href}
-                                                    className="flex items-center space-x-2 font-bold text-3xl justify-end"
+                                                    className={cn(
+                                                        isSameUrl(
+                                                            page.url,
+                                                            item.href,
+                                                        ) && mobileActiveItemStyles,
+                                                        "flex items-center space-x-2 font-bold text-3xl justify-end"
+                                                    )}
                                                 >
                                                     {item.icon && (
                                                         <Icon
