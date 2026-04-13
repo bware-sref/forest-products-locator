@@ -20,10 +20,10 @@ export default function AppLogo() {
                 <HtmlImage 
                     src={logoImage}
                     alt={alt}
-                    className="size-18 fill-current text-velvet dark:text-velvet" />
+                    className="size-16 lg:size-18 fill-current text-velvet dark:text-velvet" />
             </div>
-            <div className="ml-1 grid text-left text-2xl text-wrap lg:max-w-48.75 mr-5">
-                <span className="mb-0.5 text-wrap leading-tight font-bold font-serif">
+            <div className="ml-0.5 lg:ml-1 grid text-left text-xl lg:text-2xl text-wrap lg:max-w-48.75">
+                <span className="mb-0.5 text-wrap leading-tight font-bold font-serif pr-12 md:pr-0">
                     { name }
                 </span>
             </div>

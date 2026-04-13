@@ -10,6 +10,19 @@ import {
 } from "@/components/ui/card";
 import { CircleArrowRight } from 'lucide-react';
 import heroFallback from '@img/pine-trees_short.jpg';
+import mobileHero from '@img/pine-trees_short-390w.jpg';
+import mobileHero2x from '@img/pine-trees_short-780w.jpg';
+
+const heroSources = [
+    {
+        srcSet: mobileHero,
+        media: '(max-width: 390px)',
+    },
+    {
+        srcSet: mobileHero2x + ' 2x',
+        media: '(max-width: 768px)',
+    },
+];
 
 /**
  * This page sort of calls out the fact that we don't have anything defined
@@ -53,6 +66,7 @@ export default function StateResources() {
                 src={heroFallback}
                 alt="Pine trees"
                 pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
+                sources={heroSources}
             >
                 <div className="flex flex-col gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
                     <h1 className="text-5xl font-bold mt-8 mb-6 w-full">
