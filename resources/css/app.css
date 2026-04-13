@@ -46,7 +46,9 @@
     --color-beluga: oklch(0.9577 0.0017 247.84); /* #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
     --color-coupe: oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card heading background */
     --color-nature: oklch(0.5509 0.0282 137.85); /* #6a7666;  footer background */
-    --color-velvet: oklch(0.2481 0.0095 53.04); /* #25201d; top nav foreground */
+    /* --color-velvet: oklch(0.2481 0.0095 53.04); #25201d; top nav foreground */
+    /** different hex to oklch converters yield different values */
+    --color-velvet: oklch(24.81% 0.010 53.04);
     --color-zucchini: oklch(0.7107 0.0429 133.87); /* #97a88d; top nav bg */
     --color-sonic: oklch(0.5624 0 0); /* text search placeholder */
 
