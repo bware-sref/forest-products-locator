@@ -50,7 +50,7 @@
     /** different hex to oklch converters yield different values */
     --color-velvet: oklch(24.81% 0.010 53.04);
     --color-zucchini: oklch(0.7107 0.0429 133.87); /* #97a88d; top nav bg */
-    --color-sonic: oklch(0.5624 0 0); /* text search placeholder */
+    --color-sonic: oklch(0.5624 0 0); /* #757575; text search placeholder, mill list item header bottom border */
 
     /** override default bg, fg, et al */
     /** except this apparently is not how to do it */
