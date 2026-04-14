@@ -48,9 +48,10 @@
     --color-nature: oklch(0.5509 0.0282 137.85); /* #6a7666;  footer background */
     /* --color-velvet: oklch(0.2481 0.0095 53.04); #25201d; top nav foreground */
     /** different hex to oklch converters yield different values */
-    --color-velvet: oklch(24.81% 0.010 53.04);
+    --color-velvet: oklch(24.81% 0.010 53.04); /* #25201d; top nav foreground */
     --color-zucchini: oklch(0.7107 0.0429 133.87); /* #97a88d; top nav bg */
     --color-sonic: oklch(0.5624 0 0); /* #757575; text search placeholder, mill list item header bottom border */
+    --color-lorne: oklch(47.38% 0.022 137.85); /* #565f53; filters background */
 
     /** override default bg, fg, et al */
     /** except this apparently is not how to do it */

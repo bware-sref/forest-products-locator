@@ -81,10 +81,12 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
     return (
-        <div className="flex w-full flex-row items-stretch max-w-83.75">
-            <div className="grid gap-1 bg-nature p-8 w-full">
+        <div 
+            className="flex w-full flex-row items-stretch max-w-89 bg-lorne" 
+            {...props}>
+            <div className="grid gap-1 Xbg-nature p-4 w-full">
                 {/** This should perhaps be an h1 */}
-                <h2 className="text-xl font-bold text-beluga pb-2">{headline}</h2>
+                <h2 className="text-[31px] lg:text-xl font-bold text-beluga pb-2">{headline}</h2>
                 {/**
                  * mess
                  */}
