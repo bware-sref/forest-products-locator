@@ -55,7 +55,7 @@ class MillController extends Controller
             'state',
             'county',
         ]);
-        return Inertia::render('mill-list-item', [
+        return Inertia::render('mill-single', [
             'pageTitle' => $mill->mill_name . ' | Details',
             'mills' => [$mill],
         ]);
