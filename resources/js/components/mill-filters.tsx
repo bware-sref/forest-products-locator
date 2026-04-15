@@ -21,12 +21,19 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import {
     SearchIcon,
+    SlidersHorizontalIcon,
 } from 'lucide-react';
-import { ChangeEvent, MouseEventHandler } from 'react';
+import {
+    ChangeEvent,
+    MouseEventHandler,
+    useState,
+} from 'react';
 import {
     InputSelect,
     InputSelectTrigger,
 } from "@/components/extend/input-select";
+
+import { useIsMobile } from '@/hooks/use-mobile';
 
 /**
  * MillFilters needs:
@@ -80,18 +87,41 @@ export default function MillFilters({...props}: MillFiltersProps) {
     const isLoading = props.isLoading ?? false;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
+    /** 
+     * mobile detection hook 
+     */
+    const isMobile = useIsMobile();
+    const [isOpen, setIsOpen] = useState(!isMobile);
+
     return (
         <div 
             className="flex w-full flex-row items-stretch max-w-89 bg:nature lg:bg-lorne" 
             {...props}>
-            <div className="grid gap-1 p-8 w-full">
-                {/** This should perhaps be an h1 */}
-                <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2">{headline}</h2>
 
-                {/** here is where our dropdown trigger goes */}
+            <div className="grid gap-1 py-8 w-full">
+                <div className="flex flex-row lg:px-8">
+                    {/** This should perhaps be an h1 */}
+                    <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2">{headline}</h2>
 
+                    {/** here is where our dropdown trigger goes */}
+                    <Button
+                        className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto"
+                        onClick={() => setIsOpen(!isOpen)}
+                        aria-controls="mill-filters_D"
+                    >
+                        Filters
+                        <SlidersHorizontalIcon
+                            data-icon="inline-end"                            
+                            className="w-6 h-6 ml-2 size-1"
+                        />
+                    </Button>
+                    
+                </div>
 
-                <FieldGroup data-el="FieldGroup" className="gap-5 pb-2">
+                <FieldGroup 
+                    data-el="FieldGroup"
+                    className="gap-5 pt-2 lg:pt-0 pb-2 lg:px-8 relative before:absolute before:h-px before:w-screen before:bg-beluga before:-top-1 before:-left-4 lg:before:hidden after:absolute after:h-px after:w-screen after:bg-beluga after:-bottom-1 after:-left-4 lg:after:hidden"
+                >
                     {/* text search */}
                     <Field>
                         <FieldLabel className="sr-only" htmlFor="q">Text Search</FieldLabel>
@@ -117,11 +147,18 @@ export default function MillFilters({...props}: MillFiltersProps) {
                         </InputGroup>
                     </Field>
                 </FieldGroup>
+
                 {/** 
                  * The following fields are considered filters.
                  * Filters can be hidden
                  */}
-                <FieldGroup data-el="second FieldGroup" className="gap-5">
+                <FieldGroup
+                    id="mill-filters_D"
+                    data-el="second FieldGroup"
+                    className="gap-5 px-8 bg-lorne w-full pt-8 pb-8 lg:py-0 -mt-15 lg:mt-0 z-50"
+                    hidden={!isOpen}
+                    aria-hidden={!isOpen}
+                >
                     {/* state selector */}
                     <Field data-el="Field">
                         <FieldLabel 
