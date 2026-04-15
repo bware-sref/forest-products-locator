@@ -15,7 +15,7 @@ export default function MillList({mills, children, ...props}: MillListProps) {
 
     return (
         // <div className="flex flex-row w-85 max-w-89" {...props}>
-            <ScrollArea className="flex flex-row w-85 max-w-89 h-200">
+            <ScrollArea className="flex flex-row w-89 max-w-89 h-200 bg-lorne px-4">
                 <ul className="flex flex-col justify-evenly items-stretch gap-6">                            
                     {(mills && mills.length > 0) ? mills.map(mill => 
                         <li className="p-0 w-full" key={mill.match_id}>

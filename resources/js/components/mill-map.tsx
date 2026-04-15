@@ -165,7 +165,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
             )}
 
             <MapControlContainer 
-                className="absolute top-5 left-5 z-1000 w-full items-stretch max-w-83.75">
+                className="absolute top-5 left-5 z-1000 w-full items-stretch max-w-89">
                 {/** children are mill-filters */}
                 {children}
             </MapControlContainer>
