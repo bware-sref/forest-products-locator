@@ -44,7 +44,7 @@
     specifying colors in oklch allows using tailwind named color scale utility classes, e.g., 
     */    
     --color-beluga: oklch(0.9577 0.0017 247.84); /* #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
-    --color-coupe: oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card heading background */
+    --color-coupe: oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card heading background, arrow buttons, et al */
     --color-nature: oklch(0.5509 0.0282 137.85); /* #6a7666;  footer background */
     /* --color-velvet: oklch(0.2481 0.0095 53.04); #25201d; top nav foreground */
     /** different hex to oklch converters yield different values */
