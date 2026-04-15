@@ -2,7 +2,6 @@ import {
     cn
 } from '@/lib/utils';
 import {
-    Mill,
     IMillListItemProps,
 } from '@/types';
 import {
@@ -25,6 +24,12 @@ import {
 
 export default function MillListItem ({mill, children, ...props}: IMillListItemProps) {
     const cardClassName = props.className ?? '';
+
+    /**
+     * I'm debating making this component more versatile or just making a separate component for the single mill view.
+     * I'm leaning toward the latter.
+     */
+
     return (
         <Card 
             className={cn(
@@ -88,6 +93,7 @@ export default function MillListItem ({mill, children, ...props}: IMillListItemP
                         return prefix + millType.name;
                     }) : ''
                 }</p>
+                { children }
             </CardContent>
         </Card>
     );
