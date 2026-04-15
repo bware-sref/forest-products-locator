@@ -82,15 +82,16 @@ export default function MillFilters({...props}: MillFiltersProps) {
 
     return (
         <div 
-            className="flex w-full flex-row items-stretch max-w-89 bg-lorne" 
+            className="flex w-full flex-row items-stretch max-w-89 bg:nature lg:bg-lorne" 
             {...props}>
-            <div className="grid gap-1 Xbg-nature p-4 w-full">
+            <div className="grid gap-1 p-8 w-full">
                 {/** This should perhaps be an h1 */}
-                <h2 className="text-[31px] lg:text-xl font-bold text-beluga pb-2">{headline}</h2>
-                {/**
-                 * mess
-                 */}
-                <FieldGroup className="gap-5">
+                <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2">{headline}</h2>
+
+                {/** here is where our dropdown trigger goes */}
+
+
+                <FieldGroup data-el="FieldGroup" className="gap-5 pb-2">
                     {/* text search */}
                     <Field>
                         <FieldLabel className="sr-only" htmlFor="q">Text Search</FieldLabel>
@@ -115,8 +116,14 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             </InputGroupAddon>
                         </InputGroup>
                     </Field>
+                </FieldGroup>
+                {/** 
+                 * The following fields are considered filters.
+                 * Filters can be hidden
+                 */}
+                <FieldGroup data-el="second FieldGroup" className="gap-5">
                     {/* state selector */}
-                    <Field>
+                    <Field data-el="Field">
                         <FieldLabel 
                             htmlFor="state"
                             className="text-white"
@@ -215,7 +222,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                     <div className="flex flex-row">
                         <Button
                             onClick={props.onClearFiltersClick}
-                            className="bg-beluga text-coupe hover:text-beluga"
+                            className="bg-beluga text-velvet font-bold hover:text-beluga"
                         >Clear Filters</Button>
                         {isLoading ? (
                             <Spinner data-icon="inline-end" className="ml-auto size-8" />
