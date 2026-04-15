@@ -33,30 +33,30 @@ export default function MillListItem ({mill, children, ...props}: IMillListItemP
             )}
             {...props}
         >
-            <CardHeader
-                className="border-b border-sonic px-0 pb-0 [.border-b]:pb-0 content-center items-center auto-rows-max grid-rows-1 gap-y-0"
+            {/** wrap entire header in Link to make entire header a link...whodathunk? */}
+            <Link 
+                href={show(mill.match_id)}
+                className="hover:underline"
             >
-                <CardTitle
-                     className="font-extrabold text-velvet text-lg pl-4 py-2 content-center items-center h-full self-stretch leading-6"
+                <CardHeader
+                    className="border-b border-sonic px-0 pb-0 [.border-b]:pb-0 content-center items-center auto-rows-max grid-rows-1 gap-y-0"
                 >
-                    <Link 
-                        href={show(mill.match_id)}
-                        className="hover:underline self-center content-center h-full w-full"
+                    <CardTitle
+                        className="font-extrabold text-velvet text-lg pl-4 py-2 content-center items-center h-full self-stretch leading-6"
                     >
                         {mill.mill_name}
-                    </Link>
-                </CardTitle>
-                <CardAction
-                    className="bg-coupe h-full rounded-tr-lg pr-4 pt-4 pb-3 pl-2 self-stretch"
-                >
-                    <ArrowRightIcon 
-                        data-icon="inline-end"
-                        size={40}
-                        className="w-8 h-8 size-8 ml-2 text-beluga"
-                    />
-                </CardAction>
-
-            </CardHeader>
+                    </CardTitle>
+                    <CardAction
+                        className="bg-coupe h-full rounded-tr-lg pr-4 pt-4 pb-3 pl-2 self-stretch"
+                    >
+                        <ArrowRightIcon 
+                            data-icon="inline-end"
+                            size={40}
+                            className="w-8 h-8 size-8 ml-2 text-beluga"
+                        />
+                    </CardAction>
+                </CardHeader>
+            </Link>
             <CardContent
                 className="px-4 pt-0 flex flex-col gap-1 text-[16px]"
             >
