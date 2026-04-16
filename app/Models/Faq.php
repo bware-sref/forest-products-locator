@@ -16,6 +16,7 @@ class Faq extends Model
     protected $fillable = [
         'question',
         'answer',
+        'slug',
         'order',
         'faq_category_id'
     ];

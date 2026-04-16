@@ -19,7 +19,10 @@ class DatabaseSeeder extends Seeder
             WoodSpeciesSeeder::class,
             AgentSeeder::class,
             FaqCategorySeeder::class,
-            FaqSeeder::class,
+            /**
+             * FAQs seeded by FaqCategorySeeder
+             */
+            // FaqSeeder::class,
         ]);
     }
 }
