@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FaqController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -61,9 +62,8 @@ Route::get('/state-resources', function () {
  * FAQ
  * PagesController
  */
-Route::get('/faq', function () {
-    return Inertia::render('faq', []);
-})->name('faq');
+Route::get('/faqs', [FaqController::class, 'index'])
+    ->name('faqs');
 
 /**
  * Contact
