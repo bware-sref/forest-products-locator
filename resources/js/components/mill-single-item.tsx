@@ -123,6 +123,7 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                                         <Link 
                                             className="underline hover:no-underline"
                                             href={mill.web_site}
+                                            target="_blank"
                                         >
                                             {mill.web_site}
                                         </Link>
