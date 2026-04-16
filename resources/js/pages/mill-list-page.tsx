@@ -45,9 +45,9 @@ export default function MillListPage() {
         <AppLayout>
             <Head title={page.props.pageTitle} />
             {/* full screen-width wrapper */}
-            <div className="flex min-h-screen flex-col items-center p-6 text-velvet lg:justify-center lg:p-8">
+            <div className="flex min-h-screen flex-col items-center px-4 lg:p-8 text-velvet lg:justify-center">
                 {/* content column: max-width 1280px */}
-                <div className="flex flex-col w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 px-5">
+                <div className="flex flex-col w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 lg:px-5">
                     <MillFilters
                         textSearch={searchText}
                         states={states}

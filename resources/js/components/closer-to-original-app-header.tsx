@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Icon } from '@/components/icon';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
     NavigationMenu,
     NavigationMenuItem,
@@ -12,21 +18,25 @@ import {
     Sheet,
     SheetContent,
     SheetDescription,
-    // SheetHeader,
+    SheetHeader,
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { UserMenuContent } from '@/components/user-menu-content';
+// import { useInitials } from '@/hooks/use-initials';
 import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
 import { home, millMap, millList, stateResources, addBusiness, faq, contact } from '@/routes';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { 
-    Menu,
-    // Search,
-    TreePine,
-    XIcon,
-} from 'lucide-react';
+import { Menu, Search, XIcon } from 'lucide-react';
 import AppLogo from './app-logo';
+// import AppLogoIcon from './app-logo-icon';
 
 const mainNavItems: NavItem[] = [
     // {
@@ -78,25 +88,21 @@ const rightNavItems: NavItem[] = [
 const activeItemStyles =
     'text-velvet-900 dark:bg-velvet-800 dark:text-velvet-100';
 
-const mobileActiveItemStyles = '';
-
 interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-// const displaySearch = false;
+const displaySearch = false;
 
-export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
+export function CloserToOriginalAppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData>();
-
-    // we could use auth to show a link to admin...
-    // const { auth } = page.props;
+    const { auth } = page.props;
     
     const [isOpen, setIsOpen] = useState(false);
     return (
         <>
             <div className="border-b-6 border-sidebar-border bg-zucchini text-velvet">
-                <div className="mx-auto flex h-22 lg:h-20 items-center px-4 md:max-w-7xl">
+                <div className="mx-auto flex h-20 lg:h-20 items-center px-4 md:max-w-7xl">
 
                     {/* Logo + home link */}
                     <Link
@@ -114,7 +120,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <Button
                                     variant="ghost"
                                     size="lg"
-                                    className="mr-2 h-8.5 w-8.5 [&_svg:not([class*='size-'])]:size-14"
+                                    className="mr-2 h-8.5 w-8.5 [&_svg:not([class*='size-'])]:size-8"
                                 >
                                     {isOpen ? (
                                         <XIcon className="h-5 w-5" />
@@ -125,7 +131,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             </SheetTrigger>
                             <SheetContent
                                 side="left"
-                                className="flex h-full w-full flex-col items-stretch justify-between bg-sidebar mt-23.5"
+                                className="flex h-full w-full flex-col items-stretch justify-between bg-sidebar mt-21"
                                 overlayClassName="bg-transparent"
                                 showCloseButton={false}
                             >
@@ -135,7 +141,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 </SheetTitle>
                                 {/** However, browsers complain about a missing description, let's go redundant! */}
                                 <SheetDescription className="sr-only">
-                                    Main Navigation Menu.
+                                    Main navigation links.
                                 </SheetDescription>
                                 {/**
                                  * This header just repeats the logo.
@@ -150,26 +156,18 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 </SheetHeader>
                                 */}
 
-                                {/** Actual mobile nav */}
                                 <div className="flex h-full flex-1 flex-col space-y-4 p-4">
                                     <div className="flex h-full flex-col justify-between text-sm">
-                                        <div className="flex flex-col space-y-7">
+                                        <div className="flex flex-col space-y-4">
                                             {mainNavItems.map((item) => (
                                                 <Link
                                                     key={item.title}
                                                     href={item.href}
-                                                    className={cn(
-                                                        isSameUrl(
-                                                            page.url,
-                                                            item.href,
-                                                        ) && mobileActiveItemStyles,
-                                                        "flex items-center space-x-2 font-bold text-3xl justify-end"
-                                                    )}
-                                                    {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
+                                                    className="flex items-center space-x-2 font-bold text-3xl"
                                                 >
-                                                    {isSameUrl(page.url, item.href) && (
+                                                    {item.icon && (
                                                         <Icon
-                                                            iconNode={TreePine}
+                                                            iconNode={item.icon}
                                                             className="h-5 w-5"
                                                         />
                                                     )}
@@ -178,7 +176,6 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             ))}
                                         </div>
 
-                                        {/** we don't have right nav items, nor a cousin patty */}
                                         <div className="flex flex-col space-y-4">
                                             {rightNavItems.map((item) => (
                                                 <a
@@ -204,10 +201,14 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </Sheet>
                     </div>
 
-                    {/** 
-                     * what happens if we move the logo before the mobile nav? 
-                     * it moves!
-                     */}
+                    {/** what happens if we move the logo before the mobile nav? */}
+                    {/* <Link
+                        href={home()}
+                        prefetch
+                        className="flex items-center space-x-2"
+                    >
+                        <AppLogo />
+                    </Link> */}
 
                     {/* Desktop Navigation */}
                     <div className="ml-auto hidden h-full w-auto items-stretch justify-stretch space-x-6 justify-items-end justify-self-end lg:flex">
@@ -228,7 +229,6 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                 ) && activeItemStyles,
                                                 'h-9 cursor-pointer px-3 bg-none font-bold text-xl',
                                             )}
-                                            {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
                                         >
                                             {item.icon && (
                                                 <Icon
@@ -248,10 +248,80 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
 
                     {/* new menu who dis?*/}
-                    {/** we don't use right-nav, user info, or breadcrumbs */}
+                    <div className="ml-auto flex items-center space-x-2">
+                        { displaySearch ? (
+                            <div className="relative flex items-center space-x-1">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="group h-9 w-9 cursor-pointer"
+                                >
+                                    <Search className="size-5! opacity-80 group-hover:opacity-100" />
+                                </Button>
+                                <div className="hidden lg:flex">
+                                    {rightNavItems.map((item) => (
+                                        <TooltipProvider
+                                            key={item.title}
+                                            delayDuration={0}
+                                        >
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <a
+                                                        href={resolveUrl(item.href)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                                                    >
+                                                        <span className="sr-only">
+                                                            {item.title}
+                                                        </span>
+                                                        {item.icon && (
+                                                            <Icon
+                                                                iconNode={item.icon}
+                                                                className="size-5 opacity-80 group-hover:opacity-100"
+                                                            />
+                                                        )}
+                                                    </a>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{item.title}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : ('')}
+                        {/**
+                         * Okay this whole logged-in user crap is probably not necessary.
+                         * But at minimum, we need to check if the user is logged in before blindly attempting to display it.
+                         */}
+                        {auth && auth.user ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    className="size-10 rounded-full p-1"
+                                >
+                                    <Avatar className="size-8 overflow-hidden rounded-full">
+                                        <AvatarImage
+                                            src={auth.user.avatar}
+                                            alt={auth.user.name}
+                                        />
+                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                            
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56" align="end">
+                                <UserMenuContent user={auth.user} />
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        ) : ('')}
+                    </div>
                 </div>
             </div>
-            {/** we don't use breadcrumbs */}
             {breadcrumbs.length > 1 && (
                 <div className="flex w-full border-b border-sidebar-border/70">
                     <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">

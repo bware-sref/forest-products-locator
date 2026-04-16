@@ -13,7 +13,20 @@ import {
 import { ArrowRightIcon, CircleArrowRight } from 'lucide-react';
 // import heroImage from '@img/lumber-flipped@2x.jpg';
 import heroFallback from '@img/lumber-flipped.jpg';
+import mobileHero from '@img/lumber-flipped-390w.jpg';
+import mobileHero2x from '@img/lumber-flipped-780w.jpg';
 import { millMap, millList, stateResources, addBusiness } from '@/routes';
+
+const heroSources = [
+    {
+        srcSet: mobileHero,
+        media: '(max-width: 390px)',
+    },
+    {
+        srcSet: mobileHero2x + ' 2x',
+        media: '(max-width: 768px)',
+    },
+];
 
 export default function Welcome() {
     // const page = usePage<SharedData>();
@@ -52,18 +65,19 @@ export default function Welcome() {
                 src={heroFallback}
                 alt="Lumber"
                 pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
+                sources={heroSources}
             >
-                <div className="flex flex-col gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
-                    <h1 className="text-5xl font-bold my-6">
+                <div className="flex flex-col gap-12 lg:gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
+                    <h1 className="text-3xl lg:text-5xl leading-10 font-bold my-11 lg:my-6">
                         Welcome to the Primary Forest Products Locator
                     </h1>
-                    <p className="text-[22px] my-5">
+                    <p className="text-[18px] lg:text-[22px] leading-8 my-10 lg:my-5">
                         The Primary Forest Products Locator is a tool provided by the <em className="italic">Southern Group of State Foresters</em> to assist buyers in locating primary wood product manufacturing companies.
                     </p>
                     <Button
                         asChild
                         size="lg"                        
-                        className="grow-0 place-self-start bg-coupe border-white border-2 text-2xl py-10"
+                        className="grow-0 place-self-center lg:place-self-start bg-coupe border-white border-2 text-xl lg:text-2xl py-10"
                     >
                         <Link
                             href={millMap()}

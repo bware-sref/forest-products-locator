@@ -185,3 +185,8 @@ export interface MillListProps {
     [key: string]: unknown;
 }
 
+export interface IMillListItemProps {
+    mill: Mill;
+    children?: ReactNode;
+    [key: string]: unknown;
+}
