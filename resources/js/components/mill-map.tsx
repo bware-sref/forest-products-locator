@@ -104,7 +104,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                         <MapPopup className="w-72">
                             <div className="flex flex-col text-left text-velvet text-[16px]">
                                 <h3 className="font-extrabold text-lg">{mill.mill_name}</h3>
-                                <address>
+                                <address className="not-italic">
                                     {mill.physical_address}
                                     <br />
                                     {mill.physical_address_two}
@@ -131,7 +131,6 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                                     >
                                         More Information...
                                     </Link>
-
                                 </p>
                             </div>
                         </MapPopup>

@@ -80,7 +80,7 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                     <h2 className="font-bold text-lg mb-4">Contact</h2>
                     {/** Gemini says to wrap contact info <dl> in an address tag. */}
                     <address className="not-italic">
-                        <dl className="grid grid-cols-3 max-w-80 gap-y-4">
+                        <dl className="grid grid-cols-3 max-w-80 gap-y-2">
                             {mill.telephone && (
                                 <>
                                     <dt className="font-bold">Telephone</dt>
