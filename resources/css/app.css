@@ -262,3 +262,10 @@ disabling dark for now
         @apply text-destructive ml-0.5;
     }
 }
+
+/**
+ * add ": " after <dt> inside <address>
+ */
+address dt::after {
+  content: ": ";
+}

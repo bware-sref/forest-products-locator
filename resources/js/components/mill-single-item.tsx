@@ -18,23 +18,12 @@ import MillSingleMap from '@/components/mill-single-map';
 import {
     ArrowRightIcon,
 } from 'lucide-react';
-import { 
-    show,
-} from '@/actions/App/Http/Controllers/MillController';
 
 
 export default function MillSingleItem ({mill, children, ...props}: IMillListItemProps) {
     const cardClassName = props.className ?? '';
     const showContact = !!(mill.telephone || mill.fax || mill.email || mill.web_site);
     const showMap = false; // mill.latitude && mill.longitude;
-
-    /**
-     * I'm debating making this component more versatile or just making a separate component for the single mill view.
-     * I'm leaning toward the latter.
-     */
-
-    console.log('mill: ', mill);
-    console.log('showContact? ', showContact);
 
     return (
         <Card 
@@ -73,16 +62,6 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                     {mill.physical_address_two}
                 </address>
 
-                {/* <p>
-                    <Link 
-                        href={`https://maps.google.com/?q=${mill.latitude},${mill.longitude}`}
-                        target="_blank"
-                        className="underline hover:no-underline"
-                    >
-                        Map This Location
-                    </Link>
-                </p> */}
-
                 <p><strong>Species: </strong> 
                     {mill.wood_species ? mill.wood_species.map((wood, index) => {
                         const prefix = (0 < index) ? ', ' : '';
@@ -104,25 +83,42 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                         <dl className="grid grid-cols-3 max-w-80 gap-y-4">
                             {mill.telephone && (
                                 <>
-                                    <dt className="font-bold">Telephone: </dt>
-                                    <dd className="col-span-2">{mill.telephone}</dd>
+                                    <dt className="font-bold">Telephone</dt>
+                                    <dd className="col-span-2">
+                                        <a 
+                                            className="underline hover:no-underline"
+                                            href={'tel:' + mill.telephone}
+                                        >
+                                            {mill.telephone}
+                                        </a>
+                                    </dd>
                                 </>
                             )}
                             {mill.fax && (
                                 <>
-                                    <dt className="font-bold">Fax: </dt>
-                                    <dd className="col-span-2">{mill.fax}</dd>
+                                    <dt className="font-bold">Fax</dt>
+                                    <dd className="col-span-2">                                        
+                                        {mill.fax}
+                                    </dd>
                                 </>
                             )}
                             {mill.email && (
                                 <>
-                                    <dt className="font-bold">Email: </dt>
-                                    <dd className="col-span-2">{mill.email}</dd>
+                                    <dt className="font-bold">Email</dt>
+                                    <dd className="col-span-2">
+                                        <a
+                                            className="underline hover:no-underline"
+                                            href={'mailto:' + mill.email}
+                                        >
+                                            {mill.email}
+                                        </a>
+                                        
+                                    </dd>
                                 </>
                             )}
                             {mill.web_site && (
                                 <>
-                                    <dt className="font-bold">Web Site: </dt>
+                                    <dt className="font-bold">Web Site</dt>
                                     <dd className="col-span-2">
                                         <Link 
                                             className="underline hover:no-underline"
