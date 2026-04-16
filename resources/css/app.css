@@ -262,3 +262,22 @@ disabling dark for now
         @apply text-destructive ml-0.5;
     }
 }
+
+/**
+ * add ": " after <dt> inside <address>
+ */
+address dt::after {
+  content: ": ";
+}
+
+/**
+ * increase size of map popup close button
+ * we should probsibly make a utility instead of using raw CSS because a utility will allow using responsive classes
+ */
+.leaflet-container .leaflet-popup a.leaflet-popup-close-button {
+  font-size: 24px;
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  line-height: 24px; /* it's already 24px but oh well */
+}
