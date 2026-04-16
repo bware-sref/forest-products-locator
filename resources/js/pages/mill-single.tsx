@@ -5,7 +5,7 @@ import {
 import { Head, usePage } from '@inertiajs/react';
 
 
-export default function MillListItem() {
+export default function MillSingle() {
     const page = usePage<{
         mills: Mill[];
     }>();
@@ -15,11 +15,11 @@ export default function MillListItem() {
     return (
         <AppLayout>
             <Head title={pageTitle} />
-            <div className="flex min-h-screen flex-col items-center Xbg-nature p-6 text-velvet lg:justify-center lg:p-8 Xdark:bg-nature">
+            <div className="flex min-h-screen flex-col items-center p-6 text-velvet lg:justify-center lg:p-8">
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-83.75 flex-col vsflex-col-reverse lg:max-w-4xl ffslg:flex-row">
-                        <div className="flex w-full flex-row">filters</div>
-                        <ul className="flex flex-col justify-evenly items-stretch gap-1 max-w-83.75 lg:max-w-xl">
+                    {/* <main className="flex w-full max-w-89 flex-col lg:max-w-4xl"> */}
+                        
+                        <ul className="flex flex-col justify-evenly items-stretch gap-1 w-full max-w-89 lg:max-w-xl">
                             
                             {mills.map(mill => 
                                 <li className="bg-beluga text-black p-8 flex" key={mill.match_id}>
@@ -53,7 +53,7 @@ export default function MillListItem() {
                                 </li>
                             )}
                         </ul>
-                    </main>
+                    {/* </main> */}
                 </div>
                 <div className="hidden h-14.5 lg:block"></div>
             </div>
