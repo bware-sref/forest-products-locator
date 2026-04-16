@@ -9,3 +9,5 @@
 <x-backpack::menu-item title="Mill types" icon="la la-question" :link="backpack_url('mill-type')" />
 <x-backpack::menu-item title="States" icon="la la-question" :link="backpack_url('state')" />
 <x-backpack::menu-item title="Wood species" icon="la la-question" :link="backpack_url('wood-species')" />
+<x-backpack::menu-item title="Faq categories" icon="la la-question" :link="backpack_url('faq-category')" />
+<x-backpack::menu-item title="Faqs" icon="la la-question" :link="backpack_url('faq')" />
