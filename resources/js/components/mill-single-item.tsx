@@ -23,7 +23,7 @@ import {
 export default function MillSingleItem ({mill, children, ...props}: IMillListItemProps) {
     const cardClassName = props.className ?? '';
     const showContact = !!(mill.telephone || mill.fax || mill.email || mill.web_site);
-    const showMap = false; // mill.latitude && mill.longitude;
+    const showMap = mill.latitude && mill.longitude;
 
     return (
         <Card 
@@ -76,7 +76,7 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                 }</p>
 
                 {/** Contact */}
-                <div className="mill-contact mt-5" hidden={!showContact}>
+                <div className="mill-contact my-5" hidden={!showContact}>
                     <h2 className="font-bold text-lg mb-4">Contact</h2>
                     {/** Gemini says to wrap contact info <dl> in an address tag. */}
                     <address className="not-italic">

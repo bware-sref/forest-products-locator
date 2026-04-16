@@ -95,17 +95,17 @@ export default function MillFilters({...props}: MillFiltersProps) {
 
     return (
         <div 
-            className="flex w-full flex-row items-stretch max-w-89 bg:nature lg:bg-lorne" 
+            className="flex w-full flex-row items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne" 
             {...props}>
 
-            <div className="grid gap-1 py-8 w-full">
+            <div className="grid gap-1 py-4 lg:py-8 w-full">
                 <div className="flex flex-row lg:px-8">
                     {/** This should perhaps be an h1 */}
                     <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2">{headline}</h2>
 
                     {/** here is where our dropdown trigger goes */}
                     <Button
-                        className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto"
+                        className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm"
                         onClick={() => setIsOpen(!isOpen)}
                         aria-controls="mill-filters_D"
                     >
