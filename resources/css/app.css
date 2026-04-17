@@ -269,6 +269,16 @@ disabling dark for now
 address dt::after {
   content: ": ";
 }
+/**
+ * add Q before questions and A before answers
+ */
+.question::before {
+  content: "Q: ";
+}
+.answer::before {
+  content: "A: ";
+}
+
 
 /**
  * increase size of map popup close button
