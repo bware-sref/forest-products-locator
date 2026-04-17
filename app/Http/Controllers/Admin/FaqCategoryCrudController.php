@@ -28,7 +28,7 @@ class FaqCategoryCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\FaqCategory::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/faq-category');
-        CRUD::setEntityNameStrings('faq category', 'faq categories');
+        CRUD::setEntityNameStrings('FAQ Category', 'FAQ Categories');
     }
 
     /**
@@ -39,6 +39,14 @@ class FaqCategoryCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        /**
+         * sort by order column by default unless the user has requested sorting by a
+         * different column
+         */
+        if (! $this->crud->getRequest()->has('order')) {
+            $this->crud->orderBy('order', 'asc');
+        }
+
         CRUD::setFromDb(); // set columns from db columns.
 
         /**

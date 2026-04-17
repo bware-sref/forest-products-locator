@@ -28,7 +28,7 @@ class FaqCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Faq::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/faq');
-        CRUD::setEntityNameStrings('faq', 'faqs');
+        CRUD::setEntityNameStrings('FAQ', 'FAQs');
     }
 
     /**
@@ -39,12 +39,21 @@ class FaqCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        if (! $this->crud->getRequest()->has('order')) {
+            $this->crud->orderBy('order', 'asc');
+        }
+
         CRUD::setFromDb(); // set columns from db columns.
 
         /**
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');
          */
+        CRUD::column('faq_category_id')
+            ->type('select')
+            ->entity('faqCategory')
+            ->model('App\Models\FaqCategory')
+            ->attribute('name');
     }
 
     /**
@@ -62,6 +71,14 @@ class FaqCrudController extends CrudController
          * Fields can be defined using the fluent syntax:
          * - CRUD::field('price')->type('number');
          */
+        CRUD::field([
+            'name' => 'faq_category_id',
+            'label' => 'Category',
+            'type' => 'select',
+            'entity' => 'faqCategory',
+            'model' => 'App\Models\FaqCategory',
+            'attribute' => 'name',
+        ]);
     }
 
     /**
@@ -73,5 +90,13 @@ class FaqCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    /**
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        $this->setupListOperation();
     }
 }
