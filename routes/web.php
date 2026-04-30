@@ -3,7 +3,7 @@
 use App\Http\Controllers\FaqController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
+// use Laravel\Fortify\Features;
 use App\Http\Controllers\MillController;
 
 Route::get('/', function () {
@@ -89,12 +89,27 @@ Route::get('/accessibility', function () {
     return Inertia::render('accessibility', []);
 })->name('accessibility');
 
-
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+/**
+ * Kill Fortify login/logout routes
+ * Except not really...
+ */
+Route::post('/login', function() {
+    return redirect('/admin/login');
 });
+Route::post('/logout', function() {
+    return redirect('/admin/logout');
+});
+/**
+ * Again, Backpack so standard dashboard not needed.
+ */
+// Route::middleware(['auth', 'verified'])->group(function () {
+//     Route::get('dashboard', function () {
+//         return Inertia::render('dashboard');
+//     })->name('dashboard');
+// });
 
-require __DIR__.'/settings.php';
+/**
+ * We're using Backpack instead of standard user stuff so I don't think we need this.
+ * I guess we'll see though.
+ */
+// require __DIR__.'/settings.php';
