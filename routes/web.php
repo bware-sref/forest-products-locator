@@ -42,6 +42,16 @@ Route::post('/mill', [MillController::class, 'store'])
 Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
     ->name('mill-list-item');
 
+Route::get('/mills/export/', [MillController::class, 'export'])->name('mill-export');
+
+/**
+ * FAQ
+ * PagesController
+ */
+Route::get('/faqs', [FaqController::class, 'index'])
+    ->name('faqs');
+
+
 /**
  * About Us
  * pages controller?
@@ -57,13 +67,6 @@ Route::get('/about-us', function () {
 Route::get('/state-resources', function () {
     return Inertia::render('state-resources', []);
 })->name('state-resources');
-
-/**
- * FAQ
- * PagesController
- */
-Route::get('/faqs', [FaqController::class, 'index'])
-    ->name('faqs');
 
 /**
  * Contact
