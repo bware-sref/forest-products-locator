@@ -90,16 +90,6 @@ Route::get('/accessibility', function () {
 })->name('accessibility');
 
 /**
- * Kill Fortify login/logout routes
- * Except not really...
- */
-Route::post('/login', function() {
-    return redirect('/admin/login');
-});
-Route::post('/logout', function() {
-    return redirect('/admin/logout');
-});
-/**
  * Again, Backpack so standard dashboard not needed.
  */
 // Route::middleware(['auth', 'verified'])->group(function () {

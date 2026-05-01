@@ -153,13 +153,4 @@ return [
         //     // 'window' => 0
         // ]),
     ],
-
-
-    /**
-     * Override paths?
-     * Nope!
-     */
-    // 'paths' => [
-
-    // ],
 ];
