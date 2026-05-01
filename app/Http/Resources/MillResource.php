@@ -32,7 +32,11 @@ class MillResource extends JsonResource
 
         return [
             // mill model properties
-            'id' => $this->match_id,
+            /**
+             * Excel export currently wants a list of numeric mill ids so I'm reverting id to be the db id
+             */
+            // 'id' => $this->match_id,
+            'id' => $this->id,
             'match_id' => $this->match_id,
             'mill_name' => $this->mill_name,
             'physical_address' => $this->whenNotNull($this->physical_address),
