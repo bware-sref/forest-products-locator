@@ -76,15 +76,31 @@ export interface MillFiltersProps {
     isLoading?: boolean;
 }
 
-export default function MillFilters({...props}: MillFiltersProps) {
+export default function MillFilters({
+    headline = 'Mill List',
+    textSearch = '',
+    states,
+    counties = [],
+    millTypes,
+    woodSpecies,
+    onTextSearchChange,
+    onStateSelectChange,
+    onCountySelectChange,
+    onMillTypesSelectChange,
+    onWoodSpeciesSelectChange,
+    onClearFiltersClick,
+    filterResetKey = 0,
+    isLoading = false,
+    ...props
+}: MillFiltersProps) {
 
-    const headline = props.headline || 'Mill List';
-    const states = props.states;
-    const counties = props.counties || [];
-    const millTypes = props.millTypes;
-    const woodSpecies = props.woodSpecies;
-    const filterResetKey = props.filterResetKey ?? 0;
-    const isLoading = props.isLoading ?? false;
+    // const headline = props.headline || 'Mill List';
+    // const states = props.states;
+    // const counties = props.counties || [];
+    // const millTypes = props.millTypes;
+    // const woodSpecies = props.woodSpecies;
+    // const filterResetKey = props.filterResetKey ?? 0;
+    // const isLoading = props.isLoading ?? false;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
     /** 
@@ -130,8 +146,8 @@ export default function MillFilters({...props}: MillFiltersProps) {
                                 id="q"
                                 className="text-velvet dark:text-velvet"
                                 placeholder="Search mills..."
-                                value={props.textSearch || ''}
-                                onChange={props.onTextSearchChange}
+                                value={textSearch || ''}
+                                onChange={onTextSearchChange}
                             />
                             {/* */}
                             <InputGroupAddon align="inline-end">
@@ -169,7 +185,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             key={filterResetKey}
                             options={states as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
-                            onValueChange={props.onStateSelectChange}
+                            onValueChange={onStateSelectChange}
                             placeholder="Select a state..."
                             clearable={true}                            
                         >
@@ -193,7 +209,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             key={filterResetKey}
                             options={counties as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
-                            onValueChange={props.onCountySelectChange}
+                            onValueChange={onCountySelectChange}
                             placeholder="Select a county..."
                             disabled={countiesDisabled}
                             clearable={true}                            
@@ -218,7 +234,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             key={filterResetKey}
                             options={millTypes as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
-                            onValueChange={props.onMillTypesSelectChange}
+                            onValueChange={onMillTypesSelectChange}
                             placeholder="Select a mill type..."
                             clearable={true}
                         >
@@ -242,7 +258,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             key={filterResetKey}
                             options={woodSpecies as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
-                            onValueChange={props.onWoodSpeciesSelectChange}
+                            onValueChange={onWoodSpeciesSelectChange}
                             placeholder="Select a wood type..."
                             clearable={true}                            
                         >
@@ -258,7 +274,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
 
                     <div className="flex flex-row">
                         <Button
-                            onClick={props.onClearFiltersClick}
+                            onClick={onClearFiltersClick}
                             className="bg-beluga text-velvet font-bold hover:text-beluga"
                         >Clear Filters</Button>
                         {isLoading ? (
