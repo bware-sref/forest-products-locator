@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MillsExport;
 use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
 use App\Models\County;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MillController extends Controller
 {
@@ -177,6 +179,67 @@ class MillController extends Controller
     public function destroy(Mill $mill)
     {
         //
+    }
+
+    public function export(Request $request)
+    {
+        /**
+         * increase maximum execution time for this request to 5 minutes
+         * we of course don't want it to take that long
+         * in fact, we should probably pre-create and cache the full export via the job queue so it will load fastly
+         */
+        set_time_limit(300);
+
+        $millIds = $request->query('mills');
+
+        /**
+         * Find mills based on $request
+         * Maybe just send the ids?         
+         * If there are no ids, that means fetch all.
+         * Consider moving this query to a model method.
+         */
+        $query = Mill::query();
+        if (! empty($millIds)) {            
+            $millIds = explode(',', $millIds);
+            /**
+             * add default values for optional parameters to whereIn() to shut up intelliphense
+             */
+            $query->whereIn('id', $millIds, $boolean = 'and', $not = false);
+        }
+        $mills = $query->with([
+                'state:id,name,abbreviation',
+                'county:id,name',
+                'millTypes:id,name',
+                'woodSpecies:id,name',
+            ])->get([
+                /**
+                 * We may need to revise this list
+                 */
+                'id',
+                'match_id',
+                'mill_name',
+                'latitude',
+                'longitude',
+                'year',
+                'physical_address',
+                'physical_city',
+                'county_id',
+                'state_id',
+                'physical_zip',
+                'mailing_address',
+                'mailing_city',
+                'mailing_county_id',
+                'mailing_state_id',
+                'mailing_zip',
+                'telephone',
+                'fax',
+                'email',
+                'web_site',
+                'size',
+                'updated_at',
+            ]);
+
+        return Excel::download(new MillsExport($mills), 'mills.xlsx');
     }
 
     /**
