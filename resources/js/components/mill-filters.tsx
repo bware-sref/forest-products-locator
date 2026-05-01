@@ -94,13 +94,6 @@ export default function MillFilters({
     ...props
 }: MillFiltersProps) {
 
-    // const headline = props.headline || 'Mill List';
-    // const states = props.states;
-    // const counties = props.counties || [];
-    // const millTypes = props.millTypes;
-    // const woodSpecies = props.woodSpecies;
-    // const filterResetKey = props.filterResetKey ?? 0;
-    // const isLoading = props.isLoading ?? false;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
     /** 

@@ -41,6 +41,12 @@ export default function MillListPage() {
         woodSpecies: page.props.woodSpecies,
     });
 
+    /**
+     * FFS, I forgot that I mapped match_id to id in the API results.
+     */
+    const millIds = mills.map(mill => mill.id).join(',');
+    console.log('millIds: ', millIds);
+
     return (
         <AppLayout>
             <Head title={page.props.pageTitle} />
