@@ -24,6 +24,8 @@ Route::group([
     Route::crud('mill-type', 'MillTypeCrudController');
     Route::crud('state', 'StateCrudController');
     Route::crud('wood-species', 'WoodSpeciesCrudController');
+    Route::crud('faq-category', 'FaqCategoryCrudController');
+    Route::crud('faq', 'FaqCrudController');
 }); // this should be the absolute last line of this file
 
 /**

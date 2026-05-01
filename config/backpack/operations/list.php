@@ -52,7 +52,7 @@ return [
     'actionsColumnPriority' => 1,
 
     // Nest action buttons within a dropdown in actions column
-    'lineButtonsAsDropdown' => false,
+    'lineButtonsAsDropdown' => true, // false,
 
     // What is the minimum actions for the dropdown to be created
     // Example: when minimum to drop is «2»,  any row with less than «2» action buttons

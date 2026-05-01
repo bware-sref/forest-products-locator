@@ -18,6 +18,11 @@ class DatabaseSeeder extends Seeder
             MillTypeSeeder::class,
             WoodSpeciesSeeder::class,
             AgentSeeder::class,
+            FaqCategorySeeder::class,
+            /**
+             * FAQs seeded by FaqCategorySeeder
+             */
+            // FaqSeeder::class,
         ]);
     }
 }

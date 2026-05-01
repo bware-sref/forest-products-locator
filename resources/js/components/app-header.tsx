@@ -17,7 +17,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
-import { home, millMap, millList, stateResources, addBusiness, faq, contact } from '@/routes';
+import { home, millMap, millList, stateResources, addBusiness, faqs, contact} from '@/routes';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { 
@@ -54,7 +54,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'FAQ',
-        href: faq(),
+        href: faqs(),
     },
     {
         title: 'Contact',

@@ -190,3 +190,20 @@ export interface IMillListItemProps {
     children?: ReactNode;
     [key: string]: unknown;
 }
+
+export interface IFaq {
+    id: number;
+    question: string;
+    answer: string;
+    order: number;
+    faq_category_id: number | null;
+    [key: string]: unknown;
+}
+
+export interface IFaqCategory {
+    name: string;
+    slug: string;
+    order: number;
+    faqs: IFaq[];
+    [key: string]: unknown;
+}

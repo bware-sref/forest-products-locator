@@ -6,7 +6,7 @@ import {
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { cn, isSameUrl } from '@/lib/utils';
-import { millMap, millList, stateResources, addBusiness, faq, contact } from '@/routes';
+import { millMap, millList, stateResources, addBusiness, faqs, contact } from '@/routes';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import sgsfLogo from '@img/southern-group-of-state-foresters_logo_white_horizontal@2x.png';
@@ -30,7 +30,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'FAQ',
-        href: faq(),
+        href: faqs(),
     },
     {
         title: 'Contact',
