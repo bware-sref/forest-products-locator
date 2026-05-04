@@ -34,6 +34,7 @@ export default function MillListPage() {
         handleMillTypeSelectChange,
         handleWoodSpeciesSelectChange,
         handleClearFiltersClick,
+        handleExportClick,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
@@ -45,7 +46,7 @@ export default function MillListPage() {
      * FFS, I forgot that I mapped match_id to id in the API results.
      */
     const millIds = mills.map(mill => mill.id).join(',');
-    console.log('millIds: ', millIds);
+    // console.log('millIds: ', millIds);
 
     return (
         <AppLayout>
@@ -68,6 +69,7 @@ export default function MillListPage() {
                         onMillTypesSelectChange={handleMillTypeSelectChange}
                         onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
                         onClearFiltersClick={handleClearFiltersClick}
+                        onExportClick={handleExportClick}
                     />
                     <MillList mills={mills} />
                 </div>

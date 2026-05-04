@@ -67,6 +67,9 @@ export interface MillFiltersProps {
 
     // add to that ClearFilters
     onClearFiltersClick: MouseEventHandler;
+
+    // add Export
+    onExportClick: MouseEventHandler;
     /**
      * Incremented by the parent when all filters are cleared. Applied as the
      * `key` prop on each InputSelect so React remounts them, resetting their
@@ -89,6 +92,7 @@ export default function MillFilters({
     onMillTypesSelectChange,
     onWoodSpeciesSelectChange,
     onClearFiltersClick,
+    onExportClick,
     filterResetKey = 0,
     isLoading = false,
     ...props
@@ -273,6 +277,18 @@ export default function MillFilters({
                         {isLoading ? (
                             <Spinner data-icon="inline-end" className="ml-auto size-8" />
                         ) : ''}
+                        {/**
+                         * We need to put the export button somewhere, but the spinner somewhat complicates the situation.
+                         * Actually, we might want to just submit the form, so to speak.
+                         * By which I mean that the filters form already contains all the search parameters needed to query the 
+                         * DB and get the same list of mills.
+                         */}
+                        <Button
+                            onClick={onExportClick}
+                            className="ml-auto text-beluga!"
+                        >
+                            Export
+                        </Button>
                     </div>
                 </FieldGroup>
             </div>                            

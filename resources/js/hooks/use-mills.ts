@@ -97,6 +97,7 @@ export interface UseMillsReturn {
     handleMillTypeSelectChange: (millTypeId: string) => void;
     handleWoodSpeciesSelectChange: (woodSpeciesId: string) => void;
     handleClearFiltersClick: MouseEventHandler<HTMLButtonElement>;
+    handleExportClick: MouseEventHandler<HTMLButtonElement>;
 }
 
 /**
@@ -302,6 +303,13 @@ export function useMills({
         setSearchParams({});
     }, []);
 
+    /**
+     * Need to add another method for handling Export clicks
+     */
+    const handleExportClick: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
+        console.log('clicked Export with following searchParams!', searchParams);
+    }, [searchParams]);
+
     // ---------------------------------------------------------------------------
 
     return {
@@ -318,5 +326,6 @@ export function useMills({
         handleMillTypeSelectChange,
         handleWoodSpeciesSelectChange,
         handleClearFiltersClick,
+        handleExportClick,
     };
 }

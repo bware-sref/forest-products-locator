@@ -35,6 +35,7 @@ export default function MillMapPage() {
         handleMillTypeSelectChange,
         handleWoodSpeciesSelectChange,
         handleClearFiltersClick,
+        handleExportClick,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
@@ -69,6 +70,7 @@ export default function MillMapPage() {
                             onMillTypesSelectChange={handleMillTypeSelectChange}
                             onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
                             onClearFiltersClick={handleClearFiltersClick}
+                            onExportClick={handleExportClick}
                         />
                     </MillMap>
                 </div>
