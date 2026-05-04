@@ -42,7 +42,7 @@ Route::post('/mill', [MillController::class, 'store'])
 Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
     ->name('mill-list-item');
 
-Route::get('/mills/export/', [MillController::class, 'export'])->name('mill-export');
+Route::match(['get', 'post'], '/mills/export/', [MillController::class, 'export'])->name('mill-export');
 
 /**
  * FAQ

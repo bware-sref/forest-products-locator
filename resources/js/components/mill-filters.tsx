@@ -32,7 +32,9 @@ import {
     InputSelect,
     InputSelectTrigger,
 } from "@/components/extend/input-select";
-
+import {
+    Link
+} from "@inertiajs/react";
 import { useIsMobile } from '@/hooks/use-mobile';
 
 /**
@@ -67,6 +69,9 @@ export interface MillFiltersProps {
 
     // add to that ClearFilters
     onClearFiltersClick: MouseEventHandler;
+
+    // add Export
+    onExportClick: MouseEventHandler;
     /**
      * Incremented by the parent when all filters are cleared. Applied as the
      * `key` prop on each InputSelect so React remounts them, resetting their
@@ -74,6 +79,7 @@ export interface MillFiltersProps {
      */
     filterResetKey?: number;
     isLoading?: boolean;
+    isDownloading: boolean;
 }
 
 export default function MillFilters({
@@ -83,14 +89,17 @@ export default function MillFilters({
     counties = [],
     millTypes,
     woodSpecies,
+    searchParams,
     onTextSearchChange,
     onStateSelectChange,
     onCountySelectChange,
     onMillTypesSelectChange,
     onWoodSpeciesSelectChange,
     onClearFiltersClick,
+    onExportClick,
     filterResetKey = 0,
     isLoading = false,
+    isDownloading = false,
     ...props
 }: MillFiltersProps) {
 
@@ -273,6 +282,19 @@ export default function MillFilters({
                         {isLoading ? (
                             <Spinner data-icon="inline-end" className="ml-auto size-8" />
                         ) : ''}
+                        {/**
+                         * We need to put the export button somewhere, but the spinner somewhat complicates the situation.
+                         * Actually, we might want to just submit the form, so to speak.
+                         * By which I mean that the filters form already contains all the search parameters needed to query the 
+                         * DB and get the same list of mills.
+                         */}
+                        <Button                            
+                            className="ml-auto text-beluga!"
+                            onClick={onExportClick}
+                            disabled={isDownloading}
+                        >
+                            Export
+                        </Button>
                     </div>
                 </FieldGroup>
             </div>                            

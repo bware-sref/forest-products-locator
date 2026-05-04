@@ -19,6 +19,7 @@ export default function MillListPage() {
         woodSpecies?: WoodSpecies[];
         pageTitle?: string;
         millsApiUrl: string;
+        csrf_token: string;
     }>();
 
     const {
@@ -28,24 +29,27 @@ export default function MillListPage() {
         searchText,
         filterResetKey,
         isLoading,
+        isDownloading,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,
         handleMillTypeSelectChange,
         handleWoodSpeciesSelectChange,
         handleClearFiltersClick,
+        handleExportClick,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
         millTypes: page.props.millTypes,
         woodSpecies: page.props.woodSpecies,
+        csrfToken: page.props.csrf_token,
     });
 
     /**
      * FFS, I forgot that I mapped match_id to id in the API results.
      */
     const millIds = mills.map(mill => mill.id).join(',');
-    console.log('millIds: ', millIds);
+    // console.log('millIds: ', millIds);
 
     return (
         <AppLayout>
@@ -62,12 +66,14 @@ export default function MillListPage() {
                         woodSpecies={page.props.woodSpecies}
                         filterResetKey={filterResetKey}
                         isLoading={isLoading}
+                        isDownloading={isDownloading}
                         onTextSearchChange={handleTextSearchChange}
                         onStateSelectChange={handleStateSelectChange}
                         onCountySelectChange={handleCountySelectChange}
                         onMillTypesSelectChange={handleMillTypeSelectChange}
                         onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
                         onClearFiltersClick={handleClearFiltersClick}
+                        onExportClick={handleExportClick}
                     />
                     <MillList mills={mills} />
                 </div>
