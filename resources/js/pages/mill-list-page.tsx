@@ -19,6 +19,7 @@ export default function MillListPage() {
         woodSpecies?: WoodSpecies[];
         pageTitle?: string;
         millsApiUrl: string;
+        csrf_token: string;
     }>();
 
     const {
@@ -28,6 +29,7 @@ export default function MillListPage() {
         searchText,
         filterResetKey,
         isLoading,
+        isDownloading,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,
@@ -40,6 +42,7 @@ export default function MillListPage() {
         rawStates: page.props.states,
         millTypes: page.props.millTypes,
         woodSpecies: page.props.woodSpecies,
+        csrfToken: page.props.csrf_token,
     });
 
     /**
@@ -63,6 +66,7 @@ export default function MillListPage() {
                         woodSpecies={page.props.woodSpecies}
                         filterResetKey={filterResetKey}
                         isLoading={isLoading}
+                        isDownloading={isDownloading}
                         onTextSearchChange={handleTextSearchChange}
                         onStateSelectChange={handleStateSelectChange}
                         onCountySelectChange={handleCountySelectChange}

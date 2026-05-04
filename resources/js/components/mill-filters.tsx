@@ -32,7 +32,9 @@ import {
     InputSelect,
     InputSelectTrigger,
 } from "@/components/extend/input-select";
-
+import {
+    Link
+} from "@inertiajs/react";
 import { useIsMobile } from '@/hooks/use-mobile';
 
 /**
@@ -77,6 +79,7 @@ export interface MillFiltersProps {
      */
     filterResetKey?: number;
     isLoading?: boolean;
+    isDownloading: boolean;
 }
 
 export default function MillFilters({
@@ -86,6 +89,7 @@ export default function MillFilters({
     counties = [],
     millTypes,
     woodSpecies,
+    searchParams,
     onTextSearchChange,
     onStateSelectChange,
     onCountySelectChange,
@@ -95,6 +99,7 @@ export default function MillFilters({
     onExportClick,
     filterResetKey = 0,
     isLoading = false,
+    isDownloading = false,
     ...props
 }: MillFiltersProps) {
 
@@ -283,9 +288,10 @@ export default function MillFilters({
                          * By which I mean that the filters form already contains all the search parameters needed to query the 
                          * DB and get the same list of mills.
                          */}
-                        <Button
-                            onClick={onExportClick}
+                        <Button                            
                             className="ml-auto text-beluga!"
+                            onClick={onExportClick}
+                            disabled={isDownloading}
                         >
                             Export
                         </Button>

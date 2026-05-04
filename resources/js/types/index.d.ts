@@ -173,6 +173,7 @@ export type SearchParams = {
     county?: string;
     millType?: string;
     woodSpecies?: string;
+    _token?: string;
 };
 
 /**

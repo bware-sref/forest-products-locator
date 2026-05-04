@@ -11,6 +11,7 @@ import {
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
 import MillMap from '@/components/mill-map';
+// import { is } from 'zod/v4/locales';
 
 export default function MillMapPage() {
     const page = usePage<{
@@ -19,6 +20,7 @@ export default function MillMapPage() {
         woodSpecies?: WoodSpecies[];
         pageTitle?: string;
         millsApiUrl: string;
+        csrf_token: string;
     }>();
 
     const {
@@ -29,6 +31,7 @@ export default function MillMapPage() {
         searchParams,
         filterResetKey,
         isLoading,
+        isDownloading,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,
@@ -41,6 +44,7 @@ export default function MillMapPage() {
         rawStates: page.props.states,
         millTypes: page.props.millTypes,
         woodSpecies: page.props.woodSpecies,
+        csrfToken: page.props.csrf_token,
     });
 
     return (
@@ -60,6 +64,7 @@ export default function MillMapPage() {
                             searchParams={searchParams}
                             filterResetKey={filterResetKey}
                             isLoading={isLoading}
+                            isDownloading={isDownloading}
                             states={states}
                             counties={counties}
                             millTypes={page.props.millTypes}
