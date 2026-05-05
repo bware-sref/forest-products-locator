@@ -29,7 +29,7 @@ class AgentFactory extends Factory
             /**
              * This should probably default to a random state because we can constrain the values used in the seeder.
              */
-            'state_id' => $this->faker->randomElement(State::pluck('id')->toArray()),
+            'state_id' => $this->faker->randomElement(State::pluck('id', null)->toArray()),
             'street_address' => $this->faker->streetAddress(),
             'city' => $this->faker->city(),
             'zip_code' => $this->faker->postcode(),

@@ -106,7 +106,7 @@ export const InputSelect: React.FC<{
           <CommandInput placeholder="Search..." />
           <CommandList className="max-h-[unset] overflow-y-hidden">
             <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup className="max-h-[20rem] min-h-[10rem] overflow-y-auto">
+            <CommandGroup className="max-h-80 min-h-40 overflow-y-auto">
               {options.map((option) => {
                 const isSelected = selectedValue === option.value;
                 return (

@@ -28,7 +28,8 @@ class FaqFactory extends Factory
             'answer' => $this->faker->sentences(rand(1, 5), true),
             'slug' => Str::slug($question),
             'order' => $this->faker->numberBetween(1, 50),
-            'faq_category_id' => FaqCategory::inRandomOrder()->first()->id ?? FaqCategory::factory(),
+            // empty seed to shut up intelliphense
+            'faq_category_id' => FaqCategory::inRandomOrder('')->first()->id ?? FaqCategory::factory(),
             'published_at' => $publishedAt,
             'unpublished_at' => $this->faker->boolean(0.1) ? $this->faker->dateTimeBetween($publishedAt, '+2 months') : null,
         ];
