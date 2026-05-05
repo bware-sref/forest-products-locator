@@ -197,9 +197,9 @@ export function useMills({
      */
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
     // wrap with useEffectEvent to allow updating isDownloading during useEffect
-    const updateIsDownloading = useEffectEvent((downloadingValue: boolean) => {
-        setIsDownloading(downloadingValue);
-    });
+    // const updateIsDownloading = useEffectEvent((downloadingValue: boolean) => {
+    //     setIsDownloading(downloadingValue);
+    // });
 
     // ---------------------------------------------------------------------------
     // Mills data
@@ -351,11 +351,11 @@ export function useMills({
         // console.log('clicked Export with following searchParams!', searchParams);
         // attach CSRF token to searchParams
         console.log('doing the download with searchParams...', searchParams);
-        updateIsDownloading(true);
+        setIsDownloading(true);
         downloadExport(searchParams, csrfToken)
-            .then(() => updateIsDownloading(false));
+            .then(() => setIsDownloading(false));
 
-    }, [searchParams]);
+    }, [searchParams, csrfToken]);
 
     // ---------------------------------------------------------------------------
 

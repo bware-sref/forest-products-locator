@@ -45,12 +45,6 @@ export default function MillListPage() {
         csrfToken: page.props.csrf_token,
     });
 
-    /**
-     * FFS, I forgot that I mapped match_id to id in the API results.
-     */
-    const millIds = mills.map(mill => mill.id).join(',');
-    // console.log('millIds: ', millIds);
-
     return (
         <AppLayout>
             <Head title={page.props.pageTitle} />

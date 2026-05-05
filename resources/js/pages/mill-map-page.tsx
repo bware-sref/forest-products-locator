@@ -28,7 +28,7 @@ export default function MillMapPage() {
         states,
         counties,
         searchText,
-        searchParams,
+        // searchParams,
         filterResetKey,
         isLoading,
         isDownloading,
@@ -61,7 +61,6 @@ export default function MillMapPage() {
                         <MillFilters
                             headline={page.props.pageTitle}
                             textSearch={searchText}
-                            searchParams={searchParams}
                             filterResetKey={filterResetKey}
                             isLoading={isLoading}
                             isDownloading={isDownloading}
