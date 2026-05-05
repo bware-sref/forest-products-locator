@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('mills', function (Blueprint $table) {
             // add foreign keys for county and state
             $table->foreignId('county_id')
-                ->after('county')
+                ->after('county_name')
                 ->nullable(true)
                 ->default(null)
                 ->cascadeOnUpdate();
