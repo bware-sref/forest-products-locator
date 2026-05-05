@@ -4,7 +4,7 @@ import {
     type State,
     type WoodSpecies,
     type SelectOption,
-    type SearchParams,
+    // type SearchParams,
 } from '@/types';
 import {
     Field,
@@ -32,9 +32,6 @@ import {
     InputSelect,
     InputSelectTrigger,
 } from "@/components/extend/input-select";
-import {
-    Link
-} from "@inertiajs/react";
 import { useIsMobile } from '@/hooks/use-mobile';
 
 /**
@@ -59,7 +56,7 @@ export interface MillFiltersProps {
     /**
      * Probably need props for selected values of each select box.
      */
-    searchParams?: SearchParams;
+    // searchParams?: SearchParams;
 
     onTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
     onStateSelectChange: (stateId: string) => void;
@@ -89,7 +86,7 @@ export default function MillFilters({
     counties = [],
     millTypes,
     woodSpecies,
-    searchParams,
+    // searchParams,
     onTextSearchChange,
     onStateSelectChange,
     onCountySelectChange,
