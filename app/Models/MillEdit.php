@@ -10,6 +10,38 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $mill_id
+ * @property string $submitter_email
+ * @property string $submitter_ip
+ * @property string $approve_hash
+ * @property string $reject_hash
+ * @property string $proposed_changes
+ * @property string $status
+ * @property string|null $reviewed_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Mill $mill
+ * @method static Builder<static>|MillEdit approved()
+ * @method static Builder<static>|MillEdit newModelQuery()
+ * @method static Builder<static>|MillEdit newQuery()
+ * @method static Builder<static>|MillEdit pending()
+ * @method static Builder<static>|MillEdit query()
+ * @method static Builder<static>|MillEdit rejected()
+ * @method static Builder<static>|MillEdit whereApproveHash($value)
+ * @method static Builder<static>|MillEdit whereCreatedAt($value)
+ * @method static Builder<static>|MillEdit whereId($value)
+ * @method static Builder<static>|MillEdit whereMillId($value)
+ * @method static Builder<static>|MillEdit whereProposedChanges($value)
+ * @method static Builder<static>|MillEdit whereRejectHash($value)
+ * @method static Builder<static>|MillEdit whereReviewedAt($value)
+ * @method static Builder<static>|MillEdit whereStatus($value)
+ * @method static Builder<static>|MillEdit whereSubmitterEmail($value)
+ * @method static Builder<static>|MillEdit whereSubmitterIp($value)
+ * @method static Builder<static>|MillEdit whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class MillEdit extends Model
 {
     use CrudTrait;
