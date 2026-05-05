@@ -88,6 +88,28 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereWebSite($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereYear($value)
+ * @property int|null $mailing_state_id
+ * @property int|null $mailing_county_id
+ * @property string $status
+ * @property string|null $submitter_email
+ * @property string|null $submitter_ip
+ * @property string|null $approve_hash
+ * @property string|null $reject_hash
+ * @property string|null $reviewed_at
+ * @property-read \App\Models\County|null $mailingCounty
+ * @property-read \App\Models\State|null $mailingState
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MillEdit> $millEdits
+ * @property-read int|null $mill_edits_count
+ * @method static Builder<static>|Mill pending()
+ * @method static Builder<static>|Mill rejected()
+ * @method static Builder<static>|Mill whereApproveHash($value)
+ * @method static Builder<static>|Mill whereMailingCountyId($value)
+ * @method static Builder<static>|Mill whereMailingStateId($value)
+ * @method static Builder<static>|Mill whereRejectHash($value)
+ * @method static Builder<static>|Mill whereReviewedAt($value)
+ * @method static Builder<static>|Mill whereStatus($value)
+ * @method static Builder<static>|Mill whereSubmitterEmail($value)
+ * @method static Builder<static>|Mill whereSubmitterIp($value)
  * @mixin \Eloquent
  */
 #[TypeScript]
