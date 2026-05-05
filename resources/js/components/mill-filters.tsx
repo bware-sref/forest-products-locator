@@ -275,11 +275,18 @@ export default function MillFilters({
                     </Field>
 
                     <div className="flex flex-row">
+                        {/**
+                         * Disable clear filters while export is downloading.
+                         */}
                         <Button
                             onClick={onClearFiltersClick}
                             className="bg-beluga text-velvet font-bold hover:text-beluga"
+                            disabled={isDownloading}
                         >Clear Filters</Button>
-                        {isLoading ? (
+                        {/**
+                         * Display Spinner when either export is downloading or mill data is being fetched
+                         */}
+                        {isLoading || isDownloading ? (
                             <Spinner data-icon="inline-end" className="ml-auto size-8" />
                         ) : ''}
                         {/**
