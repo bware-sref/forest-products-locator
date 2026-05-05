@@ -1,10 +1,14 @@
 services:
     laravel.test:
         build:
+        # This means PHP 8.5
+        # We might need to downgrade to match the server.
             context: ./docker/8.5
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
+        # Does this also mean PHP 8.5?
+        # Yes, I think it does because vendor/laravel/sail/runtimes contains directories for 8.5, 8.4, ... 8.0.
         image: sail-8.5/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
