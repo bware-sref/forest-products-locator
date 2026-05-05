@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType whereUpdatedAt($value)
+ * @property-read mixed $label
+ * @property-read mixed $value
  * @mixin \Eloquent
  */
 class MillType extends Model

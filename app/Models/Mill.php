@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\hasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Log;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
@@ -87,6 +88,28 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereWebSite($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereYear($value)
+ * @property int|null $mailing_state_id
+ * @property int|null $mailing_county_id
+ * @property string $status
+ * @property string|null $submitter_email
+ * @property string|null $submitter_ip
+ * @property string|null $approve_hash
+ * @property string|null $reject_hash
+ * @property string|null $reviewed_at
+ * @property-read \App\Models\County|null $mailingCounty
+ * @property-read \App\Models\State|null $mailingState
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MillEdit> $millEdits
+ * @property-read int|null $mill_edits_count
+ * @method static Builder<static>|Mill pending()
+ * @method static Builder<static>|Mill rejected()
+ * @method static Builder<static>|Mill whereApproveHash($value)
+ * @method static Builder<static>|Mill whereMailingCountyId($value)
+ * @method static Builder<static>|Mill whereMailingStateId($value)
+ * @method static Builder<static>|Mill whereRejectHash($value)
+ * @method static Builder<static>|Mill whereReviewedAt($value)
+ * @method static Builder<static>|Mill whereStatus($value)
+ * @method static Builder<static>|Mill whereSubmitterEmail($value)
+ * @method static Builder<static>|Mill whereSubmitterIp($value)
  * @mixin \Eloquent
  */
 #[TypeScript]
@@ -298,6 +321,65 @@ class Mill extends Model
         }
 
         return $query->get();
+    }
+
+    /**
+     * queries Mills for exporting
+     */
+    public static function fetchForExport()
+    {
+        /**
+         * if there are mills in the session cache, return them
+         */
+        if (session()->cache()->has('mills')) {
+            $mills = session()->cache()->get('mills');
+            Log::debug("found mills in session cache!", ['count' => count($mills)]);
+            return $mills;
+        }
+
+        if (session()->has('mills')) {
+            $mills = session()->get('mills');
+            Log::debug('found mills in session', ['count' => count($mills)]);
+            return $mills;
+        }
+
+        Log::debug('no mills in session...');
+
+        /**
+         * otherwise, fetch them all
+         */
+        return Mill::with([
+                'state:id,name,abbreviation',
+                'county:id,name',
+                'millTypes:id,name',
+                'woodSpecies:id,name',
+            ])->get([
+                /**
+                 * We may need to revise this list
+                 */
+                'id',
+                'match_id',
+                'mill_name',
+                'latitude',
+                'longitude',
+                'year',
+                'physical_address',
+                'physical_city',
+                'county_id',
+                'state_id',
+                'physical_zip',
+                'mailing_address',
+                'mailing_city',
+                'mailing_county_id',
+                'mailing_state_id',
+                'mailing_zip',
+                'telephone',
+                'fax',
+                'email',
+                'web_site',
+                'size',
+                'updated_at',
+            ]);
     }
 
     /**

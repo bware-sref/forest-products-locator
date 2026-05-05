@@ -53,6 +53,25 @@ export function normalizeStates(states: State[]): State[] {
     }));
 }
 
+async function downloadExport(params: SearchParams, token: string) {
+    console.log('downloadExport with params?', params);
+    const response = await fetch("/mills/export", {
+        method: "POST",
+        headers: {
+            // "Content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "Content-type": "application/json",
+            "X-CSRF-TOKEN": token,
+        },
+        body: JSON.stringify(params) as BodyInit,
+    });
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mills.xlsx";
+    a.click();
+}
+
 export interface UseMillsProps {
     /** The mills API endpoint URL, passed down from Inertia page props */
     millsApiUrl: string;
@@ -62,6 +81,8 @@ export interface UseMillsProps {
     millTypes?: MillType[];
     /** Wood species for the filter dropdown, from Inertia page props */
     woodSpecies?: WoodSpecies[];
+    /** CSRF token */
+    csrfToken: string;
 }
 
 export interface UseMillsReturn {
@@ -90,6 +111,11 @@ export interface UseMillsReturn {
      */
     isLoading: boolean;
 
+    /**
+     * monitor downloading state
+     */
+    isDownloading: boolean;
+
     // --- Event handlers to wire directly to MillFilters props ---
     handleTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
     handleStateSelectChange: (optionValue: string) => void;
@@ -97,6 +123,7 @@ export interface UseMillsReturn {
     handleMillTypeSelectChange: (millTypeId: string) => void;
     handleWoodSpeciesSelectChange: (woodSpeciesId: string) => void;
     handleClearFiltersClick: MouseEventHandler<HTMLButtonElement>;
+    handleExportClick: MouseEventHandler<HTMLButtonElement>;
 }
 
 /**
@@ -119,6 +146,7 @@ export function useMills({
     rawStates,
     millTypes,
     woodSpecies,
+    csrfToken,
 }: UseMillsProps): UseMillsReturn {
 
     // ---------------------------------------------------------------------------
@@ -164,6 +192,14 @@ export function useMills({
         setIsLoading(loadingValue);
     });
 
+    /**
+     * isDownloading state management
+     */
+    const [isDownloading, setIsDownloading] = useState<boolean>(false);
+    // wrap with useEffectEvent to allow updating isDownloading during useEffect
+    // const updateIsDownloading = useEffectEvent((downloadingValue: boolean) => {
+    //     setIsDownloading(downloadingValue);
+    // });
 
     // ---------------------------------------------------------------------------
     // Mills data
@@ -190,6 +226,12 @@ export function useMills({
             setIsLoading(false);
         };
     }, [millsApiUrl, searchParams]);
+
+    /**
+     * I think we need useEffect to deal with downloading the export
+     */
+    // useEffect(() => )
+
 
     // ---------------------------------------------------------------------------
     // Text search — debounced so we don't fire on every keystroke
@@ -302,6 +344,19 @@ export function useMills({
         setSearchParams({});
     }, []);
 
+    /**
+     * Need to add another method for handling Export clicks
+     */
+    const handleExportClick: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
+        // console.log('clicked Export with following searchParams!', searchParams);
+        // attach CSRF token to searchParams
+        console.log('doing the download with searchParams...', searchParams);
+        setIsDownloading(true);
+        downloadExport(searchParams, csrfToken)
+            .then(() => setIsDownloading(false));
+
+    }, [searchParams, csrfToken]);
+
     // ---------------------------------------------------------------------------
 
     return {
@@ -312,11 +367,13 @@ export function useMills({
         searchParams,
         filterResetKey,
         isLoading,
+        isDownloading,
         handleTextSearchChange,
         handleStateSelectChange,
         handleCountySelectChange,
         handleMillTypeSelectChange,
         handleWoodSpeciesSelectChange,
         handleClearFiltersClick,
+        handleExportClick,
     };
 }

@@ -45,6 +45,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereStateId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereUpdatedAt($value)
+ * @property-read mixed $label
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mill> $mailingMills
+ * @property-read int|null $mailing_mills_count
+ * @property-read mixed $value
  * @mixin \Eloquent
  */
 class County extends Model

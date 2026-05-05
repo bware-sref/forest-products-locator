@@ -4,7 +4,7 @@ import {
     type State,
     type WoodSpecies,
     type SelectOption,
-    type SearchParams,
+    // type SearchParams,
 } from '@/types';
 import {
     Field,
@@ -32,7 +32,6 @@ import {
     InputSelect,
     InputSelectTrigger,
 } from "@/components/extend/input-select";
-
 import { useIsMobile } from '@/hooks/use-mobile';
 
 /**
@@ -57,7 +56,7 @@ export interface MillFiltersProps {
     /**
      * Probably need props for selected values of each select box.
      */
-    searchParams?: SearchParams;
+    // searchParams?: SearchParams;
 
     onTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
     onStateSelectChange: (stateId: string) => void;
@@ -67,6 +66,9 @@ export interface MillFiltersProps {
 
     // add to that ClearFilters
     onClearFiltersClick: MouseEventHandler;
+
+    // add Export
+    onExportClick: MouseEventHandler;
     /**
      * Incremented by the parent when all filters are cleared. Applied as the
      * `key` prop on each InputSelect so React remounts them, resetting their
@@ -74,17 +76,30 @@ export interface MillFiltersProps {
      */
     filterResetKey?: number;
     isLoading?: boolean;
+    isDownloading: boolean;
 }
 
-export default function MillFilters({...props}: MillFiltersProps) {
+export default function MillFilters({
+    headline = 'Mill List',
+    textSearch = '',
+    states,
+    counties = [],
+    millTypes,
+    woodSpecies,
+    // searchParams,
+    onTextSearchChange,
+    onStateSelectChange,
+    onCountySelectChange,
+    onMillTypesSelectChange,
+    onWoodSpeciesSelectChange,
+    onClearFiltersClick,
+    onExportClick,
+    filterResetKey = 0,
+    isLoading = false,
+    isDownloading = false,
+    ...props
+}: MillFiltersProps) {
 
-    const headline = props.headline || 'Mill List';
-    const states = props.states;
-    const counties = props.counties || [];
-    const millTypes = props.millTypes;
-    const woodSpecies = props.woodSpecies;
-    const filterResetKey = props.filterResetKey ?? 0;
-    const isLoading = props.isLoading ?? false;
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
     /** 
@@ -130,8 +145,8 @@ export default function MillFilters({...props}: MillFiltersProps) {
                                 id="q"
                                 className="text-velvet dark:text-velvet"
                                 placeholder="Search mills..."
-                                value={props.textSearch || ''}
-                                onChange={props.onTextSearchChange}
+                                value={textSearch || ''}
+                                onChange={onTextSearchChange}
                             />
                             {/* */}
                             <InputGroupAddon align="inline-end">
@@ -169,7 +184,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             key={filterResetKey}
                             options={states as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
-                            onValueChange={props.onStateSelectChange}
+                            onValueChange={onStateSelectChange}
                             placeholder="Select a state..."
                             clearable={true}                            
                         >
@@ -193,7 +208,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             key={filterResetKey}
                             options={counties as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
-                            onValueChange={props.onCountySelectChange}
+                            onValueChange={onCountySelectChange}
                             placeholder="Select a county..."
                             disabled={countiesDisabled}
                             clearable={true}                            
@@ -218,7 +233,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             key={filterResetKey}
                             options={millTypes as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
-                            onValueChange={props.onMillTypesSelectChange}
+                            onValueChange={onMillTypesSelectChange}
                             placeholder="Select a mill type..."
                             clearable={true}
                         >
@@ -242,7 +257,7 @@ export default function MillFilters({...props}: MillFiltersProps) {
                             key={filterResetKey}
                             options={woodSpecies as SelectOption[]}
                             className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
-                            onValueChange={props.onWoodSpeciesSelectChange}
+                            onValueChange={onWoodSpeciesSelectChange}
                             placeholder="Select a wood type..."
                             clearable={true}                            
                         >
@@ -257,13 +272,33 @@ export default function MillFilters({...props}: MillFiltersProps) {
                     </Field>
 
                     <div className="flex flex-row">
+                        {/**
+                         * Disable clear filters while export is downloading.
+                         */}
                         <Button
-                            onClick={props.onClearFiltersClick}
+                            onClick={onClearFiltersClick}
                             className="bg-beluga text-velvet font-bold hover:text-beluga"
+                            disabled={isDownloading}
                         >Clear Filters</Button>
-                        {isLoading ? (
+                        {/**
+                         * Display Spinner when either export is downloading or mill data is being fetched
+                         */}
+                        {isLoading || isDownloading ? (
                             <Spinner data-icon="inline-end" className="ml-auto size-8" />
                         ) : ''}
+                        {/**
+                         * We need to put the export button somewhere, but the spinner somewhat complicates the situation.
+                         * Actually, we might want to just submit the form, so to speak.
+                         * By which I mean that the filters form already contains all the search parameters needed to query the 
+                         * DB and get the same list of mills.
+                         */}
+                        <Button                            
+                            className="ml-auto text-beluga!"
+                            onClick={onExportClick}
+                            disabled={isDownloading}
+                        >
+                            Export
+                        </Button>
                     </div>
                 </FieldGroup>
             </div>                            

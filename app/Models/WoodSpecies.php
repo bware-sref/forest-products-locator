@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WoodSpecies whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WoodSpecies whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WoodSpecies whereUpdatedAt($value)
+ * @property-read mixed $label
+ * @property-read mixed $value
  * @mixin \Eloquent
  */
 class WoodSpecies extends Model

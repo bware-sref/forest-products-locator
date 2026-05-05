@@ -18,7 +18,7 @@ import {
     Sheet,
     SheetContent,
     SheetDescription,
-    SheetHeader,
+    // SheetHeader,
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
@@ -31,7 +31,7 @@ import {
 import { UserMenuContent } from '@/components/user-menu-content';
 // import { useInitials } from '@/hooks/use-initials';
 import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
-import { home, millMap, millList, stateResources, addBusiness, faq, contact } from '@/routes';
+import { home, millMap, millList, stateResources, addBusiness, faqs, contact } from '@/routes';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { Menu, Search, XIcon } from 'lucide-react';
@@ -64,7 +64,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'FAQ',
-        href: faq(),
+        href: faqs(),
     },
     {
         title: 'Contact',

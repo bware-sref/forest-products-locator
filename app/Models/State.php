@@ -36,6 +36,12 @@ use Illuminate\Support\Collection;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|State whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|State wherePolygon($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|State whereUpdatedAt($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Agent> $agents
+ * @property-read int|null $agents_count
+ * @property-read mixed $label
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mill> $mailingMills
+ * @property-read int|null $mailing_mills_count
+ * @property-read mixed $value
  * @mixin \Eloquent
  */
 class State extends Model

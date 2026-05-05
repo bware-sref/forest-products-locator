@@ -24,7 +24,12 @@ class MillResourceController extends Controller
         // filter Mills based on request parameters
         // do we want to make a model method for this?
         // yes.
-        $mills = Mill::apiSearch($request->validated());
+        // if we store this request or the mills in the session, then we could just export the mills in the session...
+        $validated = $request->validated();
+
+        Log::debug('API params', ['validated' => $validated]);
+
+        $mills = Mill::apiSearch($validated);
 
         // log requests that yield empty results.
         if (1 > count($mills)) {

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MillsExport;
 use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
+use App\Http\Requests\MillResourceRequest;
 use App\Models\County;
 use App\Models\Mill;
 use App\Models\MillType;
@@ -13,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MillController extends Controller
 {
@@ -177,6 +180,22 @@ class MillController extends Controller
     public function destroy(Mill $mill)
     {
         //
+    }
+
+    public function export(MillResourceRequest $request)
+    {
+        /**
+         * increase maximum execution time for this request to 5 minutes
+         * we of course don't want it to take that long
+         * in fact, we should probably pre-create and cache the full export via the job queue so it will load fastly
+         */
+        set_time_limit(300);
+        
+        $validated = $request->validated();
+        Log::debug('request params for export', ['validated' => $validated]);
+        $mills = Mill::apiSearch($validated);
+        Log::debug('exporting mills...', ['count' => count($mills)]);
+        return Excel::download(new MillsExport($mills), 'mills.xlsx');
     }
 
     /**
