@@ -1,3 +1,6 @@
+/**
+ * mill-form.tsx
+ */
 "use client"
 
 import * as React from "react"
@@ -38,14 +41,6 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field"
-// import { Input } from "@/components/ui/input"
-// import {
-//     Select,
-//     SelectContent,
-//     SelectItem,
-//     SelectTrigger,
-//     SelectValue,
-// } from '@/components/ui/select';
 import {
   ControlledCombobox,
 } from "@/components/extend/controlled-combobox";
@@ -65,6 +60,7 @@ import {
  */
 export interface MillFormProps {
     headline?: string;
+    description?: string;
     states: State[];
     counties?: County[];
     millTypes: MillType[];
@@ -75,12 +71,14 @@ export interface MillFormProps {
     formData?: object;
 }
 
-export function MillForm({...props}: MillFormProps) {
-    const headline = props.headline || 'Add Your Business';
+export function MillForm({
+  headline = '',
+  description = 'Help us improve by submitting mills that are not in our system.',
+  ...props
+}: MillFormProps) {
+    // don't extract states from props so we can use the name here
     const states = React.useMemo(() => normalizeStates(props.states), [props.states]);
-    // const countiesByState = React.useMemo(() => buildCountiesByState(props.states), [props.states]);
 
-    // const form = useForm<z.infer<typeof millFormSchema>>({
     const form = useForm<MillFormData>({
         resolver: zodResolver(millFormSchema),
         mode: 'onBlur',
@@ -142,15 +140,15 @@ export function MillForm({...props}: MillFormProps) {
            * @param flash PageFlashData
            */
             onFlash: (flash) => {
-              console.log('flash: ', flash);
+              // console.log('flash: ', flash);
               if (flash.message) {
-                toast("The server responded: ", {
+                toast.success("Thank you for contributing.", {
                   closeButton: true,
                   position: "top-center",
                   description: (
-                    <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-                    <code>{JSON.stringify(flash, null, 2)}</code>
-                    </pre>
+                    <p className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
+                      {String(flash.message)}
+                    </p>
                   ),
                 });
               }
@@ -167,14 +165,23 @@ export function MillForm({...props}: MillFormProps) {
         })
     }
 
+  // use useEffect to reset the form after successful submission
+  React.useEffect(() => {
+      if (form.formState.isSubmitSuccessful) {
+          form.reset();
+      }
+  }, [form]);
+
+
   return (
     <Card className="w-full sm:max-w-md mx-auto">
       <CardHeader>
         <CardTitle>{headline}</CardTitle>
         <CardDescription>
-          Help us improve by submitting mills that are not in our system.
-          <br />
-          Required fields are marked with an asterisk (<span className="text-destructive">*</span>).
+          {description !== '' && (
+            <p>{description}</p>
+          )}          
+          <p className="my-3">Required fields are marked with an asterisk (<span className="text-destructive">*</span>).</p>
         </CardDescription>
       </CardHeader>
       <CardContent>

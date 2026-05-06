@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -70,11 +71,16 @@ Route::get('/state-resources', function () {
 
 /**
  * Contact
- * PagesController
+ * PagesController?
+ * Old URL slug is sec_contact-info
+ * We should probably redirect that one to a less bonkers URL.
+ * And we probably need a controller for handling these.
+ * And we may as well store submissions in the DB.
  */
-Route::get('/contact', function () {
-    return Inertia::render('contact', []);
-})->name('contact');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+
+Route::post('/contact', [ContactController::class, 'store'])
+    ->name('store-contact');
 
 /**
  * Site Map

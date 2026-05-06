@@ -1,6 +1,28 @@
 // Externalize our Zod schemas to clean up components
 import { z } from 'zod';
 
+export const contactFormSchema = z.object({
+    name: z
+        .string()
+        .min(0)
+        .max(255, 'Name must be at most 255 characters.')
+        .optional()
+        // or() with a literal is the magic that makes optional work properly
+        .or(z.literal('')),
+    email: z
+        .email(),
+    subject: z
+        .string()
+        .min(1, 'Subject cannot be empty.')
+        .max(255, 'Subject must be at most 255 characters.'),
+    message: z
+        .string()
+        .min(1, 'Message cannot be empty.')
+        .max(1024, 'Message must be at most 1024 characters.')
+});
+
+export type ContactFormData = z.infer<typeof contactFormSchema>;
+
 export const millFormSchema = z.object({
     mill_name: z
         .string()
