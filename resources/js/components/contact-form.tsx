@@ -97,7 +97,7 @@ export function ContactForm({
         if (form.formState.isSubmitSuccessful) {
             form.reset();
         }
-    }, [form.formState.isSubmitSuccessful, form.reset]);
+    }, [form]);
 
     return (
         <Card className="w-full sm:max-w-md mx-auto">

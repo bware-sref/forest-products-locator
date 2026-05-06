@@ -1,5 +1,5 @@
 // Externalize our Zod schemas to clean up components
-import { email, z } from 'zod';
+import { z } from 'zod';
 
 export const contactFormSchema = z.object({
     name: z

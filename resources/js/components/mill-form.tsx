@@ -170,7 +170,7 @@ export function MillForm({
       if (form.formState.isSubmitSuccessful) {
           form.reset();
       }
-  }, [form.formState.isSubmitSuccessful, form.reset]);
+  }, [form]);
 
 
   return (
