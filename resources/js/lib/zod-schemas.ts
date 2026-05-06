@@ -13,11 +13,11 @@ export const contactFormSchema = z.object({
         .email(),
     subject: z
         .string()
-        .min(1)
+        .min(1, 'Subject cannot be empty.')
         .max(255, 'Subject must be at most 255 characters.'),
     message: z
         .string()
-        .min(1)
+        .min(1, 'Message cannot be empty.')
         .max(1024, 'Message must be at most 1024 characters.')
 });
 
