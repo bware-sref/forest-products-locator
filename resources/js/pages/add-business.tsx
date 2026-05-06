@@ -23,7 +23,8 @@ export default function AddBusiness() {
         <AppLayout>
             <Head title={pageTitle} />
             <div className="flex min-h-screen flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature">
-                <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
+                <div className="flex flex-col w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
+                    <h1 className="text-3xl text-bold Xw-full Xlg:max-w-6xl mb-6">{pageTitle}</h1>
                     <MillForm 
                         states={page.props.states}
                         millTypes={page.props.millTypes}
