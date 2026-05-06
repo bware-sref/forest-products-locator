@@ -60,6 +60,7 @@ import {
  */
 export interface MillFormProps {
     headline?: string;
+    description?: string;
     states: State[];
     counties?: County[];
     millTypes: MillType[];
@@ -70,12 +71,14 @@ export interface MillFormProps {
     formData?: object;
 }
 
-export function MillForm({...props}: MillFormProps) {
-    const headline = props.headline || 'Add Your Business';
+export function MillForm({
+  headline = '',
+  description = 'Help us improve by submitting mills that are not in our system.',
+  ...props
+}: MillFormProps) {
+    // don't extract states from props so we can use the name here
     const states = React.useMemo(() => normalizeStates(props.states), [props.states]);
-    // const countiesByState = React.useMemo(() => buildCountiesByState(props.states), [props.states]);
 
-    // const form = useForm<z.infer<typeof millFormSchema>>({
     const form = useForm<MillFormData>({
         resolver: zodResolver(millFormSchema),
         mode: 'onBlur',
@@ -175,9 +178,10 @@ export function MillForm({...props}: MillFormProps) {
       <CardHeader>
         <CardTitle>{headline}</CardTitle>
         <CardDescription>
-          Help us improve by submitting mills that are not in our system.
-          <br />
-          Required fields are marked with an asterisk (<span className="text-destructive">*</span>).
+          {description !== '' && (
+            <p>{description}</p>
+          )}          
+          <p className="my-3">Required fields are marked with an asterisk (<span className="text-destructive">*</span>).</p>
         </CardDescription>
       </CardHeader>
       <CardContent>

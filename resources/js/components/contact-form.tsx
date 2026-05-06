@@ -37,10 +37,16 @@ import {
 } from "@/lib/zod-schemas";
 import { useEffect } from "react";
 
-export function ContactForm() {
+export interface ContactFormProps {
+    headline?: string;
+    description?: string;
+}
 
-    const headline = "Contact form";
-
+export function ContactForm({
+    headline = 'Fill in this form to contact site administrators.',
+    description = 'Provides a directory of primary and secondary forest products companies that produce products using raw forest material such as trees, logs, bark, etc.',
+}:ContactFormProps) {
+    
     const form = useForm<ContactFormData>({
         resolver: zodResolver(contactFormSchema),
         mode: "onBlur",
@@ -99,9 +105,12 @@ export function ContactForm() {
                 <CardHeader>
                     <CardTitle>{headline}</CardTitle>
                     <CardDescription>
-                    Provides a directory of primary and secondary forest products companies that produce products using raw forest material such as trees, logs, bark, etc.
-                    <br />
-                    Required fields are marked with an asterisk (<span className="text-destructive">*</span>).
+                        {description !== '' && (
+                            <p>{description}</p>
+                        )}
+                        <p className="my-3">
+                            Required fields are marked with an asterisk (<span className="text-destructive">*</span>).
+                        </p>
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
