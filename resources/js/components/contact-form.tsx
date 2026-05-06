@@ -1,4 +1,8 @@
-// import * as React from "react"
+/**
+ * contact-form.tsx
+ */
+"use client"
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -31,6 +35,7 @@ import {
     type ContactFormData,
     doesZodRequire
 } from "@/lib/zod-schemas";
+import { useEffect } from "react";
 
 export function ContactForm() {
 
@@ -58,7 +63,7 @@ export function ContactForm() {
             onFlash: (flash) => {
               console.log('flash: ', flash);
               if (flash.message) {
-                toast.success("Email sent.", {
+                toast.success("Contact request sent.", {
                   closeButton: true,
                   position: "top-center",
                   description: (
@@ -80,6 +85,13 @@ export function ContactForm() {
             }
         });
     }
+
+    // use useEffect to reset the form after successful submission
+    useEffect(() => {
+        if (form.formState.isSubmitSuccessful) {
+            form.reset();
+        }
+    }, [form.formState.isSubmitSuccessful, form.reset]);
 
     return (
         <Card className="w-full sm:max-w-md mx-auto">
