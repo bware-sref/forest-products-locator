@@ -1,3 +1,6 @@
+/**
+ * mill-form.tsx
+ */
 "use client"
 
 import * as React from "react"
@@ -38,14 +41,6 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field"
-// import { Input } from "@/components/ui/input"
-// import {
-//     Select,
-//     SelectContent,
-//     SelectItem,
-//     SelectTrigger,
-//     SelectValue,
-// } from '@/components/ui/select';
 import {
   ControlledCombobox,
 } from "@/components/extend/controlled-combobox";
@@ -142,15 +137,15 @@ export function MillForm({...props}: MillFormProps) {
            * @param flash PageFlashData
            */
             onFlash: (flash) => {
-              console.log('flash: ', flash);
+              // console.log('flash: ', flash);
               if (flash.message) {
-                toast("The server responded: ", {
+                toast.success("Thank you for contributing.", {
                   closeButton: true,
                   position: "top-center",
                   description: (
-                    <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-                    <code>{JSON.stringify(flash, null, 2)}</code>
-                    </pre>
+                    <p className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
+                      {String(flash.message)}
+                    </p>
                   ),
                 });
               }
@@ -166,6 +161,14 @@ export function MillForm({...props}: MillFormProps) {
             }
         })
     }
+
+  // use useEffect to reset the form after successful submission
+  React.useEffect(() => {
+      if (form.formState.isSubmitSuccessful) {
+          form.reset();
+      }
+  }, [form.formState.isSubmitSuccessful, form.reset]);
+
 
   return (
     <Card className="w-full sm:max-w-md mx-auto">
