@@ -29,6 +29,7 @@ class StoreContactRequest extends FormRequest
             'name' => [
                 'string',
                 'max:255',
+                'nullable',
             ],
             'email' => [            
                 'required',

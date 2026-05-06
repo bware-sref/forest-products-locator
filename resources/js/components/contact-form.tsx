@@ -1,8 +1,9 @@
-import * as React from "react"
+// import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm, useWatch } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
+import { storeContact } from "@/routes";
 import { router } from '@inertiajs/react';
 
 import { Button } from "@/components/ui/button"
@@ -19,9 +20,9 @@ import {
 //   FieldDescription,
 //   FieldError,
   FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
+//   FieldLabel,
+//   FieldLegend,
+//   FieldSet,
 } from "@/components/ui/field"
 import { ControlledInput } from "@/components/extend/controlled-input";
 import { ControlledTextarea } from "@/components/extend/controlled-textarea";
@@ -48,6 +49,36 @@ export function ContactForm() {
 
     function onSubmit(data: ContactFormData) {
         // do stuff
+        router.post(storeContact(), data, {
+          /**
+           * for the love of God, I finally found the type for flash! (ah ah)
+           * PageFlashData defined(-ish) in inertiajs/core
+           * @param flash PageFlashData
+           */
+            onFlash: (flash) => {
+              console.log('flash: ', flash);
+              if (flash.message) {
+                toast.success("Email sent.", {
+                  closeButton: true,
+                  position: "top-center",
+                  description: (
+                    <p className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
+                        { String(flash.message) }
+                    </p>
+                  ),
+                });
+              }
+            },
+            onError: (errors) => {
+                // Manually map Inertia server side errors bak to React Hook Form
+                Object.keys(errors).forEach((key) => {
+                    form.setError(key as keyof z.infer<typeof contactFormSchema>, {
+                        type: 'server',
+                        message: errors[key],
+                    });
+                });
+            }
+        });
     }
 
     return (
