@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Foundation\AliasLoader;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,5 +25,8 @@ class AppServiceProvider extends ServiceProvider
         // NOTE: paginated JsonResources always wrap because they include pagination metadata
         // so we don't want to paginate ours Mill JsonResources
         JsonResource::withoutWrapping();
+
+        $loader = AliasLoader::getInstance();
+        $loader->alias('AWS', \Aws\Laravel\AwsFacade::class);
     }
 }
