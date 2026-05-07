@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "aws/aws-sdk-php-laravel": "^3.11",
         "backpack/crud": "^7.0",
         "backpack/theme-tabler": "^2.0",
         "inertiajs/inertia-laravel": "^2.0",
