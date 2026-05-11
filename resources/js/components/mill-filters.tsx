@@ -109,7 +109,7 @@ export default function MillFilters({
     const [isOpen, setIsOpen] = useState(!isMobile);
 
     return (
-        <div 
+        <div data-thing="filter-wrap"
             className="flex w-full flex-row items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne" 
             {...props}>
 
@@ -277,7 +277,7 @@ export default function MillFilters({
                          */}
                         <Button
                             onClick={onClearFiltersClick}
-                            className="bg-beluga text-velvet font-bold hover:text-beluga"
+                            className="bg-beluga text-velvet font-bold hover:text-beluga rounded-sm"
                             disabled={isDownloading}
                         >Clear Filters</Button>
                         {/**
@@ -293,7 +293,7 @@ export default function MillFilters({
                          * DB and get the same list of mills.
                          */}
                         <Button                            
-                            className="ml-auto text-beluga!"
+                            className="ml-auto text-beluga! font-bold rounded-sm"
                             onClick={onExportClick}
                             disabled={isDownloading}
                         >
