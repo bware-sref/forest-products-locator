@@ -33,6 +33,8 @@ import {
     InputSelectTrigger,
 } from "@/components/extend/input-select";
 import { useIsMobile } from '@/hooks/use-mobile';
+// import { ScrollArea } from "@/components/ui/scroll-area";
+
 
 /**
  * MillFilters needs:
@@ -166,7 +168,12 @@ export default function MillFilters({
                 {/** 
                  * The following fields are considered filters.
                  * Filters can be hidden
+                 * They also need to scroll sometimes or somehow be visible on 
+                 * allegedly extra large screens.
+                 * ScrollArea doesn't work for some reason inside MapControls
                  */}
+                {/* <ScrollArea > */}
+ 
                 <FieldGroup
                     id="mill-filters_D"
                     data-el="second FieldGroup"
@@ -174,6 +181,19 @@ export default function MillFilters({
                     hidden={!isOpen}
                     aria-hidden={!isOpen}
                 >
+                    {/**
+                     * This crap makes filters too tall for the map.
+                     */}
+
+                    {/* <div className="hidden flex flex-col text-beluga text-[16px]">
+                        <div className="font-bold">Filter by Location:</div>
+                        <div><strong>City, ST ZIIIP</strong> within <strong>XXX Miles</strong></div>
+                        <div className="flex flex-row mt-3">
+                            <Button className="bg-beluga text-velvet rounded-sm font-bold hover:text-beluga">Edit Location</Button>
+                            <Button className="bg-coupe text-beluga border border-beluga rounded-sm font-bold ml-auto">View Results</Button>
+                        </div>
+                    </div>
+ */}
                     {/* state selector */}
                     <Field data-el="Field">
                         <FieldLabel 
@@ -300,7 +320,11 @@ export default function MillFilters({
                             Export
                         </Button>
                     </div>
+
                 </FieldGroup>
+                {/* 
+                ScrollArea doesn't work here for some reason...
+                </ScrollArea> */}
             </div>                            
         </div>
 
