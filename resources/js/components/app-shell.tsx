@@ -1,18 +1,29 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { SizeOMeter } from '@/components/size-o-meter';
 import { SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 
 interface AppShellProps {
     children: React.ReactNode;
     variant?: 'header' | 'sidebar';
+    // env?: 'local' | 'development' | 'testing' | 'production' | null;
 }
 
-export function AppShell({ children, variant = 'header' }: AppShellProps) {
-    const isOpen = usePage<SharedData>().props.sidebarOpen;
+export function AppShell({ children, variant = 'header'}: AppShellProps) {
+    const props = usePage<SharedData>().props;
+    // const isOpen = usePage<SharedData>().props.sidebarOpen;
+    const isOpen = props.sidebarOpen;
+    const env = props.env;
 
     if (variant === 'header') {
         return (
-            <div className="flex min-h-screen w-full flex-col bg-nature">{children}</div>
+            <div className="flex min-h-screen w-full flex-col bg-nature">
+                {children}
+                { env !== 'local' ? '' : (
+                    <SizeOMeter />
+                )}
+
+            </div>
         );
     }
 
