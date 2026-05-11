@@ -286,8 +286,17 @@ class Mill extends Model
         
         // add match_id to the fields that get compared to q
         if (!empty($validated['q'])) {
-            $query->whereLike('mill_name', '%' . $validated['q'] . '%')
-                ->orWhereLike('match_id', '%' .$validated['q'] . '%');
+            /**
+             * This might need to be whereAny() instead of whereLike() and orWhereLike()...
+             * Yes, that seems to be the case.
+             * whereAny() prevents the grouping issue introduced by orWhereLike().
+             */
+            $query->whereAny([
+                'mill_name',
+                'match_id',
+            ], 'like', '%' . $validated['q'] . '%');
+            // $query->whereLike('mill_name', '%' . $validated['q'] . '%')
+            //     ->orWhereLike('match_id', '%' .$validated['q'] . '%');
         }
 
         if (!empty($validated['millType'])) {
@@ -306,19 +315,36 @@ class Mill extends Model
         }
 
         if (!empty($validated['state'])) {
-            $query->whereHas('state', function (Builder $query) use ($validated) {
-                // update to use id instead of abbreviation
-                // $query->where('abbreviation', $validated['state']);
-                $query->where('states.id', $validated['state']);
-            });
+            /**
+             * Trying to remember why I used whereHas() for state instead of just checking the mill.state_id...
+             * Is it because I want to return the state as well?
+             * In any case, where mill.state_id seems to work the same.
+             * That said, keep an eye out for side-effects related to this change.
+             */
+            $query->where('state_id', $validated['state']);
+            // $query->whereHas('state', function (Builder $query) use ($validated) {
+            //     // update to use id instead of abbreviation
+            //     // $query->where('abbreviation', $validated['state']);
+            //     $query->where('states.id', $validated['state']);
+            // });
         }
 
         if (!empty($validated['county'])) {
-            $query->whereHas('county', function (Builder $query) use ($validated) {
-                // update to use id instead of name
-                $query->where('counties.id', $validated['county']);
-            });
+            /**
+             * If it works for state, probably also works for county...
+             * Again, keep an eye out for side-effects.
+             * As an aside, neither where() nor whereHas() seems to have an impact on the counties listed in the County dropdown.
+             */
+            $query->where('county_id', $validated['county']);
+            // $query->whereHas('county', function (Builder $query) use ($validated) {
+            //     // update to use id instead of name
+            //     $query->where('counties.id', $validated['county']);
+            // });
         }
+
+        /**
+         * Need to add query parameters for specifying a search location and search radius
+         */
 
         return $query->get();
     }
