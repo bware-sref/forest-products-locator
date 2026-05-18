@@ -28,7 +28,7 @@ export default function MillMapPage() {
         states,
         counties,
         searchText,
-        // searchParams,
+        searchParams,
         filterResetKey,
         isLoading,
         isDownloading,
@@ -54,9 +54,13 @@ export default function MillMapPage() {
                 full screen-width wrapper
                 height should be screen-height minus the header height, h-20 (~5rem) 
             */}
-            <div className="flex flex-col w-full h-[calc(100vh-4rem)] items-center text-velvet lg:justify-center">
+            <div
+                data-thing="map-page-wrap" 
+                className="flex flex-col w-full h-[calc(100vh-4rem)] items-center text-velvet lg:justify-center">
                 {/* content column: max-width 1280px */}
-                <div className="flex flex-col w-full items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
+                <div
+                    data-thing="map-wrap" 
+                    className="flex flex-col w-full items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
                     <MillMap mills={mills} className="lg:min-h-screen">
                         <MillFilters
                             headline={page.props.pageTitle}
@@ -75,10 +79,10 @@ export default function MillMapPage() {
                             onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
                             onClearFiltersClick={handleClearFiltersClick}
                             onExportClick={handleExportClick}
+                            searchParams={searchParams}
                         />
                     </MillMap>
                 </div>
-                <div className="hidden h-14.5 lg:block"></div>
             </div>
         </AppLayout>
     );
