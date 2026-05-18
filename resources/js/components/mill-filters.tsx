@@ -4,7 +4,7 @@ import {
     type State,
     type WoodSpecies,
     type SelectOption,
-    // type SearchParams,
+    type SearchParams,
 } from '@/types';
 import {
     Field,
@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import {
     SearchIcon,
-    SlidersHorizontalIcon,
+    // SlidersHorizontalIcon,
 } from 'lucide-react';
 import {
     ChangeEvent,
@@ -32,7 +32,7 @@ import {
     InputSelect,
     InputSelectTrigger,
 } from "@/components/extend/input-select";
-import { useIsMobile } from '@/hooks/use-mobile';
+// import { useIsMobile } from '@/hooks/use-mobile';
 // import { ScrollArea } from "@/components/ui/scroll-area";
 
 
@@ -79,6 +79,17 @@ export interface MillFiltersProps {
     filterResetKey?: number;
     isLoading?: boolean;
     isDownloading: boolean;
+
+    /**
+     * Add properties for pre-selected values
+     * - state
+     * - county
+     * - mill types
+     * - wood species
+     * Or, just use searchParams?
+     */
+
+    searchParams?: SearchParams;
 }
 
 export default function MillFilters({
@@ -88,7 +99,6 @@ export default function MillFilters({
     counties = [],
     millTypes,
     woodSpecies,
-    // searchParams,
     onTextSearchChange,
     onStateSelectChange,
     onCountySelectChange,
@@ -99,6 +109,7 @@ export default function MillFilters({
     filterResetKey = 0,
     isLoading = false,
     isDownloading = false,
+    searchParams = {},
     ...props
 }: MillFiltersProps) {
 
@@ -107,21 +118,24 @@ export default function MillFilters({
     /** 
      * mobile detection hook 
      */
-    const isMobile = useIsMobile();
-    const [isOpen, setIsOpen] = useState(!isMobile);
+    // const isMobile = useIsMobile();
+    // const [isOpen, setIsOpen] = useState(!isMobile);
+
+    console.log('millFilters.searchParams: ', searchParams);
 
     return (
         <div data-thing="filter-wrap"
-            className="flex w-full flex-row items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne" 
+            className="flex w-full flex-row items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne z-1000 relative" 
             {...props}>
 
-            <div className="grid gap-1 py-4 lg:py-8 w-full">
-                <div className="flex flex-row lg:px-8">
+            <div data-thing="filter-inner-wrap" className="grid gap-1 py-4 lg:py-8 w-full">
+                <div data-thing="filter-header" className="flex flex-row lg:px-8">
                     {/** This should perhaps be an h1 */}
                     <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2">{headline}</h2>
 
                     {/** here is where our dropdown trigger goes */}
-                    <Button
+
+                    {/* <Button
                         className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm"
                         onClick={() => setIsOpen(!isOpen)}
                         aria-controls="mill-filters_D"
@@ -131,7 +145,7 @@ export default function MillFilters({
                             data-icon="inline-end"                            
                             className="w-6 h-6 ml-2 size-1"
                         />
-                    </Button>
+                    </Button> */}
                     
                 </div>
 
@@ -147,7 +161,7 @@ export default function MillFilters({
                                 id="q"
                                 className="text-velvet dark:text-velvet"
                                 placeholder="Search mills..."
-                                value={textSearch || ''}
+                                value={textSearch || searchParams.q || ''}
                                 onChange={onTextSearchChange}
                             />
                             {/* */}
@@ -177,9 +191,9 @@ export default function MillFilters({
                 <FieldGroup
                     id="mill-filters_D"
                     data-el="second FieldGroup"
-                    className="gap-5 px-8 bg-lorne w-full pt-8 pb-8 lg:py-0 -mt-15 lg:mt-0 z-50"
-                    hidden={!isOpen}
-                    aria-hidden={!isOpen}
+                    className="gap-5 px-8 bg-lorne w-full pt-8 pb-8 lg:py-0 -mt-15 lg:mt-0 z-100"
+                    // hidden={!isOpen}
+                    // aria-hidden={!isOpen}
                 >
                     {/**
                      * This crap makes filters too tall for the map.
@@ -203,10 +217,11 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={states as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
                             onValueChange={onStateSelectChange}
                             placeholder="Select a state..."
-                            clearable={true}                            
+                            clearable={true}
+                            value={searchParams.state || ''}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -227,11 +242,12 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={counties as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
                             onValueChange={onCountySelectChange}
                             placeholder="Select a county..."
                             disabled={countiesDisabled}
-                            clearable={true}                            
+                            clearable={true}
+                            value={searchParams.county || ''}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -252,10 +268,12 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={millTypes as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 input-select-popout z-100"
                             onValueChange={onMillTypesSelectChange}
                             placeholder="Select a mill type..."
                             clearable={true}
+                            data-thing="mill-type-input-select"
+                            value={searchParams.millType || ''}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -276,10 +294,11 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={woodSpecies as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
                             onValueChange={onWoodSpeciesSelectChange}
                             placeholder="Select a wood type..."
-                            clearable={true}                            
+                            clearable={true}
+                            value={searchParams.woodSpecies || ''}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
