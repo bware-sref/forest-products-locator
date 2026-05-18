@@ -290,6 +290,10 @@ class Mill extends Model
              * This might need to be whereAny() instead of whereLike() and orWhereLike()...
              * Yes, that seems to be the case.
              * whereAny() prevents the grouping issue introduced by orWhereLike().
+             * ...
+             * Well shit.
+             * I should probably add more fields to this query so we search everything...
+             * But is that useful?
              */
             $query->whereAny([
                 'mill_name',
@@ -345,6 +349,9 @@ class Mill extends Model
         /**
          * Need to add query parameters for specifying a search location and search radius
          */
+        if (!empty($validated['y']) && !empty($validated['x'])) {            
+            Log::debug('proximity params in API request: ', ['x' => $validated['x'], 'y' => $validated['y']]);
+        }
 
         return $query->get();
     }
