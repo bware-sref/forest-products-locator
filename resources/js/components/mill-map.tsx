@@ -21,11 +21,24 @@ import { MapGestureHandler } from '@/components/extend/map-gesture-handler';
 import { LatLngExpression } from "leaflet";
 import {
     MapPinIcon,
+    SlidersHorizontalIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link } from "@inertiajs/react";
 import { show } from "@/actions/App/Http/Controllers/MillController";
+import { Button } from "@/components/ui/button"
+import {
+  Drawer,
+//   DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+//   DrawerFooter,
+  DrawerHeader,
+//   DrawerPortal,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 // import { useMap, useMapEvents } from "react-leaflet/hooks";
 // import { locate } from "@/lib/locate";
 
@@ -54,7 +67,11 @@ const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
 export default function MillMap({mills, children}: MillListProps) {
     const [myCoordinates, setMyCoordinates] = useState<LatLngExpression | null>(
         null
-    )
+    );
+    /**
+     * Monitoring drawer open state allows us to prevent the "blocked aria-hidden on element because child has focus" issue.
+     */
+    const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
     return (
         <Map 
@@ -62,8 +79,9 @@ export default function MillMap({mills, children}: MillListProps) {
             center={MAP_CENTER}
             zoom={5}
         >
-            <MapGestureHandler />
+            <MapGestureHandler data-thing="map-gesture-handler" />
             <MapTileLayer 
+                data-thing="map-tile-layer"
             />
 {/*
 Disable the POC WMS layer until esri.sref.info certificate is fixed.            
@@ -73,7 +91,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
             />
 */}
 
-            <MapMarkerClusterGroup>
+            <MapMarkerClusterGroup data-thing="map-marker-cluster-group">
                 {/** Mills! */}
                 {mills?.map((mill) => (
                     <MapMarker
@@ -147,12 +165,51 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 </>
             )}
 
-            <MapControlContainer 
+            {/**
+             * Put the map controls in a drawer so we can hide them instead of covering everything.
+             */}
+            <MapControlContainer
+                data-thing="map-control-container"
+                className="absolute top-1/3 left-0 z-1000 Xbg-nature flex flex-wrap bg-transparent"
+                id="map-control-container"
+            >
+                <Drawer 
+                    direction="left"
+                    modal={true}
+                    container={document.getElementById('map-control-container')}
+                    onOpenChange={setDrawerOpen}
+                    autoFocus={drawerOpen}
+                >
+                    <DrawerTrigger asChild>
+                        <Button
+                            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm rotate-90 origin-bottom-left -translate-y-full"
+                        >
+                            Filters
+                            <SlidersHorizontalIcon
+                                data-icon="inline-end"                            
+                                className="w-6 h-6 ml-2 size-1"
+                            />
+                        </Button>
+                    </DrawerTrigger>
+                    {/* <DrawerPortal data-thing="drawer-portal"> */}
+                        <DrawerContent data-thing="drawer-content" className="bg-nature lg:bg-lorne z-100 border-r-lorne">
+                            <DrawerHeader className="sr-only">
+                                <DrawerTitle>Mill Map</DrawerTitle>
+                                <DrawerDescription>Filter mills based on the criteria below.</DrawerDescription>
+                            </DrawerHeader>
+                            {children}
+                        </DrawerContent>
+                    {/* </DrawerPortal> */}
+                </Drawer>
+                {/** here is where our dropdown trigger goes */}
+            </MapControlContainer>
+
+            {/* <MapControlContainer 
                 data-thing="map-control-container"
                 className="absolute top-0 lg:top-5 lg:left-5 z-1000 w-full items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne px-4">
-                {/** children are mill-filters */}
+                {/** children are mill-filters * /}
                 {children}
-            </MapControlContainer>
+            </MapControlContainer> */}
         </Map>
     )
 }
