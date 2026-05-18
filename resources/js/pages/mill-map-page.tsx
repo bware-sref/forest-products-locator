@@ -80,6 +80,7 @@ export default function MillMapPage() {
                             onClearFiltersClick={handleClearFiltersClick}
                             onExportClick={handleExportClick}
                             searchParams={searchParams}
+                            className="z-100 relative"
                         />
                     </MillMap>
                 </div>
