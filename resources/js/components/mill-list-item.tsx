@@ -73,13 +73,13 @@ export default function MillListItem ({mill, children, ...props}: IMillListItemP
                     {mill.physical_address_two}
                 </address>
                 <p>
-                    <Link 
+                    <a 
                         href={`https://maps.google.com/?q=${mill.latitude},${mill.longitude}`}
                         target="_blank"
                         className="underline hover:no-underline"
                     >
                         Map This Location
-                    </Link>
+                    </a>
                 </p>
                 <p><strong>Species: </strong> 
                     {mill.wood_species ? mill.wood_species.map((wood, index) => {
