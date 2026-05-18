@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
     type County,
     type MillType,
@@ -32,6 +33,7 @@ import {
     InputSelect,
     InputSelectTrigger,
 } from "@/components/extend/input-select";
+import { ClassValue } from "clsx";
 // import { useIsMobile } from '@/hooks/use-mobile';
 // import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -90,6 +92,7 @@ export interface MillFiltersProps {
      */
 
     searchParams?: SearchParams;
+    className?: ClassValue;
 }
 
 export default function MillFilters({
@@ -110,6 +113,7 @@ export default function MillFilters({
     isLoading = false,
     isDownloading = false,
     searchParams = {},
+    className = [],
     ...props
 }: MillFiltersProps) {
 
@@ -125,7 +129,7 @@ export default function MillFilters({
 
     return (
         <div data-thing="filter-wrap"
-            className="flex w-full flex-row items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne z-1000 relative" 
+            className={cn("flex w-full flex-row items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne ", className)}
             {...props}>
 
             <div data-thing="filter-inner-wrap" className="grid gap-1 py-4 lg:py-8 w-full">
@@ -191,7 +195,7 @@ export default function MillFilters({
                 <FieldGroup
                     id="mill-filters_D"
                     data-el="second FieldGroup"
-                    className="gap-5 px-8 bg-lorne w-full pt-8 pb-8 lg:py-0 -mt-15 lg:mt-0 z-100"
+                    className="gap-5 px-8 lg:bg-lorne w-full pt-8 pb-8 lg:py-0 X-mt-15 lg:mt-0"
                     // hidden={!isOpen}
                     // aria-hidden={!isOpen}
                 >
