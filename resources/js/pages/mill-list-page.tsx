@@ -3,6 +3,7 @@ import {
     type MillType,
     type State,
     type WoodSpecies,
+    // type SearchParams,
 } from '@/types';
 import {
     Head,
@@ -37,6 +38,7 @@ export default function MillListPage() {
         handleWoodSpeciesSelectChange,
         handleClearFiltersClick,
         handleExportClick,
+        searchParams,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
@@ -51,7 +53,7 @@ export default function MillListPage() {
             {/* full screen-width wrapper */}
             <div className="flex min-h-screen flex-col items-center px-4 lg:p-8 text-velvet lg:justify-center">
                 {/* content column: max-width 1280px */}
-                <div className="flex flex-col w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 lg:px-5">
+                <div className="flex flex-col lg:flex-row w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 lg:px-5 lg:gap-5 lg:justify-between">
                     <MillFilters
                         textSearch={searchText}
                         states={states}
@@ -68,6 +70,7 @@ export default function MillListPage() {
                         onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
                         onClearFiltersClick={handleClearFiltersClick}
                         onExportClick={handleExportClick}
+                        searchParams={searchParams}
                     />
                     <MillList mills={mills} />
                 </div>
