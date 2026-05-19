@@ -209,7 +209,13 @@ class MillCrudController extends CrudController
 
         // relationships
         CRUD::field([
-            'name' => 'type',
+            /**
+             * name = 'type' caused bad method exception
+             * allegedly "name" should match the DB column name
+             * however, mill_type is not a DB column 
+             * further, the relationship method is millTypes (camel case & plural)
+             */
+            'name' => 'mill_type',
             'label' => 'Mill Type',
             'type' => 'select_multiple',
             'entity' => 'millTypes',
@@ -219,7 +225,14 @@ class MillCrudController extends CrudController
             'pivot' => true,
         ])->tab('Relationships');
         CRUD::field([
-            'name' => 'wood_species',
+            /**
+             * name = 'wood_species' caused bad method exception
+             * allegedly "name" should match the DB column name
+             * however, woodSpecies is not a DB column
+             * further, the apparent fix for millTypes was to change from "type" to "mill_type"
+             * yet in this case, changing "name" to "woodSpecies" seemed to resolve the issue
+             */
+            'name' => 'woodSpecies',
             'label' => 'Wood Species',
             'type' => 'select_multiple',
             'entity' => 'woodSpecies',
