@@ -11,7 +11,6 @@ import {
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
 import MillMap from '@/components/mill-map';
-// import { is } from 'zod/v4/locales';
 
 export default function MillMapPage() {
     const page = usePage<{
@@ -47,6 +46,22 @@ export default function MillMapPage() {
         csrfToken: page.props.csrf_token,
     });
 
+    /**
+     * This was a stab at external controls.
+     */
+    // const triggerTrigger = () => {
+    //     console.log('dispatching a click event...');
+    //     const thing = document.getElementById('filter-trigger');
+    //     if (thing) {
+    //         console.log('found thing; dispatching event...', thing);
+    //         // thing.dispatchEvent(new Event('click'));
+    //         thing.click();
+    //     } else {
+    //         console.log('did not find button, mang')
+    //     }
+    //     console.log('should have happened by now...')
+    // };
+
     return (
         <AppLayout>
             <Head title={page.props.pageTitle} />
@@ -54,6 +69,23 @@ export default function MillMapPage() {
                 full screen-width wrapper
                 height should be screen-height minus the header height, h-20 (~5rem) 
             */}
+                {/* <div data-thing="title and filter trigger"
+                    className="w-full lg:max-w-7xl mx-auto bg-lorne px-6 flex flex-row items-center justify-self-start"
+                >
+                    <h1 className="font-extrabold text-beluga text-3xl py-2">{page.props.pageTitle}</h1>
+                    <Button
+                            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm z-10"
+                            id="filter-trigger-trigger"
+                            aria-controls="filter-trigger"
+                            onClick={triggerTrigger}
+                        >
+                            Filters
+                            <SlidersHorizontalIcon
+                                data-icon="inline-end"                            
+                                className="w-6 h-6 ml-2 size-1"
+                            />
+                        </Button>
+                </div> */}
             <div
                 data-thing="map-page-wrap" 
                 className="flex flex-col w-full h-[calc(100vh-4rem)] items-center text-velvet lg:justify-center">
@@ -63,7 +95,7 @@ export default function MillMapPage() {
                     className="flex flex-col w-full items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
                     <MillMap mills={mills} className="lg:min-h-screen">
                         <MillFilters
-                            headline={page.props.pageTitle}
+                            headline={"Filter Mills"}
                             textSearch={searchText}
                             filterResetKey={filterResetKey}
                             isLoading={isLoading}
