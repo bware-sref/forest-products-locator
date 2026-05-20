@@ -293,18 +293,18 @@ class Mill extends Model
          * Proximity fields are only used if all are present.
          * Arguably this should be first (or near first) because it (usually) limits the mills significantly.
          */
-        if (!empty($validated['y']) && !empty($validated['x']) && !empty($validated['radius'])) {
+        if (!empty($validated['lat']) && !empty($validated['lng']) && !empty($validated['radius'])) {
             /**
              * longitudeDistanceInMilesAtLatitude = 69.17 miles * cos(latitude)
              * make local variables for readability
              */
-            $latitude = $validated['y'];
-            $longitude = $validated['x'];
+            $latitude = $validated['lat'];
+            $longitude = $validated['lng'];
             $radius = $validated['radius'];
             
             $latitudeRadius = Geo::distanceToDegreesLatitude($radius);
             $longitudeRadius = Geo::distanceToDegreesLongitude($radius, $latitude);
-            Log::debug('proximity params in API request: ', ['x' => $validated['x'], 'y' => $validated['y']]);
+            Log::debug('proximity params in API request: ', ['lng' => $validated['lng'], 'lat' => $validated['lat']]);
             Log::debug(sprintf('radius %s miles at latitude %f =~ %f degrees longitude', $radius, $latitude, $longitudeRadius));
 
             $query->whereRaw('(

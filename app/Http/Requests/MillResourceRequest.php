@@ -90,22 +90,22 @@ class MillResourceRequest extends FormRequest
              * y is latitude
              * x is longitude
              */
-            'y' => [
-                'exclude_if:x,null',
+            'lat' => [
+                'exclude_if:lng,null',
                 'sometimes',
                 'nullable',
                 'numeric',
                 'between:-90,90',
             ],
-            'x' => [
-                'exclude_if:y,null',
+            'lng' => [
+                'exclude_if:lat,null',
                 'sometimes',
                 'nullable',
                 'numeric',
                 'between:-180,180',
             ],
             'radius' => [
-                Rule::excludeIf(fn () => is_null($this->x) || is_null($this->y)),
+                Rule::excludeIf(fn () => is_null($this->lng) || is_null($this->lat)),
                 'sometimes',
                 'nullable',
                 'numeric',
