@@ -1,10 +1,12 @@
+import { cn } from "@/lib/utils";
 import {
     type County,
     type MillType,
     type State,
     type WoodSpecies,
     type SelectOption,
-    // type SearchParams,
+    type SearchParams,
+    GeolocationStatus,
 } from '@/types';
 import {
     Field,
@@ -20,8 +22,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import {
+    LocateFixed,
+    Loader2,
     SearchIcon,
-    SlidersHorizontalIcon,
+    // SlidersHorizontalIcon,
 } from 'lucide-react';
 import {
     ChangeEvent,
@@ -32,7 +36,16 @@ import {
     InputSelect,
     InputSelectTrigger,
 } from "@/components/extend/input-select";
-import { useIsMobile } from '@/hooks/use-mobile';
+import { ClassValue } from "clsx";
+// import { useIsMobile } from '@/hooks/use-mobile';
+// import { ScrollArea } from "@/components/ui/scroll-area";
+import { useGeolocated } from "react-geolocated";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /**
  * MillFilters needs:
@@ -77,7 +90,49 @@ export interface MillFiltersProps {
     filterResetKey?: number;
     isLoading?: boolean;
     isDownloading: boolean;
+
+    /**
+     * Add properties for pre-selected values
+     * - state
+     * - county
+     * - mill types
+     * - wood species
+     * Or, just use searchParams?
+     */
+
+    searchParams?: SearchParams;
+    className?: ClassValue;
+
+    // --- Proximity / geolocation ---
+    geolocationStatus: GeolocationStatus;
+    onRequestLocationClick: MouseEventHandler<HTMLButtonElement>;
+    onRadiusSelectChange: (radius: string) => void;
+
+    // add a mill count
+    millCount?: number;
 }
+
+/**
+ * Preset raidus options in miles.
+ * Fine-grainded at short haul distances, then wider steps beyond 25 miles.
+ */
+const RADIUS_OPTIONS: SelectOption[] = [
+    5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 250,
+].map((miles) => ({
+    value: String(miles),
+    label: `${miles} miles`,
+}));
+
+/**
+ * Human-readable tooltip text explaining why the proximity controls are disabled.
+ * Keyed by GelocationStatus.
+ */
+const GEOLOCATION_DISABLED_REASON: Partial<Record<GeolocationStatus, string>> = {
+    idle: 'Click "Use my location" to enable proximity filtering.',
+    requesting: 'Waiting for location permission...',
+    denied: 'Location access was denied. Please allow location access in your browser settings and try again.',
+    unavailable: 'Your location could not be determined. Please check your browser or device settings.',
+};
 
 export default function MillFilters({
     headline = 'Mill List',
@@ -86,7 +141,6 @@ export default function MillFilters({
     counties = [],
     millTypes,
     woodSpecies,
-    // searchParams,
     onTextSearchChange,
     onStateSelectChange,
     onCountySelectChange,
@@ -97,40 +151,61 @@ export default function MillFilters({
     filterResetKey = 0,
     isLoading = false,
     isDownloading = false,
+    searchParams = {},
+    className = [],
+    geolocationStatus = 'idle',
+    onRequestLocationClick,
+    onRadiusSelectChange,
+    millCount = 0,
     ...props
 }: MillFiltersProps) {
 
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
+    const [position, setPosition] = useState<GeolocationPosition | null>(null);
+
+    // geolocation hook
+    const geolocated = useGeolocated({
+        positionOptions: {
+            enableHighAccuracy: false,
+        },
+        // prevents immediate lookup
+        // should we even do that?
+        suppressLocationOnMount: true,
+        onError: (positionError: GeolocationPositionError | undefined) => {
+            console.error('Geolocation Error: ', positionError);
+        },
+        onSuccess: (position: GeolocationPosition) => {
+            console.log('Geolocation success!', position);
+            setPosition(position);
+            // return position;
+        }
+    });
+
+    // geolocation properties
+    const proximityEnabled = geolocationStatus === 'granted';
+    const proximityDisabledReason = GEOLOCATION_DISABLED_REASON[geolocationStatus];
+
     /** 
      * mobile detection hook 
      */
-    const isMobile = useIsMobile();
-    const [isOpen, setIsOpen] = useState(!isMobile);
+    // const isMobile = useIsMobile();
+    // const [isOpen, setIsOpen] = useState(!isMobile);
+
+    console.log('millFilters.searchParams: ', searchParams);
 
     return (
-        <div 
-            className="flex w-full flex-row items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne" 
+        <div data-thing="filter-wrap"
+            className={cn("flex w-full flex-row items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne ", className)}
             {...props}>
 
-            <div className="grid gap-1 py-4 lg:py-8 w-full">
-                <div className="flex flex-row lg:px-8">
+            <div data-thing="filter-inner-wrap" className="grid gap-1 py-4 lg:py-8 w-full">
+                <div data-thing="filter-header" className="flex flex-row lg:px-8">
                     {/** This should perhaps be an h1 */}
                     <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2">{headline}</h2>
 
-                    {/** here is where our dropdown trigger goes */}
-                    <Button
-                        className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm"
-                        onClick={() => setIsOpen(!isOpen)}
-                        aria-controls="mill-filters_D"
-                    >
-                        Filters
-                        <SlidersHorizontalIcon
-                            data-icon="inline-end"                            
-                            className="w-6 h-6 ml-2 size-1"
-                        />
-                    </Button>
-                    
+                    {/** mill count */}
+                    <div className="justify-self-end text-beluga ml-auto self-center">{millCount} mills found</div>                    
                 </div>
 
                 <FieldGroup 
@@ -145,7 +220,7 @@ export default function MillFilters({
                                 id="q"
                                 className="text-velvet dark:text-velvet"
                                 placeholder="Search mills..."
-                                value={textSearch || ''}
+                                value={textSearch || searchParams.q || ''}
                                 onChange={onTextSearchChange}
                             />
                             {/* */}
@@ -166,14 +241,118 @@ export default function MillFilters({
                 {/** 
                  * The following fields are considered filters.
                  * Filters can be hidden
+                 * They also need to scroll sometimes or somehow be visible on 
+                 * allegedly extra large screens.
+                 * ScrollArea doesn't work for some reason inside MapControls
                  */}
+                {/* <ScrollArea > */}
+ 
                 <FieldGroup
                     id="mill-filters_D"
                     data-el="second FieldGroup"
-                    className="gap-5 px-8 bg-lorne w-full pt-8 pb-8 lg:py-0 -mt-15 lg:mt-0 z-50"
-                    hidden={!isOpen}
-                    aria-hidden={!isOpen}
+                    className="gap-5 px-8 lg:bg-lorne w-full pt-8 pb-8 lg:py-0 X-mt-15 lg:mt-0"
+                    // hidden={!isOpen}
+                    // aria-hidden={!isOpen}
                 >
+                    {/**
+                     * This crap makes filters too tall for the map.
+                     */}
+                    {/** Proximity filter */}
+                    <Field>
+                        <FieldLabel className="text-beluga">
+                            Filter by Location:
+                        </FieldLabel>
+                        {/**
+                         * The "Use my location" button and the radius dropdown
+                         * are grouped together so they read as a single control.
+                         */}
+                        <div className="flex flex-col gap-2">
+                            {/* Location request button */}
+                            <Button
+                                type="button"
+                                onClick={onRequestLocationClick}
+                                disabled={
+                                    geolocationStatus === 'requesting' ||
+                                    geolocationStatus === 'granted' ||
+                                    geolocationStatus === 'denied' ||
+                                    geolocationStatus === 'unavailable'
+                                }
+                                className="bg-coupe text-beluga hover:text-beluga w-full justify-start gap-2 font-bold"
+                                hidden={geolocationStatus === 'granted'}
+                            >
+                                {geolocationStatus === 'requesting' ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <LocateFixed className="h-4 w-4" />
+                                )}
+                                {geolocationStatus === 'granted'
+                                    ? 'Location granted'
+                                    : geolocationStatus === 'requesting'
+                                    ? 'Requesting location…'
+                                    : 'Use my location'}
+                            </Button>
+
+                            {/* Radius dropdown — disabled until location is granted */}
+                            <TooltipProvider>
+                                <Tooltip>
+                                    {/**
+                                     * Wrapping in a <span> ensures the TooltipTrigger has a
+                                     * focusable element even when the InputSelect is disabled,
+                                     * so keyboard users still see the explanation.
+                                     */}
+                                    <TooltipTrigger asChild>
+                                        <span className="w-full z-100">
+                                            <InputSelect
+                                                key={filterResetKey}
+                                                options={RADIUS_OPTIONS}
+                                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
+                                                onValueChange={onRadiusSelectChange}
+                                                placeholder="Select a radius..."
+                                                clearable={true}
+                                                disabled={!proximityEnabled}
+                                                value={searchParams.radius || ''}
+                                            >
+                                                {(provided) => (
+                                                    <InputSelectTrigger
+                                                        {...provided}
+                                                        className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9 w-full z-100"
+                                                        id="radius"
+                                                    />
+                                                )}
+                                            </InputSelect>
+                                        </span>
+                                    </TooltipTrigger>
+                                    {!proximityEnabled && proximityDisabledReason && (
+                                        <TooltipContent side="right" className="max-w-56 z-101">
+                                            <p>{proximityDisabledReason}</p>
+                                        </TooltipContent>
+                                    )}
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
+                    </Field>
+
+                    {/** my DIY location stuff using react-geolocated */}
+                    <div className="hidden Xflex flex-col text-beluga text-[16px]">
+                        <div className="font-bold">Filter by Location:</div>
+                        {position && position.coords ? (
+                            <div>
+                                <strong>Latitude: {position.coords.latitude}</strong>
+                                <br />
+                                <strong>Longitude: {position.coords.longitude} </strong>
+                            </div>
+                        ) : <div><strong>Location not determined.</strong></div>
+                        }
+                        
+                        <div className="flex flex-row mt-3">
+                            <Button 
+                                className="bg-beluga text-velvet rounded-sm font-bold hover:text-beluga"
+                                onClick={() => geolocated.getPosition()}
+                            >Use Location</Button>
+                            {/* <Button className="bg-coupe text-beluga border border-beluga rounded-sm font-bold ml-auto">View Results</Button> */}
+                        </div>
+                    </div>
+
                     {/* state selector */}
                     <Field data-el="Field">
                         <FieldLabel 
@@ -183,10 +362,11 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={states as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
                             onValueChange={onStateSelectChange}
                             placeholder="Select a state..."
-                            clearable={true}                            
+                            clearable={true}
+                            value={searchParams.state || ''}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -207,11 +387,12 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={counties as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
                             onValueChange={onCountySelectChange}
                             placeholder="Select a county..."
                             disabled={countiesDisabled}
-                            clearable={true}                            
+                            clearable={true}
+                            value={searchParams.county || ''}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -232,10 +413,12 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={millTypes as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 input-select-popout z-100"
                             onValueChange={onMillTypesSelectChange}
                             placeholder="Select a mill type..."
                             clearable={true}
+                            data-thing="mill-type-input-select"
+                            value={searchParams.millType || ''}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -256,10 +439,11 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={woodSpecies as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
                             onValueChange={onWoodSpeciesSelectChange}
                             placeholder="Select a wood type..."
-                            clearable={true}                            
+                            clearable={true}
+                            value={searchParams.woodSpecies || ''}
                         >
                             {(provided) => (
                                 <InputSelectTrigger 
@@ -277,7 +461,7 @@ export default function MillFilters({
                          */}
                         <Button
                             onClick={onClearFiltersClick}
-                            className="bg-beluga text-velvet font-bold hover:text-beluga"
+                            className="bg-beluga text-velvet font-bold hover:text-beluga rounded-sm"
                             disabled={isDownloading}
                         >Clear Filters</Button>
                         {/**
@@ -293,14 +477,18 @@ export default function MillFilters({
                          * DB and get the same list of mills.
                          */}
                         <Button                            
-                            className="ml-auto text-beluga!"
+                            className="ml-auto text-beluga! font-bold rounded-sm"
                             onClick={onExportClick}
                             disabled={isDownloading}
                         >
                             Export
                         </Button>
                     </div>
+
                 </FieldGroup>
+                {/* 
+                ScrollArea doesn't work here for some reason...
+                </ScrollArea> */}
             </div>                            
         </div>
 

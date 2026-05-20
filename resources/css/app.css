@@ -292,3 +292,10 @@ address dt::after {
   padding: 5px;
   line-height: 24px; /* it's already 24px but oh well */
 }
+
+/**
+ * constrain height of input selects in mill filters
+ */
+.input-select-popout {
+  max-height: var(--radix-popover-content-available-height);
+}

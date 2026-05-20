@@ -834,8 +834,8 @@ function MapLocateControl({
 
     // prevent eslint bug with react-hooks
     // allegedly stopLocating is a missing dependency...but look up
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => () => stopLocating(), [])
+    // Xeslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => () => stopLocating())
 
     return (
         <MapControlContainer className={cn("right-1 bottom-1", className)}>

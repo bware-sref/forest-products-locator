@@ -85,6 +85,31 @@ class MillResourceRequest extends FormRequest
                 // 'exists:counties,name',
                 Rule::exists('counties', 'id'),
             ],
+            /**
+             * coordinates for user position
+             * y is latitude
+             * x is longitude
+             */
+            'lat' => [
+                'exclude_if:lng,null',
+                'sometimes',
+                'nullable',
+                'numeric',
+                'between:-90,90',
+            ],
+            'lng' => [
+                'exclude_if:lat,null',
+                'sometimes',
+                'nullable',
+                'numeric',
+                'between:-180,180',
+            ],
+            'radius' => [
+                Rule::excludeIf(fn () => is_null($this->lng) || is_null($this->lat)),
+                'sometimes',
+                'nullable',
+                'numeric',
+            ]
         ];
     }
 

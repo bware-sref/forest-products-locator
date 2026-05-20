@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\PublicationStatus;
+use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -281,13 +282,65 @@ class Mill extends Model
          * - woodSpecies
          * - state
          * - county
+         * Also!
+         * Need to incorporate location!
          */
         $query = Mill::with(['millTypes', 'woodSpecies', 'state', 'county']);
-        
+
+        /**
+         * Need to add query parameters for specifying a search location and search radius
+         * Okay.
+         * Proximity fields are only used if all are present.
+         * Arguably this should be first (or near first) because it (usually) limits the mills significantly.
+         */
+        if (!empty($validated['lat']) && !empty($validated['lng']) && !empty($validated['radius'])) {
+            /**
+             * longitudeDistanceInMilesAtLatitude = 69.17 miles * cos(latitude)
+             * make local variables for readability
+             */
+            $latitude = $validated['lat'];
+            $longitude = $validated['lng'];
+            $radius = $validated['radius'];
+            
+            $latitudeRadius = Geo::distanceToDegreesLatitude($radius);
+            $longitudeRadius = Geo::distanceToDegreesLongitude($radius, $latitude);
+            Log::debug('proximity params in API request: ', ['lng' => $validated['lng'], 'lat' => $validated['lat']]);
+            Log::debug(sprintf('radius %s miles at latitude %f =~ %f degrees longitude', $radius, $latitude, $longitudeRadius));
+
+            $query->whereRaw('(
+                CAST(latitude AS DECIMAL) <= (? + ?) AND 
+                CAST(latitude AS DECIMAL) >= (? - ?) AND
+                CAST(longitude AS DECIMAL) <= (? + ?) AND 
+                CAST(longitude AS DECIMAL) >= (? - ?)
+            )', [
+                $latitude,
+                $latitudeRadius,
+                $latitude,
+                $latitudeRadius,
+                $longitude,
+                $longitudeRadius,
+                $longitude,
+                $longitudeRadius,
+            ]);
+        }
+
         // add match_id to the fields that get compared to q
         if (!empty($validated['q'])) {
-            $query->whereLike('mill_name', '%' . $validated['q'] . '%')
-                ->orWhereLike('match_id', '%' .$validated['q'] . '%');
+            /**
+             * This might need to be whereAny() instead of whereLike() and orWhereLike()...
+             * Yes, that seems to be the case.
+             * whereAny() prevents the grouping issue introduced by orWhereLike().
+             * ...
+             * Well shit.
+             * I should probably add more fields to this query so we search everything...
+             * But is that useful?
+             */
+            $query->whereAny([
+                'mill_name',
+                'match_id',
+            ], 'like', '%' . $validated['q'] . '%');
+            // $query->whereLike('mill_name', '%' . $validated['q'] . '%')
+            //     ->orWhereLike('match_id', '%' .$validated['q'] . '%');
         }
 
         if (!empty($validated['millType'])) {
@@ -306,18 +359,31 @@ class Mill extends Model
         }
 
         if (!empty($validated['state'])) {
-            $query->whereHas('state', function (Builder $query) use ($validated) {
-                // update to use id instead of abbreviation
-                // $query->where('abbreviation', $validated['state']);
-                $query->where('states.id', $validated['state']);
-            });
+            /**
+             * Trying to remember why I used whereHas() for state instead of just checking the mill.state_id...
+             * Is it because I want to return the state as well?
+             * In any case, where mill.state_id seems to work the same.
+             * That said, keep an eye out for side-effects related to this change.
+             */
+            $query->where('state_id', $validated['state']);
+            // $query->whereHas('state', function (Builder $query) use ($validated) {
+            //     // update to use id instead of abbreviation
+            //     // $query->where('abbreviation', $validated['state']);
+            //     $query->where('states.id', $validated['state']);
+            // });
         }
 
         if (!empty($validated['county'])) {
-            $query->whereHas('county', function (Builder $query) use ($validated) {
-                // update to use id instead of name
-                $query->where('counties.id', $validated['county']);
-            });
+            /**
+             * If it works for state, probably also works for county...
+             * Again, keep an eye out for side-effects.
+             * As an aside, neither where() nor whereHas() seems to have an impact on the counties listed in the County dropdown.
+             */
+            $query->where('county_id', $validated['county']);
+            // $query->whereHas('county', function (Builder $query) use ($validated) {
+            //     // update to use id instead of name
+            //     $query->where('counties.id', $validated['county']);
+            // });
         }
 
         return $query->get();
@@ -398,4 +464,6 @@ class Mill extends Model
     {
         $query->where('status', PublicationStatus::Rejected);
     }
+
+
 }

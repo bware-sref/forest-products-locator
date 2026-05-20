@@ -108,13 +108,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </Link>
 
                     {/* Mobile Menu */}
-                    <div className="lg:hidden">
+                    <div className="lg:hidden ml-auto z-1000 relative">
                         <Sheet open={isOpen} onOpenChange={setIsOpen}>
                             <SheetTrigger asChild>
                                 <Button
                                     variant="ghost"
                                     size="lg"
-                                    className="mr-2 h-8.5 w-8.5 [&_svg:not([class*='size-'])]:size-14"
+                                    className="mr-2 h-8.5 w-8.5 [&_svg:not([class*='size-'])]:size-14 ml-auto"
                                 >
                                     {isOpen ? (
                                         <XIcon className="h-5 w-5" />
