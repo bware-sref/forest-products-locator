@@ -39,6 +39,9 @@ export default function MillListPage() {
         handleClearFiltersClick,
         handleExportClick,
         searchParams,
+        geolocationStatus,
+        handleRequestLocationClick,
+        handleRadiusSelectChange,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
@@ -71,10 +74,12 @@ export default function MillListPage() {
                         onClearFiltersClick={handleClearFiltersClick}
                         onExportClick={handleExportClick}
                         searchParams={searchParams}
+                        geolocationStatus={geolocationStatus}
+                        onRequestLocationClick={handleRequestLocationClick}
+                        onRadiusSelectChange={handleRadiusSelectChange}
                     />
                     <MillList mills={mills} />
                 </div>
-                <div className="hidden h-14.5 lg:block"></div>
             </div>
         </AppLayout>
     );

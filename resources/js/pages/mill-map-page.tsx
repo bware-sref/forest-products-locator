@@ -38,6 +38,9 @@ export default function MillMapPage() {
         handleWoodSpeciesSelectChange,
         handleClearFiltersClick,
         handleExportClick,
+        geolocationStatus,
+        handleRequestLocationClick,
+        handleRadiusSelectChange,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
@@ -112,6 +115,9 @@ export default function MillMapPage() {
                             onClearFiltersClick={handleClearFiltersClick}
                             onExportClick={handleExportClick}
                             searchParams={searchParams}
+                            geolocationStatus={geolocationStatus}
+                            onRequestLocationClick={handleRequestLocationClick}
+                            onRadiusSelectChange={handleRadiusSelectChange}
                             className="z-100 relative"
                         />
                     </MillMap>
