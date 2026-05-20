@@ -168,22 +168,22 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 ))}
             </MapMarkerClusterGroup>
 
-            <MapLocateControl 
+            {/* <MapLocateControl 
                 onLocationFound={(location) =>
                     setMyCoordinates(location.latlng)
                 }
                 onLocationError={(error) => toast.error(error.message)}
                 watch
-            />
+            /> */}
 
             {/** MapCircle should only display after the user has clicked the locator button */}
             {myCoordinates && (
                 <>
-                    <MapCircle 
+                    {/* <MapCircle 
                         center={myCoordinates}
                         radius={Math.ceil((100* 5280)/3)}
                         className="stroke-velvet"
-                    />
+                    /> */}
                     <MapPopup
                         position={myCoordinates}
                         offset={[0, -5]}
