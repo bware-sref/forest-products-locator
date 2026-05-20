@@ -174,7 +174,28 @@ export type SearchParams = {
     millType?: string;
     woodSpecies?: string;
     _token?: string;
+    /**
+     * Proximity filter fields.
+     * lat, lng, and radius are always sent together or not at all —
+     * the API ignores lat/lng unless radius is also present.
+     */
+    lat?: string;
+    lng?: string;
+    /** Radius in miles */
+    radius?: string;
 };
+
+/**
+ * Tracks the state of the browser Geolocation API permission/request.
+ *
+ * - idle        — user has not yet interacted with the location button
+ * - requesting  — getCurrentPosition() call is in flight
+ * - granted     — coordinates are available; proximity controls are active
+ * - denied      — user declined the permission prompt
+ * - unavailable — browser does not support geolocation, or an unexpected
+ *                 PositionError occurred (e.g. position unavailable)
+ */
+export type GeolocationStatus = 'idle' | 'requesting' | 'granted' | 'denied' | 'unavailable';
 
 /**
  * for mill map and mill list
