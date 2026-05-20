@@ -107,6 +107,9 @@ export interface MillFiltersProps {
     geolocationStatus: GeolocationStatus;
     onRequestLocationClick: MouseEventHandler<HTMLButtonElement>;
     onRadiusSelectChange: (radius: string) => void;
+
+    // add a mill count
+    millCount?: number;
 }
 
 /**
@@ -153,6 +156,7 @@ export default function MillFilters({
     geolocationStatus = 'idle',
     onRequestLocationClick,
     onRadiusSelectChange,
+    millCount = 0,
     ...props
 }: MillFiltersProps) {
 
@@ -200,20 +204,8 @@ export default function MillFilters({
                     {/** This should perhaps be an h1 */}
                     <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2">{headline}</h2>
 
-                    {/** here is where our dropdown trigger goes */}
-
-                    {/* <Button
-                        className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm"
-                        onClick={() => setIsOpen(!isOpen)}
-                        aria-controls="mill-filters_D"
-                    >
-                        Filters
-                        <SlidersHorizontalIcon
-                            data-icon="inline-end"                            
-                            className="w-6 h-6 ml-2 size-1"
-                        />
-                    </Button> */}
-                    
+                    {/** mill count */}
+                    <div className="justify-self-end text-beluga ml-auto self-center">{millCount} mills found</div>                    
                 </div>
 
                 <FieldGroup 

@@ -77,6 +77,7 @@ export default function MillListPage() {
                         geolocationStatus={geolocationStatus}
                         onRequestLocationClick={handleRequestLocationClick}
                         onRadiusSelectChange={handleRadiusSelectChange}
+                        millCount={mills.length}
                     />
                     <MillList mills={mills} />
                 </div>

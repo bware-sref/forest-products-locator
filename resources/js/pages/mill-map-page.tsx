@@ -118,6 +118,7 @@ export default function MillMapPage() {
                             geolocationStatus={geolocationStatus}
                             onRequestLocationClick={handleRequestLocationClick}
                             onRadiusSelectChange={handleRadiusSelectChange}
+                            millCount={mills.length}
                             className="z-100 relative"
                         />
                     </MillMap>
