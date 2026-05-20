@@ -102,7 +102,7 @@ class MillResourceRequest extends FormRequest
                 'sometimes',
                 'nullable',
                 'numeric',
-                'between:0,360',
+                'between:-180,180',
             ],
             'radius' => [
                 Rule::excludeIf(fn () => is_null($this->x) || is_null($this->y)),
