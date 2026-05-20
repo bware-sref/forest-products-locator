@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\PublicationStatus;
+use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -281,9 +282,48 @@ class Mill extends Model
          * - woodSpecies
          * - state
          * - county
+         * Also!
+         * Need to incorporate location!
          */
         $query = Mill::with(['millTypes', 'woodSpecies', 'state', 'county']);
-        
+
+        /**
+         * Need to add query parameters for specifying a search location and search radius
+         * Okay.
+         * Proximity fields are only used if all are present.
+         * Arguably this should be first (or near first) because it (usually) limits the mills significantly.
+         */
+        if (!empty($validated['y']) && !empty($validated['x']) && !empty($validated['radius'])) {
+            /**
+             * longitudeDistanceInMilesAtLatitude = 69.17 miles * cos(latitude)
+             * make local variables for readability
+             */
+            $latitude = $validated['y'];
+            $longitude = $validated['x'];
+            $radius = $validated['radius'];
+            
+            $latitudeRadius = Geo::distanceToDegreesLatitude($radius);
+            $longitudeRadius = Geo::distanceToDegreesLongitude($radius, $latitude);
+            Log::debug('proximity params in API request: ', ['x' => $validated['x'], 'y' => $validated['y']]);
+            Log::debug(sprintf('radius %s miles at latitude %f =~ %f degrees longitude', $radius, $latitude, $longitudeRadius));
+
+            $query->whereRaw('(
+                CAST(latitude AS DECIMAL) <= (? + ?) AND 
+                CAST(latitude AS DECIMAL) >= (? - ?) AND
+                CAST(longitude AS DECIMAL) <= (? + ?) AND 
+                CAST(longitude AS DECIMAL) >= (? - ?)
+            )', [
+                $latitude,
+                $latitudeRadius,
+                $latitude,
+                $latitudeRadius,
+                $longitude,
+                $longitudeRadius,
+                $longitude,
+                $longitudeRadius,
+            ]);
+        }
+
         // add match_id to the fields that get compared to q
         if (!empty($validated['q'])) {
             /**
@@ -344,13 +384,6 @@ class Mill extends Model
             //     // update to use id instead of name
             //     $query->where('counties.id', $validated['county']);
             // });
-        }
-
-        /**
-         * Need to add query parameters for specifying a search location and search radius
-         */
-        if (!empty($validated['y']) && !empty($validated['x'])) {            
-            Log::debug('proximity params in API request: ', ['x' => $validated['x'], 'y' => $validated['y']]);
         }
 
         return $query->get();
@@ -431,4 +464,6 @@ class Mill extends Model
     {
         $query->where('status', PublicationStatus::Rejected);
     }
+
+
 }
