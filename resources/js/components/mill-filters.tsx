@@ -39,7 +39,7 @@ import {
 import { ClassValue } from "clsx";
 // import { useIsMobile } from '@/hooks/use-mobile';
 // import { ScrollArea } from "@/components/ui/scroll-area";
-import { useGeolocated } from "react-geolocated";
+// import { useGeolocated } from "react-geolocated";
 import {
     Tooltip,
     TooltipContent,
@@ -162,50 +162,44 @@ export default function MillFilters({
 
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
 
-    const [position, setPosition] = useState<GeolocationPosition | null>(null);
+    // const [position, setPosition] = useState<GeolocationPosition | null>(null);
 
     // geolocation hook
-    const geolocated = useGeolocated({
-        positionOptions: {
-            enableHighAccuracy: false,
-        },
-        // prevents immediate lookup
-        // should we even do that?
-        suppressLocationOnMount: true,
-        onError: (positionError: GeolocationPositionError | undefined) => {
-            console.error('Geolocation Error: ', positionError);
-        },
-        onSuccess: (position: GeolocationPosition) => {
-            console.log('Geolocation success!', position);
-            setPosition(position);
-            // return position;
-        }
-    });
+    // const geolocated = useGeolocated({
+    //     positionOptions: {
+    //         enableHighAccuracy: false,
+    //     },
+    //     // prevents immediate lookup
+    //     // should we even do that?
+    //     suppressLocationOnMount: true,
+    //     onError: (positionError: GeolocationPositionError | undefined) => {
+    //         console.error('Geolocation Error: ', positionError);
+    //     },
+    //     onSuccess: (position: GeolocationPosition) => {
+    //         console.log('Geolocation success!', position);
+    //         setPosition(position);
+    //         // return position;
+    //     }
+    // });
 
     // geolocation properties
     const proximityEnabled = geolocationStatus === 'granted';
     const proximityDisabledReason = GEOLOCATION_DISABLED_REASON[geolocationStatus];
 
-    /** 
-     * mobile detection hook 
-     */
-    // const isMobile = useIsMobile();
-    // const [isOpen, setIsOpen] = useState(!isMobile);
-
     console.log('millFilters.searchParams: ', searchParams);
 
     return (
         <div data-thing="filter-wrap"
-            className={cn("flex w-full flex-row items-stretch max-w-screen lg:max-w-full Xbg-nature lg:transparent lg:max-h-[80vh] lg:overflow-y-auto bg-cyan-500", className)}
+            className={cn("flex w-full flex-row items-stretch max-w-screen lg:max-w-full bg-nature lg:bg-transparent lg:max-h-[80vh] lg:overflow-y-auto z-101", className)}
             {...props}>
 
-            <div data-thing="filter-inner-wrap" className="grid gap-1 py-4 lg:py-8 Xlg:bg-lorne min-w-screen px-0 z-101 bg-amber-500">
+            <div data-thing="filter-inner-wrap" className="grid gap-1 py-4 lg:py-8 min-w-screen lg:min-w-full px-0 z-101">
                 <div data-thing="filter-header" className="flex flex-row lg:flex-row lg:px-8">
                     {/** This should perhaps be an h1 */}
-                    <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2 px-6">{headline}</h2>
+                    <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2 px-6 lg:px-0">{headline}</h2>
 
                     {/** mill count */}
-                    <div className="justify-self-end text-beluga ml-auto  self-center mr-5 bg-green-500">{millCount} mills found</div>                    
+                    <div className="justify-self-end text-beluga ml-auto  self-center mr-5 lg:mr-0">{millCount} mills found</div>                    
                 </div>
 
                 {/** 
@@ -253,12 +247,7 @@ export default function MillFilters({
                     id="mill-filters_D"
                     data-el="second FieldGroup"
                     className="gap-5 px-8 lg:bg-lorne w-full pt-8 pb-8 lg:py-0 X-mt-15 lg:mt-0 lg:overflow-y-auto"
-                    // hidden={!isOpen}
-                    // aria-hidden={!isOpen}
                 >
-                    {/**
-                     * This crap makes filters too tall for the map.
-                     */}
                     {/** Proximity filter */}
                     <Field>
                         <FieldLabel className="text-beluga">
@@ -349,27 +338,6 @@ export default function MillFilters({
                             </div>
                         </div>
                     </Field>
-
-                    {/** my DIY location stuff using react-geolocated */}
-                    <div className="hidden Xflex flex-col text-beluga text-[16px]">
-                        <div className="font-bold">Filter by Location:</div>
-                        {position && position.coords ? (
-                            <div>
-                                <strong>Latitude: {position.coords.latitude}</strong>
-                                <br />
-                                <strong>Longitude: {position.coords.longitude} </strong>
-                            </div>
-                        ) : <div><strong>Location not determined.</strong></div>
-                        }
-                        
-                        <div className="flex flex-row mt-3">
-                            <Button 
-                                className="bg-beluga text-velvet rounded-sm font-bold hover:text-beluga"
-                                onClick={() => geolocated.getPosition()}
-                            >Use Location</Button>
-                            {/* <Button className="bg-coupe text-beluga border border-beluga rounded-sm font-bold ml-auto">View Results</Button> */}
-                        </div>
-                    </div>
 
                     {/* state selector */}
                     <Field data-el="Field">

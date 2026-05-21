@@ -60,6 +60,9 @@ const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
  * @returns 
  */
 export default function MillMap({mills, children}: MillListProps) {
+    /**
+     * I guess we don't need myCoordinates either
+     */
     const [myCoordinates, setMyCoordinates] = useState<LatLngExpression | null>(
         null
     );
@@ -170,14 +173,6 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 ))}
             </MapMarkerClusterGroup>
 
-            {/* <MapLocateControl 
-                onLocationFound={(location) =>
-                    setMyCoordinates(location.latlng)
-                }
-                onLocationError={(error) => toast.error(error.message)}
-                watch
-            /> */}
-
             {/** MapCircle should only display after the user has clicked the locator button */}
             {myCoordinates && (
                 <>
@@ -215,7 +210,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                         title="Mill Filters"
                         description="Filter mills based on the criteria below."
                         drawerContentProps={{
-                            className: "bg-red-500 lg:bg-lorne z-100 border-r-lorne w-full max-w-screen p-0",                            
+                            className: "bg-transparent z-200 border-r-lorne w-full max-w-screen p-0 ",                            
                         }}
                         drawerHeaderProps={{
                             className: "sr-only"
