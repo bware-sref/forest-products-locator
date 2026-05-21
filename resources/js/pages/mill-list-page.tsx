@@ -97,7 +97,7 @@ export default function MillListPage() {
             className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm z-20"
             id="filter-trigger"
         >
-            <span className="hidden lg:inline">Filters</span>
+            <span className="sr-only lg:not-sr-only"><span className="sr-only">Toggle </span>Filters</span>
             <SlidersHorizontalIcon
                 data-icon="inline-end"                            
                 className="w-6 h-6 lg:ml-2 size-1"
@@ -127,7 +127,7 @@ export default function MillListPage() {
                             onClick={handleExportClick}
                             disabled={isDownloading || isLoading}
                         >
-                            <span className="hidden lg:inline">Export</span>
+                            <span className="sr-only lg:not-sr-only">Export</span>
                             <DownloadIcon
                                 data-icon="inline-end"                            
                                 className="w-6 h-6 size-1"
