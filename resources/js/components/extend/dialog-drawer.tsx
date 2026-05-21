@@ -7,9 +7,9 @@
 import { 
     type ComponentProps, 
     ReactNode, 
-    useState,
+    // useState,
 } from "react";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
     Dialog,
@@ -35,13 +35,11 @@ import {
 // import {
 //     Button,
 // } from "@/components/ui/button";
-// import {
-//     SlidersHorizontalIcon,
-// } from "lucide-react";
+import {
+    // SlidersHorizontalIcon,
+    X,
+} from "lucide-react";
 
-// export interface IDrawerProps extends DialogProps {
-
-// }
 
 export interface IDialogDrawerProps extends ComponentProps<'div'> {
     title?: string;
@@ -124,17 +122,22 @@ export function DialogDrawer({
                         <DrawerTitle {...drawerTitleProps}>{title}</DrawerTitle>
                         <DrawerDescription {...drawerDescriptionProps}>{description}</DrawerDescription>
                     </DrawerHeader>
-                    <div className="bg-purple-500 w-screen p-0 Xmax-w-full overflow-y-auto md:max-h-[60vh]">
+                    {/**
+                     * drawer wrapper
+                     */}
+                    <div data-thing="drawer-content-inner" className="w-screen p-0 overflow-y-auto md:max-h-[60vh] bg-nature">
+                        <DrawerClose
+                            className="text-beluga w-full flex flex-row items-end justify-end p-2"
+                        >
+                            <X data-icon="inline-end" size="32" className="" />
+                        </DrawerClose>
                         {children}
                     </div>
-                    <DrawerClose 
-                        className="bg-yellow-500"
-                    />
                 </DrawerContent>
             </Drawer>
         );
     }
-
+X
     return (
         <Dialog 
             {...props.dialogProps}
