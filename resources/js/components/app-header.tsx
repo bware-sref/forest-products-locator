@@ -210,7 +210,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                      */}
 
                     {/* Desktop Navigation */}
-                    <div className="ml-auto hidden h-full w-auto items-stretch justify-stretch space-x-6 justify-items-end justify-self-end lg:flex">
+                    <div className="ml-auto hidden h-full w-auto items-stretch justify-stretch xl:space-x-6 justify-items-end justify-self-end lg:flex">
                         <NavigationMenu className="flex h-full items-stretch justify-stretch justify-self-end">
                             <NavigationMenuList className="flex h-full items-stretch space-x-2 justify-items-end">
                                 {mainNavItems.map((item, index) => (
@@ -226,7 +226,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     page.url,
                                                     item.href,
                                                 ) && activeItemStyles,
-                                                'h-9 cursor-pointer px-3 bg-none font-bold text-xl',
+                                                'h-9 cursor-pointer px-3 bg-none font-bold text-lg xl:text-xl',
                                             )}
                                             {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
                                         >
