@@ -73,28 +73,12 @@ export default function MillListPage() {
      */
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
-    const drawerProps = {
-        direction: "left",
-        modal: true,
-        // container: document.getElementById('map-control-container'),
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen,
-        className: 'w-screen min-w-full max-w-full'
-    } as DialogProps;
-
-    const dialogProps = {
-        modal: true,
-        // container: document.getElementById('map-control-container'),
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen
-    } as DialogProps;
-
     /**
-     * make this a component
+     * make triggerButton a component
      */
     const triggerButton = (
         <Button
-            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm z-20"
+            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end rounded-sm z-20"
             id="filter-trigger"
         >
             <span className="sr-only lg:not-sr-only"><span className="sr-only">Toggle </span>Filters</span>
@@ -110,10 +94,14 @@ export default function MillListPage() {
         <AppLayout>
             <Head title={page.props.pageTitle} />
 
-            {/** full-width wrapper for title bar */}
-            <div className="flex flex-col items-center px-4 lg:px-8 text-velvet lg:justify-center bg-lorne border-b-6">
+            {/** 
+             * full-width wrapper for title bar 
+             */}
+            <div data-thing="title-bar" 
+                className="flex flex-col items-center px-4 lg:px-8 text-velvet lg:justify-center bg-lorne border-b-6"
+            >
                 {/** title bar + filter controls */}
-                <div className="w-full lg:max-w-7xl mx-auto flex flex-row items-center justify-between px-6 py-2">
+                <div className="w-full lg:max-w-7xl mx-auto flex flex-row items-center justify-between pl-2 md:px-0 2xl:px-6 py-2">
                     <div data-thing="" className="flex flex-row gap-x-5">
                         <h1 className="font-bold text-3xl text-beluga">Mill List</h1>
                         {isLoading || isDownloading ? (
@@ -144,14 +132,24 @@ export default function MillListPage() {
                             drawerHeaderProps={{
                                 className: "sr-only"
                             }}
-                            drawerProps={drawerProps}
+                            drawerProps={{
+                                direction: "left",
+                                modal: true,
+                                onOpenChange: setDrawerOpen,
+                                autoFocus: drawerOpen,
+                                className: 'w-screen min-w-full max-w-full'
+                            } as DialogProps}
                             dialogHeaderProps={{
                                 className: "sr-only"
                             }}
                             dialogContentProps={{
                                 className: "bg-nature lg:bg-lorne z-100 border-lorne",                            
                             }}
-                            dialogProps={dialogProps}
+                            dialogProps={{
+                                modal: true,
+                                onOpenChange: setDrawerOpen,
+                                autoFocus: drawerOpen
+                            } as DialogProps}
                         >
                             <MillFilters
                                 textSearch={searchText}
