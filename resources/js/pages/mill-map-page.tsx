@@ -30,7 +30,8 @@ import {
 } from "lucide-react";
 import { Spinner } from '@/components/ui/spinner';
 // import Map so we can use it as a type
-import { Map } from "leaflet";
+// except we don't seem to need it...
+// import { Map } from "leaflet";
 
 export default function MillMapPage() {
     const page = usePage<{
@@ -77,19 +78,22 @@ export default function MillMapPage() {
     /**
      * catch the map so we can use external controls!
      * need to use map or else it makes no sense to save its state
+     * it might not make sense to save map's state
+     * let's see what happens if we remove it...
      */
-    const [map, setMap] = useState<Map | null>(null);
+    // const [map, setMap] = useState<Map | null>(null);
 
     /**
      * We need to add position and radius to the return values from useMills and use them to display the following:
      * - successful location request should add a map pin at the users location
      * - selecting a radius should add a circle around the user's location
+     * - yeah, we don't seem to need to save user's location
      */
     const displayMap = useMemo(() => (
         <MillMap 
             mills={mills}
             className="lg:min-h-screen"
-            ref={setMap}
+            // ref={setMap}
             radius={radius}
             coordinates={coordinates}
         ></MillMap>
@@ -130,17 +134,15 @@ export default function MillMapPage() {
         </Button>
     );
 
-
     return (
         <AppLayout>
             <Head title={page.props.pageTitle} />
-            {/* 
-                full screen-width wrapper
-                height should be screen-height minus the header height, h-20 (~5rem) 
-            */}
             {/** full-width wrapper for title bar */}
             <div className="flex flex-col items-center px-4 lg:px-6 text-velvet lg:justify-center border-b-6 bg-lorne">
-                {/** title bar + filter controls */}
+                {/** 
+                 * title bar + filter controls 
+                 * extract a component!
+                 */}
                 <div className="w-full lg:max-w-7xl mx-auto flex flex-row items-center justify-between px-6 md:px-0 py-2">
                     <div data-thing="" className="flex flex-row gap-x-5">
                         <h1 className="font-bold text-3xl text-beluga">Mill Map</h1>
@@ -209,8 +211,9 @@ export default function MillMapPage() {
             </div>
 
             {/**
-             * Actual map wrap
-             */}
+             * full screen-width wrapper
+             * height should be screen-height minus the header height, h-20 (~5rem) 
+            */}
             <div
                 data-thing="map-page-wrap" 
                 className="flex flex-col w-full h-[calc(100vh-4rem)] items-center text-velvet lg:justify-center">
