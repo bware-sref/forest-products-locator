@@ -201,31 +201,33 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 id="map-control-container"
             >
                 {/**
-                 * It might be possible to externalize the map controls.
+                 * It should be possible (and probably necessary) to externalize the map controls.
                  */}                
                 <div className="w-full lg:max-w-7xl mx-auto flex flex-row justify-between px-6 py-2">
                     <h1 className="font-extrabold text-3xl text-beluga">Mill Map</h1>
-                    <DialogDrawer
-                        trigger={triggerButton}
-                        title="Mill Filters"
-                        description="Filter mills based on the criteria below."
-                        drawerContentProps={{
-                            className: "bg-transparent z-200 border-r-lorne w-full max-w-screen p-0 ",                            
-                        }}
-                        drawerHeaderProps={{
-                            className: "sr-only"
-                        }}
-                        drawerProps={drawerProps}
-                        dialogHeaderProps={{
-                            className: "sr-only"
-                        }}
-                        dialogContentProps={{
-                            className: "bg-nature lg:bg-lorne z-100 border-lorne",                            
-                        }}
-                        dialogProps={dialogProps}
-                    >
-                        {children}
-                    </DialogDrawer>
+                    <div data-thing="button-wrapper">
+                        <DialogDrawer
+                            trigger={triggerButton}
+                            title="Mill Filters"
+                            description="Filter mills based on the criteria below."
+                            drawerContentProps={{
+                                className: "bg-transparent z-200 border-r-lorne w-full max-w-screen p-0 ",                            
+                            }}
+                            drawerHeaderProps={{
+                                className: "sr-only"
+                            }}
+                            drawerProps={drawerProps}
+                            dialogHeaderProps={{
+                                className: "sr-only"
+                            }}
+                            dialogContentProps={{
+                                className: "bg-nature lg:bg-lorne z-100 border-lorne",                            
+                            }}
+                            dialogProps={dialogProps}
+                        >
+                            {children}
+                        </DialogDrawer>
+                    </div>
                 </div>
             </MapControlContainer>
         </MapContainer>
