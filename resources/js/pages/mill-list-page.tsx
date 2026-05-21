@@ -73,24 +73,8 @@ export default function MillListPage() {
      */
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
-    const drawerProps = {
-        direction: "left",
-        modal: true,
-        // container: document.getElementById('map-control-container'),
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen,
-        className: 'w-screen min-w-full max-w-full'
-    } as DialogProps;
-
-    const dialogProps = {
-        modal: true,
-        // container: document.getElementById('map-control-container'),
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen
-    } as DialogProps;
-
     /**
-     * make this a component
+     * make triggerButton a component
      */
     const triggerButton = (
         <Button
@@ -148,14 +132,24 @@ export default function MillListPage() {
                             drawerHeaderProps={{
                                 className: "sr-only"
                             }}
-                            drawerProps={drawerProps}
+                            drawerProps={{
+                                direction: "left",
+                                modal: true,
+                                onOpenChange: setDrawerOpen,
+                                autoFocus: drawerOpen,
+                                className: 'w-screen min-w-full max-w-full'
+                            } as DialogProps}
                             dialogHeaderProps={{
                                 className: "sr-only"
                             }}
                             dialogContentProps={{
                                 className: "bg-nature lg:bg-lorne z-100 border-lorne",                            
                             }}
-                            dialogProps={dialogProps}
+                            dialogProps={{
+                                modal: true,
+                                onOpenChange: setDrawerOpen,
+                                autoFocus: drawerOpen
+                            } as DialogProps}
                         >
                             <MillFilters
                                 textSearch={searchText}
