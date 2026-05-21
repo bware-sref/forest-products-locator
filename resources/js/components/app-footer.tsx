@@ -54,8 +54,8 @@ export function AppFooter() {
             <div className="bg-nature text-beluga my-8 w-full">
                 <div className="mx-auto flex flex-col px-5 md:flex-row lg:h-20 items-center md:max-w-6xl lg:max-w-7xl ">
                     {/* Desktop Navigation */}
-                    <div className="h-full items-stretch md:items-center space-x-6 flex flex-col md:flex-row w-full">
-                        <NavigationMenu className="flex flex-col md:flex-row justify-stretch h-full items-stretch md:-ml-4 w-full md:w-auto max-w-full pb-5 md:pb-0">
+                    <div className="h-full items-stretch md:items-center space-6 flex flex-col lg:flex-row w-full">
+                        <NavigationMenu className="flex flex-col md:flex-row justify-stretch h-full items-stretch lg:-ml-4 w-full md:w-auto max-w-full pb-5 lg:pb-0">
                             <NavigationMenuList className="flex flex-col md:flex-row h-full items-center justify-items-start md:items-stretch md:space-x-2 md:justify-items-end">
                                 {mainNavItems.map((item, index) => (
                                     <NavigationMenuItem
@@ -70,7 +70,7 @@ export function AppFooter() {
                                                     page.url,
                                                     item.href,
                                                 ) && activeItemStyles,
-                                                'h-9 cursor-pointer px-3 bg-none font-bold text-xl',
+                                                'h-9 cursor-pointer px-3 bg-none font-bold text-xl md:text-lg lg:text-xl',
                                             )}
                                             {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
                                         >
@@ -89,6 +89,9 @@ export function AppFooter() {
                                 ))}
                             </NavigationMenuList>
                         </NavigationMenu>
+                        {/**
+                         * SGSF logo & link
+                         */}
                         <div className="mx-auto md:ml-auto flex max-w-42 justify-self-end mt-6 md:mt-0">
                             <Link
                                 href={sGSF.href}
