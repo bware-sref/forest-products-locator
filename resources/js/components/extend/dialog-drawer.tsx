@@ -24,7 +24,7 @@ import {
     DrawerClose,
     DrawerContent,
     DrawerDescription,
-    DrawerFooter,
+    // DrawerFooter,
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
@@ -32,12 +32,12 @@ import {
 import {
     DialogProps
 } from "vaul";
-import {
-    Button,
-} from "@/components/ui/button";
-import {
-    SlidersHorizontalIcon,
-} from "lucide-react";
+// import {
+//     Button,
+// } from "@/components/ui/button";
+// import {
+//     SlidersHorizontalIcon,
+// } from "lucide-react";
 
 // export interface IDrawerProps extends DialogProps {
 
@@ -124,7 +124,12 @@ export function DialogDrawer({
                         <DrawerTitle {...drawerTitleProps}>{title}</DrawerTitle>
                         <DrawerDescription {...drawerDescriptionProps}>{description}</DrawerDescription>
                     </DrawerHeader>
-                    {children}
+                    <div className="bg-purple-500 w-screen p-0 Xmax-w-full overflow-y-auto md:max-h-[60vh]">
+                        {children}
+                    </div>
+                    <DrawerClose 
+                        className="bg-yellow-500"
+                    />
                 </DrawerContent>
             </Drawer>
         );
@@ -142,7 +147,9 @@ export function DialogDrawer({
                     <DialogTitle {...dialogTitleProps}>{title}</DialogTitle>
                     <DialogDescription {...dialogDescriptionProps}>{description}</DialogDescription>
                 </DialogHeader>
-                {children}
+                    <div className="overflow-y-auto Xmax-h-[60vh]">
+                        {children}
+                    </div>
             </DialogContent>
         </Dialog>
         

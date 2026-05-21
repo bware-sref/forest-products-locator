@@ -196,21 +196,24 @@ export default function MillFilters({
 
     return (
         <div data-thing="filter-wrap"
-            className={cn("flex w-full flex-row items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne ", className)}
+            className={cn("flex w-full flex-row items-stretch max-w-screen lg:max-w-full Xbg-nature lg:transparent lg:max-h-[80vh] lg:overflow-y-auto bg-cyan-500", className)}
             {...props}>
 
-            <div data-thing="filter-inner-wrap" className="grid gap-1 py-4 lg:py-8 w-full">
-                <div data-thing="filter-header" className="flex flex-row lg:px-8">
+            <div data-thing="filter-inner-wrap" className="grid gap-1 py-4 lg:py-8 Xlg:bg-lorne min-w-screen px-0 z-101 bg-amber-500">
+                <div data-thing="filter-header" className="flex flex-row lg:flex-row lg:px-8">
                     {/** This should perhaps be an h1 */}
-                    <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2">{headline}</h2>
+                    <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2 px-6">{headline}</h2>
 
                     {/** mill count */}
-                    <div className="justify-self-end text-beluga ml-auto self-center">{millCount} mills found</div>                    
+                    <div className="justify-self-end text-beluga ml-auto  self-center mr-5 bg-green-500">{millCount} mills found</div>                    
                 </div>
 
+                {/** 
+                 * Text search
+                 */}
                 <FieldGroup 
                     data-el="FieldGroup"
-                    className="gap-5 pt-2 lg:pt-0 pb-2 lg:px-8 relative before:absolute before:h-px before:w-screen before:bg-beluga before:-top-1 before:-left-4 lg:before:hidden after:absolute after:h-px after:w-screen after:bg-beluga after:-bottom-1 after:-left-4 lg:after:hidden"
+                    className="gap-5 px-6 pt-2 lg:pt-0 pb-2 lg:px-8 relative before:absolute before:h-px before:w-screen before:bg-beluga before:-top-1 before:left-0 lg:before:hidden after:absolute after:h-px after:w-screen after:bg-beluga after:-bottom-1 after:left-0 lg:after:hidden"
                 >
                     {/* text search */}
                     <Field>
@@ -245,12 +248,11 @@ export default function MillFilters({
                  * allegedly extra large screens.
                  * ScrollArea doesn't work for some reason inside MapControls
                  */}
-                {/* <ScrollArea > */}
  
                 <FieldGroup
                     id="mill-filters_D"
                     data-el="second FieldGroup"
-                    className="gap-5 px-8 lg:bg-lorne w-full pt-8 pb-8 lg:py-0 X-mt-15 lg:mt-0"
+                    className="gap-5 px-8 lg:bg-lorne w-full pt-8 pb-8 lg:py-0 X-mt-15 lg:mt-0 lg:overflow-y-auto"
                     // hidden={!isOpen}
                     // aria-hidden={!isOpen}
                 >
@@ -293,42 +295,58 @@ export default function MillFilters({
                             </Button>
 
                             {/* Radius dropdown — disabled until location is granted */}
-                            <TooltipProvider>
-                                <Tooltip>
-                                    {/**
-                                     * Wrapping in a <span> ensures the TooltipTrigger has a
-                                     * focusable element even when the InputSelect is disabled,
-                                     * so keyboard users still see the explanation.
-                                     */}
-                                    <TooltipTrigger asChild>
-                                        <span className="w-full z-100">
-                                            <InputSelect
-                                                key={filterResetKey}
-                                                options={RADIUS_OPTIONS}
-                                                className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
-                                                onValueChange={onRadiusSelectChange}
-                                                placeholder="Select a radius..."
-                                                clearable={true}
-                                                disabled={!proximityEnabled}
-                                                value={searchParams.radius || ''}
-                                            >
-                                                {(provided) => (
-                                                    <InputSelectTrigger
-                                                        {...provided}
-                                                        className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9 w-full z-100"
-                                                        id="radius"
-                                                    />
-                                                )}
-                                            </InputSelect>
-                                        </span>
-                                    </TooltipTrigger>
-                                    {!proximityEnabled && proximityDisabledReason && (
-                                        <TooltipContent side="right" className="max-w-56 z-101">
-                                            <p>{proximityDisabledReason}</p>
-                                        </TooltipContent>
-                                    )}
-                                </Tooltip>
-                            </TooltipProvider>
+                            <div
+                                hidden={
+                                    !(
+                                    geolocationStatus === 'granted' ||
+                                    geolocationStatus === 'denied' ||
+                                    geolocationStatus === 'unavailable'
+                                    )
+                                } 
+                            >
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        {/**
+                                         * Wrapping in a <span> ensures the TooltipTrigger has a
+                                         * focusable element even when the InputSelect is disabled,
+                                         * so keyboard users still see the explanation.
+                                         */}
+                                        <TooltipTrigger asChild>
+                                            <span className="w-full z-100" hidden={
+                                                !(geolocationStatus === 'granted' ||
+                                                geolocationStatus === 'denied' ||
+                                                geolocationStatus === 'unavailable')
+                                            }
+                                        >
+                                                <InputSelect
+                                                    key={filterResetKey}
+                                                    options={RADIUS_OPTIONS}
+                                                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
+                                                    onValueChange={onRadiusSelectChange}
+                                                    placeholder="Select a radius..."
+                                                    clearable={true}
+                                                    disabled={!proximityEnabled}
+                                                    value={searchParams.radius || ''}
+                                                >
+                                                    {(provided) => (
+                                                        <InputSelectTrigger
+                                                            {...provided}
+                                                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9 w-full z-100"
+                                                            id="radius"
+                                                        />
+                                                    )}
+                                                </InputSelect>
+                                            </span>
+                                        </TooltipTrigger>
+                                        {!proximityEnabled && proximityDisabledReason && (
+                                            <TooltipContent side="right" className="max-w-56 z-101">
+                                                <p>{proximityDisabledReason}</p>
+                                            </TooltipContent>
+                                        )}
+                                    </Tooltip>
+                                </TooltipProvider>
+
+                            </div>
                         </div>
                     </Field>
 
