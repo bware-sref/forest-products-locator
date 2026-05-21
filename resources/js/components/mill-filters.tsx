@@ -80,7 +80,7 @@ export interface MillFiltersProps {
     onClearFiltersClick: MouseEventHandler;
 
     // add Export
-    onExportClick: MouseEventHandler;
+    onExportClick?: MouseEventHandler;
     /**
      * Incremented by the parent when all filters are cleared. Applied as the
      * `key` prop on each InputSelect so React remounts them, resetting their
@@ -146,7 +146,7 @@ export default function MillFilters({
     onMillTypesSelectChange,
     onWoodSpeciesSelectChange,
     onClearFiltersClick,
-    onExportClick,
+    // onExportClick,
     filterResetKey = 0,
     isLoading = false,
     isDownloading = false,
@@ -447,7 +447,7 @@ export default function MillFilters({
                         <Button
                             onClick={onClearFiltersClick}
                             className="bg-beluga text-velvet font-bold hover:text-beluga rounded-sm"
-                            disabled={isDownloading}
+                            disabled={isDownloading || isLoading}
                         >Clear Filters</Button>
                         {/**
                          * Display Spinner when either export is downloading or mill data is being fetched
