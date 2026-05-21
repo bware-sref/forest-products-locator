@@ -453,22 +453,22 @@ export default function MillFilters({
                         {/**
                          * Display Spinner when either export is downloading or mill data is being fetched
                          */}
-                        {isLoading || isDownloading ? (
+                        {/* {isLoading || isDownloading ? (
                             <Spinner data-icon="inline-end" className="ml-auto size-8" />
-                        ) : ''}
+                        ) : ''} */}
                         {/**
                          * We need to put the export button somewhere, but the spinner somewhat complicates the situation.
                          * Actually, we might want to just submit the form, so to speak.
                          * By which I mean that the filters form already contains all the search parameters needed to query the 
                          * DB and get the same list of mills.
                          */}
-                        <Button                            
+                        {/* <Button                            
                             className="ml-auto text-beluga! font-bold rounded-sm"
                             onClick={onExportClick}
                             disabled={isDownloading}
                         >
                             Export
-                        </Button>
+                        </Button> */}
                     </div>
 
                 </FieldGroup>
