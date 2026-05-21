@@ -6,10 +6,10 @@ import {
     MillListProps,
 } from '@/types';
 import { 
-    Map,
-    MapCircle,
+    Map as MapContainer,
+    // MapCircle,
     MapControlContainer,
-    MapLocateControl,
+    // MapLocateControl,
     MapMarker,
     MapMarkerClusterGroup,
     MapPopup,
@@ -24,7 +24,7 @@ import {
     SlidersHorizontalIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { Link } from "@inertiajs/react";
 import { show } from "@/actions/App/Http/Controllers/MillController";
 import { Button } from "@/components/ui/button"
@@ -63,9 +63,9 @@ export default function MillMap({mills, children}: MillListProps) {
     /**
      * I guess we don't need myCoordinates either
      */
-    const [myCoordinates, setMyCoordinates] = useState<LatLngExpression | null>(
-        null
-    );
+    // const [myCoordinates, setMyCoordinates] = useState<LatngExpression | null>(
+    //     null
+    // );
     /**
      * Monitoring drawer open state allows us to prevent the "blocked aria-hidden on element because child has focus" issue.
      */
@@ -77,7 +77,7 @@ export default function MillMap({mills, children}: MillListProps) {
         container: document.getElementById('map-control-container'),
         onOpenChange: setDrawerOpen,
         autoFocus: drawerOpen,
-        className: 'w-screen min-w-full max-w-full bg-green-500'
+        className: 'w-screen min-w-full max-w-full'
     } as DialogProps;
 
     const dialogProps = {
@@ -104,7 +104,7 @@ export default function MillMap({mills, children}: MillListProps) {
     );
 
     return (
-        <Map 
+        <MapContainer 
             className="min-h-[calc(100vh-6rem)] lg:min-h-[calc(100vh-4rem)]"
             center={MAP_CENTER}
             zoom={5}
@@ -174,13 +174,13 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
             </MapMarkerClusterGroup>
 
             {/** MapCircle should only display after the user has clicked the locator button */}
-            {myCoordinates && (
+            {/* {myCoordinates && (
                 <>
-                    {/* <MapCircle 
+                    <MapCircle 
                         center={myCoordinates}
                         radius={Math.ceil((100* 5280)/3)}
                         className="stroke-velvet"
-                    /> */}
+                    />
                     <MapPopup
                         position={myCoordinates}
                         offset={[0, -5]}
@@ -188,7 +188,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                         {myCoordinates.toString()}
                     </MapPopup>
                 </>
-            )}
+            )} */}
 
             {/**
              * Put the map controls in a DialogDrawer so we can hide them instead of covering everything.
@@ -226,50 +226,8 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                     >
                         {children}
                     </DialogDrawer>
-
-                    {/**
-                     * This is the version that's always a drawer.
-                     */}
-                    {/* <Drawer 
-                        direction="left"
-                        modal={true}
-                        container={document.getElementById('map-control-container')}
-                        onOpenChange={setDrawerOpen}
-                        autoFocus={drawerOpen}
-                    >
-                        <DrawerTrigger asChild>
-                            <Button
-                                className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm XClg:rotate-90 origin-bottom-left Xlg:-translate-y-full Xtop-0 z-100"
-                                id="filter-trigger"
-                            >
-                                Filters
-                                <SlidersHorizontalIcon
-                                    data-icon="inline-end"                            
-                                    className="w-6 h-6 ml-2 size-1"
-                                />
-                            </Button>
-                        </DrawerTrigger>
-                        <DrawerContent data-thing="drawer-content" className="bg-nature lg:bg-lorne z-100 border-r-lorne">
-                            <DrawerHeader className="sr-only">
-                                <DrawerTitle>Filter Mills</DrawerTitle>
-                                <DrawerDescription>Filter mills based on the criteria below.</DrawerDescription>
-                            </DrawerHeader>
-                            {children}
-                        </DrawerContent>
-                    </Drawer> */}
                 </div>
-                {/** here is where our dropdown trigger goes */}
             </MapControlContainer>
-
-            {/**
-             * This is the "original" filter design, which displays in front of the map at all times.
-             */}
-            {/* <MapControlContainer 
-                data-thing="map-control-container"
-                className="absolute top-0 lg:top-5 lg:left-5 z-1000 w-full items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne px-4">
-                {/** children are mill-filters * /}
-                {children}
-            </MapControlContainer> */}
-        </Map>
+        </MapContainer>
     )
 }

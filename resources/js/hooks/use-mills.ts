@@ -375,7 +375,7 @@ export function useMills({
      * selection should a fetch fire.  The ref gives the handlers stable, synchronous
      * access to the latest coordinates without stale-closure risk.
      * 
-     * Probably need to update this to be useState so we can use it to add a map pin...
+     * Probably need to update this to be useState so we can use it to add a map pin and circle...
      */
     const coordinatesRef = useRef<{ lat: number; lng: number } | null>(null);
     
