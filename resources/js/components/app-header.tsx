@@ -108,7 +108,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </Link>
 
                     {/* Mobile Menu */}
-                    <div className="lg:hidden ml-auto z-1000 relative">
+                    <div className="lg:hidden ml-auto z-100 relative">
                         <Sheet open={isOpen} onOpenChange={setIsOpen}>
                             <SheetTrigger asChild>
                                 <Button
