@@ -195,15 +195,15 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
              * Dialog displays on large screens.
              * Drawer displays on small screens.
              */}
-            <MapControlContainer
+            {/* <MapControlContainer
                 data-thing="map-control-container"
                 className="relative top-0 left-0 z-1000 flex flex-wrap bg-lorne w-full"
                 id="map-control-container"
-            >
+            > */}
                 {/**
                  * It should be possible (and probably necessary) to externalize the map controls.
                  */}                
-                <div className="w-full lg:max-w-7xl mx-auto flex flex-row justify-between px-6 py-2">
+                {/* <div className="w-full lg:max-w-7xl mx-auto flex flex-row justify-between px-6 py-2">
                     <h1 className="font-extrabold text-3xl text-beluga">Mill Map</h1>
                     <div data-thing="button-wrapper">
                         <DialogDrawer
@@ -229,7 +229,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                         </DialogDrawer>
                     </div>
                 </div>
-            </MapControlContainer>
+            </MapControlContainer> */}
         </MapContainer>
     )
 }

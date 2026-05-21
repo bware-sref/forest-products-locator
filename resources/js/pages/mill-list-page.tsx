@@ -76,7 +76,7 @@ export default function MillListPage() {
     const drawerProps = {
         direction: "left",
         modal: true,
-        container: document.getElementById('map-control-container'),
+        // container: document.getElementById('map-control-container'),
         onOpenChange: setDrawerOpen,
         autoFocus: drawerOpen,
         className: 'w-screen min-w-full max-w-full'
@@ -84,7 +84,7 @@ export default function MillListPage() {
 
     const dialogProps = {
         modal: true,
-        container: document.getElementById('map-control-container'),
+        // container: document.getElementById('map-control-container'),
         onOpenChange: setDrawerOpen,
         autoFocus: drawerOpen
     } as DialogProps;
@@ -120,7 +120,7 @@ export default function MillListPage() {
                             <Spinner data-icon="inline-end" className="ml-auto size-8 text-beluga" />
                         ) : ''}
                     </div>
-                    <div data-thing="button-wrap" className="flex flex-colX flex-row gap-5">
+                    <div data-thing="button-wrap" className="flex flex-row gap-5">
                         <Button
                             className="bg-coupe border border-beluga text-beluga text-[16px] font-bold rounded-sm z-20"
                             id="export-trigger"
@@ -179,32 +179,11 @@ export default function MillListPage() {
                     </div>
                 </div>
             </div>
+
             {/* full screen-width wrapper */}
             <div className="flex min-h-screen flex-col items-center px-4 lg:px-8 text-velvet lg:justify-center">
                 {/* content column: max-width 1280px */}
                 <div className="flex flex-col lg:flex-row w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 lg:px-5 lg:gap-5 lg:justify-between">
-                    {/* <MillFilters
-                        textSearch={searchText}
-                        states={states}
-                        counties={counties}
-                        millTypes={page.props.millTypes}
-                        woodSpecies={page.props.woodSpecies}
-                        filterResetKey={filterResetKey}
-                        isLoading={isLoading}
-                        isDownloading={isDownloading}
-                        onTextSearchChange={handleTextSearchChange}
-                        onStateSelectChange={handleStateSelectChange}
-                        onCountySelectChange={handleCountySelectChange}
-                        onMillTypesSelectChange={handleMillTypeSelectChange}
-                        onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
-                        onClearFiltersClick={handleClearFiltersClick}
-                        onExportClick={handleExportClick}
-                        searchParams={searchParams}
-                        geolocationStatus={geolocationStatus}
-                        onRequestLocationClick={handleRequestLocationClick}
-                        onRadiusSelectChange={handleRadiusSelectChange}
-                        millCount={mills.length}
-                    /> */}
                     <MillList mills={mills} />
                 </div>
             </div>
