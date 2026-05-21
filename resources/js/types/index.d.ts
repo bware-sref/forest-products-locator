@@ -30,14 +30,6 @@ export interface NavItem {
     isActive?: boolean;
 }
 
-// export interface FlashDataType {
-//     toast?: {
-//         type?: "success" | "error" | string;
-//         message: string;
-//         [key: string]: unknown;
-//     }
-// }
-
 /**
  * Is this necessary?
  * Dunno.
@@ -204,6 +196,8 @@ export type GeolocationStatus = 'idle' | 'requesting' | 'granted' | 'denied' | '
 export interface MillListProps {
     mills: Mill[];
     children?: ReactNode;
+    coordinates?: {lat: number, lng: number} | null;
+    radius?: string | null;
     [key: string]: unknown;
 }
 

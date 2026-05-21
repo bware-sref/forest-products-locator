@@ -141,6 +141,10 @@ export interface UseMillsReturn {
      * Handler for the radius InputSelect
      */
     handleRadiusSelectChange: (radius: string) => void;
+
+    coordinates: {lat: number, lng: number} | null;
+
+    radius: string | null;
 }
 
 /**
@@ -378,6 +382,9 @@ export function useMills({
      * Probably need to update this to be useState so we can use it to add a map pin and circle...
      */
     const coordinatesRef = useRef<{ lat: number; lng: number } | null>(null);
+    // this probably obviates coordinatesRef
+    const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+    const [radius, setRadius] = useState<string | null>(null);
     
     const [geolocationStatus, setGeolocationStatus] = useState<GeolocationStatus>('idle');
 
@@ -396,6 +403,7 @@ export function useMills({
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
                 };
+                setCoordinates(coordinatesRef.current);
                 setGeolocationStatus('granted');
                 // Don't fire a proximity fetch yet, the user still needs to pick a radius.
                 // Coordinates are ready and waiting in the ref.
@@ -431,12 +439,14 @@ export function useMills({
                 // delete next.lat;
                 // delete next.lng;
                 delete next.radius;
+                setRadius(null);
             } else {
                 // All three properties are set atomically so the API never receives a 
                 // partial proximity query
                 next.lat = String(coordinatesRef.current.lat);
                 next.lng = String(coordinatesRef.current.lng);
                 next.radius = radius;
+                setRadius(radius);
             }
             return next;
         });
@@ -463,5 +473,7 @@ export function useMills({
         geolocationStatus,
         handleRequestLocationClick,
         handleRadiusSelectChange,
+        coordinates,
+        radius,
     };
 }
