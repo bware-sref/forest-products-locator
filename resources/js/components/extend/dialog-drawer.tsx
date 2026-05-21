@@ -49,14 +49,14 @@ export interface IDialogDrawerProps extends ComponentProps<'div'> {
     drawerProps?: DialogProps;
     dialogProps?: DialogProps;
     triggerAsChild?: boolean;
-    drawerContentProps?: {};
-    drawerDescriptionProps?: {};
-    drawerHeaderProps?: {};
-    drawerTitleProps?: {};
-    dialogContentProps?: {};
-    dialogDescriptionProps?: {};
-    dialogHeaderProps?: {};
-    dialogTitleProps?: {};
+    drawerContentProps?: object;
+    drawerDescriptionProps?: object;
+    drawerHeaderProps?: object;
+    drawerTitleProps?: object;
+    dialogContentProps?: object;
+    dialogDescriptionProps?: object;
+    dialogHeaderProps?: object;
+    dialogTitleProps?: object;
 };
 
 export function DialogDrawer({
@@ -105,7 +105,7 @@ export function DialogDrawer({
             </Drawer>
         );
     }
-X
+
     return (
         <Dialog 
             {...props.dialogProps}
