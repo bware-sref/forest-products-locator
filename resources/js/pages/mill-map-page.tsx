@@ -64,6 +64,8 @@ export default function MillMapPage() {
         geolocationStatus,
         handleRequestLocationClick,
         handleRadiusSelectChange,
+        coordinates,
+        radius,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
@@ -74,17 +76,24 @@ export default function MillMapPage() {
 
     /**
      * catch the map so we can use external controls!
+     * need to use map or else it makes no sense to save its state
      */
     const [map, setMap] = useState<Map | null>(null);
 
+    /**
+     * We need to add position and radius to the return values from useMills and use them to display the following:
+     * - successful location request should add a map pin at the users location
+     * - selecting a radius should add a circle around the user's location
+     */
     const displayMap = useMemo(() => (
         <MillMap 
             mills={mills}
             className="lg:min-h-screen"
             ref={setMap}
+            radius={radius}
+            coordinates={coordinates}
         ></MillMap>
-    ), [mills]);
-
+    ), [mills, radius, coordinates]);
 
     /**
      * DialogDrawer stuff
@@ -94,7 +103,6 @@ export default function MillMapPage() {
     const drawerProps = {
         direction: "left",
         modal: true,
-        // container: document.getElementById('map-control-container'),
         onOpenChange: setDrawerOpen,
         autoFocus: drawerOpen,
         className: 'w-screen min-w-full max-w-full'
@@ -102,7 +110,6 @@ export default function MillMapPage() {
 
     const dialogProps = {
         modal: true,
-        // container: document.getElementById('map-control-container'),
         onOpenChange: setDrawerOpen,
         autoFocus: drawerOpen
     } as DialogProps;
