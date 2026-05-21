@@ -7,35 +7,19 @@ import {
 } from '@/types';
 import { 
     Map as MapContainer,
-    // MapCircle,
-    MapControlContainer,
-    // MapLocateControl,
+    MapCircle,
     MapMarker,
     MapMarkerClusterGroup,
-    MapPopup,
     MapTileLayer,
     // MapWMSTileLayer,
-    // MapZoomControl,
 } from "@/components/ui/map"
 import { MapGestureHandler } from '@/components/extend/map-gesture-handler';
 import { LatLngExpression } from "leaflet";
 import {
-    MapPinIcon,
-    SlidersHorizontalIcon,
+    CircleIcon,
 } from "lucide-react";
-import { useState } from "react";
-// import { toast } from "sonner";
-import { Link } from "@inertiajs/react";
-import { show } from "@/actions/App/Http/Controllers/MillController";
-import { Button } from "@/components/ui/button"
-import {
-    DialogDrawer,
-} from "@/components/extend/dialog-drawer";
-import { DialogProps } from 'vaul';
-// import { cn } from '@/lib/utils';
+import MillMapMarker from '@/components/mill-map-marker';
 
-// import { useMap, useMapEvents } from "react-leaflet/hooks";
-// import { locate } from "@/lib/locate";
 
 // the Leaflet docs keep the ? on the URL :shrug:
 // const wmsServer = 'https://www.mrlc.gov/geoserver/NLCD_Canopy/wms?';  // SERVICE=WMS&REQUEST=GetCapabilities
@@ -59,49 +43,15 @@ const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
  * @param millMapProps
  * @returns 
  */
-export default function MillMap({mills, children}: MillListProps) {
-    /**
-     * I guess we don't need myCoordinates either
-     */
-    // const [myCoordinates, setMyCoordinates] = useState<LatngExpression | null>(
-    //     null
-    // );
-    /**
-     * Monitoring drawer open state allows us to prevent the "blocked aria-hidden on element because child has focus" issue.
-     */
-    const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+export default function MillMap({
+    mills,
+    children,
+    coordinates = null,
+    radius = null,
+}: MillListProps) {
 
-    const drawerProps = {
-        direction: "left",
-        modal: true,
-        container: document.getElementById('map-control-container'),
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen,
-        className: 'w-screen min-w-full max-w-full'
-    } as DialogProps;
-
-    const dialogProps = {
-        modal: true,
-        container: document.getElementById('map-control-container'),
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen
-    } as DialogProps;
-
-    /**
-     * make this a component
-     */
-    const triggerButton = (
-        <Button
-            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm z-100"
-            id="filter-trigger"
-        >
-            Filters
-            <SlidersHorizontalIcon
-                data-icon="inline-end"                            
-                className="w-6 h-6 ml-2 size-1"
-            />
-        </Button>
-    );
+    // parse radius as a float, handling the empty case with '0'
+    const filterRadius = parseFloat(radius ?? '0');
 
     return (
         <MapContainer 
@@ -123,113 +73,30 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
 
             <MapMarkerClusterGroup data-thing="map-marker-cluster-group">
                 {/** Mills! */}
-                {/**
-                 * Make MillMapMarker component
-                 */}
                 {mills?.map((mill) => (
-                    <MapMarker
-                        key={mill.match_id}
-                        position={[
-                            parseFloat(mill.latitude || '0'),
-                            parseFloat(mill.longitude || '0')
-                        ]}
-                        // add method to map mill.mill_type[0] to the appropriate icon
-                        icon={<MapPinIcon className="size-6 stroke-velvet" />}
-                    >
-                        <MapPopup className="w-72">
-                            <div className="flex flex-col text-left text-velvet text-[16px]">
-                                <h3 className="font-extrabold text-lg">{mill.mill_name}</h3>
-                                <address className="not-italic">
-                                    {mill.physical_address}
-                                    <br />
-                                    {mill.physical_address_two}
-                                </address>
-                                <p>
-                                    <strong>Species: </strong>
-                                    {mill.wood_species?.map((wood, index) => {
-                                        const prefix = (0 < index) ? ', ' : '';
-                                        return prefix + wood.name;
-                                    })}
-                                </p>
-                                <p>
-                                    <strong>Mill Type: </strong>
-                                    {mill.mill_types?.map((millType, index) => {
-                                        const prefix = (0 < index) ? ', ' : '';                                            
-                                        return prefix + millType.name;
-                                    })}
-                                </p>                                                    
-                                <p>
-                                    <Link 
-                                        href={show(mill.match_id)}
-                                        className="underline hover:no-underline"
-                                        target="_blank"
-                                    >
-                                        More Information...
-                                    </Link>
-                                </p>
-                            </div>
-                        </MapPopup>
-                    </MapMarker>
+                    <MillMapMarker mill={mill}/>
                 ))}
             </MapMarkerClusterGroup>
 
             {/** MapCircle should only display after the user has clicked the locator button */}
-            {/* {myCoordinates && (
-                <>
-                    <MapCircle 
-                        center={myCoordinates}
-                        radius={Math.ceil((100* 5280)/3)}
-                        className="stroke-velvet"
-                    />
-                    <MapPopup
-                        position={myCoordinates}
-                        offset={[0, -5]}
-                        className="w-56">
-                        {myCoordinates.toString()}
-                    </MapPopup>
-                </>
-            )} */}
-
-            {/**
-             * Put the map controls in a DialogDrawer so we can hide them instead of covering everything.
-             * Dialog displays on large screens.
-             * Drawer displays on small screens.
-             */}
-            {/* <MapControlContainer
-                data-thing="map-control-container"
-                className="relative top-0 left-0 z-1000 flex flex-wrap bg-lorne w-full"
-                id="map-control-container"
-            > */}
-                {/**
-                 * It should be possible (and probably necessary) to externalize the map controls.
-                 */}                
-                {/* <div className="w-full lg:max-w-7xl mx-auto flex flex-row justify-between px-6 py-2">
-                    <h1 className="font-extrabold text-3xl text-beluga">Mill Map</h1>
-                    <div data-thing="button-wrapper">
-                        <DialogDrawer
-                            trigger={triggerButton}
-                            title="Mill Filters"
-                            description="Filter mills based on the criteria below."
-                            drawerContentProps={{
-                                className: "bg-transparent z-200 border-r-lorne w-full max-w-screen p-0 ",                            
-                            }}
-                            drawerHeaderProps={{
-                                className: "sr-only"
-                            }}
-                            drawerProps={drawerProps}
-                            dialogHeaderProps={{
-                                className: "sr-only"
-                            }}
-                            dialogContentProps={{
-                                className: "bg-nature lg:bg-lorne z-100 border-lorne",                            
-                            }}
-                            dialogProps={dialogProps}
-                        >
-                            {children}
-                        </DialogDrawer>
-                    </div>
-                </div>
-            </MapControlContainer> */}
+            {coordinates && filterRadius > 0 ? (
+                <MapCircle 
+                    center={coordinates}
+                    radius={Math.ceil(( filterRadius * 5280)/3)}
+                    className="stroke-velvet"
+                />) : null }
+            {coordinates && (
+                <MapMarker
+                    position={coordinates}
+                    icon={
+                        <CircleIcon
+                            size={10}
+                            className="fill-green-700"
+                        />
+                    }
+                />
+            )}
+            {children}
         </MapContainer>
     )
 }
