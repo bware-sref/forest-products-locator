@@ -347,7 +347,7 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={states as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-200"
                             onValueChange={onStateSelectChange}
                             placeholder="Select a state..."
                             clearable={true}
@@ -372,7 +372,7 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={counties as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-200"
                             onValueChange={onCountySelectChange}
                             placeholder="Select a county..."
                             disabled={countiesDisabled}
@@ -398,7 +398,7 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={millTypes as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 input-select-popout z-100"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 input-select-popout z-200"
                             onValueChange={onMillTypesSelectChange}
                             placeholder="Select a mill type..."
                             clearable={true}
@@ -424,7 +424,7 @@ export default function MillFilters({
                         <InputSelect
                             key={filterResetKey}
                             options={woodSpecies as SelectOption[]}
-                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
+                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-200"
                             onValueChange={onWoodSpeciesSelectChange}
                             placeholder="Select a wood type..."
                             clearable={true}
