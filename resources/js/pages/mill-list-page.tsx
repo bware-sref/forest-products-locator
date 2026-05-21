@@ -25,8 +25,11 @@ import {
     DialogProps
 } from "vaul";
 import {
+    DownloadIcon,
     SlidersHorizontalIcon
 } from "lucide-react";
+import { Spinner } from '@/components/ui/spinner';
+
 
 export default function MillListPage() {
     const page = usePage<{
@@ -111,8 +114,26 @@ export default function MillListPage() {
             <div className="flex flex-col items-center px-4 lg:px-8 text-velvet lg:justify-center bg-lorne border-b-6">
                 {/** title bar + filter controls */}
                 <div className="w-full lg:max-w-7xl mx-auto flex flex-row justify-between px-6 py-2">
-                    <h1 className="font-bold text-3xl text-beluga">Mill List</h1>
+                    <div data-thing="" className="flex flex-row gap-x-5">
+                        <h1 className="font-bold text-3xl text-beluga">Mill List</h1>
+                        {isLoading || isDownloading ? (
+                            <Spinner data-icon="inline-end" className="ml-auto size-8" />
+                        ) : ''}
+                    </div>
                     <div data-thing="button-wrap" className="flex flex-row gap-x-5">
+                        <Button
+                            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold rounded-sm z-100"
+                            id="export-trigger"
+                            onClick={handleExportClick}
+                            disabled={isDownloading || isLoading}
+                        >
+                            Export
+                            <DownloadIcon
+                                data-icon="inline-end"                            
+                                className="w-6 h-6 ml-2 size-1"
+                            />
+                        </Button>
+
                         <DialogDrawer
                             trigger={triggerButton}
                             title="Mill Filters"
