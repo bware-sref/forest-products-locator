@@ -123,7 +123,7 @@ export default function MillMapPage() {
      */
     const triggerButton = (
         <Button
-            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end ml-auto rounded-sm z-20"
+            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end rounded-sm z-20"
             id="filter-trigger"
         >
             <span className="sr-only lg:not-sr-only"><span className="sr-only">Toggle </span>Filters</span>
@@ -137,13 +137,18 @@ export default function MillMapPage() {
     return (
         <AppLayout>
             <Head title={page.props.pageTitle} />
-            {/** full-width wrapper for title bar */}
-            <div className="flex flex-col items-center px-4 lg:px-6 text-velvet lg:justify-center border-b-6 bg-lorne">
+
+            {/** 
+             * full-width wrapper for title bar
+             */}
+            <div data-thing="title-bar" 
+                className="flex flex-col items-center px-4 lg:px-6 text-velvet lg:justify-center border-b-6 bg-lorne"
+            >
                 {/** 
                  * title bar + filter controls 
                  * extract a component!
                  */}
-                <div className="w-full lg:max-w-7xl mx-auto flex flex-row items-center justify-between px-6 md:px-0 py-2">
+                <div className="w-full lg:max-w-7xl mx-auto flex flex-row items-center justify-between pl-2 md:px-0 2xl:px-6 py-2">
                     <div data-thing="" className="flex flex-row gap-x-5">
                         <h1 className="font-bold text-3xl text-beluga">Mill Map</h1>
                         {isLoading || isDownloading ? (
@@ -160,7 +165,7 @@ export default function MillMapPage() {
                             <span className="sr-only lg:not-sr-only">Export</span>
                             <DownloadIcon
                                 data-icon="inline-end"                            
-                                className="w-6 h-6 size-1"
+                                className="w-6 h-6 lg:ml-2 size-1"
                             />
                         </Button>
 
