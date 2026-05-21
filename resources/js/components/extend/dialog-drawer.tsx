@@ -7,9 +7,9 @@
 import { 
     type ComponentProps, 
     ReactNode, 
-    useState,
+    // useState,
 } from "react";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
     Dialog,
@@ -24,7 +24,7 @@ import {
     DrawerClose,
     DrawerContent,
     DrawerDescription,
-    DrawerFooter,
+    // DrawerFooter,
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
@@ -32,49 +32,23 @@ import {
 import {
     DialogProps
 } from "vaul";
+// import {
+//     Button,
+// } from "@/components/ui/button";
 import {
-    Button,
-} from "@/components/ui/button";
-import {
-    SlidersHorizontalIcon,
+    // SlidersHorizontalIcon,
+    X,
 } from "lucide-react";
 
-// export interface IDrawerProps extends DialogProps {
-
-// }
 
 export interface IDialogDrawerProps extends ComponentProps<'div'> {
     title?: string;
     description?: string;
-    // classNames should probably be distinct, or at least able to be distinct
-    // maybe these should just be props for each child element/component?
-    // e.g., headerProps or even drawerHeaderProps
-    // headerClassName?: string;
-    // titleClassName?: string;
-    // descriptionClassName?: string;
-    // contentClassName?: string;
-    // do we rule out a footer?
-    // assumed to probably be a button
     children?: ReactNode;
     trigger?: ReactNode;
     drawerProps?: DialogProps;
     dialogProps?: DialogProps;
     triggerAsChild?: boolean;
-    // drawer props?
-    // - direction
-    // - container
-    // - onAnimationEnd
-    // - dismissible
-    // - handleOnly
-    // - repositionInputs
-    // dialog props?
-    // shared props?
-    // - modal
-    // - defaultOpen
-    // - open
-    // - onOpenChange
-    // autoFocus?
-    // triggerProps? asChild
     drawerContentProps?: {};
     drawerDescriptionProps?: {};
     drawerHeaderProps?: {};
@@ -102,14 +76,6 @@ export function DialogDrawer({
     ...props
 }: IDialogDrawerProps) {    
     const isMobile = useIsMobile();
-    // these may conflict with the drawerProps
-    // let's omit them for now and see what happens
-    // const [open, setOpen] = useState<boolean>(props.drawerProps?.defaultOpen || false);
-
-    // if props.drawerProps.open is not defined
-    // if (props.drawerProps && typeof props.drawerProps?.open === undefined) {
-    //     props.drawerProps.open = open;
-    // }
 
     if (isMobile) {
         return (
@@ -124,12 +90,22 @@ export function DialogDrawer({
                         <DrawerTitle {...drawerTitleProps}>{title}</DrawerTitle>
                         <DrawerDescription {...drawerDescriptionProps}>{description}</DrawerDescription>
                     </DrawerHeader>
-                    {children}
+                    {/**
+                     * drawer wrapper
+                     */}
+                    <div data-thing="drawer-content-inner" className="w-screen p-0 overflow-y-auto md:max-h-[60vh] bg-nature">
+                        <DrawerClose
+                            className="text-beluga w-full flex flex-row items-end justify-end p-2 -mb-2"
+                        >
+                            <X data-icon="inline-end" size="32" className="" />
+                        </DrawerClose>
+                        {children}
+                    </div>
                 </DrawerContent>
             </Drawer>
         );
     }
-
+X
     return (
         <Dialog 
             {...props.dialogProps}
@@ -142,7 +118,9 @@ export function DialogDrawer({
                     <DialogTitle {...dialogTitleProps}>{title}</DialogTitle>
                     <DialogDescription {...dialogDescriptionProps}>{description}</DialogDescription>
                 </DialogHeader>
-                {children}
+                    <div className="overflow-y-auto">
+                        {children}
+                    </div>
             </DialogContent>
         </Dialog>
         

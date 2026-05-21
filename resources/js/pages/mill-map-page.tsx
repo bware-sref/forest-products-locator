@@ -98,7 +98,7 @@ export default function MillMapPage() {
                     className="flex flex-col w-full items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
                     <MillMap mills={mills} className="lg:min-h-screen">
                         <MillFilters
-                            headline={"Filter Mills"}
+                            headline={"Mill Filters"}
                             textSearch={searchText}
                             filterResetKey={filterResetKey}
                             isLoading={isLoading}

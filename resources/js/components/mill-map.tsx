@@ -32,6 +32,7 @@ import {
     DialogDrawer,
 } from "@/components/extend/dialog-drawer";
 import { DialogProps } from 'vaul';
+// import { cn } from '@/lib/utils';
 
 // import { useMap, useMapEvents } from "react-leaflet/hooks";
 // import { locate } from "@/lib/locate";
@@ -59,6 +60,9 @@ const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
  * @returns 
  */
 export default function MillMap({mills, children}: MillListProps) {
+    /**
+     * I guess we don't need myCoordinates either
+     */
     const [myCoordinates, setMyCoordinates] = useState<LatLngExpression | null>(
         null
     );
@@ -72,7 +76,8 @@ export default function MillMap({mills, children}: MillListProps) {
         modal: true,
         container: document.getElementById('map-control-container'),
         onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen
+        autoFocus: drawerOpen,
+        className: 'w-screen min-w-full max-w-full bg-green-500'
     } as DialogProps;
 
     const dialogProps = {
@@ -168,14 +173,6 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 ))}
             </MapMarkerClusterGroup>
 
-            {/* <MapLocateControl 
-                onLocationFound={(location) =>
-                    setMyCoordinates(location.latlng)
-                }
-                onLocationError={(error) => toast.error(error.message)}
-                watch
-            /> */}
-
             {/** MapCircle should only display after the user has clicked the locator button */}
             {myCoordinates && (
                 <>
@@ -210,10 +207,10 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                     <h1 className="font-extrabold text-3xl text-beluga">Mill Map</h1>
                     <DialogDrawer
                         trigger={triggerButton}
-                        title="Filter Mills"
+                        title="Mill Filters"
                         description="Filter mills based on the criteria below."
                         drawerContentProps={{
-                            className: "bg-nature lg:bg-lorne z-100 border-r-lorne",                            
+                            className: "bg-transparent z-200 border-r-lorne w-full max-w-screen p-0 ",                            
                         }}
                         drawerHeaderProps={{
                             className: "sr-only"
