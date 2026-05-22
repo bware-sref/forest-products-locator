@@ -309,7 +309,7 @@ export default function MillFilters({
                                                 <InputSelect
                                                     key={filterResetKey}
                                                     options={RADIUS_OPTIONS}
-                                                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-100"
+                                                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-200"
                                                     onValueChange={onRadiusSelectChange}
                                                     placeholder="Select a radius..."
                                                     clearable={true}
