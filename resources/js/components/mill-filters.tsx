@@ -311,7 +311,7 @@ export default function MillFilters({
                                                     options={RADIUS_OPTIONS}
                                                     className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-200"
                                                     onValueChange={onRadiusSelectChange}
-                                                    placeholder="Select a radius..."
+                                                    placeholder="Select a distance..."
                                                     clearable={true}
                                                     disabled={!proximityEnabled}
                                                     value={searchParams.radius || ''}
