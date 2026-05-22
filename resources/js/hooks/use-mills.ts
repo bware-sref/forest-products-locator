@@ -5,11 +5,13 @@ import {
     useEffect,
     useEffectEvent,
     useMemo,
+    useRef,
     useState,
 } from 'react';
 import { debounce } from 'lodash-es';
 import {
     type County,
+    type GeolocationStatus,
     type Mill,
     type MillType,
     type SearchParams,
@@ -54,7 +56,7 @@ export function normalizeStates(states: State[]): State[] {
 }
 
 async function downloadExport(params: SearchParams, token: string) {
-    console.log('downloadExport with params?', params);
+    // console.log('downloadExport with params?', params);
     const response = await fetch("/mills/export", {
         method: "POST",
         headers: {
@@ -124,6 +126,25 @@ export interface UseMillsReturn {
     handleWoodSpeciesSelectChange: (woodSpeciesId: string) => void;
     handleClearFiltersClick: MouseEventHandler<HTMLButtonElement>;
     handleExportClick: MouseEventHandler<HTMLButtonElement>;
+
+    // --- Proximity / geolocation ---
+    /**
+     * Current status of the browser Geolocation API request.
+     * Drives the enabled/disabled state and tooltip of the proximity controls.
+     */
+    geolocationStatus: GeolocationStatus;
+    /**
+     * Handler for the "Use my location" button in MillFilters
+     */
+    handleRequestLocationClick: MouseEventHandler<HTMLButtonElement>;
+    /**
+     * Handler for the radius InputSelect
+     */
+    handleRadiusSelectChange: (radius: string) => void;
+
+    coordinates: {lat: number, lng: number} | null;
+
+    radius: string | null;
 }
 
 /**
@@ -196,10 +217,6 @@ export function useMills({
      * isDownloading state management
      */
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
-    // wrap with useEffectEvent to allow updating isDownloading during useEffect
-    // const updateIsDownloading = useEffectEvent((downloadingValue: boolean) => {
-    //     setIsDownloading(downloadingValue);
-    // });
 
     // ---------------------------------------------------------------------------
     // Mills data
@@ -226,11 +243,6 @@ export function useMills({
             setIsLoading(false);
         };
     }, [millsApiUrl, searchParams]);
-
-    /**
-     * I think we need useEffect to deal with downloading the export
-     */
-    // useEffect(() => )
 
 
     // ---------------------------------------------------------------------------
@@ -358,6 +370,89 @@ export function useMills({
     }, [searchParams, csrfToken]);
 
     // ---------------------------------------------------------------------------
+    // Geolocation + proximity filter
+    // ---------------------------------------------------------------------------
+
+    /**
+     * Coordinates are stored in a ref rather than state because they don't need
+     * to trigger a re-render on their own - only when combined with a radius
+     * selection should a fetch fire.  The ref gives the handlers stable, synchronous
+     * access to the latest coordinates without stale-closure risk.
+     * 
+     * Probably need to update this to be useState so we can use it to add a map pin and circle...
+     */
+    const coordinatesRef = useRef<{ lat: number; lng: number } | null>(null);
+    // this probably obviates coordinatesRef
+    const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+    const [radius, setRadius] = useState<string | null>(null);
+    
+    const [geolocationStatus, setGeolocationStatus] = useState<GeolocationStatus>('idle');
+
+    const handleRequestLocationClick: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
+        if (! navigator.geolocation) {
+            setGeolocationStatus('unavailable');
+            return;
+        }
+
+        setGeolocationStatus('requesting');
+        
+        navigator.geolocation.getCurrentPosition(
+            // success
+            (position) => {
+                coordinatesRef.current = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                };
+                setCoordinates(coordinatesRef.current);
+                setGeolocationStatus('granted');
+                // Don't fire a proximity fetch yet, the user still needs to pick a radius.
+                // Coordinates are ready and waiting in the ref.
+            },
+            // error
+            (error) => {
+                coordinatesRef.current = null;
+                if (error.code === GeolocationPositionError.PERMISSION_DENIED) {
+                    setGeolocationStatus('denied');
+                } else {
+                    // POSITION_UNAVAILABLE or TIMEOUT both fall here
+                    setGeolocationStatus('unavailable');
+                }
+                // Remove any stale proximity params so the fetch stays clean
+                setSearchParams((prev) => {
+                    const next = { ...prev };
+                    delete next.lat;
+                    delete next.lng;
+                    delete next.radius;
+                    return next;
+                });
+            },
+            // options?
+        );
+
+    }, []);
+
+    const handleRadiusSelectChange = useCallback((radius: string) => {
+        setSearchParams((prev) => {
+            const next = { ...prev };
+            if (radius === '' || !coordinatesRef.current) {
+                // Clearing the radius doesn't need to remove all three proximity parameters, only radius
+                // delete next.lat;
+                // delete next.lng;
+                delete next.radius;
+                setRadius(null);
+            } else {
+                // All three properties are set atomically so the API never receives a 
+                // partial proximity query
+                next.lat = String(coordinatesRef.current.lat);
+                next.lng = String(coordinatesRef.current.lng);
+                next.radius = radius;
+                setRadius(radius);
+            }
+            return next;
+        });
+    }, []);
+
+    // ---------------------------------------------------------------------------
 
     return {
         mills,
@@ -375,5 +470,10 @@ export function useMills({
         handleWoodSpeciesSelectChange,
         handleClearFiltersClick,
         handleExportClick,
+        geolocationStatus,
+        handleRequestLocationClick,
+        handleRadiusSelectChange,
+        coordinates,
+        radius,
     };
 }

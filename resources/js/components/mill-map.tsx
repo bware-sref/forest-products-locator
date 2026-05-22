@@ -6,26 +6,20 @@ import {
     MillListProps,
 } from '@/types';
 import { 
-    Map,
+    Map as MapContainer,
     MapCircle,
-    MapControlContainer,
-    MapLocateControl,
     MapMarker,
     MapMarkerClusterGroup,
-    MapPopup,
     MapTileLayer,
     // MapWMSTileLayer,
-    // MapZoomControl,
 } from "@/components/ui/map"
 import { MapGestureHandler } from '@/components/extend/map-gesture-handler';
-import type { LatLngExpression } from "leaflet";
+import { LatLngExpression } from "leaflet";
 import {
-    MapPinIcon,
+    CircleIcon,
 } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Link } from "@inertiajs/react";
-import { show } from "@/actions/App/Http/Controllers/MillController"
+import MillMapMarker from '@/components/mill-map-marker';
+
 
 // the Leaflet docs keep the ? on the URL :shrug:
 // const wmsServer = 'https://www.mrlc.gov/geoserver/NLCD_Canopy/wms?';  // SERVICE=WMS&REQUEST=GetCapabilities
@@ -39,8 +33,8 @@ import { show } from "@/actions/App/Http/Controllers/MillController"
 // const wmsLayers = srefLayers;
 
 // centering the map in northern Mississippi should get most mills in frame initially.
-// we'll probably need to adjust this.
 const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
+
 
 /**
  * Currently, the only children we expect would be the mill-filters component.
@@ -49,27 +43,25 @@ const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
  * @param millMapProps
  * @returns 
  */
-export default function MillMap({mills, children}: MillListProps) {
-    // const WARNELL_COORDINATES = [33.9439, -83.3769] satisfies LatLngExpression
-    // const PINS = [
-    //     {
-    //         name: "Warnell School of Forestry and Natural Resources",
-    //         coordinates: WARNELL_COORDINATES,
-    //         icon: <MapPinIcon className="size-6 stroke-velvet" />
-    //     },
-    // ];
-    const [myCoordinates, setMyCoordinates] = useState<LatLngExpression | null>(
-        null
-    )
+export default function MillMap({
+    mills,
+    children,
+    coordinates = null,
+    radius = null,
+}: MillListProps) {
+
+    // parse radius as a float, handling the empty case with '0'
+    const filterRadius = parseFloat(radius ?? '0');
 
     return (
-        <Map 
-            className='min-h-[calc(100vh-6rem)] lg:min-h-96'
+        <MapContainer 
+            className="min-h-[calc(100vh-6rem)] lg:min-h-[calc(100vh-4rem)]"
             center={MAP_CENTER}
             zoom={5}
         >
-            <MapGestureHandler />
+            <MapGestureHandler data-thing="map-gesture-handler" />
             <MapTileLayer 
+                data-thing="map-tile-layer"
             />
 {/*
 Disable the POC WMS layer until esri.sref.info certificate is fixed.            
@@ -79,95 +71,33 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
             />
 */}
 
-            {/* {PINS.map((pin) => (
-                <MapMarker
-                    key={pin.name}
-                    position={pin.coordinates}
-                    icon={pin.icon}                 
-                >
-                    <MapPopup className="w-72">{pin.name}</MapPopup>
-                </MapMarker>
-            ))} */}
-
-            <MapMarkerClusterGroup>
+            <MapMarkerClusterGroup data-thing="map-marker-cluster-group">
                 {/** Mills! */}
                 {mills?.map((mill) => (
-                    <MapMarker
-                        key={mill.match_id}
-                        position={[
-                            parseFloat(mill.latitude || '0'),
-                            parseFloat(mill.longitude || '0')
-                        ]}
-                        // add method to map mill.mill_type[0] to the appropriate icon
-                        icon={<MapPinIcon className="size-6 stroke-velvet" />}
-                    >
-                        <MapPopup className="w-72">
-                            <div className="flex flex-col text-left text-velvet text-[16px]">
-                                <h3 className="font-extrabold text-lg">{mill.mill_name}</h3>
-                                <address className="not-italic">
-                                    {mill.physical_address}
-                                    <br />
-                                    {mill.physical_address_two}
-                                </address>
-                                <p>
-                                    <strong>Species: </strong>
-                                    {mill.wood_species?.map((wood, index) => {
-                                        const prefix = (0 < index) ? ', ' : '';
-                                        return prefix + wood.name;
-                                    })}
-                                </p>
-                                <p>
-                                    <strong>Mill Type: </strong>
-                                    {mill.mill_types?.map((millType, index) => {
-                                        const prefix = (0 < index) ? ', ' : '';                                            
-                                        return prefix + millType.name;
-                                    })}
-                                </p>                                                    
-                                <p>
-                                    <Link 
-                                        href={show(mill.match_id)}
-                                        className="underline hover:no-underline"
-                                        target="_blank"
-                                    >
-                                        More Information...
-                                    </Link>
-                                </p>
-                            </div>
-                        </MapPopup>
-                    </MapMarker>
+                    <MillMapMarker mill={mill}/>
                 ))}
             </MapMarkerClusterGroup>
 
-            <MapLocateControl 
-                onLocationFound={(location) =>
-                    setMyCoordinates(location.latlng)
-                }
-                onLocationError={(error) => toast.error(error.message)}
-                watch
-            />
-
             {/** MapCircle should only display after the user has clicked the locator button */}
-            {myCoordinates && (
-                <>
-                    <MapCircle 
-                        center={myCoordinates}
-                        radius={Math.ceil((100* 5280)/3)}
-                        className="stroke-velvet"
-                    />
-                    <MapPopup
-                        position={myCoordinates}
-                        offset={[0, -5]}
-                        className="w-56">
-                        {myCoordinates.toString()}
-                    </MapPopup>
-                </>
+            {coordinates && filterRadius > 0 ? (
+                <MapCircle 
+                    center={coordinates}
+                    radius={Math.ceil(( filterRadius * 5280)/3)}
+                    className="stroke-velvet"
+                />) : null }
+            {coordinates && (
+                <MapMarker
+                    key="user-position"
+                    position={coordinates}
+                    icon={
+                        <CircleIcon
+                            size={10}
+                            className="fill-green-700"
+                        />
+                    }
+                />
             )}
-
-            <MapControlContainer 
-                className="absolute top-0 lg:top-5 lg:left-5 z-1000 w-full items-stretch max-w-screen lg:max-w-90 bg-nature lg:bg-lorne px-4">
-                {/** children are mill-filters */}
-                {children}
-            </MapControlContainer>
-        </Map>
+            {children}
+        </MapContainer>
     )
 }
