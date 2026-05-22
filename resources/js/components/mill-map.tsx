@@ -87,6 +87,7 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 />) : null }
             {coordinates && (
                 <MapMarker
+                    key="user-position"
                     position={coordinates}
                     icon={
                         <CircleIcon
