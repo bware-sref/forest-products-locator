@@ -33,7 +33,7 @@ export default function MillMapMarker({
 }) {
     return (
         <MapMarker
-            key={mill.match_id}
+            // key={mill.match_id}
             position={[
                 parseFloat(mill.latitude || '0'),
                 parseFloat(mill.longitude || '0')
