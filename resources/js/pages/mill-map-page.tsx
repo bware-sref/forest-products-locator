@@ -1,6 +1,7 @@
 import {
+    MouseEvent,
     useMemo,
-    useState,
+    // useState,
 } from "react";
 import AppLayout from '@/layouts/app-layout';
 import {
@@ -15,22 +16,27 @@ import {
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
 import MillMap from '@/components/mill-map';
+// import {
+//     Button
+// } from "@/components/ui/button";
+// import {
+//     DialogDrawer
+// } from "@/components/extend/dialog-drawer";
+// import {
+//     DialogProps
+// } from "vaul";
+// import {
+//     DownloadIcon,
+//     SlidersHorizontalIcon
+// } from "lucide-react";
+// import { Spinner } from '@/components/ui/spinner';
 import {
-    Button
-} from "@/components/ui/button";
-import {
-    DialogDrawer
-} from "@/components/extend/dialog-drawer";
-import {
-    DialogProps
-} from "vaul";
-import {
-    DownloadIcon,
-    SlidersHorizontalIcon
-} from "lucide-react";
-import { Spinner } from '@/components/ui/spinner';
+    TitleFilterBar
+} from "@/components/title-filter-bar";
+
 // import Map so we can use it as a type
 // except we don't seem to need it...
+// we need map to be able to use flyTo()
 // import { Map } from "leaflet";
 
 export default function MillMapPage() {
@@ -99,121 +105,48 @@ export default function MillMapPage() {
         ></MillMap>
     ), [mills, radius, coordinates]);
 
-    /**
-     * DialogDrawer stuff
-     */
-    const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-
-    const drawerProps = {
-        direction: "left",
-        modal: true,
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen,
-        className: 'w-screen min-w-full max-w-full'
-    } as DialogProps;
-
-    const dialogProps = {
-        modal: true,
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen
-    } as DialogProps;
-
-    /**
-     * make this a component
-     */
-    const triggerButton = (
-        <Button
-            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end rounded-sm z-20"
-            id="filter-trigger"
-        >
-            <span className="sr-only lg:not-sr-only"><span className="sr-only">Toggle </span>Filters</span>
-            <SlidersHorizontalIcon
-                data-icon="inline-end"                            
-                className="w-6 h-6 lg:ml-2 size-1"
-            />
-        </Button>
-    );
+    const handleClickCapture = (event: MouseEvent<HTMLDivElement>) => {
+        console.log('ClickCaptureEvent: ', event);
+    };
 
     return (
+
+
         <AppLayout>
             <Head title={page.props.pageTitle} />
 
-            {/** 
-             * full-width wrapper for title bar
-             */}
-            <div data-thing="title-bar" 
-                className="flex flex-col items-center px-4 lg:px-6 text-velvet lg:justify-center border-b-6 bg-lorne"
+            <TitleFilterBar
+                // onClickCapture={}
+                headline={page.props.pageTitle || ''}
+                isDownloading={isDownloading}
+                isLoading={isLoading}
+                handleExportClick={handleExportClick}
+                handleClickCapture={handleClickCapture}
             >
-                {/** 
-                 * title bar + filter controls 
-                 * extract a component!
-                 */}
-                <div className="w-full lg:max-w-7xl mx-auto flex flex-row items-center justify-between pl-2 md:px-0 2xl:px-6 py-2">
-                    <div data-thing="" className="flex flex-row gap-x-5">
-                        <h1 className="font-bold text-3xl text-beluga">Mill Map</h1>
-                        {isLoading || isDownloading ? (
-                            <Spinner data-icon="inline-end" className="ml-auto size-8 text-beluga" />
-                        ) : ''}
-                    </div>
-                    <div data-thing="button-wrap" className="flex flex-row gap-5">
-                        <Button
-                            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold rounded-sm z-20"
-                            id="export-trigger"
-                            onClick={handleExportClick}
-                            disabled={isDownloading || isLoading}
-                        >
-                            <span className="sr-only lg:not-sr-only">Export</span>
-                            <DownloadIcon
-                                data-icon="inline-end"                            
-                                className="w-6 h-6 lg:ml-2 size-1"
-                            />
-                        </Button>
+                <MillFilters
+                    textSearch={searchText}
+                    states={states}
+                    counties={counties}
+                    millTypes={page.props.millTypes}
+                    woodSpecies={page.props.woodSpecies}
+                    filterResetKey={filterResetKey}
+                    isLoading={isLoading}
+                    isDownloading={isDownloading}
+                    onTextSearchChange={handleTextSearchChange}
+                    onStateSelectChange={handleStateSelectChange}
+                    onCountySelectChange={handleCountySelectChange}
+                    onMillTypesSelectChange={handleMillTypeSelectChange}
+                    onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
+                    onClearFiltersClick={handleClearFiltersClick}
+                    // onExportClick={handleExportClick}
+                    searchParams={searchParams}
+                    geolocationStatus={geolocationStatus}
+                    onRequestLocationClick={handleRequestLocationClick}
+                    onRadiusSelectChange={handleRadiusSelectChange}
+                    millCount={mills.length}
+                />
 
-                        <DialogDrawer
-                            trigger={triggerButton}
-                            title="Mill Filters"
-                            description="Filter mills based on the criteria below."
-                            drawerContentProps={{
-                                className: "bg-transparent z-200 border-r-lorne w-full max-w-screen p-0 ",                            
-                            }}
-                            drawerHeaderProps={{
-                                className: "sr-only"
-                            }}
-                            drawerProps={drawerProps}
-                            dialogHeaderProps={{
-                                className: "sr-only"
-                            }}
-                            dialogContentProps={{
-                                className: "bg-nature lg:bg-lorne z-100 border-lorne",                            
-                            }}
-                            dialogProps={dialogProps}
-                        >
-                            <MillFilters
-                                textSearch={searchText}
-                                states={states}
-                                counties={counties}
-                                millTypes={page.props.millTypes}
-                                woodSpecies={page.props.woodSpecies}
-                                filterResetKey={filterResetKey}
-                                isLoading={isLoading}
-                                isDownloading={isDownloading}
-                                onTextSearchChange={handleTextSearchChange}
-                                onStateSelectChange={handleStateSelectChange}
-                                onCountySelectChange={handleCountySelectChange}
-                                onMillTypesSelectChange={handleMillTypeSelectChange}
-                                onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
-                                onClearFiltersClick={handleClearFiltersClick}
-                                onExportClick={handleExportClick}
-                                searchParams={searchParams}
-                                geolocationStatus={geolocationStatus}
-                                onRequestLocationClick={handleRequestLocationClick}
-                                onRadiusSelectChange={handleRadiusSelectChange}
-                                millCount={mills.length}
-                            />
-                        </DialogDrawer>
-                    </div>
-                </div>
-            </div>
+            </TitleFilterBar>
 
             {/**
              * full screen-width wrapper
