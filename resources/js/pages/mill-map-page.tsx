@@ -1,4 +1,7 @@
 import {
+    // MouseEvent,
+    // useCallback,
+    useEffect,
     useMemo,
     useState,
 } from "react";
@@ -15,23 +18,41 @@ import {
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
 import MillMap from '@/components/mill-map';
+// import {
+//     Button
+// } from "@/components/ui/button";
+// import {
+//     DialogDrawer
+// } from "@/components/extend/dialog-drawer";
+// import {
+//     DialogProps
+// } from "vaul";
+// import {
+//     DownloadIcon,
+//     SlidersHorizontalIcon
+// } from "lucide-react";
+// import { Spinner } from '@/components/ui/spinner';
 import {
-    Button
-} from "@/components/ui/button";
-import {
-    DialogDrawer
-} from "@/components/extend/dialog-drawer";
-import {
-    DialogProps
-} from "vaul";
-import {
-    DownloadIcon,
-    SlidersHorizontalIcon
-} from "lucide-react";
-import { Spinner } from '@/components/ui/spinner';
+    TitleFilterBar
+} from "@/components/title-filter-bar";
+
 // import Map so we can use it as a type
 // except we don't seem to need it...
-// import { Map } from "leaflet";
+// we need map to be able to use flyTo()
+import { Map } from "leaflet";
+import { useMap } from "react-leaflet";
+
+// turns out we need a helper component to sync the map instance to the parent state
+// because useMap() is only available in children of the map component.
+// Initially tried to use ref={setMap} but the map component doesn't 
+// have the ref property.
+function MapStateSet({ setMap }: {
+    setMap: (map: Map) => void
+}) {
+    const map = useMap();
+    setMap(map);
+    return null;
+}
 
 export default function MillMapPage() {
     const page = usePage<{
@@ -81,7 +102,7 @@ export default function MillMapPage() {
      * it might not make sense to save map's state
      * let's see what happens if we remove it...
      */
-    // const [map, setMap] = useState<Map | null>(null);
+    const [map, setMap] = useState<Map | null>(null);
 
     /**
      * We need to add position and radius to the return values from useMills and use them to display the following:
@@ -93,127 +114,59 @@ export default function MillMapPage() {
         <MillMap 
             mills={mills}
             className="lg:min-h-screen"
-            // ref={setMap}
             radius={radius}
             coordinates={coordinates}
-        ></MillMap>
+        >
+            <MapStateSet setMap={setMap} />
+        </MillMap>
     ), [mills, radius, coordinates]);
 
-    /**
-     * DialogDrawer stuff
-     */
-    const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-
-    const drawerProps = {
-        direction: "left",
-        modal: true,
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen,
-        className: 'w-screen min-w-full max-w-full'
-    } as DialogProps;
-
-    const dialogProps = {
-        modal: true,
-        onOpenChange: setDrawerOpen,
-        autoFocus: drawerOpen
-    } as DialogProps;
-
-    /**
-     * make this a component
-     */
-    const triggerButton = (
-        <Button
-            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end rounded-sm z-20"
-            id="filter-trigger"
-        >
-            <span className="sr-only lg:not-sr-only"><span className="sr-only">Toggle </span>Filters</span>
-            <SlidersHorizontalIcon
-                data-icon="inline-end"                            
-                className="w-6 h-6 lg:ml-2 size-1"
-            />
-        </Button>
-    );
+    // handle map focus when coordinates are found
+    useEffect(() => {
+        if (map && coordinates) {
+            // console.log(`flying to ${coordinates?.lat} and ${coordinates?.lng}`);
+            map?.flyTo([coordinates?.lat, coordinates?.lng], 10);
+        }
+        // console.log('map: ', map);
+    }, [coordinates, map]);
 
     return (
+
+
         <AppLayout>
             <Head title={page.props.pageTitle} />
 
-            {/** 
-             * full-width wrapper for title bar
-             */}
-            <div data-thing="title-bar" 
-                className="flex flex-col items-center px-4 lg:px-6 text-velvet lg:justify-center border-b-6 bg-lorne"
+            <TitleFilterBar
+                // onClickCapture={}
+                headline={page.props.pageTitle || ''}
+                isDownloading={isDownloading}
+                isLoading={isLoading}
+                handleExportClick={handleExportClick}
             >
-                {/** 
-                 * title bar + filter controls 
-                 * extract a component!
-                 */}
-                <div className="w-full lg:max-w-7xl mx-auto flex flex-row items-center justify-between pl-2 md:px-0 2xl:px-6 py-2">
-                    <div data-thing="" className="flex flex-row gap-x-5">
-                        <h1 className="font-bold text-3xl text-beluga">Mill Map</h1>
-                        {isLoading || isDownloading ? (
-                            <Spinner data-icon="inline-end" className="ml-auto size-8 text-beluga" />
-                        ) : ''}
-                    </div>
-                    <div data-thing="button-wrap" className="flex flex-row gap-5">
-                        <Button
-                            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold rounded-sm z-20"
-                            id="export-trigger"
-                            onClick={handleExportClick}
-                            disabled={isDownloading || isLoading}
-                        >
-                            <span className="sr-only lg:not-sr-only">Export</span>
-                            <DownloadIcon
-                                data-icon="inline-end"                            
-                                className="w-6 h-6 lg:ml-2 size-1"
-                            />
-                        </Button>
+                <MillFilters
+                    textSearch={searchText}
+                    states={states}
+                    counties={counties}
+                    millTypes={page.props.millTypes}
+                    woodSpecies={page.props.woodSpecies}
+                    filterResetKey={filterResetKey}
+                    isLoading={isLoading}
+                    isDownloading={isDownloading}
+                    onTextSearchChange={handleTextSearchChange}
+                    onStateSelectChange={handleStateSelectChange}
+                    onCountySelectChange={handleCountySelectChange}
+                    onMillTypesSelectChange={handleMillTypeSelectChange}
+                    onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
+                    onClearFiltersClick={handleClearFiltersClick}
+                    // onExportClick={handleExportClick}
+                    searchParams={searchParams}
+                    geolocationStatus={geolocationStatus}
+                    onRequestLocationClick={handleRequestLocationClick}
+                    onRadiusSelectChange={handleRadiusSelectChange}
+                    millCount={mills.length}
+                />
 
-                        <DialogDrawer
-                            trigger={triggerButton}
-                            title="Mill Filters"
-                            description="Filter mills based on the criteria below."
-                            drawerContentProps={{
-                                className: "bg-transparent z-200 border-r-lorne w-full max-w-screen p-0 ",                            
-                            }}
-                            drawerHeaderProps={{
-                                className: "sr-only"
-                            }}
-                            drawerProps={drawerProps}
-                            dialogHeaderProps={{
-                                className: "sr-only"
-                            }}
-                            dialogContentProps={{
-                                className: "bg-nature lg:bg-lorne z-100 border-lorne",                            
-                            }}
-                            dialogProps={dialogProps}
-                        >
-                            <MillFilters
-                                textSearch={searchText}
-                                states={states}
-                                counties={counties}
-                                millTypes={page.props.millTypes}
-                                woodSpecies={page.props.woodSpecies}
-                                filterResetKey={filterResetKey}
-                                isLoading={isLoading}
-                                isDownloading={isDownloading}
-                                onTextSearchChange={handleTextSearchChange}
-                                onStateSelectChange={handleStateSelectChange}
-                                onCountySelectChange={handleCountySelectChange}
-                                onMillTypesSelectChange={handleMillTypeSelectChange}
-                                onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
-                                onClearFiltersClick={handleClearFiltersClick}
-                                onExportClick={handleExportClick}
-                                searchParams={searchParams}
-                                geolocationStatus={geolocationStatus}
-                                onRequestLocationClick={handleRequestLocationClick}
-                                onRadiusSelectChange={handleRadiusSelectChange}
-                                millCount={mills.length}
-                            />
-                        </DialogDrawer>
-                    </div>
-                </div>
-            </div>
+            </TitleFilterBar>
 
             {/**
              * full screen-width wrapper
