@@ -1,7 +1,9 @@
 import {
-    MouseEvent,
+    // MouseEvent,
+    // useCallback,
+    useEffect,
     useMemo,
-    // useState,
+    useState,
 } from "react";
 import AppLayout from '@/layouts/app-layout';
 import {
@@ -37,7 +39,20 @@ import {
 // import Map so we can use it as a type
 // except we don't seem to need it...
 // we need map to be able to use flyTo()
-// import { Map } from "leaflet";
+import { Map } from "leaflet";
+import { useMap } from "react-leaflet";
+
+// turns out we need a helper component to sync the map instance to the parent state
+// because useMap() is only available in children of the map component.
+// Initially tried to use ref={setMap} but the map component doesn't 
+// have the ref property.
+function MapStateSet({ setMap }: {
+    setMap: (map: Map) => void
+}) {
+    const map = useMap();
+    setMap(map);
+    return null;
+}
 
 export default function MillMapPage() {
     const page = usePage<{
@@ -87,7 +102,7 @@ export default function MillMapPage() {
      * it might not make sense to save map's state
      * let's see what happens if we remove it...
      */
-    // const [map, setMap] = useState<Map | null>(null);
+    const [map, setMap] = useState<Map | null>(null);
 
     /**
      * We need to add position and radius to the return values from useMills and use them to display the following:
@@ -99,15 +114,21 @@ export default function MillMapPage() {
         <MillMap 
             mills={mills}
             className="lg:min-h-screen"
-            // ref={setMap}
             radius={radius}
             coordinates={coordinates}
-        ></MillMap>
+        >
+            <MapStateSet setMap={setMap} />
+        </MillMap>
     ), [mills, radius, coordinates]);
 
-    const handleClickCapture = (event: MouseEvent<HTMLDivElement>) => {
-        console.log('ClickCaptureEvent: ', event);
-    };
+    // handle map focus when coordinates are found
+    useEffect(() => {
+        if (map && coordinates) {
+            // console.log(`flying to ${coordinates?.lat} and ${coordinates?.lng}`);
+            map?.flyTo([coordinates?.lat, coordinates?.lng], 10);
+        }
+        // console.log('map: ', map);
+    }, [coordinates, map]);
 
     return (
 
@@ -121,7 +142,6 @@ export default function MillMapPage() {
                 isDownloading={isDownloading}
                 isLoading={isLoading}
                 handleExportClick={handleExportClick}
-                handleClickCapture={handleClickCapture}
             >
                 <MillFilters
                     textSearch={searchText}

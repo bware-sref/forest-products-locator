@@ -411,6 +411,7 @@ export function useMills({
             // error
             (error) => {
                 coordinatesRef.current = null;
+                setCoordinates(null);
                 if (error.code === GeolocationPositionError.PERMISSION_DENIED) {
                     setGeolocationStatus('denied');
                 } else {
