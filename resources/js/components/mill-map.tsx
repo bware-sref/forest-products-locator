@@ -74,7 +74,11 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
             <MapMarkerClusterGroup data-thing="map-marker-cluster-group">
                 {/** Mills! */}
                 {mills?.map((mill) => (
-                    <MillMapMarker mill={mill}/>
+                    // hoisted key to this level to avoid warning about all list items should have keys
+                    // weird that it being assigned in the MillMapMarker component didn't seem to matter
+                    <MillMapMarker 
+                        key={mill.match_id}
+                        mill={mill}/>
                 ))}
             </MapMarkerClusterGroup>
 
