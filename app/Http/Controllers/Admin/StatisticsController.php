@@ -30,7 +30,7 @@ class StatisticsController extends Controller
 
     public function updated()
     {
-        $millCounts = Mill::counts();
+        $millCounts = Mill::updates();
 
         return view('admin.statistics.updated', [
             'title' => 'Updated :: Statistics',

@@ -517,13 +517,13 @@ class Mill extends Model
          * Should probably set up an array of Carbon values for timeframes
          */
 
-        $now = Carbon::now();
+        // $now = Carbon::now();
 
         $timeframes = [
-            'lastWeek' => $now->minus(weeks: 1),
-            'lastMonth' => $now->minus(months: 1),
-            'lastThreeMonths' => $now->minus(months: 3),
-            'lastYear' => $now->minus(years: 1),
+            'lastWeek' => Carbon::now()->minus(weeks: 1),
+            'lastMonth' => Carbon::now()->minus(months: 1),
+            'lastThreeMonths' => Carbon::now()->minus(months: 3),
+            'lastYear' => Carbon::now()->minus(years: 1),
         ];
 
         $data = [];
@@ -535,37 +535,13 @@ class Mill extends Model
             $updated = Mill::updatedSince($tf);
             $block['total']['number'] = $updated;
             $block['total']['percentage'] = ($updated / $millCount) * 100;
-            
+
             $block['byState'] = [];
+            $block['since'] = $tf->toDateTimeString();
             $data[$key] = $block;
         }
 
         return $data;
-
-        return [
-            'lastWeek' => [
-                'total' => [
-                    'numberUpdated' => '',
-                    'percentUpdated' => '',
-                ],
-                'byState' => [],
-            ],
-            'lastMonth' => [
-                'totalUpdates' => '',
-                'percentUpdated' => '',
-                'byState' => [],
-            ],
-            'lastThreeMonths' => [
-                'totalUpdates' => '',
-                'percentUpdated' => '',
-                'byState' => [],
-            ],
-            'lastYear' => [
-                'totalUpdates' => '',
-                'percentUpdated' => '',
-                'byState' => [],
-            ],
-        ];
     }
 
     public static function additions(): array
@@ -575,6 +551,8 @@ class Mill extends Model
 
     public static function updatedSince(Carbon $since): int
     {
+        Log::debug('Updated since: ' . $since);
+
         $updated = Mill::select('match_id')
             ->where('updated_at', '>=', $since)
             ->get()

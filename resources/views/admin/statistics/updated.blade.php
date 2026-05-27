@@ -42,7 +42,7 @@
     // }
 
     // put total at the front of the list
-    array_unshift($millCounts['byState'], ['name' => 'Total Mills', 'mills_count' => $millCounts['total']]);
+    // array_unshift($millCounts['byState'], ['name' => 'Total Mills', 'mills_count' => $millCounts['total']]);
 
 @endphp
 
@@ -53,6 +53,12 @@
 </section>
 <section class="content container-fluid animated fadeIn" bp-section="content">
     <div class="row gap-2">
+        <pre>
+        @php
+            print_r($millCounts);
+        @endphp
+        </pre>
+@if(false)        
     @foreach ($millCounts['byState'] as $state)
         @php
         $bg = array_shift($bgs);
@@ -68,6 +74,7 @@
         $bgs[] = $bg;
         @endphp
     @endforeach
+@endif    
     </div>
     @if(false)
     <div class="row">
