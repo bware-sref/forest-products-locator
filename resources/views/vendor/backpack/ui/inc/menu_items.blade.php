@@ -11,3 +11,4 @@
 <x-backpack::menu-item title="Wood Species" icon="la la-question" :link="backpack_url('wood-species')" />
 <x-backpack::menu-item title="FAQ Categories" icon="la la-question" :link="backpack_url('faq-category')" />
 <x-backpack::menu-item title="FAQs" icon="la la-question" :link="backpack_url('faq')" />
+<x-backpack::menu-item title="Statistics" icon="la la-question" :link="backpack_url('statistics')" />

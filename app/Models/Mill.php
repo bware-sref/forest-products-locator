@@ -6,6 +6,8 @@ use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\PublicationStatus;
 use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
+use App\Models\State;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -465,5 +467,123 @@ class Mill extends Model
         $query->where('status', PublicationStatus::Rejected);
     }
 
+    /**
+     * Methods for admin statistics
+     * - mill count, total and by state
+     * - number and % of mill listing updates, total and by state, (last week, last month, last 3 months, last 12 months)
+     * - number and % of new mill listings, total and by state, last week, month, 3 months, 12 months
+     */
+    public static function counts(): array
+    {
+        // total is easy
+        // by state is also easy
+        return [
+            'total' => Mill::all()->count(),
+            'byState' => State::select('name')
+                ->has('mills')
+                ->withCount('mills')
+                ->get()
+                ->toArray(),
+        ];
+    }
 
+    public static function updates(): array
+    {
+        /**
+         * Updates are a little messier.
+         * number and percentage updated, total and by state, timeframes
+         * totalUpdates * (timeframes)
+         * totalPercentageUpdated * (timeframes)
+         * byState [
+         *  updated,
+         *  percentage
+         * ] * timeframes
+         * 
+         * Pull the timeframes out so that they become the groupings.
+         * lastWeek => [
+         *   total => [
+         *      number
+         *      percentage
+         *   ]
+         *   byState => [
+         *      Alabama => [
+         *          number
+         *          percentage
+         *      ]
+         *      ...
+         *   ]
+         * 
+         * ]
+         * Should probably set up an array of Carbon values for timeframes
+         */
+
+        $now = Carbon::now();
+
+        $timeframes = [
+            'lastWeek' => $now->minus(weeks: 1),
+            'lastMonth' => $now->minus(months: 1),
+            'lastThreeMonths' => $now->minus(months: 3),
+            'lastYear' => $now->minus(years: 1),
+        ];
+
+        $data = [];
+
+        $millCount = Mill::all()->count();
+
+        foreach ($timeframes as $key => $tf) {
+            $block = [];
+            $updated = Mill::updatedSince($tf);
+            $block['total']['number'] = $updated;
+            $block['total']['percentage'] = ($updated / $millCount) * 100;
+            
+            $block['byState'] = [];
+            $data[$key] = $block;
+        }
+
+        return $data;
+
+        return [
+            'lastWeek' => [
+                'total' => [
+                    'numberUpdated' => '',
+                    'percentUpdated' => '',
+                ],
+                'byState' => [],
+            ],
+            'lastMonth' => [
+                'totalUpdates' => '',
+                'percentUpdated' => '',
+                'byState' => [],
+            ],
+            'lastThreeMonths' => [
+                'totalUpdates' => '',
+                'percentUpdated' => '',
+                'byState' => [],
+            ],
+            'lastYear' => [
+                'totalUpdates' => '',
+                'percentUpdated' => '',
+                'byState' => [],
+            ],
+        ];
+    }
+
+    public static function additions(): array
+    {
+        return [];
+    }
+
+    public static function updatedSince(Carbon $since): int
+    {
+        $updated = Mill::select('match_id')
+            ->where('updated_at', '>=', $since)
+            ->get()
+            ->count();
+
+        return $updated;
+        // we don't need to count mills multiple times
+        // $total = Mill::all()->count();
+        // $percentage = ($updated / $total) * 100;
+        // return compact('updated', 'percentage');
+    }
 }

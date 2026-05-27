@@ -26,6 +26,7 @@ Route::group([
     Route::crud('wood-species', 'WoodSpeciesCrudController');
     Route::crud('faq-category', 'FaqCategoryCrudController');
     Route::crud('faq', 'FaqCrudController');
+    Route::get('statistics', 'StatisticsController@index')->name('page.statistics.index');
 }); // this should be the absolute last line of this file
 
 /**
