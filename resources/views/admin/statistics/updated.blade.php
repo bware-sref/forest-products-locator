@@ -15,7 +15,7 @@
     // ];
 
     $bgs = [
-        'primary',
+        // 'primary',
         'secondary',
         'success',
         'warning',
@@ -48,43 +48,55 @@
 
 @section('content')
 <section class="header-operation container-fluid animated fadeIn d-flex mb-2 align-items-baseline d-print-none" bp-section="page-header">
-    <h1 class="text-capitalize mb-0" bp-section="page-heading">Recently Updated Mills</h1>
-    <p class="ms-2 ml-2 mb-0" bp-section="page-subheading">Mills which have been updated recently</p>
+    <h1 class="text-capitalize mb-0" bp-section="page-heading">Mill Updates</h1>
+    <p class="ms-2 ml-2 mb-0" bp-section="page-subheading">Stats about Mills which have been updated in the timeframes listed below.</p>
 </section>
 <section class="content container-fluid animated fadeIn" bp-section="content">
-    <div class="row gap-2">
+        @if(false)
         <pre>
         @php
             print_r($millCounts);
         @endphp
         </pre>
-@if(false)        
-    @foreach ($millCounts['byState'] as $state)
-        @php
-        $bg = array_shift($bgs);
-        @endphp
-
-        <div class="col-md-2">
-            <div class="card bg-{{ $bg }}">
-                <div class="card-title px-2">{{ $state['name'] }}</div>
-                <div class="card-body">{{ $state['mills_count'] }}</div>
-            </div>
+        @endif
+@if(true)        
+    @foreach ($millCounts as $tfLabel => $stats)
+    <div class="row gap-2">
+        <div class="col-md-3 bg-primary">
+            <h2>In the {{ $tfLabel }}</h2>
+            <p>Since {{ $stats['since'] }}</p>
         </div>
-        @php
-        $bgs[] = $bg;
-        @endphp
-    @endforeach
-@endif    
-    </div>
-    @if(false)
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
+        <div class="col-md-8">
+            <div class="card bg-primary">
+                <div class="card-title px-2">Total</div>
                 <div class="card-body">
-                    Go to <code>{{ $page }}</code> to edit this view or <code>{{ $controller }}</code> to edit the controller.
+                    Quantity: {{ $stats['total']['number'] }}
+                    <br>
+                    Percentage: {{ sprintf('%.2f', $stats['total']['percentage']) }}%
                 </div>
             </div>
+        @if(!empty($stats['byState']))
+            @foreach ($stats['byState'] as $state => $byState)
+                @php
+                $bg = array_shift($bgs);
+                @endphp
+                    {{-- <div class="col-md-2"> --}}
+                        <div class="card bg-{{ $bg }}">
+                            <div class="card-title px-2">{{ $state }}</div>
+                            <div class="card-body">
+                                Quantity: {{ $byState['number'] }}
+                                <br>
+                                Percentage: {{ sprintf('%.2f', $byState['percentage']) }}%
+                            </div>
+                        </div>
+                    {{-- </div> --}}
+                @php
+                $bgs[] = $bg;
+                @endphp
+            @endforeach
+        @endif
         </div>
     </div>
-    @endif
+    @endforeach
+@endif    
 @endsection

@@ -83,12 +83,13 @@
     --tblr-body-line-height: 1.4285714286;
     --tblr-body-color: #241f2d;
     --tblr-body-color-rgb: 36, 31, 45;
-    --tblr-body-bg: #f1f5f9;
+    /* --tblr-body-bg: #f1f5f9; */
     --tblr-body-bg: var(--color-beluga);
     --tblr-body-bg-rgb: 241, 245, 249;
     --tblr-emphasis-color: #000;
     --tblr-emphasis-color-rgb: 0, 0, 0;
-    --tblr-secondary-color: rgba(36, 31, 45, .75);
+    /* --tblr-secondary-color: rgba(36, 31, 45, .75); */
+    --tblr-secondary-color: var(--color-velvet);
     --tblr-secondary-color-rgb: 36, 31, 45;
     --tblr-secondary-bg: #e2e8f0;
     --tblr-secondary-bg-rgb: 226, 232, 240;
