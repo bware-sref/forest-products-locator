@@ -473,12 +473,17 @@ class Mill extends Model
      * - number and % of mill listing updates, total and by state, (last week, last month, last 3 months, last 12 months)
      * - number and % of new mill listings, total and by state, last week, month, 3 months, 12 months
      */
+    public static function countAll(): int
+    {
+        return Mill::all()->count();
+    }
+
     public static function counts(): array
     {
         // total is easy
         // by state is also easy
         return [
-            'total' => Mill::all()->count(),
+            'total' => Mill::countAll(),
             'byState' => State::select('name')
                 ->has('mills')
                 ->withCount('mills')
@@ -492,39 +497,64 @@ class Mill extends Model
         /**
          * Updates are a little messier.
          * number and percentage updated, total and by state, timeframes
-         * totalUpdates * (timeframes)
-         * totalPercentageUpdated * (timeframes)
-         * byState [
-         *  updated,
-         *  percentage
-         * ] * timeframes
          * 
-         * Pull the timeframes out so that they become the groupings.
-         * lastWeek => [
-         *   total => [
-         *      number
-         *      percentage
-         *   ]
-         *   byState => [
-         *      Alabama => [
-         *          number
-         *          percentage
-         *      ]
-         *      ...
-         *   ]
-         * 
-         * ]
-         * Should probably set up an array of Carbon values for timeframes
          */
 
-        // $now = Carbon::now();
+        $timeframes = self::getTimeframes();
 
-        $timeframes = [
-            'lastWeek' => Carbon::now()->minus(weeks: 1),
-            'lastMonth' => Carbon::now()->minus(months: 1),
-            'lastThreeMonths' => Carbon::now()->minus(months: 3),
-            'lastYear' => Carbon::now()->minus(years: 1),
-        ];
+        $data = [];
+        
+        /**
+         * We only need to count all mills once.
+         * Now think of a good way to hoist doing that to the level we need.
+         * That probably means passing $millCount to this function.
+         */
+        $millCount = Mill::all()->count();
+
+        foreach ($timeframes as $key => $tf) {
+            $block = [];
+            $updated = Mill::updatedSince($tf);
+            $block['total']['number'] = $updated;
+            $block['total']['percentage'] = ($updated / $millCount) * 100;
+
+            $block['byState'] = [];
+            $block['since'] = $tf->toDateTimeString();
+            $data[$key] = $block;
+        }
+
+        return $data;
+    }
+
+    public static function additions(): array
+    {
+        return self::sinceTimeframes('created');
+    }
+
+
+    
+
+    public static function createdSince(Carbon $since): int
+    {
+        return self::since($since, 'created');
+    }
+
+    public static function updatedSince(Carbon $since): int
+    {
+        return self::since($since, 'updated');
+
+        // Log::debug('Updated since: ' . $since);
+
+        // $updated = Mill::select('match_id')
+        //     ->where('updated_at', '>=', $since)
+        //     ->get()
+        //     ->count();
+
+        // return $updated;
+    }
+
+    protected static function sinceTimeframes(string $action = 'updated'): array
+    {
+        $timeframes = self::getTimeframes();
 
         $data = [];
 
@@ -544,24 +574,25 @@ class Mill extends Model
         return $data;
     }
 
-    public static function additions(): array
+    protected static function since(Carbon $since, string $column = 'updated'): int
     {
-        return [];
-    }
+        $column = ('updated' === $column ? $column : 'created') . '_at';
 
-    public static function updatedSince(Carbon $since): int
-    {
-        Log::debug('Updated since: ' . $since);
-
-        $updated = Mill::select('match_id')
-            ->where('updated_at', '>=', $since)
+        $howMany = Mill::select('match_id')
+            ->where($column, '>=', $since)
             ->get()
             ->count();
 
-        return $updated;
-        // we don't need to count mills multiple times
-        // $total = Mill::all()->count();
-        // $percentage = ($updated / $total) * 100;
-        // return compact('updated', 'percentage');
+        return $howMany;
+    }
+
+    protected static function getTimeframes(): array
+    {
+        return [
+            'lastWeek' => Carbon::now()->minus(weeks: 1),
+            'lastMonth' => Carbon::now()->minus(months: 1),
+            'lastThreeMonths' => Carbon::now()->minus(months: 3),
+            'lastYear' => Carbon::now()->minus(years: 1),
+        ];
     }
 }
