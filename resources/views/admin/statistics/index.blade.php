@@ -42,7 +42,10 @@
     // }
 
     // put total at the front of the list
-    array_unshift($millCounts['byState'], ['name' => 'Total Mills', 'mills_count' => $millCounts['total']]);
+    array_unshift($millCounts['byState'], [
+        'name' => 'Total Mills',
+        'mills_count' => $millCounts['total']
+    ]);
 
 @endphp
 
