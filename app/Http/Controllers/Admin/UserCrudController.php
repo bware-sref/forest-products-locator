@@ -25,6 +25,31 @@ class UserCrudController extends CrudController
      */
     public function setup()
     {
+        // check permissions
+        /**
+         * The docs say that access and permissions should be used separately.
+         * However, they seem too intertwined for that to be possible.
+         * When we allow or deny access, aside from user-owned items (only users, in our system), what else could govern access
+         * except permissions?
+         * I suppose our system is spozta assigns permissions based on state, as State Agents are spozta have permission to approve mill
+         * submissions and edits for mills in their states.
+         * The docs also propose a very simple "permission level" schema
+         * $table.$level indicates list of allowed CRUD ops.
+         * e.g., 
+         *      users.edit (where 'edit' allows all ops)
+         *      users.show (where 'show' only allows 'list' & 'show')
+         * However, now that I've started to embrace that paradigm, I recall that some of our models have additional operations.
+         * Most notably, 'approve' WRT Mills (both new submissions and user submitted MillEdits).
+         * Also, there's the whole import from spreadsheet beeswax.
+         * Perhaps we need to define CRUD ops and permission levels on each Model?
+         * That seems like it would still allow using the CrudPermissionTrait we just created.
+         * Oh well, something for the morrow...
+         */
+        if (!backpack_user()->can('edit users')) {
+            // DENY ALL
+            CRUD::denyAccess(['list', 'show', 'create', 'update', 'delete']);
+        }
+
         CRUD::setModel(\App\Models\User::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
         CRUD::setEntityNameStrings('user', 'users');
