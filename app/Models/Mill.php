@@ -6,6 +6,8 @@ use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\PublicationStatus;
 use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
+use App\Models\State;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -465,5 +467,116 @@ class Mill extends Model
         $query->where('status', PublicationStatus::Rejected);
     }
 
+    /**
+     * Methods for admin statistics
+     * - mill count, total and by state
+     * - number and % of mill listing updates, total and by state, (last week, last month, last 3 months, last 12 months)
+     * - number and % of new mill listings, total and by state, last week, month, 3 months, 12 months
+     */
+    public static function countAll(): int
+    {
+        return Mill::all()->count();
+    }
 
+    public static function counts(): array
+    {
+        // total is easy
+        // by state is also easy
+        return [
+            'total' => Mill::countAll(),
+            'byState' => State::millCounts(),
+        ];
+    }
+
+    // public static function updates(): array
+    // {
+    //     /**
+    //      * Updates are a little messier.
+    //      * number and percentage updated, total and by state, timeframes
+    //      * 
+    //      */
+
+    //     $timeframes = self::getTimeframes();
+
+    //     $data = [];
+        
+    //     /**
+    //      * We only need to count all mills once.
+    //      * Now think of a good way to hoist doing that to the level we need.
+    //      * That probably means passing $millCount to this function.
+    //      */
+    //     $millCount = Mill::all()->count();
+
+    //     foreach ($timeframes as $key => $tf) {
+    //         $block = [];
+    //         $updated = Mill::updatedSince($tf);
+    //         $block['total']['number'] = $updated;
+    //         $block['total']['percentage'] = ($updated / $millCount) * 100;
+
+    //         $block['byState'] = [];
+    //         $block['since'] = $tf->toDateTimeString();
+    //         $data[$key] = $block;
+    //     }
+
+    //     return $data;
+    // }
+
+    // public static function additions(): array
+    // {
+    //     return self::sinceTimeframes('created');
+    // } 
+
+    // protected static function sinceTimeframes(string $action = 'updated'): array
+    // {
+    //     $timeframes = self::getTimeframes();
+
+    //     $data = [];
+
+    //     $millCount = Mill::countAll();
+
+    //     foreach ($timeframes as $key => $tf) {
+    //         $block = [];
+    //         $updated = Mill::updatedSince($tf);
+    //         $block['total']['number'] = $updated;
+    //         $block['total']['percentage'] = ($updated / $millCount) * 100;
+
+    //         $block['byState'] = [];
+    //         $block['since'] = $tf->toDateTimeString();
+    //         $data[$key] = $block;
+    //     }
+
+    //     return $data;
+    // }
+
+    public static function createdSince(Carbon $since): int
+    {
+        return self::changedSince($since, 'created');
+    }
+
+    public static function updatedSince(Carbon $since): int
+    {
+        return self::changedSince($since, 'updated');
+    }
+
+    protected static function changedSince(Carbon $since, string $column = 'updated'): int
+    {
+        $column = ('updated' === $column ? $column : 'created') . '_at';
+
+        $howMany = Mill::select('match_id')
+            ->where($column, '>=', $since)
+            ->get()
+            ->count();
+
+        return $howMany;
+    }
+
+    protected static function getTimeframes(): array
+    {
+        return [
+            'lastWeek' => Carbon::now()->minus(weeks: 1),
+            'lastMonth' => Carbon::now()->minus(months: 1),
+            'lastThreeMonths' => Carbon::now()->minus(months: 3),
+            'lastYear' => Carbon::now()->minus(years: 1),
+        ];
+    }
 }
