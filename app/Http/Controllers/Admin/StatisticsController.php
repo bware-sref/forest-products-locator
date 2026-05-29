@@ -104,7 +104,7 @@ class StatisticsController extends Controller
              * If the total is 0 for this timeframe, there's no point in even query changes by state.
              * Similarly, if the percentage is 100%, there's no point in query changes by state.
              */
-            if ($number < 1) {
+            if ($number < 1) { // || $total['percentage'] > 99.95) {
                 continue;
             }
 

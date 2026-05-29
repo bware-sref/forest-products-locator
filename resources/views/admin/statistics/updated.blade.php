@@ -1,18 +1,6 @@
 @extends(backpack_view('blank'))
 
 @php
-    // $widgets['after_content'][] = [
-    //     'type' => 'card',
-    //     'content' => [
-    //         'header' => 'Total Mills',
-    //         'body' => $millCounts['total'],
-    //     ],
-    //     'wrapper' => [
-    //         'class' => 'com-sm-6 col-md-2',
-    //         'style' => '', // 'border-radius: 10px;',
-    //     ],
-    //     'class' => 'card bg-primary',
-    // ];
 
     $bgs = [
         // 'primary',
@@ -25,24 +13,6 @@
         // 'light',
         // 'primary',
     ];
-
-    // foreach ($millCounts['byState'] as $state) {
-    //     $widgets['after_content'][] = [
-    //         'type' => 'card',
-    //         'content' => [
-    //             'header' => $state['name'],
-    //             'body' => $state['mills_count'],
-    //         ],
-    //         'wrapper' => [
-    //             'class' => 'col-sm-6 col-md-2',
-    //             'style' => '',
-    //         ],
-    //         'class' => 'card bg-'. next($bgs),
-    //     ];
-    // }
-
-    // put total at the front of the list
-    // array_unshift($millCounts['byState'], ['name' => 'Total Mills', 'mills_count' => $millCounts['total']]);
 
 @endphp
 

@@ -31,7 +31,9 @@
     --tblr-gray-900: #1a0f2a;
     /* --tblr-primary: #7c69ef; */
     /* --tblr-primary: var(--color-lorne); */
-    --tblr-primary: var(--color-coupe); /* oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card 
+    /* primary becomes nav bar active link border color, FFS */
+    --tblr-primary: var(--color-coupe); /* oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card */
+    --tblr-primary: var(--color-nature);
     /* --tblr-secondary: #66626c; */
     --tblr-secondary: var(--color-beluga);
     /* --tblr-secondary:  var(--color-velvet); /* oklch(0.9577 0.0017 247.84); #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
@@ -160,7 +162,9 @@
     --tblr-danger-border-subtle: #862b35;
     --tblr-light-border-subtle: #29272f;
     --tblr-dark-border-subtle: #211d3b;
-    --tblr-link-color: #b0a5f5;
+    /* --tblr-link-color: #b0a5f5; */
+    /* --tblr-link-color: var(--color-zucchini); */
+    --tblr-link-color: var(--beluga);
     --tblr-link-hover-color: #c0b7f7;
     --tblr-link-color-rgb: 176, 165, 245;
     --tblr-link-hover-color-rgb: 192, 183, 247;
@@ -171,7 +175,8 @@
     --tblr-form-valid-border-color: #93c29a;
     --tblr-form-invalid-color: #d69090;
     --tblr-form-invalid-border-color: #d69090;
-    --tblr-bg-surface: #221e26;
+    /* --tblr-bg-surface: #221e26; */
+    --tblr-bg-surface: var(--color-coupe);
     --tblr-navbar-bg: var(--tblr-bg-surface);
     --tblr-dark-mode-border-color: #302b33;
     --tblr-bg-main-color: #181818;
