@@ -33,8 +33,8 @@
     /* --tblr-primary: var(--color-lorne); */
     --tblr-primary: var(--color-coupe); /* oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card 
     /* --tblr-secondary: #66626c; */
-    /* --tblr-secondary: var(--color-beluga); */
-    --tblr-secondary:  oklch(0.9577 0.0017 247.84); /* #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
+    --tblr-secondary: var(--color-beluga);
+    /* --tblr-secondary:  var(--color-velvet); /* oklch(0.9577 0.0017 247.84); #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
     --tblr-success: #42ba96;
     --tblr-info: #467fd0;
     --tblr-warning: #ffc107;
@@ -44,8 +44,11 @@
     --tblr-muted: #66626c;
     /* --tblr-tabler: #7c69ef; */
     --tblr-tabler: var(--color-coupe);
-    --tblr-primary-rgb: 124, 105, 239;
-    --tblr-secondary-rgb: 102, 98, 108;
+    /* --tblr-primary-rgb: 124, 105, 239; */
+    --tblr-primary-rgb: 47, 69, 77;
+    /* --tblr-secondary-rgb: 102, 98, 108; */
+    --tblr-secondary-rgb: 240, 241, 242; /* beluga */
+    /* --tblr-secondary-rgb: 37, 32, 29; velvet */
     --tblr-success-rgb: 66, 186, 150;
     --tblr-info-rgb: 70, 127, 208;
     --tblr-warning-rgb: 255, 193, 7;
