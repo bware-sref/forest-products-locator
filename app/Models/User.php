@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RolesEnum;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -94,12 +95,13 @@ class User extends Authenticatable
         /**
          * This implicitly assigns the administrator role to all superadmins.
          * Would it be better to do this explicitly instead?
+         * Also, these are not the role names specified in RolesEnum.
          */
-        return $this->roles()->where('name', 'administrator')->exists(); // || $this->isSuper();
+        return $this->roles()->where('name', RolesEnum::ADMIN->value)->exists(); // || $this->isSuper();
     }
 
     public function isSuper(): bool
     {
-        return $this->roles()->where('name', 'superadmin')->exists();
+        return $this->roles()->where('name', RolesEnum::SUPER->value)->exists();
     }
 }

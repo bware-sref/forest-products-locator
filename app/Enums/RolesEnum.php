@@ -6,9 +6,9 @@ enum RolesEnum: string
 {
     // case NAMEINAPP = 'name-in-database';
 
-    case SUPER = 'super';
-    case ADMIN = 'admin';
-    case EDITOR = 'editor';
+    case SUPER = 'Superadmin';
+    case ADMIN = 'Administrator';
+    case EDITOR = 'Editor';
 
     public function label(): string
     {
