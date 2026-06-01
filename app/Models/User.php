@@ -88,4 +88,18 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    public function isAdmin(): bool
+    {
+        /**
+         * This implicitly assigns the administrator role to all superadmins.
+         * Would it be better to do this explicitly instead?
+         */
+        return $this->roles()->where('name', 'administrator')->exists(); // || $this->isSuper();
+    }
+
+    public function isSuper(): bool
+    {
+        return $this->roles()->where('name', 'superadmin')->exists();
+    }
 }
