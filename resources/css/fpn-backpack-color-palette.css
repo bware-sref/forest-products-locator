@@ -35,13 +35,16 @@
     --tblr-primary: var(--color-coupe); /* oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card */
     --tblr-primary: var(--color-nature);
     /* --tblr-secondary: #66626c; */
-    --tblr-secondary: var(--color-beluga);
+    /* tblr-secondary is used for tblr-btn-bg in the class .btn-secondary */
+    --tblr-secondary: var(--color-zucchini);
     /* --tblr-secondary:  var(--color-velvet); /* oklch(0.9577 0.0017 247.84); #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
     --tblr-success: #42ba96;
     --tblr-info: #467fd0;
     --tblr-warning: #ffc107;
     --tblr-danger: #df4759;
-    --tblr-light: #f8fafc;
+    /* tblr-light gets used for tblr-secondary-fg, which is in turn used for tblr-btn-color */
+    /* --tblr-light: #f8fafc; */
+    --tblr-light: var(--color-beluga);
     --tblr-dark: #241f2d;
     --tblr-muted: #66626c;
     /* --tblr-tabler: #7c69ef; */
