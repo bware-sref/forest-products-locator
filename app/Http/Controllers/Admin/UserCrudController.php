@@ -52,6 +52,8 @@ class UserCrudController extends CrudController
 
         /**
          * FYI, permissionmanager configs use the BackpackUser model instead of the default Laravel User model as we do below.
+         * Actually, that's incorrect.
+         * permissionmanager pulls the config from backpack.base.users_model_fqn, which in turns pulls it from auth.providers.users.model
          */
         CRUD::setModel(\App\Models\User::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
