@@ -45,11 +45,14 @@ class UserCrudController extends CrudController
          * That seems like it would still allow using the CrudPermissionTrait we just created.
          * Oh well, something for the morrow...
          */
-        if (!backpack_user()->can('edit users')) {
+        if (!backpack_user()->can('users.edit')) {
             // DENY ALL
             CRUD::denyAccess(['list', 'show', 'create', 'update', 'delete']);
         }
 
+        /**
+         * FYI, permissionmanager configs use the BackpackUser model instead of the default Laravel User model as we do below.
+         */
         CRUD::setModel(\App\Models\User::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
         CRUD::setEntityNameStrings('user', 'users');
