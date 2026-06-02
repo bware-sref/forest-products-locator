@@ -6,6 +6,7 @@ use App\Enums\RolesEnum;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 // use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -90,18 +91,57 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Is the current user an administrator?
+     */
     public function isAdmin(): bool
     {
         /**
-         * This implicitly assigns the administrator role to all superadmins.
-         * Would it be better to do this explicitly instead?
-         * Also, these are not the role names specified in RolesEnum.
+         * Use hasRole() instead.
+         * hasRole() accepts BackedEnum values.
          */
-        return $this->roles()->where('name', RolesEnum::ADMIN->value)->exists(); // || $this->isSuper();
+        return $this->hasRole(RolesEnum::ADMIN);
     }
 
+    /**
+     * Is the current user a superadmin?
+     */
     public function isSuper(): bool
     {
-        return $this->roles()->where('name', RolesEnum::SUPER->value)->exists();
+        return $this->hasRole(RolesEnum::SUPER);
+    }
+
+    /**
+     * Still need to flesh out state agent stuff before we know how to evaluate this.
+     * Adding the method now anyway so it can be used in Policies.
+     */
+    public function isStateAgent(): bool
+    {
+        return $this->hasRole(RolesEnum::AGENT);
+    }
+
+    /**
+     * The purpose of Editor is still unclear.
+     */
+    public function isEditor(): bool
+    {
+        return $this->hasRole(RolesEnum::EDITOR);
+    }
+
+    /**
+     * This is one of the questions.
+     * Do we even need a related model or should we just add a state_id field to User and use the role?
+     */
+    public function isAgentFor(Mill $mill): bool
+    {
+        if (empty($this->agent) || empty($this->agent->state_id)) {
+            return false;
+        }
+        return $this->agent->state_id === $mill->state_id;
+    }
+
+    public function agent(): HasOne
+    {
+        return $this->hasOne(Agent::class);
     }
 }

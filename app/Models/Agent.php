@@ -61,4 +61,12 @@ class Agent extends Model
     {
         return $this->belongsTo(State::class);
     }
+
+    /**
+     * StateAgents also have a User
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

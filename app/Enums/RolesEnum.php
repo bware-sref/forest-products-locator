@@ -9,6 +9,7 @@ enum RolesEnum: string
     case SUPER = 'Superadmin';
     case ADMIN = 'Administrator';
     case EDITOR = 'Editor';
+    case AGENT = 'State Agent';
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum RolesEnum: string
             static::SUPER => 'Superadmins',
             static::ADMIN => 'Administrators',
             static::EDITOR => 'Editors',
+            static::AGENT => 'State Agents',
         };
     }
 }
