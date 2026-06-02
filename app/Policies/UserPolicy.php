@@ -29,6 +29,8 @@ class UserPolicy
     }
     /**
      * Determine whether the user can view any models.
+     * 
+     * viewAny == list
      */
     public function viewAny(User $user): bool
     {
@@ -37,6 +39,8 @@ class UserPolicy
 
     /**
      * Determine whether the user can view the model.
+     * 
+     * view == show
      */
     public function view(User $user, User $model): bool
     {
