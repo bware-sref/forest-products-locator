@@ -27,6 +27,13 @@ class UserCrudController extends CrudController
     {
         // check permissions
         /**
+         * As with other permission schemas, prolly best to denyAll at first, then allow as needed.
+         * OOH, there's even a denyAllAccess() method!
+         */
+        // CRUD::denyAccess(['list', 'show', 'create', 'update', 'delete']);
+        CRUD::denyAllAccess();
+
+        /**
          * The docs say that access and permissions should be used separately.
          * However, they seem too intertwined for that to be possible.
          * When we allow or deny access, aside from user-owned items (only users, in our system), what else could govern access
@@ -37,7 +44,7 @@ class UserCrudController extends CrudController
          * $table.$level indicates list of allowed CRUD ops.
          * e.g., 
          *      users.edit (where 'edit' allows all ops)
-         *      users.show (where 'show' only allows 'list' & 'show')
+         *      users.see (where 'see' only allows 'list' & 'show')
          * However, now that I've started to embrace that paradigm, I recall that some of our models have additional operations.
          * Most notably, 'approve' WRT Mills (both new submissions and user submitted MillEdits).
          * Also, there's the whole import from spreadsheet beeswax.
@@ -45,9 +52,13 @@ class UserCrudController extends CrudController
          * That seems like it would still allow using the CrudPermissionTrait we just created.
          * Oh well, something for the morrow...
          */
-        if (!backpack_user()->can('users.edit')) {
+        if (backpack_user()->can('users.edit')) {
             // DENY ALL
-            CRUD::denyAccess(['list', 'show', 'create', 'update', 'delete']);
+            // list == viewAny
+            // show == view
+            CRUD::allowAccess(['list', 'show', 'create', 'update', 'delete']);
+        } else if (backpack_user()->can('users.see')) {
+            CRUD::allowAccess(['list', 'show']);
         }
 
         /**
