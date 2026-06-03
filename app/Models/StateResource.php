@@ -15,7 +15,10 @@ class StateResource extends Model
     /** @use HasFactory<\Database\Factories\StateResourceFactory> */
     use HasFactory;
 
-    protected array $fillable = [
+    /**
+     * @var list<string>
+     */
+    protected $fillable = [
         'state_id',
         'title',
         'content',
@@ -23,6 +26,13 @@ class StateResource extends Model
         'status',
         'created_at',
         'updated_at',        
+    ];
+
+    /**
+     * Cast status to a BackedEnum so we can use it more easily with Backpack
+     */
+    protected $casts = [
+        'status' => PublicationStatus::class,
     ];
 
     public function state(): BelongsTo
