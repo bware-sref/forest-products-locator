@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('content')
                 ->nullable(true)
                 ->default(null);
-            $table->integer('sort_order')
+            $table->integer('sort_weight')
                 ->default(10);
             
             $table->enum('status', PublicationStatus::cases())
