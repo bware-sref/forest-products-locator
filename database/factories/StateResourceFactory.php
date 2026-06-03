@@ -22,7 +22,7 @@ class StateResourceFactory extends Factory
     {
         return [
             //
-            'state_id' => State::random()->id,
+            'state_id' => State::inRandomOrder('')->first()->id,
             'title' => Str::ucwords(fake()->words(rand(2,5), true)),
             'content' => Str::ucfirst(fake()->paragraphs(rand(1, 4), true)),
             'status' => fake()->randomElement(PublicationStatus::cases()),

@@ -20,11 +20,12 @@ class StateResourceSeeder extends Seeder
          * or we could just use the list of Southern states on the State model...
          * except that list is only state abbreviations
          */
-        $millStates = State::millStates(false);
+        $millStates = State::getMillStates(false);
+        // dd($millStates);
         foreach ($millStates as $state) {
             StateResource::factory()
                 ->count(fake()->numberBetween(3, 10))
-                ->make([
+                ->create([
                     'state_id' => $state->id,
                     'status' => PublicationStatus::Approved,
                 ]);
