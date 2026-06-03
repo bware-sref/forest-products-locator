@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum RolesEnum: string
+enum UserRoles: string
 {
     // case NAMEINAPP = 'name-in-database';
 

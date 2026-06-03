@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use App\Enums\RolesEnum;
+use App\Enums\UserRoles;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Model;
+// use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 // use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -100,7 +101,7 @@ class User extends Authenticatable
          * Use hasRole() instead.
          * hasRole() accepts BackedEnum values.
          */
-        return $this->hasRole(RolesEnum::ADMIN);
+        return $this->hasRole(UserRoles::ADMIN);
     }
 
     /**
@@ -108,7 +109,7 @@ class User extends Authenticatable
      */
     public function isSuper(): bool
     {
-        return $this->hasRole(RolesEnum::SUPER);
+        return $this->hasRole(UserRoles::SUPER);
     }
 
     /**
@@ -117,7 +118,7 @@ class User extends Authenticatable
      */
     public function isStateAgent(): bool
     {
-        return $this->hasRole(RolesEnum::AGENT);
+        return $this->hasRole(UserRoles::AGENT);
     }
 
     /**
@@ -125,23 +126,15 @@ class User extends Authenticatable
      */
     public function isEditor(): bool
     {
-        return $this->hasRole(RolesEnum::EDITOR);
+        return $this->hasRole(UserRoles::EDITOR);
     }
 
     /**
      * This is one of the questions.
      * Do we even need a related model or should we just add a state_id field to User and use the role?
      */
-    public function isAgentFor(Mill $mill): bool
+    public function isAgentFor(Model $model, string $key = 'state_id'): bool
     {
-        if (empty($this->agent) || empty($this->agent->state_id)) {
-            return false;
-        }
-        return $this->agent->state_id === $mill->state_id;
-    }
-
-    public function agent(): HasOne
-    {
-        return $this->hasOne(Agent::class);
+        return !empty($model->$key) && ($this->state_id === $model->$key);
     }
 }
