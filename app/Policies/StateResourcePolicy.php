@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\County;
+use App\Models\StateResource;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class CountyPolicy
+class StateResourcePolicy
 {
     public function before(User $user, string $ability): ?bool
     {
@@ -24,7 +24,7 @@ class CountyPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, County $county): bool
+    public function view(User $user, StateResource $stateResource): bool
     {
         return true;
     }
@@ -34,32 +34,30 @@ class CountyPolicy
      */
     public function create(User $user): bool
     {
-        // either isAdmin() or isAgent()
         return $user->isStateAgent();
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, County $county): bool
+    public function update(User $user, StateResource $stateResource): bool
     {
-        // either isAdmin() or isAgent() and county in same state
-        return $user->isAgentFor($county);
+        return $user->isAgentFor($stateResource);
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, County $county): bool
+    public function delete(User $user, StateResource $stateResource): bool
     {
-        // either isAdmin() or isAgent() and county in same state
-        return false;
+        return $user->isAgentFor($stateResource);
+        // return $user->state_id === $stateResource->state_id;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    // public function restore(User $user, County $county): bool
+    // public function restore(User $user, StateResource $stateResource): bool
     // {
     //     return false;
     // }
@@ -67,7 +65,7 @@ class CountyPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    // public function forceDelete(User $user, County $county): bool
+    // public function forceDelete(User $user, StateResource $stateResource): bool
     // {
     //     return false;
     // }
