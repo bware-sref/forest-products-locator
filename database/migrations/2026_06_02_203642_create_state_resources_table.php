@@ -28,6 +28,9 @@ return new class extends Migration
                 ->default(PublicationStatus::Pending);            
 
             // I'm debating added a user_id field to this model.
+            // and also considering adding timestamps for published_at and maybe unpublished_at
+            // bah!
+            // that's all overkill
 
             $table->timestamps();
         });
