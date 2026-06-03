@@ -40,6 +40,29 @@ class MillCrudController extends CrudController
     protected function setupListOperation()
     {
         // CRUD::setFromDb(); // set columns from db columns.
+        $user = backpack_user();
+
+        /**
+         * Filter by state if $user has a state_id and isStateAgent()
+         * if the request doesn't already have a filter for state_id, that is
+         */
+        if (!request()->has('state_id') && !empty($user->state_id) && $user->isStateAgent()) {
+            // default to only show Mills from the StateAgent's state
+            $this->crud->addClause('whereIn', 'state_id', [$user->state_id]);
+        }
+
+        /**
+         * Add filter for states...except filter is PRO add-on...
+         */
+        // $this->crud->addFilter([
+        //     'name' => 'state_id',
+        //     'type' => 'select2',
+        //     'label' => 'Filter by State',
+        // ], function () {
+        //     return \App\Models\State::all()->pluck('name', 'id')->toArray();
+        // }, function ($value) {
+        //     $this->crud->addClause('where', 'state_id', $value);
+        // });
 
         /**
          * Columns can be defined using the fluent syntax:
