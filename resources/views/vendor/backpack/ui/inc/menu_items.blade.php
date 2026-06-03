@@ -9,8 +9,11 @@
 </x-backpack::menu-dropdown>
 <x-backpack::menu-dropdown title="States" icon="la la-group"> 
     <x-backpack::menu-dropdown-item title="States" icon="la la-question" :link="backpack_url('state')" />
+    @if(false)
     <x-backpack::menu-dropdown-item title="Agents" icon="la la-question" :link="backpack_url('agent')" />
+    @endif
     <x-backpack::menu-dropdown-item title="Counties" icon="la la-question" :link="backpack_url('county')" />
+    <x-backpack::menu-dropdown-item title="State Resources" icon="la la-question" :link="backpack_url('state-resource')" />
 </x-backpack::menu-dropdown>
 @if(backpack_user()->canAny(['faqs.see', 'faqs.edit']))
 <x-backpack::menu-dropdown title="FAQs" icon="la la-group">
@@ -25,6 +28,7 @@
     <x-backpack::menu-dropdown-item title="Additions" icon="la la-question" :link="backpack_url('statistics/additions')" />
 </x-backpack::menu-dropdown>
 @endif
+@if(backpack_user()->canAny(['users.see', 'users.edit']))
 <x-backpack::menu-dropdown title="Users" icon="la la-group">
     <x-backpack::menu-dropdown-item title="Users" icon="la la-question" :link="backpack_url('user')" />
     @if(backpack_user()->can('roles.edit'))
@@ -34,3 +38,4 @@
     <x-backpack::menu-dropdown-item title="Permissions" icon="la la-question" :link="backpack_url('permission')" />
     @endif
 </x-backpack::menu-dropdown>
+@endif
