@@ -8,12 +8,17 @@ use Illuminate\Auth\Access\Response;
 
 class StateResourcePolicy
 {
+    public function before(User $user, string $ability): ?bool
+    {
+        return ($user->isSuper() || $user->isAdmin()) ? true : null;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +26,7 @@ class StateResourcePolicy
      */
     public function view(User $user, StateResource $stateResource): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +34,7 @@ class StateResourcePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->isStateAgent();
     }
 
     /**
@@ -37,7 +42,7 @@ class StateResourcePolicy
      */
     public function update(User $user, StateResource $stateResource): bool
     {
-        return false;
+        return $user->isAgentFor($stateResource);
     }
 
     /**
@@ -45,22 +50,23 @@ class StateResourcePolicy
      */
     public function delete(User $user, StateResource $stateResource): bool
     {
-        return false;
+        return $user->isAgentFor($stateResource);
+        // return $user->state_id === $stateResource->state_id;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, StateResource $stateResource): bool
-    {
-        return false;
-    }
+    // public function restore(User $user, StateResource $stateResource): bool
+    // {
+    //     return false;
+    // }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, StateResource $stateResource): bool
-    {
-        return false;
-    }
+    // public function forceDelete(User $user, StateResource $stateResource): bool
+    // {
+    //     return false;
+    // }
 }

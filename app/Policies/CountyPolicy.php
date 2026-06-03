@@ -35,8 +35,7 @@ class CountyPolicy
     public function create(User $user): bool
     {
         // either isAdmin() or isAgent()
-        // return $user->isAdmin();
-        return false;
+        return $user->isStateAgent();
     }
 
     /**
@@ -45,7 +44,7 @@ class CountyPolicy
     public function update(User $user, County $county): bool
     {
         // either isAdmin() or isAgent() and county in same state
-        return false;
+        return $user->isAgentFor($county);
     }
 
     /**
