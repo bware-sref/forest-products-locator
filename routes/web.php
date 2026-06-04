@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 // use Laravel\Fortify\Features;
 use App\Http\Controllers\MillController;
+use App\Http\Controllers\StateResourceController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -65,9 +66,26 @@ Route::get('/about-us', function () {
  * State Resources
  * will probably get its own controller
  */
-Route::get('/state-resources', function () {
-    return Inertia::render('state-resources', []);
-})->name('state-resources');
+// Route::get('/state-resources', function () {
+//     return Inertia::render('state-resources', []);
+// })->name('state-resources');
+
+Route::get('/state-resources', [StateResourceController::class, 'index'])
+    ->name('state-resources');
+
+/**
+ * Do we want to use state abbreviation or name?
+ * Let's go with abbreviation for now because we don't have to make a slug out of it
+ */
+Route::get('/state-resources/{state:abbreviation}', [StateResourceController::class, 'byState'])
+    ->name('state-resources.by-state');
+
+/**
+ * How do we want to show individual state resources?
+ * /state-resources/{state.abbreviation}/{id or slug?}
+ */
+Route::get('/state-resources/{state:abbreviation}/{stateResource}', [StateResourceController::class, 'show'])
+    ->name('state-resources.show');
 
 /**
  * Contact
