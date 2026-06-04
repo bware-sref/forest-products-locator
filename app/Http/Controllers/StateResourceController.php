@@ -35,10 +35,21 @@ class StateResourceController extends Controller
      * On the front, the URLs include the state name (or abbreviation)
      */
     public function byState(State $state)
-    {}
+    {
+        /**
+         * load resources for this state
+         */
+        $state->load('stateResources');
+
+        return Inertia::render('state-resources-list', [
+            'pageTitle' => $state->name . ' Resources',
+            'state' => $state,
+        ]);
+    }
 
     /**
      * Fetch & display a given StateResource
+     * URL needs state abbreviation and the stateResource id
      */
     public function show(State $state, StateResource $stateResource)
     {}
