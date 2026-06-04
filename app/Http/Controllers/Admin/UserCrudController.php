@@ -51,6 +51,8 @@ class UserCrudController extends CrudController
          * Perhaps we need to define CRUD ops and permission levels on each Model?
          * That seems like it would still allow using the CrudPermissionTrait we just created.
          * Oh well, something for the morrow...
+         * 
+         * The nonsense below is exactly what the CrudPermissionsTrait does.
          */
         if (backpack_user()->can('users.edit')) {
             // DENY ALL
@@ -69,6 +71,10 @@ class UserCrudController extends CrudController
         CRUD::setModel(\App\Models\User::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
         CRUD::setEntityNameStrings('user', 'users');
+
+        /**
+         * CrudPermissionsTrait goes here because the model needs to be set before it can check it programmatically.
+         */
     }
 
     /**
