@@ -127,6 +127,8 @@ export interface State {
     abbreviation: string;
     latitude?: string;
     longitude?: string;
+    polygon?: string;
+    resource_summary?: string;
     counties?: County[];
     mills?: Mill[];
     value: string;
