@@ -42,6 +42,12 @@ class StateCrudController extends CrudController
         CRUD::setFromDb(); // set columns from db columns.
 
         /**
+         * order by state name if there isn't already an order parameter in the request
+         */
+        if (! $this->crud->getRequest()->has('order')) {
+            $this->crud->orderBy('name', 'asc');
+        }
+        /**
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');
          */
