@@ -52,5 +52,11 @@ class StateResourceController extends Controller
      * URL needs state abbreviation and the stateResource id
      */
     public function show(State $state, StateResource $stateResource)
-    {}
+    {
+        return Inertia::render('state-resources-show', [
+            'pageTitle' => $stateResource->title . ' : ' . $state->name . ' Resources',
+            'resource' => $stateResource,
+            'state' => $state,
+        ]);
+    }
 }
