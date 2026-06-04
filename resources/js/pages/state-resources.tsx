@@ -56,7 +56,7 @@ export default function StateResources() {
                 pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
                 sources={heroSources}
             >
-                <div className="flex flex-col gap-12 lg:gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
+                <div className="flex flex-col gap-12 lg:gap-8 max-w-83.75 lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
                     <h1 className="text-3xl lg:text-5xl leading-10 font-bold mt-8 mb-6 w-full">
                         {page.props.pageTitle}
                     </h1>
