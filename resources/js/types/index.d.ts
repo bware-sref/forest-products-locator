@@ -127,8 +127,11 @@ export interface State {
     abbreviation: string;
     latitude?: string;
     longitude?: string;
+    polygon?: string;
+    resource_summary?: string;
     counties?: County[];
     mills?: Mill[];
+    state_resources?: StateResource[];
     value: string;
     label: string;
     [key: string]: unknown; // This allows for additional properties...
@@ -217,9 +220,18 @@ export interface IFaq {
 }
 
 export interface IFaqCategory {
+    id: number;
     name: string;
     slug: string;
     order: number;
     faqs: IFaq[];
     [key: string]: unknown;
+}
+
+export interface StateResource {
+    id: number;
+    state_id: number;
+    title: string;
+    content: string;
+    sort_weight: number;
 }

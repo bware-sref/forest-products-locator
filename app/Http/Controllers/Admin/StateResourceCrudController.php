@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\PublicationStatus;
 use App\Http\Requests\StateResourceRequest;
+use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -20,6 +21,8 @@ class StateResourceCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
+    use CrudPermissionTrait;
+
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      * 
@@ -30,6 +33,13 @@ class StateResourceCrudController extends CrudController
         CRUD::setModel(\App\Models\StateResource::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/state-resource');
         CRUD::setEntityNameStrings('state resource', 'state resources');
+
+        /**
+         * Deny everything up front...
+         * Actually, we should maybe just use our CrudPermissionTrait...
+         */
+        $this->setAccessUsingPermissions();
+
     }
 
     /**
@@ -69,6 +79,10 @@ class StateResourceCrudController extends CrudController
     {
         CRUD::setValidation(StateResourceRequest::class);
         // CRUD::setFromDb(); // set fields from db columns.
+
+        /**
+         * If the backpack user is a state agent, we want to default the state select to their state.
+         */
 
         /**
          * Fields can be defined using the fluent syntax:

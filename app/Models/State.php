@@ -43,6 +43,8 @@ use Illuminate\Support\Collection;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mill> $mailingMills
  * @property-read int|null $mailing_mills_count
  * @property-read mixed $value
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\StateResource> $stateResources
+ * @property-read int|null $state_resources_count
  * @mixin \Eloquent
  */
 class State extends Model
@@ -77,6 +79,7 @@ class State extends Model
         'latitude',
         'longitude',
         'polygon',
+        'resource_summary',
     ];
 
     /**
@@ -127,9 +130,14 @@ class State extends Model
         return $this->hasMany(Mill::class, 'mailing_state_id');
     }
 
-    public function agents(): HasMany
+    // public function agents(): HasMany
+    // {
+    //     return $this->hasMany(Agent::class);
+    // }
+
+    public function stateResources(): HasMany
     {
-        return $this->hasMany(Agent::class);
+        return $this->hasMany(StateResource::class);
     }
 
     /**
