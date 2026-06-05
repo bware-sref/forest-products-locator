@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Backpack\PermissionManager\app\Http\Requests\UserUpdateCrudRequest;
 // use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends UserUpdateCrudRequest
 {
@@ -27,10 +29,21 @@ class UpdateUserRequest extends UserUpdateCrudRequest
     {
         $rules = parent::rules();
 
+        $rules['checked_role_names'] = [
+            'string',
+            'nullable',
+        ];
+
         /**
          * Add our rules for state_id
          */
-
+        $rules['state_id'] = [
+            Rule::excludeUnless(! empty($this->input('checked_role_names')) && Str::contains($this->input('checked_role_names'), 'State Agent')),
+            // 'sometimes',
+            'required',
+            'numeric',
+            'exists:states,id'
+        ];
         return $rules;
     }
 

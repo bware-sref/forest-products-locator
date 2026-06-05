@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Backpack\PermissionManager\app\Http\Requests\UserStoreCrudRequest;
-// use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends UserStoreCrudRequest
 {
@@ -26,6 +27,22 @@ class StoreUserRequest extends UserStoreCrudRequest
     public function rules()
     {
         $rules = parent::rules();
+
+        $rules['checked_role_names'] = [
+            'string',
+            'nullable',
+        ];
+
+        /**
+         * Add our custom rule for state_id sometimes
+         */
+        $rules['state_id'] = [
+            Rule::excludeUnless(! empty($this->input('checked_role_names')) && Str::contains($this->input('checked_role_names'), 'State Agent')),
+            // 'sometimes',
+            'required',
+            'numeric',
+            'exists:states,id'
+        ];
         return $rules;
     }
 

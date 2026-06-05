@@ -124,14 +124,6 @@ class UserCrudController extends BaseUserCrudController
         parent::setupCreateOperation();
 
         $this->crud->setValidation(StoreRequest::class);
-
-        // /**
-        //  * Add our custom JS as a script Widget.
-        //  */
-        // Widget::add()
-        //     ->type('script')
-        //     ->content(asset('assets/js/admin/forms/user.js'));
-        
     }
 
     /**
@@ -178,28 +170,42 @@ class UserCrudController extends BaseUserCrudController
 
     public function store()
     {
-        $request = $this->crud->validateRequest();
-        dd($request);
+        // $preRequest = $this->crud->validateRequest();
+        // dd($request);
 
-        return parent::store();
+        $this->cleanUpRequest();
+
+        // $request = $this->crud->getRequest();
+
+        // dd($preRequest->request, $request->request);
+
+        return $this->traitStore();
     }
 
     public function update()
     {
-        $request = $this->crud->validateRequest();
-        dd($request);
-        
-        return parent::update();
+        // $preRequest = $this->crud->validateRequest();
+        // dd($request);
+
+        $this->cleanUpRequest();
+
+        // $request = $this->crud->getRequest();
+        // dd($preRequest->request, $request->request);
+
+        return $this->traitUpdate();
     }
 
 
     #[Override]
     protected function addUserFields()
     {
-        Log::debug('using ' . self::class . 'addUserFields()!');
+        // Log::debug('using ' . self::class . 'addUserFields()!');
 
         parent::addUserFields();
 
+        /**
+         * We could limit the states to those already having mills...
+         */
         CRUD::field([
             'name' => 'state_id',
             'label' => 'State',
@@ -207,7 +213,23 @@ class UserCrudController extends BaseUserCrudController
             'entity' => 'state',
             'model' => 'App\Models\State',
             'attribute' => 'name',
+            'options' => (function ($query) {
+                return $query->has('mills')->get();
+            }),
         ])->after('password_confirmation');
+
+        /**
+         * I'm tempted to add a hidden field to indicate whether the StateAgent checkbox is checked.
+         * Otherwise we have to look up the Role->ids for the checked items when processing the request.
+         * On the otherhand, the hidden input idea works well with create, but it could go weird with update.
+         * :shrug:
+         */
+        CRUD::field([
+            'name' => 'checked_role_names',
+            'type' => 'hidden',
+            'value' => '',
+        ]);
+
 
         /**
          * Add our custom JS as a script Widget.
@@ -216,5 +238,23 @@ class UserCrudController extends BaseUserCrudController
             ->type('script')
             ->content(asset('assets/js/admin/forms/user.js'));
 
+    }
+
+    protected function cleanUpRequest()
+    {
+        /**
+         * modified from parent
+         */
+        $this->crud->setRequest($this->crud->validateRequest());
+        /**
+         * here's where we do differently
+         * remove checked_role_names before passing the request to handlePasswordInput()
+         */
+        $request = $this->crud->getRequest();
+        $request->request->remove('checked_role_names');
+
+        $this->crud->setRequest($this->handlePasswordInput($request));
+        // $this->crud->setRequest($this->handlePasswordInput($this->crud->getRequest()));
+        $this->crud->unsetValidation(); // validation has already been run
     }
 }
