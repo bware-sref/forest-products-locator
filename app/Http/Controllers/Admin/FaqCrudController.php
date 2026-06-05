@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\FaqRequest;
+use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -19,6 +20,8 @@ class FaqCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
+    use CrudPermissionTrait;
+
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      * 
@@ -29,6 +32,8 @@ class FaqCrudController extends CrudController
         CRUD::setModel(\App\Models\Faq::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/faq');
         CRUD::setEntityNameStrings('FAQ', 'FAQs');
+
+        $this->setAccessUsingPermissions();
     }
 
     /**
