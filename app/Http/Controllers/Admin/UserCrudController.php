@@ -2,21 +2,30 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Backpack\CRUD\app\Http\Controllers\CrudController;
+use App\Traits\CrudPermissionTrait;
+use App\Http\Requests\StoreUserRequest as StoreRequest;
+use App\Http\Requests\UpdateUserRequest as UpdateRequest;
+// use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Backpack\CRUD\app\Library\Widget;
+use Backpack\PermissionManager\app\Http\Controllers\UserCrudController as BaseUserCrudController;
+use Illuminate\Support\Facades\Log;
+use Override;
 
 /**
  * Class UserCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class UserCrudController extends CrudController
+class UserCrudController extends BaseUserCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation { store as traitStore; }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitUpdate; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+
+    use CrudPermissionTrait;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -31,7 +40,7 @@ class UserCrudController extends CrudController
          * OOH, there's even a denyAllAccess() method!
          */
         // CRUD::denyAccess(['list', 'show', 'create', 'update', 'delete']);
-        CRUD::denyAllAccess();
+        // CRUD::denyAllAccess();
 
         /**
          * The docs say that access and permissions should be used separately.
@@ -54,27 +63,30 @@ class UserCrudController extends CrudController
          * 
          * The nonsense below is exactly what the CrudPermissionsTrait does.
          */
-        if (backpack_user()->can('users.edit')) {
-            // DENY ALL
-            // list == viewAny
-            // show == view
-            CRUD::allowAccess(['list', 'show', 'create', 'update', 'delete']);
-        } else if (backpack_user()->can('users.see')) {
-            CRUD::allowAccess(['list', 'show']);
-        }
+        // if (backpack_user()->can('users.edit')) {
+        //     // DENY ALL
+        //     // list == viewAny
+        //     // show == view
+        //     CRUD::allowAccess(['list', 'show', 'create', 'update', 'delete']);
+        // } else if (backpack_user()->can('users.see')) {
+        //     CRUD::allowAccess(['list', 'show']);
+        // }
 
         /**
          * FYI, permissionmanager configs use the BackpackUser model instead of the default Laravel User model as we do below.
          * Actually, that's incorrect.
          * permissionmanager pulls the config from backpack.base.users_model_fqn, which in turns pulls it from auth.providers.users.model
          */
-        CRUD::setModel(\App\Models\User::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
-        CRUD::setEntityNameStrings('user', 'users');
+        // CRUD::setModel(\App\Models\User::class);
+        // CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
+        // CRUD::setEntityNameStrings('user', 'users');
+
+        parent::setup();
 
         /**
          * CrudPermissionsTrait goes here because the model needs to be set before it can check it programmatically.
          */
+        $this->setAccessUsingPermissions();
     }
 
     /**
@@ -83,10 +95,8 @@ class UserCrudController extends CrudController
      * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
      */
-    protected function setupListOperation()
+    public function setupListOperation()
     {
-        // CRUD::setFromDb(); // set columns from db columns.
-
         /**
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');
@@ -95,7 +105,8 @@ class UserCrudController extends CrudController
         // CRUD::column('email');
 
         // alternatively, pass an array to setColumns()
-        CRUD::setColumns(['name', 'email']);
+        // CRUD::setColumns(['name', 'email']);
+        parent::setupListOperation();
     }
 
     /**
@@ -104,21 +115,23 @@ class UserCrudController extends CrudController
      * @see https://backpackforlaravel.com/docs/crud-operation-create
      * @return void
      */
-    protected function setupCreateOperation()
+    public function setupCreateOperation()
     {
-        // CRUD::setFromDb(); // set fields from db columns.
+        // CRUD::field('name')->validationRules('required|min:5');
+        // CRUD::field('email')->validationRules('required|email|unique:users,email');
+        // CRUD::field('password')->validationRules('required');
 
-        /**
-         * Fields can be defined using the fluent syntax:
-         * - CRUD::field('price')->type('number');
-         */
-        CRUD::field('name')->validationRules('required|min:5');
-        CRUD::field('email')->validationRules('required|email|unique:users,email');
-        CRUD::field('password')->validationRules('required');
+        parent::setupCreateOperation();
 
-        /**
-         * Laravel 10+ hashes passwords out of the box.
-         */
+        $this->crud->setValidation(StoreRequest::class);
+
+        // /**
+        //  * Add our custom JS as a script Widget.
+        //  */
+        // Widget::add()
+        //     ->type('script')
+        //     ->content(asset('assets/js/admin/forms/user.js'));
+        
     }
 
     /**
@@ -127,19 +140,81 @@ class UserCrudController extends CrudController
      * @see https://backpackforlaravel.com/docs/crud-operation-update
      * @return void
      */
-    protected function setupUpdateOperation()
+    public function setupUpdateOperation()
     {
         // $this->setupCreateOperation();
 
         // same
-        CRUD::field('name')->validationRules('required|min:5');
-        // need to pass ID to the unique rule on update to sidestep the unique constraint
-        CRUD::field('email')->validationRules('required|email|unique:users,email,'.CRUD::getCurrentEntryId());
-        // only needed if you want to change the password
-        CRUD::field('password')->hint('Type a password to change it.');
+        // CRUD::field('name')->validationRules('required|min:5');
+        // // need to pass ID to the unique rule on update to sidestep the unique constraint
+        // CRUD::field('email')->validationRules('required|email|unique:users,email,'.CRUD::getCurrentEntryId());
+        // // only needed if you want to change the password
+        // CRUD::field('password')->hint('Type a password to change it.');
 
         /**
          * Laravel 10+ handles password hashing for you.
          */
+
+        parent::setupUpdateOperation();
+
+        $this->crud->setValidation(UpdateRequest::class);
+
+        // CRUD::field([
+        //     'name' => 'state_id',
+        //     'label' => 'State',
+        //     'type' => 'select',
+        //     'entity' => 'state',
+        //     'model' => 'App\Models\State',
+        //     'attribute' => 'name',
+        // ])->after('password_confirmation');
+
+        /**
+         * Add our custom JS as a script Widget.
+         */
+        // Widget::add()
+        //     ->type('script')
+        //     ->content(asset('assets/js/admin/forms/user.js'));
+    }
+
+    public function store()
+    {
+        $request = $this->crud->validateRequest();
+        dd($request);
+
+        return parent::store();
+    }
+
+    public function update()
+    {
+        $request = $this->crud->validateRequest();
+        dd($request);
+        
+        return parent::update();
+    }
+
+
+    #[Override]
+    protected function addUserFields()
+    {
+        Log::debug('using ' . self::class . 'addUserFields()!');
+
+        parent::addUserFields();
+
+        CRUD::field([
+            'name' => 'state_id',
+            'label' => 'State',
+            'type' => 'select',
+            'entity' => 'state',
+            'model' => 'App\Models\State',
+            'attribute' => 'name',
+        ])->after('password_confirmation');
+
+        /**
+         * Add our custom JS as a script Widget.
+         */
+        Widget::add()
+            ->type('script')
+            ->content(asset('assets/js/admin/forms/user.js'));
+
     }
 }
