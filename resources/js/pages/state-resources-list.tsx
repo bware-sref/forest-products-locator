@@ -47,7 +47,7 @@ export default function StateResourcesList() {
              * Cards!
              * Makes me realize we might want to add a 'summary' column to the state_resources table.
              */}
-             <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col flex-wrap md:flex-row w-full md:w-6xl lg:w-7xl max-w-full  items-stretch justify-between gap-8 lg:gap-6 Xbg-pink-500">
+             <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col flex-wrap md:flex-row w-full md:w-6xl lg:w-7xl max-w-full  items-stretch justify-evenly gap-8 lg:gap-6 Xbg-pink-500">
                 {resources.map(resource => 
                     <Card key={resource.id} className="w-full md:w-55 lg:w-70 lg:max-w-70 xl:w-87.5 xl:max-w-95 pt-0 border-0 rounded-2xl bg-coupe">
                         <CardHeader className="bg-coupe py-4 xl:pt-6 xl:pb-3 rounded-t-2xl">

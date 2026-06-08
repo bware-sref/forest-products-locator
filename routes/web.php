@@ -76,6 +76,10 @@ Route::get('/state-resources', [StateResourceController::class, 'index'])
 /**
  * Do we want to use state abbreviation or name?
  * Let's go with abbreviation for now because we don't have to make a slug out of it
+ * Slugs are no big deal, yo!
+ * The state abbreviations look weirder, IMO.
+ * Oh right.
+ * State doesn't have a slug column.
  */
 Route::get('/state-resources/{state:abbreviation}', [StateResourceController::class, 'byState'])
     ->name('state-resources.by-state');
