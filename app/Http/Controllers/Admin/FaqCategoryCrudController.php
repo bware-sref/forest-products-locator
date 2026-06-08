@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\FaqCategoryRequest;
+use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -18,6 +19,7 @@ class FaqCategoryCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use CrudPermissionTrait;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -29,6 +31,8 @@ class FaqCategoryCrudController extends CrudController
         CRUD::setModel(\App\Models\FaqCategory::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/faq-category');
         CRUD::setEntityNameStrings('FAQ Category', 'FAQ Categories');
+
+        $this->setAccessUsingPermissions();
     }
 
     /**
