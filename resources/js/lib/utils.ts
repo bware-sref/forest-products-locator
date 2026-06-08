@@ -16,3 +16,10 @@ export function isSameUrl(
 export function resolveUrl(url: NonNullable<InertiaLinkProps['href']>): string {
     return typeof url === 'string' ? url : url.url;
 }
+
+export function isChildUrl(
+    childUrl: NonNullable<InertiaLinkProps['href']>,
+    parentUrl: NonNullable<InertiaLinkProps['href']>,
+) {
+    return !isSameUrl(childUrl, parentUrl) && resolveUrl(childUrl).startsWith(resolveUrl(parentUrl));
+}
