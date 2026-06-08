@@ -69,7 +69,7 @@ export default function StateResources() {
             {/**
              * Cards!
              */}
-            <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col flex-wrap md:flex-row w-full md:w-6xl lg:w-7xl max-w-full items-stretch justify-between gap-8 lg:gap-6 Xxl:gap-3 Xbg-pink-400">
+            <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col flex-wrap md:flex-row w-full md:w-6xl lg:w-7xl max-w-full items-stretch justify-evenly gap-8 lg:gap-6 Xbg-pink-400">
                 {states.map( state => 
                 <Card key={state.id} className="w-full md:w-55 lg:w-70 lg:max-w-70 xl:w-87.5 xl:max-w-95 pt-0 border-0 rounded-2xl bg-coupe">
                     <CardHeader className="bg-coupe py-4 xl:pt-6 xl:pb-3 rounded-t-2xl Xbg-amber-500">
