@@ -48,7 +48,7 @@ class FaqCrudController extends CrudController
             $this->crud->orderBy('order', 'asc');
         }
 
-        CRUD::setFromDb(); // set columns from db columns.
+        CRUD::column('question')->type('text');
 
         /**
          * Columns can be defined using the fluent syntax:

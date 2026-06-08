@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserRoles;
 use Backpack\PermissionManager\app\Http\Requests\UserUpdateCrudRequest;
-// use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends UserUpdateCrudRequest
@@ -29,7 +28,7 @@ class UpdateUserRequest extends UserUpdateCrudRequest
     {
         $rules = parent::rules();
 
-        $rules['checked_role_names'] = [
+        $rules['is_agent'] = [
             'string',
             'nullable',
         ];
@@ -38,7 +37,9 @@ class UpdateUserRequest extends UserUpdateCrudRequest
          * Add our rules for state_id
          */
         $rules['state_id'] = [
-            Rule::excludeUnless(! empty($this->input('checked_role_names')) && Str::contains($this->input('checked_role_names'), 'State Agent')),
+            Rule::excludeUnless(
+                'true' === $this->input('is_agent')
+            ),
             // 'sometimes',
             'required',
             'numeric',
@@ -68,6 +69,7 @@ class UpdateUserRequest extends UserUpdateCrudRequest
     {
         return [
             //
+            'state_id.required' => 'State is required for users having the "'.UserRoles::AGENT->value.'" role.',
         ];
     }
 }

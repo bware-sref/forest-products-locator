@@ -42,10 +42,14 @@
     // }
 
     // put total at the front of the list
-    array_unshift($millCounts['byState'], [
-        'name' => 'Total Mills',
-        'mills_count' => $millCounts['total']
-    ]);
+    // except that doesn't work anymore
+    // array_unshift($millCounts['byState'], [
+    //     'name' => 'Total Mills',
+    //     'mills_count' => $millCounts['total']
+    // ]);
+    // $millCounts['byState'] = ['total' => $millCounts['total']] + $millCounts['byState'];
+
+    $allCounts = ['Total' => $millCounts['total']] + $millCounts['byState'];
 
 @endphp
 
@@ -55,16 +59,17 @@
     <p class="ms-2 ml-2 mb-0" bp-section="page-subheading">Landing Page for Statistics</p>
 </section>
 <section class="content container-fluid animated fadeIn" bp-section="content">
+    <h2 class="text capitalize">Number of Mills in Each State</h2>
     <div class="row gap-2">
-    @foreach ($millCounts['byState'] as $state)
+    @foreach ($allCounts as $state => $millCount)
         @php
         $bg = array_shift($bgs);
         @endphp
 
         <div class="col-md-2">
             <div class="card bg-{{ $bg }}">
-                <div class="card-title px-2">{{ $state['name'] }}</div>
-                <div class="card-body">{{ $state['mills_count'] }}</div>
+                <div class="card-title px-2">{{ $state }}</div>
+                <div class="card-body">{{ $millCount }}</div>
             </div>
         </div>
         @php
