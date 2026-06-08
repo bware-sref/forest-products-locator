@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\UserRoles;
 use App\Traits\CrudPermissionTrait;
 use App\Http\Requests\StoreUserRequest as StoreRequest;
 use App\Http\Requests\UpdateUserRequest as UpdateRequest;
@@ -219,17 +220,25 @@ class UserCrudController extends BaseUserCrudController
         ])->after('password_confirmation');
 
         /**
-         * I'm tempted to add a hidden field to indicate whether the StateAgent checkbox is checked.
-         * Otherwise we have to look up the Role->ids for the checked items when processing the request.
-         * On the otherhand, the hidden input idea works well with create, but it could go weird with update.
+         * Okay.
+         * agent_role_name is a hidden field which uses the UserRoles enum to inform the string used by JavaScript 
+         * to identify the State Agent checkbox label.
+         * is_agent is hidden field containing a boolean string which indicates if the State Agent checkbox is checked.
+         * When is_agent contains 'true', state_id becomes a required field.
          * :shrug:
          */
+
         CRUD::field([
-            'name' => 'checked_role_names',
+            'name' => 'agent_role_name',
             'type' => 'hidden',
-            'value' => '',
+            'value' => UserRoles::AGENT,
         ]);
 
+        CRUD::field([
+            'name' => 'is_agent',
+            'type' => 'hidden',
+            'value' => 'false',
+        ]);
 
         /**
          * Add our custom JS as a script Widget.
@@ -248,10 +257,11 @@ class UserCrudController extends BaseUserCrudController
         $this->crud->setRequest($this->crud->validateRequest());
         /**
          * here's where we do differently
-         * remove checked_role_names before passing the request to handlePasswordInput()
+         * remove agent_role_name and is_agent before passing the request to handlePasswordInput()
          */
         $request = $this->crud->getRequest();
-        $request->request->remove('checked_role_names');
+        $request->request->remove('agent_role_name');
+        $request->request->remove('is_agent');
 
         $this->crud->setRequest($this->handlePasswordInput($request));
         // $this->crud->setRequest($this->handlePasswordInput($this->crud->getRequest()));
