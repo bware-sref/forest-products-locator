@@ -17,7 +17,7 @@ Route::group([
     'namespace' => 'App\Http\Controllers\Admin',
 ], function () { // custom admin routes
     Route::crud('user', 'UserCrudController');
-    Route::crud('agent', 'AgentCrudController');
+    // Route::crud('agent', 'AgentCrudController');
     Route::crud('county', 'CountyCrudController');
     Route::crud('mill', 'MillCrudController');
     Route::crud('mill-edits', 'MillEditCrudController');
@@ -29,6 +29,7 @@ Route::group([
     Route::get('statistics', 'StatisticsController@index')->name('page.statistics.index');
     Route::get('statistics/updated', 'StatisticsController@updated')->name('page.statistics.updated');
     Route::get('statistics/additions', 'StatisticsController@additions')->name('page.statistics.additions');
+    Route::crud('state-resource', 'StateResourceCrudController');
 }); // this should be the absolute last line of this file
 
 /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\MillRequest;
+use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -18,6 +19,7 @@ class MillCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use CrudPermissionTrait;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -29,6 +31,8 @@ class MillCrudController extends CrudController
         CRUD::setModel(\App\Models\Mill::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/mill');
         CRUD::setEntityNameStrings('mill', 'mills');
+
+        $this->setAccessUsingPermissions();
     }
 
     /**
@@ -40,6 +44,29 @@ class MillCrudController extends CrudController
     protected function setupListOperation()
     {
         // CRUD::setFromDb(); // set columns from db columns.
+        $user = backpack_user();
+
+        /**
+         * Filter by state if $user has a state_id and isStateAgent()
+         * if the request doesn't already have a filter for state_id, that is
+         */
+        if (!request()->has('state_id') && !empty($user->state_id) && $user->isStateAgent()) {
+            // default to only show Mills from the StateAgent's state
+            $this->crud->addClause('whereIn', 'state_id', [$user->state_id]);
+        }
+
+        /**
+         * Add filter for states...except filter is PRO add-on...
+         */
+        // $this->crud->addFilter([
+        //     'name' => 'state_id',
+        //     'type' => 'select2',
+        //     'label' => 'Filter by State',
+        // ], function () {
+        //     return \App\Models\State::all()->pluck('name', 'id')->toArray();
+        // }, function ($value) {
+        //     $this->crud->addClause('where', 'state_id', $value);
+        // });
 
         /**
          * Columns can be defined using the fluent syntax:

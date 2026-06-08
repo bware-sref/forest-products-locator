@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\County;
 use App\Models\User;
+use App\Models\Faq;
 use Illuminate\Auth\Access\Response;
 
-class CountyPolicy
+class FaqPolicy
 {
     public function before(User $user, string $ability): ?bool
     {
@@ -24,7 +24,7 @@ class CountyPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, County $county): bool
+    public function view(User $user, Faq $faq): bool
     {
         return true;
     }
@@ -34,32 +34,29 @@ class CountyPolicy
      */
     public function create(User $user): bool
     {
-        // either isAdmin() or isAgent()
-        return $user->isStateAgent();
+        return false;
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, County $county): bool
+    public function update(User $user, Faq $faq): bool
     {
-        // either isAdmin() or isAgent() and county in same state
-        return $user->isAgentFor($county);
+        return false;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, County $county): bool
+    public function delete(User $user, Faq $faq): bool
     {
-        // either isAdmin() or isAgent() and county in same state
         return false;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    // public function restore(User $user, County $county): bool
+    // public function restore(User $user, Faq $faq): bool
     // {
     //     return false;
     // }
@@ -67,7 +64,7 @@ class CountyPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    // public function forceDelete(User $user, County $county): bool
+    // public function forceDelete(User $user, Faq $faq): bool
     // {
     //     return false;
     // }

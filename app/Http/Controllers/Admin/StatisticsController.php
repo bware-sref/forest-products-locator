@@ -18,6 +18,8 @@ class StatisticsController extends Controller
     {
         $millCounts = Mill::counts();
 
+        // dd($millCounts);
+
         return view('admin.statistics.index', [
             'title' => 'Statistics',
             'breadcrumbs' => [

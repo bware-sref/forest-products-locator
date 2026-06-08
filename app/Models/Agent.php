@@ -37,6 +37,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereZipCode($value)
+ * @property-read \App\Models\User|null $user
  * @mixin \Eloquent
  */
 class Agent extends Model
@@ -60,5 +61,13 @@ class Agent extends Model
     public function state(): BelongsTo
     {
         return $this->belongsTo(State::class);
+    }
+
+    /**
+     * StateAgents also have a User
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

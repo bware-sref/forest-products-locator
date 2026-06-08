@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\StateRequest;
+use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -18,6 +19,7 @@ class StateCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use CrudPermissionTrait;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -29,6 +31,8 @@ class StateCrudController extends CrudController
         CRUD::setModel(\App\Models\State::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/state');
         CRUD::setEntityNameStrings('state', 'states');
+
+        $this->setAccessUsingPermissions();
     }
 
     /**
@@ -41,6 +45,12 @@ class StateCrudController extends CrudController
     {
         CRUD::setFromDb(); // set columns from db columns.
 
+        /**
+         * order by state name if there isn't already an order parameter in the request
+         */
+        if (! $this->crud->getRequest()->has('order')) {
+            $this->crud->orderBy('name', 'asc');
+        }
         /**
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');

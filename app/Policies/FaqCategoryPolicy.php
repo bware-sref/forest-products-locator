@@ -2,26 +2,31 @@
 
 namespace App\Policies;
 
-use App\Models\MillEdits;
 use App\Models\User;
+use App\Models\FaqCategory;
 use Illuminate\Auth\Access\Response;
 
-class MillEditsPolicy
+class FaqCategoryPolicy
 {
+    public function before(User $user, string $ability): ?bool
+    {
+        return ($user->isSuper() || $user->isAdmin()) ? true : null;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, MillEdits $millEdits): bool
+    public function view(User $user, FaqCategory $faqCategory): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,13 +34,14 @@ class MillEditsPolicy
      */
     public function create(User $user): bool
     {
+        // maybe editors?
         return false;
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, MillEdits $millEdits): bool
+    public function update(User $user, FaqCategory $faqCategory): bool
     {
         return false;
     }
@@ -43,7 +49,7 @@ class MillEditsPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, MillEdits $millEdits): bool
+    public function delete(User $user, FaqCategory $faqCategory): bool
     {
         return false;
     }
@@ -51,16 +57,16 @@ class MillEditsPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, MillEdits $millEdits): bool
-    {
-        return false;
-    }
+    // public function restore(User $user, FaqCategory $faqCategory): bool
+    // {
+    //     return false;
+    // }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, MillEdits $millEdits): bool
-    {
-        return false;
-    }
+    // public function forceDelete(User $user, FaqCategory $faqCategory): bool
+    // {
+    //     return false;
+    // }
 }

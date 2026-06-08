@@ -16,7 +16,12 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
-import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
+import { 
+    cn,
+    isSameUrl,
+    resolveUrl,
+    isChildUrl,
+} from '@/lib/utils';
 import { home, millMap, millList, stateResources, addBusiness, faqs, contact} from '@/routes';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -238,7 +243,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             )}
                                             {item.title}
                                         </Link>
-                                        {isSameUrl(page.url, item.href) && (
+                                        {isSameUrl(page.url, item.href) || isChildUrl(page.url, item.href) && (
                                             <div className="absolute bottom-0.5 left-0 h-0.5 w-full translate-y-px bg-velvet dark:bg-velvet"></div>
                                         )}
                                     </NavigationMenuItem>

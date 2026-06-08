@@ -1,6 +1,12 @@
 import AppLayout from '@/layouts/app-layout';
-// import { type SharedData } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import {
+    State,
+} from '@/types';
+import {
+    Head,
+    Link,
+    usePage,
+} from '@inertiajs/react';
 import Hero from '@/components/hero';
 import {
     Card,
@@ -12,6 +18,7 @@ import { CircleArrowRight } from 'lucide-react';
 import heroFallback from '@img/pine-trees_short.jpg';
 import mobileHero from '@img/pine-trees_short-390w.jpg';
 import mobileHero2x from '@img/pine-trees_short-780w.jpg';
+// import stateResource from '@/routes/state-resource';
 
 const heroSources = [
     {
@@ -30,35 +37,16 @@ const heroSources = [
  * @returns 
  */
 export default function StateResources() {
-    // const page = usePage<SharedData>();
-    const pageTitle = 'State Resources';
-    // temporary work-around for unused properties lint
-    // page.props.pageTitle = pageTitle;
+    const page = usePage<{
+        states: State[];
+        pageTitle?: string;
+    }>();
 
-    const cards = [
-        {
-            title: 'Alabama',
-            href: '#',
-            content: 'Alabama is a top exporter of wood fuel in the world and offers the forest industry excellent logistics.',
-            key: 'alabama',
-        },
-        {
-            title: 'Arkansas',
-            href: '#',
-            content: 'Arkansas is a top exporter of wood fuel in the world and offers the forest industry excellent logistics.',
-            key: 'arkansas',
-        },
-        {
-            title: 'Georgia',
-            href: '#',
-            content: 'Georgia is a top exporter of wood fuel in the world and offers the forest industry excellent logistics.',
-            key: 'georgia',
-        },
-    ];
+    const states = page.props.states;
 
     return (
         <AppLayout>
-            <Head title={pageTitle} />
+            <Head title={page.props.pageTitle} />
             {/** 
              * Hero must be in a full-width wrapper.
             */}
@@ -68,9 +56,9 @@ export default function StateResources() {
                 pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
                 sources={heroSources}
             >
-                <div className="flex flex-col gap-12 lg:gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
+                <div className="flex flex-col gap-12 lg:gap-8 max-w-83.75 lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
                     <h1 className="text-3xl lg:text-5xl leading-10 font-bold mt-8 mb-6 w-full">
-                        {pageTitle}
+                        {page.props.pageTitle}
                     </h1>
                     <p className="text-[18px] lg:text-[22px] leading-8 my-5">
                         The Primary Forest Products Locator is a tool provided by the <em className="italic">Southern Group of State Foresters</em> to assist buyers in locating primary wood product manufacturing companies.
@@ -81,16 +69,16 @@ export default function StateResources() {
             {/**
              * Cards!
              */}
-            <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col md:flex-row w-full md:w-6xl lg:w-7xl max-w-full xl:max-w-7xl items-stretch justify-between gap-8 lg:gap-6 Xbg-pink-400">
-                {cards.map( card =>
-                <Card key={card.key} className="w-full md:w-55 lg:w-70 lg:max-w-70 xl:w-87.5 xl:max-w-95 pt-0 border-0 rounded-2xl bg-coupe">
-                    <CardHeader className="bg-coupe py-4 xl:py-6 rounded-t-2xl">
+            <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col flex-wrap md:flex-row w-full md:w-6xl lg:w-7xl max-w-full items-stretch justify-evenly gap-8 lg:gap-6 Xbg-pink-400">
+                {states.map( state => 
+                <Card key={state.id} className="w-full md:w-55 lg:w-70 lg:max-w-70 xl:w-87.5 xl:max-w-95 pt-0 border-0 rounded-2xl bg-coupe">
+                    <CardHeader className="bg-coupe py-4 xl:pt-6 xl:pb-3 rounded-t-2xl Xbg-amber-500">
                         <CardTitle className="text-beluga">
                             <Link
-                                href={card.href}
+                                href={'/state-resources/' + state.abbreviation}
                                 className="text-beluga flex justify-between text-[27px]"
                             >
-                                <span className="underline inline hover:no-underline">{card.title}</span>
+                                <span className="underline inline hover:no-underline">{state.name}</span>
                                 <CircleArrowRight 
                                     data-icon="inline-end"
                                     size={40}
@@ -100,9 +88,9 @@ export default function StateResources() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="mr-5 bg-coupe text-beluga text-xl">
-                        {card.content}
+                        {state.resource_summary}
                     </CardContent>
-                </Card>
+                </Card>                    
                 )}
             </div>
         </AppLayout>

@@ -28,5 +28,15 @@ class AppServiceProvider extends ServiceProvider
 
         $loader = AliasLoader::getInstance();
         $loader->alias('AWS', \Aws\Laravel\AwsFacade::class);
+
+        /**
+         * Bind our UserCrudController to Backpack Permission Manager's UserCrudController
+         */
+        $this->app->bind(
+            \Backpack\PermissionManager\app\Http\Controllers\UserCrudController::class,
+            \App\Http\Controllers\Admin\UserCrudController::class
+        );
+
+
     }
 }
