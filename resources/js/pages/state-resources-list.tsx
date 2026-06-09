@@ -1,4 +1,5 @@
 import AppLayout from "@/layouts/app-layout";
+import DOMPurify from "dompurify";
 import {
     State,
     StateResource,
@@ -26,9 +27,6 @@ export default function StateResourcesList() {
     
     const state = page.props.state;
     const resources: StateResource[] = page.props.state.state_resources || [];
-
-    console.log('state: ', state);
-    console.log('resources: ', resources);
 
     return (
         <AppLayout>
@@ -74,7 +72,7 @@ export default function StateResourcesList() {
                             {/**
                              * This actually needs to be an exerpt or summary of the content.
                              */}
-                            {resource.content}
+                            {resource.teaser || DOMPurify.sanitize(resource.content, { ALLOWED_TAGS: []}).substring(0, 128)}
                         </CardContent>
                     </Card>
                 )}

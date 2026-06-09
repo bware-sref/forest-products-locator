@@ -8,6 +8,7 @@ use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -59,6 +60,19 @@ class StateResource extends Model
     protected $casts = [
         'status' => PublicationStatus::class,
     ];
+
+    /**
+     * Booted!
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (StateResource $stateResource) {
+            if (empty($stateResource->teaser)) {
+                $stateResource->teaser = Str::substr(strip_tags($stateResource->content), 0, 128);
+            }
+        });
+    }
+
 
     public function state(): BelongsTo
     {
