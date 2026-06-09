@@ -53,6 +53,8 @@ class MillCrudController extends CrudController
         if (!request()->has('state_id') && !empty($user->state_id) && $user->isStateAgent()) {
             // default to only show Mills from the StateAgent's state
             $this->crud->addClause('whereIn', 'state_id', [$user->state_id]);
+
+            // CRUD::addButtonFromView('top', 'toggle-state', 'toggle-state-agent-filter', 'end');
         }
 
         if (! $this->crud->getRequest()->has('order')) {
