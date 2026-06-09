@@ -46,7 +46,9 @@
     /* --tblr-light: #f8fafc; */
     --tblr-light: var(--color-beluga);
     --tblr-dark: #241f2d;
-    --tblr-muted: #66626c;
+    /* muted is the color used for table headings. that gray wasn't cutting it. */
+    /* --tblr-muted: #66626c; */
+    --tblr-muted: var(--tblr-gray-400);
     /* --tblr-tabler: #7c69ef; */
     --tblr-tabler: var(--color-coupe);
     /* --tblr-primary-rgb: 124, 105, 239; */
