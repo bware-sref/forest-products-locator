@@ -55,6 +55,10 @@ class MillCrudController extends CrudController
             $this->crud->addClause('whereIn', 'state_id', [$user->state_id]);
         }
 
+        if (! $this->crud->getRequest()->has('order')) {
+            $this->crud->orderBy('mill_name', 'asc');
+        }
+
         /**
          * Add filter for states...except filter is PRO add-on...
          */
@@ -72,23 +76,32 @@ class MillCrudController extends CrudController
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');
          */
-        CRUD::column('mill_name')->type('text');
+        CRUD::column('mill_name')
+            ->type('text')
+            ->orderable(true);
         // match_id just cruds it up
         // CRUD::column([
         //     'name' => 'match_id',
         //     'label' => 'Match ID',
         // ])->type('text');
-        CRUD::column('physical_address')->type('text');
-        CRUD::column('physical_city')->type('text');
+        CRUD::column('physical_address')
+            ->type('text');
+        CRUD::column('physical_city')
+            ->type('text');
         CRUD::column('state_id')
             ->type('select')
             ->entity('state')
             ->model('App\Models\State')
-            ->attribute('name');
-        CRUD::column('physical_zip')->type('text');
-        CRUD::column('telephone')->type('text');
-        CRUD::column('email')->type('email');
-        CRUD::column('web_site')->type('text');
+            ->attribute('name')
+            ->orderable(true);
+        CRUD::column('physical_zip')
+            ->type('text');
+        CRUD::column('telephone')
+            ->type('text');
+        CRUD::column('email')
+            ->type('email');
+        CRUD::column('web_site')
+            ->type('text');
         // that's all for now folks
         // the page width is filled
         // CRUD::column('fax')->type('text');
