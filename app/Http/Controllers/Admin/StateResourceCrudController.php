@@ -104,7 +104,7 @@ class StateResourceCrudController extends CrudController
         CRUD::field([
             'name' => 'content',
             'label' => 'Content',
-            'type' => 'textarea',
+            'type' => 'ckeditor',
         ]);
         CRUD::field([
             'name' => 'status',
