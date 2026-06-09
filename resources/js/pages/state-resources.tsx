@@ -75,7 +75,7 @@ export default function StateResources() {
                     <CardHeader className="bg-coupe py-4 xl:pt-6 xl:pb-3 rounded-t-2xl Xbg-amber-500">
                         <CardTitle className="text-beluga">
                             <Link
-                                href={'/state-resources/' + state.abbreviation}
+                                href={'/state-resources/' + state.slug}
                                 className="text-beluga flex justify-between text-[27px]"
                             >
                                 <span className="underline inline hover:no-underline">{state.name}</span>
