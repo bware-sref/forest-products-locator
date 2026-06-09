@@ -20,7 +20,7 @@ class StateResourceController extends Controller
          * Maybe need a scope for StateResources similar to Mills?
          * Only pull published by default.
          */
-        $states = State::select(['id', 'name', 'abbreviation', 'resource_summary'])
+        $states = State::select(['id', 'name', 'abbreviation', 'slug', 'resource_summary'])
             ->has('stateResources')
             ->orderBy('name')
             ->get();

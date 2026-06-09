@@ -48,7 +48,9 @@ class FaqCrudController extends CrudController
             $this->crud->orderBy('order', 'asc');
         }
 
-        CRUD::column('question')->type('text');
+        CRUD::column('question')
+            ->type('text')
+            ->orderable(true);
 
         /**
          * Columns can be defined using the fluent syntax:
@@ -58,7 +60,13 @@ class FaqCrudController extends CrudController
             ->type('select')
             ->entity('faqCategory')
             ->model('App\Models\FaqCategory')
-            ->attribute('name');
+            ->attribute('name')
+            ->orderable(true);
+
+        CRUD::column('order')
+            ->type('number')
+            ->label('Sort Weight')
+            ->orderable(true);
     }
 
     /**

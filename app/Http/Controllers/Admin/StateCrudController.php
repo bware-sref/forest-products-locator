@@ -43,7 +43,7 @@ class StateCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::setFromDb(); // set columns from db columns.
+        // CRUD::setFromDb(); // set columns from db columns.
 
         /**
          * order by state name if there isn't already an order parameter in the request
@@ -51,10 +51,34 @@ class StateCrudController extends CrudController
         if (! $this->crud->getRequest()->has('order')) {
             $this->crud->orderBy('name', 'asc');
         }
+
+        /**
+         * Add counting the mills to the query
+         */
+        $this->crud->query->withCount('mills');
+
         /**
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');
          */
+        CRUD::column('name')
+            ->type('text')
+            ->orderable(true);
+
+        /**
+         * Instead of relationship_count type, use the fake field created by withCount()
+         */
+        CRUD::column('mills_count')
+            // ->type('relationship_count')
+            ->after('name')
+            ->type('text')
+            ->label('Mills')
+            ->suffix(' mills')
+            ->orderable(true);
+
+        CRUD::column('resource_summary')
+            ->type('text')
+            ->label('Summary');
     }
 
     /**

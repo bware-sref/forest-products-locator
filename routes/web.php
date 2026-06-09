@@ -81,14 +81,14 @@ Route::get('/state-resources', [StateResourceController::class, 'index'])
  * Oh right.
  * State doesn't have a slug column.
  */
-Route::get('/state-resources/{state:abbreviation}', [StateResourceController::class, 'byState'])
+Route::get('/state-resources/{state:slug}', [StateResourceController::class, 'byState'])
     ->name('state-resources.by-state');
 
 /**
  * How do we want to show individual state resources?
  * /state-resources/{state.abbreviation}/{id or slug?}
  */
-Route::get('/state-resources/{state:abbreviation}/{stateResource}', [StateResourceController::class, 'show'])
+Route::get('/state-resources/{state:slug}/{stateResource}', [StateResourceController::class, 'show'])
     ->name('state-resources.show');
 
 /**
