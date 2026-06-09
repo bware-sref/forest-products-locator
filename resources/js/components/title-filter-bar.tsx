@@ -27,7 +27,7 @@ export interface TitleFilterBarProps {
     children: ReactNode;
     isDownloading: boolean;
     isLoading: boolean;
-    millCount: number | null;
+    millCount?: number;
     handleExportClick: MouseEventHandler<HTMLButtonElement>;
     handleClickCapture?: MouseEventHandler<HTMLDivElement> | undefined;
 }
