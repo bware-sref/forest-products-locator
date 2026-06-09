@@ -32,11 +32,18 @@
     /* --tblr-primary: #7c69ef; */
     /* --tblr-primary: var(--color-lorne); */
     /* primary becomes nav bar active link border color, FFS */
-    --tblr-primary: var(--color-coupe); /* oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card */
+    /* oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card */
+    /* --tblr-primary: var(--color-coupe); */
     --tblr-primary: var(--color-nature);
+    /* --tblr-primary: var(--color-beluga); */
     /* --tblr-secondary: #66626c; */
-    /* tblr-secondary is used for tblr-btn-bg in the class .btn-secondary */
-    --tblr-secondary: var(--color-zucchini);
+    /** 
+        tblr-secondary is used for tblr-btn-bg in the class .btn-secondary
+        also for links
+        zucchini may not be light enough
+    */
+    /* --tblr-secondary: var(--color-zucchini); */
+    --tblr-secondary: var(--color-beluga);
     /* --tblr-secondary:  var(--color-velvet); /* oklch(0.9577 0.0017 247.84); #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
     --tblr-success: #42ba96;
     --tblr-info: #467fd0;
