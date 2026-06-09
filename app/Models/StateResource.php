@@ -46,6 +46,7 @@ class StateResource extends Model
         'state_id',
         'title',
         'content',
+        'teaser',
         'sort_weight',
         'status',
         'created_at',
