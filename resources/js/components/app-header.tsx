@@ -256,7 +256,10 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     {/** we don't use right-nav, user info, or breadcrumbs */}
                 </div>
             </div>
-            {/** we don't use breadcrumbs */}
+            {/** 
+             * we don't use breadcrumbs 
+             * should we?
+            */}
             {breadcrumbs.length > 1 && (
                 <div className="flex w-full border-b border-sidebar-border/70">
                     <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">

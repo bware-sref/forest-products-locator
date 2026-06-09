@@ -124,6 +124,7 @@ export interface WoodSpecies {
 export interface State {
     id: number;
     name: string;
+    slug: string;
     abbreviation: string;
     latitude?: string;
     longitude?: string;
@@ -233,5 +234,7 @@ export interface StateResource {
     state_id: number;
     title: string;
     content: string;
+    teaser?: string;
     sort_weight: number;
+    [key: string]: unknown;
 }
