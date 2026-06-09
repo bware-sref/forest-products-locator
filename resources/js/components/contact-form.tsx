@@ -47,7 +47,11 @@ export function ContactForm({
     description = 'Provides a directory of primary and secondary forest products companies that produce products using raw forest material such as trees, logs, bark, etc.',
 }:ContactFormProps) {
     
-    const form = useForm<ContactFormData>({
+    const {
+        formState,
+        reset,
+        ...form
+    } = useForm<ContactFormData>({
         resolver: zodResolver(contactFormSchema),
         mode: "onBlur",
         defaultValues: {
@@ -94,10 +98,10 @@ export function ContactForm({
 
     // use useEffect to reset the form after successful submission
     useEffect(() => {
-        if (form.formState.isSubmitSuccessful) {
-            form.reset();
+        if (formState.isSubmitSuccessful) {
+            reset();
         }
-    }, [form.formState.isSubmitSuccessful, form.reset]);
+    }, [formState.isSubmitSuccessful, reset]);
 
     return (
         <Card className="w-full sm:max-w-md mx-auto">
@@ -150,7 +154,7 @@ export function ContactForm({
                 </CardContent>
                 <CardFooter className="mt-6">
                     <Field orientation="horizontal">
-                    <Button type="button" variant="outline" onClick={() => form.reset()}>
+                    <Button type="button" variant="outline" onClick={() => reset()}>
                         Reset
                     </Button>
                     <Button type="submit" form="form-contact">
