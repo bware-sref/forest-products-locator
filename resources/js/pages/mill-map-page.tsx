@@ -142,6 +142,7 @@ export default function MillMapPage() {
                 isDownloading={isDownloading}
                 isLoading={isLoading}
                 handleExportClick={handleExportClick}
+                millCount={mills.length}
             >
                 <MillFilters
                     textSearch={searchText}
