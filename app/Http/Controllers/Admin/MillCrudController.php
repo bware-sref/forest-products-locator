@@ -20,6 +20,7 @@ class MillCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use CrudPermissionTrait;
+    use \RedSquirrelStudio\LaravelBackpackImportOperation\ImportOperation;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -294,5 +295,172 @@ class MillCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    /**
+     * Set up Excel import operation
+     */
+    protected function setupImportOperation()
+    {
+        /**
+         * withoutPrimaryKey() causes the import to insert without primary keys
+         */
+        $this->withoutPrimaryKey();
+
+        CRUD::addColumn([
+            'name' => 'mill_name',
+            'label' => 'Mill Name',
+            'type' => 'text',
+        ]); // ;
+
+        // basic info fields
+        // match_id is a unique identifier that will be used to link mills to mill edits. It should be generated automatically and not editable by the user.
+        CRUD::addColumn([
+            'name' => 'match_id',
+            'label' => 'Match ID',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'year',
+            'label' => 'Year',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'size',
+            'label' => 'Size',
+            'type' => 'text',
+        ]);
+
+        // physical address fields
+        CRUD::addColumn([
+            'name' => 'physical_address',
+            'label' => 'Street Address',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'physical_city',
+            'label' => 'City',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'physical_state',
+            'label' => 'State',
+            'type' => 'text',
+        ]);
+
+        // CRUD::addColumn([
+        //     'name' => 'state_id',
+        //     'label' => 'State',
+        //     'type' => 'select',
+        //     'entity' => 'state',
+        //     'model' => 'App\Models\State',
+        //     'attribute' => 'name',
+        // ]);
+
+        CRUD::addColumn([
+            'name' => 'physical_zip',
+            'label' => 'Zip Code',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'county_name',
+            'label' => 'County',
+            'type' => 'text',
+        ]);
+
+
+        CRUD::addColumn([
+            'name' => 'latitude',
+            'label' => 'Latitude',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'longitude',
+            'label' => 'Longitude',
+            'type' => 'text',
+        ]);
+
+        // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
+
+        // mailing address fields
+        CRUD::addColumn([
+            'name' => 'mailing_address',
+            'label' => 'Street Address',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'mailing_city',
+            'label' => 'City',
+            'type' => 'text',
+        ]);
+
+        /**
+         * The database still has text columns for all the relationship fields leftover from the original import.
+         * E.g., both mills.mailing_state and mills.mailing_state_id columns exist so we can always do a quick import into mills
+         * and then update the relationships with the job queue.
+         */
+        CRUD::addColumn([
+            'name' => 'mailing_state',
+            'label' => 'Mailing State',
+            'type' => 'text',
+        ]);
+
+        // CRUD::addColumn([
+        //     'name' => 'mailing_state_id',
+        //     'label' => 'State',
+        //     'type' => 'select',
+        //     'entity' => 'mailingState',
+        //     'model' => 'App\Models\State',
+        //     'attribute' => 'name',
+        // ]);
+        
+        CRUD::addColumn([
+            'name' => 'mailing_zip',
+            'label' => 'Zip Code',
+            'type' => 'text',
+        ]);
+        // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
+
+
+        // contact info fields
+        CRUD::addColumn([
+            'name' => 'telephone',
+            'label' => 'Telephone',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'fax',
+            'label' => 'Fax',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'email',
+            'label' => 'Email',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'web_site',
+            'label' => 'Website',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'type',
+            'label' => 'Type',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'species',
+            'label' => 'Species',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'modification_date',
+            'label' => 'Modification Date',
+            'type' => 'text',
+        ]);
+
     }
 }
