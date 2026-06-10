@@ -60,13 +60,20 @@ class StateResourceCrudController extends CrudController
             ->type('select')
             ->entity('state')
             ->model('App\Models\State')
-            ->attribute('name');
+            ->attribute('name')
+            ->orderable(true);
         CRUD::column('title')
-            ->type('text');
-        CRUD::column('content')
-            ->type('text');
+            ->type('text')
+            ->orderable(true);
+        CRUD::column('teaser')
+            ->label('Excerpt')
+            ->type('text')
+            ->orderable(true);
+        // CRUD::column('content')
+        //     ->type('text');
         CRUD::column('sort_weight')
-            ->type('number');
+            ->type('number')
+            ->orderable(true);
     }
 
     /**
@@ -104,8 +111,19 @@ class StateResourceCrudController extends CrudController
         CRUD::field([
             'name' => 'content',
             'label' => 'Content',
-            'type' => 'textarea',
+            'type' => 'ckeditor',
         ]);
+
+        CRUD::field([
+            'name' => 'teaser',
+            'label' => 'Excerpt',
+            'type' => 'text',
+            'hint' => 'If Excerpt is omitted, the first 128 characters of the content will be used instead.',
+            'attributes' => [
+                // 'placeholder' => 'If Excerpt is omitted, the first 128 characters of the content will be used instead.',
+            ],
+        ]);
+
         CRUD::field([
             'name' => 'status',
             'label' => 'Status',

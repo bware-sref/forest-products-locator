@@ -51,7 +51,7 @@ export function AppFooter() {
     const page = usePage<SharedData>();
     return (
         <>
-            <div className="bg-nature text-beluga my-8 w-full">
+            <div className="bg-nature text-beluga my-8 w-full md:border-t-beluga md:border-t-4 md:mt-0 md:pt-8">
                 <div className="mx-auto flex flex-col px-5 md:flex-row lg:h-20 items-center md:max-w-6xl lg:max-w-7xl ">
                     {/* Desktop Navigation */}
                     <div className="h-full items-stretch md:items-center space-6 flex flex-col lg:flex-row w-full">

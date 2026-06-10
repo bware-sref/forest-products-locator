@@ -6,8 +6,9 @@
 export function SizeOMeter() {
 
     return (
-        <div className="font-extrabold flex flex-row items-center justify-center gap-6 bg-green-500 md:bg-blue-500 lg:bg-amber-500 xl:bg-red-500 2xl:bg-purple-500 2xl:text-beluga">
-                <div className="md:hidden ">Small</div>
+        <div className="font-extrabold flex flex-row items-center justify-center gap-6 bg-green-500 sm:bg-cyan-500 md:bg-blue-500 lg:bg-amber-500 xl:bg-red-500 2xl:bg-purple-500 2xl:text-beluga">
+                <div className="sm:hidden">Regular</div>
+                <div className="hidden sm:max-md:block">Small</div>
                 <div className="hidden md:max-lg:block">Medium</div>
                 <div className="hidden lg:max-xl:block">Large</div>
                 <div className="hidden xl:max-2xl:block">Extra Large</div>

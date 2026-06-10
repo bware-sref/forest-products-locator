@@ -80,6 +80,7 @@ export default function MillListPage() {
                 handleExportClick={handleExportClick}
                 isDownloading={isDownloading}
                 isLoading={isLoading}
+                millCount={mills.length}
             >
                 <MillFilters
                     textSearch={searchText}
