@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\ImportMillRequest;
 use App\Http\Requests\MillRequest;
+use App\Imports\FloridaMills;
 use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -307,11 +309,12 @@ class MillCrudController extends CrudController
          */
         $this->withoutPrimaryKey();
 
-        CRUD::addColumn([
-            'name' => 'mill_name',
-            'label' => 'Mill Name',
-            'type' => 'text',
-        ]); // ;
+        CRUD::setValidation(ImportMillRequest::class);
+        // $this->setImportHandler(FloridaMills::class);
+
+        $this->disableUserMapping();
+
+        // return;
 
         // basic info fields
         // match_id is a unique identifier that will be used to link mills to mill edits. It should be generated automatically and not editable by the user.
@@ -321,31 +324,49 @@ class MillCrudController extends CrudController
             'type' => 'text',
         ]);
         CRUD::addColumn([
-            'name' => 'year',
-            'label' => 'Year',
+            'name' => 'mill_name',
+            'label' => 'Mill Name',
+            'type' => 'text',
+        ]); // ;
+
+        CRUD::addColumn([
+            'name' => 'latitude',
+            'label' => 'Latitude',
             'type' => 'text',
         ]);
         CRUD::addColumn([
-            'name' => 'size',
-            'label' => 'Size',
+            'name' => 'longitude',
+            'label' => 'Longitude',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'year',
+            'label' => 'Year',
             'type' => 'text',
         ]);
 
         // physical address fields
         CRUD::addColumn([
             'name' => 'physical_address',
-            'label' => 'Street Address',
+            'label' => 'Physical Address',
             'type' => 'text',
         ]);
         CRUD::addColumn([
             'name' => 'physical_city',
-            'label' => 'City',
+            'label' => 'Physical City',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'county_name',
+            'label' => 'County',
             'type' => 'text',
         ]);
 
         CRUD::addColumn([
             'name' => 'physical_state',
-            'label' => 'State',
+            'label' => 'Physical State',
             'type' => 'text',
         ]);
 
@@ -360,27 +381,10 @@ class MillCrudController extends CrudController
 
         CRUD::addColumn([
             'name' => 'physical_zip',
-            'label' => 'ZIP Code',
+            'label' => 'Physical ZIP',
             'type' => 'text',
         ]);
 
-        CRUD::addColumn([
-            'name' => 'county_name',
-            'label' => 'County',
-            'type' => 'text',
-        ]);
-
-
-        CRUD::addColumn([
-            'name' => 'latitude',
-            'label' => 'Latitude',
-            'type' => 'text',
-        ]);
-        CRUD::addColumn([
-            'name' => 'longitude',
-            'label' => 'Longitude',
-            'type' => 'text',
-        ]);
 
         // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
 
@@ -418,11 +422,10 @@ class MillCrudController extends CrudController
         
         CRUD::addColumn([
             'name' => 'mailing_zip',
-            'label' => 'Mailing ZIP Code',
+            'label' => 'Mailing ZIP',
             'type' => 'text',
         ]);
         // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
-
 
         // contact info fields
         CRUD::addColumn([
@@ -430,19 +433,10 @@ class MillCrudController extends CrudController
             'label' => 'Telephone',
             'type' => 'text',
         ]);
+
         CRUD::addColumn([
             'name' => 'fax',
             'label' => 'Fax',
-            'type' => 'text',
-        ]);
-        CRUD::addColumn([
-            'name' => 'email',
-            'label' => 'Email',
-            'type' => 'text',
-        ]);
-        CRUD::addColumn([
-            'name' => 'web_site',
-            'label' => 'Website',
             'type' => 'text',
         ]);
 
@@ -451,16 +445,42 @@ class MillCrudController extends CrudController
             'label' => 'Type',
             'type' => 'text',
         ]);
+
         CRUD::addColumn([
             'name' => 'species',
             'label' => 'Species',
             'type' => 'text',
         ]);
+
+        /**
+         * Email isn't getting saved for whatever reason...
+         * I think the issue with email was related to fields that were wrapped in quotes because they contained new lines.
+         */
+        CRUD::addColumn([
+            'name' => 'email',
+            'label' => 'Email',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'web_site',
+            'label' => 'Web Site',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'size',
+            'label' => 'Size',
+            'type' => 'text',
+        ]);
+
+
         CRUD::addColumn([
             'name' => 'modification_date',
             'label' => 'Modification Date',
             'type' => 'text',
         ]);
 
+        $this->queueImport();
     }
 }
