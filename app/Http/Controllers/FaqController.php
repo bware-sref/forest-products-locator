@@ -16,7 +16,7 @@ class FaqController extends Controller
     public function index()
     {
         $faqsByCategory = FaqCategory::query()
-            ->orderBy('order')
+            ->orderBy(column: 'order', direction: 'asc')
             ->with('faqs')
             ->get();
         return Inertia::render('faqs', [
