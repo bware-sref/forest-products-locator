@@ -50,7 +50,10 @@ function MapStateSet({ setMap }: {
     setMap: (map: Map) => void
 }) {
     const map = useMap();
-    setMap(map);
+    // wrap invoking setMap() in useEffect() to avoid updating another component during render.
+    useEffect(() => {
+        setMap(map);
+    }, [map, setMap]);    
     return null;
 }
 
