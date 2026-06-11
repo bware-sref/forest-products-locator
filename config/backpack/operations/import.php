@@ -17,7 +17,10 @@ return [
     'path' => env('BACKPACK_IMPORT_FILE_PATH', 'imports'),
 
     //Queue to dispatch import jobs to
-    'queue' => env('QUEUE_CONNECTION', 'sync'),
+    // sync is a queue connection rather than a queue
+    // in any case, when using the DB for queues, the value of 'QUEUE_CONNECTION' is 'database', which is not the default queue
+    // 'queue' => env('QUEUE_CONNECTION', 'sync'),
+    'queue' => env('IMPORT_QUEUE', 'default'),
 
     //Chunk size for reading import files
     'chunk_size' => env('BACKPACK_IMPORT_CHUNK_SIZE', 100),
