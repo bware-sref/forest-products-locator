@@ -290,6 +290,13 @@ class Mill extends Model
         $query = Mill::with(['millTypes', 'woodSpecies', 'state', 'county']);
 
         /**
+         * We need to exclude Mills which have mills.state_id === null (or empty) because they break MillResources logic.
+         * Actually, I fixed the MillResources logic. However, excluding mills without state_id is probably a good thing
+         * because it means that Mills that haven't been fully processed would automagically be excluded from search results.
+         * However, we can do that later, perhaps with a scope...
+         */
+
+        /**
          * Need to add query parameters for specifying a search location and search radius
          * Okay.
          * Proximity fields are only used if all are present.
