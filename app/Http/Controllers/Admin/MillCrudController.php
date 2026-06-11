@@ -360,7 +360,7 @@ class MillCrudController extends CrudController
 
         CRUD::addColumn([
             'name' => 'physical_zip',
-            'label' => 'Zip Code',
+            'label' => 'ZIP Code',
             'type' => 'text',
         ]);
 
@@ -387,12 +387,12 @@ class MillCrudController extends CrudController
         // mailing address fields
         CRUD::addColumn([
             'name' => 'mailing_address',
-            'label' => 'Street Address',
+            'label' => 'Mailing Address',
             'type' => 'text',
         ]);
         CRUD::addColumn([
             'name' => 'mailing_city',
-            'label' => 'City',
+            'label' => 'Mailing City',
             'type' => 'text',
         ]);
 
@@ -418,7 +418,7 @@ class MillCrudController extends CrudController
         
         CRUD::addColumn([
             'name' => 'mailing_zip',
-            'label' => 'Zip Code',
+            'label' => 'Mailing ZIP Code',
             'type' => 'text',
         ]);
         // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
