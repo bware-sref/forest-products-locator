@@ -100,7 +100,7 @@ return [
         | ignored by enabling the setting ignore_empty to true.
         |
         */
-        'ignore_empty' => false,
+        'ignore_empty' => true,
 
         /*
         |--------------------------------------------------------------------------
@@ -161,8 +161,8 @@ return [
        */
         'cells'        => [
             'middleware' => [
-                //\Maatwebsite\Excel\Middleware\TrimCellValue::class,
-                //\Maatwebsite\Excel\Middleware\ConvertEmptyCellValuesToNull::class,
+                \Maatwebsite\Excel\Middleware\TrimCellValue::class,
+                \Maatwebsite\Excel\Middleware\ConvertEmptyCellValuesToNull::class,
             ],
         ],
 
