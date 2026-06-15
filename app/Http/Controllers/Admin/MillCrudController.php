@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Operations\MillImportOperation;
 use App\Http\Requests\ImportMillRequest;
 use App\Http\Requests\MillRequest;
 use App\Imports\FloridaMills;
@@ -24,7 +25,8 @@ class MillCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use CrudPermissionTrait;
-    use \RedSquirrelStudio\LaravelBackpackImportOperation\ImportOperation;
+    // use \RedSquirrelStudio\LaravelBackpackImportOperation\ImportOperation;
+    use MillImportOperation;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -316,10 +318,14 @@ class MillCrudController extends CrudController
          */
         $this->withoutPrimaryKey();
 
+        /**
+         * Interesting.
+         * When MapFields is enabled, the validator marks "required" fields as required on the front-end.
+         */
         CRUD::setValidation(ImportMillRequest::class);
         // $this->setImportHandler(FloridaMills::class);
 
-        $this->disableUserMapping();
+        // $this->disableUserMapping();
 
         // return;
 
@@ -330,6 +336,13 @@ class MillCrudController extends CrudController
             'label' => 'Match ID',
             'type' => 'text',
         ]);
+
+        CRUD::addColumn([
+            'name' => 'mill_id',
+            'label' => 'Mill ID',
+            'type' => 'text',
+        ]);
+
         CRUD::addColumn([
             'name' => 'mill_name',
             'label' => 'Mill Name',
@@ -492,6 +505,11 @@ class MillCrudController extends CrudController
 
         $this->queueImport();
 
-        $this->setImportHandler(CustomCrudImport::class);
+        /**
+         * Our custom crud import.
+         * At present we still need to use it for a successful import.
+         * But also at present if we set it, the MapFields view doesn't display.
+         */
+        // $this->setImportHandler(CustomCrudImport::class);
     }
 }
