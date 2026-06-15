@@ -26,6 +26,7 @@ use Maatwebsite\Excel\Events\AfterChunk;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
+use Maatwebsite\Excel\Reader;
 use Maatwebsite\Excel\Row;
 use RedSquirrelStudio\LaravelBackpackImportOperation\Imports\CrudImport;
 use RedSquirrelStudio\LaravelBackpackImportOperation\Events\ImportCompleteEvent;
@@ -249,6 +250,30 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
     public function registerEvents(): array
     {
         $events = parent::registerEvents();
+
+        /**
+         * Override the parent BeforeImport listener
+         * we want to grab properties of the file we're working with to help us understand how well (or not) the import goes.
+         */
+        $events[BeforeImport::class] = function (BeforeImport $event) {
+            $importer = $event->getConcernable();
+            $log = $importer->getImportLog();
+
+            /**
+             * @var Reader $reader
+             */
+            $reader = $event->getDelegate();
+            $totalRows = $reader->getTotalRows();
+            // $spreadsheet = $reader->getDelegate();
+            // $props = $spreadsheet->getProperties();
+            Log::debug('BeforeImport for ImportLog #'.$log->id.': ', [
+                'totalRows' => $totalRows,
+                'importClass' => class_basename($importer),
+            ]);
+
+            ImportStartedEvent::dispatch($log);
+        };
+
 
         /**
          * Hold the phone, ImportFailed doesn't extend Event...
