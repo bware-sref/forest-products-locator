@@ -173,6 +173,36 @@ class Mill extends Model
     ];
 
     /**
+     * Keys correspond to spreadsheet headings
+     * Values are DB column names
+     */
+    public const IMPORT_COLUMNS = [
+        "match_id" => "match_id",
+        "mill_id" => "mill_id",
+        "mill_name" => "mill_name",
+        "latitude" => "latitude",
+        "longitude" => "longitude",
+        "year" => "year",
+        "physical_address" => "physical_address",
+        "physical_city" => "physical_city",
+        "county" => "county_name",
+        "physical_state" => "physical_state",
+        "physical_zip" => "physical_zip",
+        "mailing_address" => "mailing_address",
+        "mailing_city" => "mailing_city",
+        "mailing_state" => "mailing_state",
+        "mailing_zip" => "mailing_zip",
+        "telephone" => "telephone",
+        "fax" => "fax",
+        "type" => "type",
+        "species" => "species",
+        "email" => "email",
+        "web_site" => "web_site",
+        "size" => "size",
+        "modification_date" => "modification_date",        
+    ];
+
+    /**
      * List of accessors to append to the model's array/JSON form.
      * Accessors with the same name as the underlying attribute do not need to be appended.
      * 
