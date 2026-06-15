@@ -46,8 +46,15 @@ class ImportMillRequest extends FormRequest
              */
             'match_id' => 'required|string|max:255|unique:mills,match_id',
 
+            'mill_id' => 'string|nullable|max:255',
+
             'physical_address' => 'string|nullable|max:255',
             'physical_city' => 'string|nullable|max:255',
+
+            // should this be the database column or the request parameter?
+            // the latter, I think
+            // 'county_name' => 'string|nullable|max:255',
+            'county' => 'string|nullable|max:255',
 
             // we need physical_state instead of state_id
             'physical_state' => 'required|string|max:50',
@@ -102,8 +109,10 @@ class ImportMillRequest extends FormRequest
              * only allow URLs with http or https protocol
              * should we allow URLs without a protocol?
              * probably, then we'll have to do our validation separately and maybe mutate the data
+             * when URLs don't have a protocol, inserting the row fails.
              */
-            'web_site' => 'nullable|url:http,https|max:255',
+            // 'web_site' => 'nullable|url:http,https|max:255',
+            'web_site' => 'nullable|string|max:255',
 
             /**
              * MillType and WoodSpecies need to be arrays of numeric ids.
