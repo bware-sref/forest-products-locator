@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\ImportMillRequest;
 use App\Http\Requests\MillRequest;
 use App\Imports\FloridaMills;
+use App\Imports\CustomCrudImport;
 use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class MillCrudController
@@ -305,6 +307,11 @@ class MillCrudController extends CrudController
     protected function setupImportOperation()
     {
         /**
+         * crud->columns() is empty here because we haven't set up any columns for this operation yet.
+         */
+        // Log::debug('at the top of setupImportOperation(), importCrudColumns: ', ['crudColumns' => $this->crud->columns()]);
+
+        /**
          * withoutPrimaryKey() causes the import to insert without primary keys
          */
         $this->withoutPrimaryKey();
@@ -481,6 +488,10 @@ class MillCrudController extends CrudController
             'type' => 'text',
         ]);
 
+        // Log::debug('at the bottom of setupImportOperation(), importCrudColumns: ', ['crudColumns' => $this->crud->columns()]);
+
         $this->queueImport();
+
+        $this->setImportHandler(CustomCrudImport::class);
     }
 }
