@@ -23,6 +23,7 @@ class ImportRowSkippedHandler
     public function handle(ImportRowSkipped $event): void
     {
         Log::debug('ImportRowSkipped!', [
+            'import_log.id' => $event->import_log->id,
             'row_data' => $event->row_data ?? 'No row data on skipped row!?!',
         ]);
     }
