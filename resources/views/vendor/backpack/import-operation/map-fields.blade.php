@@ -60,9 +60,24 @@
                 <div class="card">
                     <div class="card-body row">
                         <div class="col-md-12">
-                            <h5>
+                            {{-- WTF, h5 after h2?!? --}}
+                            <h3>
                                 @lang('import-operation::import.map_fields')
-                            </h5>
+                            </h3>
+                            {{-- <div class="row">
+                                <h4>$column_headers</h4>
+                                <pre class="text-white">
+                                    @php
+                                    print_r($column_headers);
+                                    @endphp
+                                </pre>
+                                <h4>import->config</h4>
+                                <pre class="text-white">
+                                    @php
+                                    print_r($import->config);
+                                    @endphp                                    
+                                </pre>
+                            </div> --}}
                             @include('import-operation::inc.mapper-headings')
                             <div class="border p-1" style="height: 50vh; overflow-y: auto; overflow-x:hidden;">
                                 @foreach($crud->columns() as $column)
@@ -71,6 +86,7 @@
                                             <div class="card" style="height: 100%;">
                                                 <div
                                                     class="card-body d-flex flex-column justify-content-center py-1 px-3">
+                                                    {{-- <pre class="text-white">@php print_r($column); @endphp</pre> --}}
                                                     <div class="form-group">
                                                         <label for="{{ $column['name'] }}__heading">
                                                             @lang('import-operation::import.select_a_column')
@@ -88,18 +104,40 @@
                                                             @foreach($column_headers as $heading)
                                                                 @php
                                                                     $selected = false;
+                                                                    $optionLabel = ucwords(str_replace('_', ' ', $heading));
+                                                                    /**
+                                                                     * I see.
+                                                                     * $import->config will usually only be populated here if we
+                                                                     * returned from the confirm screen.
+                                                                     * Which is strange because...
+                                                                     * well, because $column comes from $crud->columns(), which is 
+                                                                     * defined in the controller's import() method...
+                                                                     * which partially explains why we skip this screen when using a
+                                                                     * custom import class.
+                                                                     * Using a custom import class causes the import operation to 
+                                                                     * ignore any crud columns defined in the controller and thus 
+                                                                     * results in both crud->columns and import->config being null.
+                                                                     */
                                                                     if(
-                                                                        isset($import->config) && isset($import->config[$heading])
-                                                                        && isset($import->config[$heading]['name']) &&
-                                                                        $import->config[$heading]['name'] === $column['name']
+                                                                        (isset($import->config) && 
+                                                                        isset($import->config[$heading]) &&
+                                                                        isset($import->config[$heading]['name']) &&
+                                                                        $import->config[$heading]['name'] === $column['name']) ||
+                                                                        $heading === $column['name'] ||
+                                                                        $heading === $column['key'] ||
+                                                                        // just to be sure
+                                                                        strtolower($heading) === strtolower($column['label'])
                                                                     ){
                                                                         $selected = true;
+                                                                        $optionLabel = $column['label'];
                                                                     }
                                                                 @endphp
                                                                 <option
                                                                     {{ $selected ? 'selected' : '' }}
                                                                     value="{{ $heading }}">
-                                                                    {{ ucfirst(str_replace('_', ' ', $heading)) }}
+                                                                    {{-- {{ ucfirst(str_replace('_', ' ', $heading)) }} --}}
+                                                                    {{-- {{ ucwords(str_replace('_', ' ', $heading)) }} --}}
+                                                                    {{ $optionLabel }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -107,6 +145,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        {{-- Spacer --}}
                                         <div class="col-md-2">
                                             <div class="card" style="height: 100%;">
                                                 <div
