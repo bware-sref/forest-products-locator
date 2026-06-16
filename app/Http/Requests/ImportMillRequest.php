@@ -102,8 +102,8 @@ class ImportMillRequest extends FormRequest
 
             'fax' => 'string|nullable|max:17', // |regex:/^\+?1?(\s*[\-\.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[\-\.]\s*|\s+)?[0-9]{3}(\s*[\-\.]\s*|\s+)?[0-9]{4}$/',
 
-            // 'email' => 'email:rfc|nullable',
-            'email' => 'string|nullable',
+            'email' => 'email:rfc|nullable',
+            // 'email' => 'string|nullable',
 
             /**
              * only allow URLs with http or https protocol
@@ -111,8 +111,8 @@ class ImportMillRequest extends FormRequest
              * probably, then we'll have to do our validation separately and maybe mutate the data
              * when URLs don't have a protocol, inserting the row fails.
              */
-            // 'web_site' => 'nullable|url:http,https|max:255',
-            'web_site' => 'nullable|string|max:255',
+            'web_site' => 'nullable|url:http,https|max:255',
+            // 'web_site' => 'nullable|string|max:255',
 
             /**
              * MillType and WoodSpecies need to be arrays of numeric ids.
@@ -152,6 +152,30 @@ class ImportMillRequest extends FormRequest
             // ],
 
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        Log::debug('Running ImportMillRequest::prepareForValidation() with data: ', ['data'=> $this->all()]);
+
+        $this->replace([
+            'type' => $this->replaceNewLines($this->input('type') ?? ''),
+            'species' => $this->replaceNewLines($this->input('species') ??''),
+        ]);
+
+        /**
+         * We should be able to validate URLs now
+         */
+        if ($this->input('web_site') && Str::doesntStartWith($this->input('web_site'), ['http://', 'https://'])) {
+            $this->replace(['web_site' => 'http://' . $this->input('web_site')]);
+        }
+
+        Log::debug('After preparingForValidation()...', ['data'=> $this->all()]);
+    }
+
+    public function replaceNewLines(string $haystack, string $replacement = '|'): string
+    {
+        return Str::trim(Str::replace("\n", $replacement, Str::trim($haystack)));
     }
 
     // protected function prepareForValidation(): void
