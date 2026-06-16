@@ -270,7 +270,10 @@ trait MillImportOperation
         //If a custom import is set, skip directly to handle the import
         // if (!is_null($this->custom_import_handler)) {
         if (null !== $this->custom_import_handler) {
-            return $this->handleImport($log->id);
+            Log::debug('We have a custom_import_handler but we\'re still going to map the fields, dammit!', [
+                'custom_import_handler' => $this->custom_import_handler,
+            ]);
+            // return $this->handleImport($log->id);
         }
 
         /**
@@ -434,6 +437,12 @@ trait MillImportOperation
         ]);
     }
 
+    /**
+     * Check some shit then initiate the import, either immediately or on the queue.
+     * 
+     * @param int $id
+     * @return RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function handleImport(int $id): RedirectResponse
     {
         $this->crud->hasAccessOrFail('import');
@@ -485,6 +494,8 @@ trait MillImportOperation
     }
 
     /**
+     * This is another thing that will break when we start using a custom ImportLog model...
+     * 
      * @param int $id
      * @return ImportLog
      */
