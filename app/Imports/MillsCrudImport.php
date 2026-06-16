@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\RemembersRowNumber;
+use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
@@ -22,6 +23,7 @@ use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Events\AfterChunk;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
@@ -41,7 +43,7 @@ use Throwable;
 
 
 // OnEachRow, ToModel, WithHeadingRow, WithCrudSupport, WithEvents
-class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows, WithChunkReading, SkipsOnFailure, SkipsOnError
+class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows, WithChunkReading, SkipsOnFailure, SkipsOnError, WithValidation
 {
     use RemembersRowNumber;
     use SkipsErrors;
@@ -145,13 +147,13 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
         $currentRow = $this->getRowNumber();
 
         if (collect($row)->filter()->isEmpty()) {
-            Log::debug('skipping empty row #'.$currentRow);
+            Log::debug('skipping empty row #'.$rowIndex);
             ImportRowSkippedEvent::dispatch($this->import_log, $row);
             return;
         }
 
         if (empty($row['match_id']) || empty($row['mill_name'])) {
-            Log::debug('skipping empty match_id or mill_name on row #'.$currentRow);
+            Log::debug('skipping empty match_id or mill_name on row #'.$rowIndex);
             ImportRowSkippedEvent::dispatch($this->import_log, $row);
             return;
         }
@@ -159,6 +161,7 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
         Log::debug('in onRow(), importing from ' . $this->import_log->file_name . '...', [
             'currentRow' => $currentRow,
             'rowIndex' => $rowIndex,
+            "\n",
             'row' => $row,
             // 'import_log' => $this->import_log,
         ]);
@@ -196,8 +199,10 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
                 if ($val->fails()) { // Validator::make($row, $mapped_rules)->fails()) {
                     Log::debug('Import row '.$currentRow.' failed: ', [
                         'row' => $row,
-                        'mapped_rules' => $mapped_rules,
+                        // 'mapped_rules' => $mapped_rules,
                         'invalid' => $val->invalid(),
+                        'failed' => $val->failed(),
+                        'messages' => $val->messages(),
                     ]);
                     ImportRowSkippedEvent::dispatch($this->import_log, $row);
                     return;
@@ -218,7 +223,7 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
             $model_field = $heading;
             $data = $value;
 
-            if ($matched_config && count($handler_classes) === count($matched_config)) {
+            if ($matched_config && \count($handler_classes) === \count($matched_config)) {
                 foreach ($handler_classes as $index => $handler_class) {
                     //Instantiate handler class, process data from column
                     $handler = new $handler_class($value, $matched_config[$index], $this->import_log->model);
@@ -231,8 +236,9 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
             }
             /**
              * Replace any newlines in type or species values with | or some such
+             * We may not need this anymore because I added prepareForValidation() to the FormRequest...
              */
-            if (in_array($model_field, ['type', 'species']) && Str::contains($data, "\n")) {
+            if (\in_array($model_field, ['type', 'species']) && Str::contains($data, "\n")) {
                 Log::debug('Fixing '.$model_field.' because it contains new lines.', ['data' => $data]);
                 $entry->{$model_field} = $this->replaceNewlines($data); // Str::trim(Str::replace("\n", '|', Str::trim($data)));
             } else {
@@ -263,12 +269,13 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
              * @var Reader $reader
              */
             $reader = $event->getDelegate();
-            $totalRows = $reader->getTotalRows();
+            $totalRows = array_reduce($reader->getTotalRows(), fn($carry, $item) => $carry + $item, 0);
             // $spreadsheet = $reader->getDelegate();
             // $props = $spreadsheet->getProperties();
             Log::debug('BeforeImport for ImportLog #'.$log->id.': ', [
                 'totalRows' => $totalRows,
                 'importClass' => class_basename($importer),
+                // 'props' => print_r($props, true),
             ]);
 
             ImportStartedEvent::dispatch($log);
@@ -277,6 +284,7 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
 
         /**
          * Hold the phone, ImportFailed doesn't extend Event...
+         * We should probably just make our own events for the things that are missing, incomplete, or insufficient.
          */
         $events[ImportFailed::class] = function (ImportFailed $event) {
             Log::debug('Import failed, but we don\'t have a way to identify it, except via the import_log member...', [
@@ -291,6 +299,20 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
         $events[AfterChunk::class] = function (AfterChunk $event) {
             Log::debug('AfterChunk starting on row #' . $event->getStartRow());
         };
+
+        $events[AfterImport::class] = function (AfterImport $event) {
+            $importer = $event->getConcernable();
+            $log = $importer->getImportLog();
+            $log->completed_at = Carbon::now();
+            $log->save();
+
+            if ($log->delete_file_after_import) {
+                Storage::disk($log->disk)->delete($log->file_path);
+            }
+
+            ImportCompleteEvent::dispatch($log);
+        };
+
 
         return $events;
 
@@ -352,5 +374,36 @@ class CustomCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows
         // parent::onError($e);
         $this->errors[] = $e;
         Log::debug('Error during import: ', ['error' => $e]);
+    }
+
+    public function prepareForValidation(array $data, int $rowIndex): array
+    {
+        /**
+         * Bail if none of the special fields have data.
+         */
+        if (empty($data['type']) && empty($data['species']) && empty($data['web_site'])) {
+            return $data;
+        }
+
+        Log::debug('Before CustomCrudImport::prepareForValidation(): ', ['data' => $data, 'row' => $rowIndex]);
+
+        foreach (['type', 'species'] as $field) {
+            if (empty($data[$field])) {
+                continue;
+            }
+            $data[$field] = $this->replaceNewlines($data[$field]);
+        }
+
+        if (!empty($data['web_site']) && Str::doesntStartWith($data['web_site'], ['http://', 'https://'])) {
+            $data['web_site'] = 'http://' . $data['web_site'];
+        }
+
+        Log::debug('After CustomCrudImport::prepareForValidation(): ', ['data' => $data, 'row' => $rowIndex]);
+        return $data;
+    }
+
+    public function rules(): array
+    {
+        return $this->rules ?? [];
     }
 }
