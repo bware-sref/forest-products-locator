@@ -158,6 +158,15 @@ class ImportMillRequest extends FormRequest
     {
         Log::debug('Running ImportMillRequest::prepareForValidation() with data: ', ['data'=> $this->all()]);
 
+        /**
+         * Most state-supplied mill data does not include match_id or physical_state (or even state)
+         * Mississippi includes state.
+         * But SC exports don't even include the name of the mill.
+         */
+
+        /**
+         * make sure type and species are trimmed
+         */
         $this->replace([
             'type' => $this->replaceNewLines($this->input('type') ?? ''),
             'species' => $this->replaceNewLines($this->input('species') ??''),
