@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\Operations\MillImportOperation;
 use App\Http\Requests\ImportMillRequest;
 use App\Http\Requests\MillRequest;
 use App\Imports\FloridaMills;
-use App\Imports\CustomCrudImport;
+use App\Imports\MillsCrudImport;
 use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -510,6 +510,6 @@ class MillCrudController extends CrudController
          * At present we still need to use it for a successful import.
          * But also at present if we set it, the MapFields view doesn't display.
          */
-        // $this->setImportHandler(CustomCrudImport::class);
+        $this->setImportHandler(MillsCrudImport::class);
     }
 }
