@@ -227,9 +227,14 @@ trait MillImportOperation
         $disk = config('backpack.operations.import.disk') ?? 'local';
         $path = config('backpack.operations.import.path') ?? 'imports';
 
+        Log::debug('Uploaded file: ', [
+            'file' => $request->file('file'),
+            'originalName' => $request->file('file')->getClientOriginalName(),
+        ]);
+
         try {
             $file_path = $request->file('file')->store($path, $disk);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             \Alert::add('error',
                 __('import-operation::import.file_upload_problem') . (config('app.env') === 'development') ? $e->getMessage() : ''
             )->flash();
@@ -237,6 +242,13 @@ trait MillImportOperation
         }
 
         $log_model = $this->getImportLogModel();
+
+        /**
+         * IMO, the getImportPrimaryKey() method should encrapsulate all the mess below so that we can just do
+         *  `$model_primary_key = $this->getImportPrimaryKey();`
+         * and $model_primary_key will be null if it should be.
+         * 
+         */
         $model_primary_key = null;
         if (!($this->crud->getOperationSetting('disablePrimaryKey', 'import') ?? false)) {
             $model_primary_key = $this->getImportPrimaryKey();
@@ -256,7 +268,8 @@ trait MillImportOperation
          */
 
         //If a custom import is set, skip directly to handle the import
-        if (!is_null($this->custom_import_handler)) {
+        // if (!is_null($this->custom_import_handler)) {
+        if (null !== $this->custom_import_handler) {
             return $this->handleImport($log->id);
         }
 
@@ -267,6 +280,7 @@ trait MillImportOperation
          * as long as the custom import handler knows how to map the columns.
          * Here's a/the trap: the visual mapping uses the columns defined in setup AND the spreadsheet column headings.
          * That's a trap because the mapping is invalid if the spreadsheet doesn't have the same columns.
+         * To say it another way, you can only select a saved import config if it uses the same column headings as the file that was just uploaded.
          */
         $user_mapping_disabled = $this->crud->getOperationSetting('disableUserMapping', 'import') ?? false;
         if ($user_mapping_disabled) {
@@ -335,7 +349,8 @@ trait MillImportOperation
 
         $config = [];
         foreach ($this->crud->columns() as $column) {
-            $chosen_heading = $request->get($column['name'] . '__heading');
+            // $chosen_heading = $request->get($column['name'] . '__heading');
+            $chosen_heading = $request->input($column['name'] . '__heading');
             if ($chosen_heading) {
                 if (!isset($config[$chosen_heading])) {
                     $config[$chosen_heading] = [];
@@ -355,7 +370,10 @@ trait MillImportOperation
             //If primary key is not disabled
             !($this->crud->getOperationSetting('disablePrimaryKey', 'import') ?? false) &&
             //And at least one sheet column has not been mapped to the primary key column
-            is_null(collect($config)->filter(function ($items) use ($log) {
+            // is_null(collect($config)->filter(function ($items) use ($log) {
+            //     return collect($items)->where('name', $log->model_primary_key)->count() > 0;
+            // })->first())
+            (null === collect($config)->filter(function ($items) use ($log) {
                 return collect($items)->where('name', $log->model_primary_key)->count() > 0;
             })->first())
         ) {
@@ -369,7 +387,9 @@ trait MillImportOperation
         $required_errors = [];
         $required_columns = $this->getRequiredImportColumns();
         foreach ($required_columns as $required_column) {
-            if (is_null(collect($config)->filter(fn($items) => collect($items)->where('name', $required_column)->count() > 0
+            // if (is_null(collect($config)->filter(fn($items) => collect($items)->where('name', $required_column)->count() > 0
+            // )->first())) {
+            if (null === (collect($config)->filter(fn($items) => collect($items)->where('name', $required_column)->count() > 0
             )->first())) {
                 $column_config = collect($this->crud->columns())->where('name', $required_column)->first();
                 $column_label = $column_config ? $column_config['label'] : ucfirst(str_replace(' ', '', $required_column));
@@ -380,7 +400,7 @@ trait MillImportOperation
             }
         }
 
-        if (count($required_errors) > 0) {
+        if (\count($required_errors) > 0) {
             return redirect($this->crud->route . '/import/' . $id . '/map')->withErrors($required_errors);
         }
 
@@ -394,6 +414,8 @@ trait MillImportOperation
      * @param int $id
      * @return View|RedirectResponse
      * Show the user their configured import and ask to confirm
+     * 
+     * Show the field mapping and ask to confirm
      */
     public function confirmImport(int $id): View|RedirectResponse
     {
@@ -424,7 +446,9 @@ trait MillImportOperation
          * Why would you ever want that?
          * Or why not, for that matter?
          */
-        if (!$this->validateImport($log, is_null($this->custom_import_handler))) {
+        // if (!$this->validateImport($log, is_null($this->custom_import_handler))) {
+        // or even null coalescence?
+        if (!$this->validateImport($log, null === $this->custom_import_handler)) {
             return redirect($this->crud->route . '/import/' . $id . '/map');
         }
 
@@ -444,7 +468,8 @@ trait MillImportOperation
         $import_class = $import_should_queue ? QueuedCrudImport::class : CrudImport::class;
 
         //Set custom import class if it has been specified
-        if (!is_null($this->custom_import_handler)) {
+        // if (!is_null($this->custom_import_handler)) {
+        if (null !== $this->custom_import_handler) {
             $import_class = $this->custom_import_handler;
         }
 
@@ -515,7 +540,7 @@ trait MillImportOperation
     }
 
     /**
-     * This poorly-named method actually validates the import_log
+     * This poorly-named method actually validates the import_log file upload
      * 
      * @param Model $log
      * @param bool $include_config
@@ -536,6 +561,7 @@ trait MillImportOperation
     }
 
     /**
+     * Inspects the FormRequest class, if there is one, to determine which fields should be marked as required in the mapping.
      * @return array
      */
     protected function getRequiredImportColumns(): array
@@ -545,7 +571,7 @@ trait MillImportOperation
         $rules = $formRequest ? (new $formRequest)->rules() : null;
         if ($rules) {
             $required_columns = collect($rules)->filter(function ($rule) {
-                return in_array('required', explode('|', $rule));
+                return \in_array('required', explode('|', $rule));
             })->keys()->toArray();
         }
         return $required_columns;
