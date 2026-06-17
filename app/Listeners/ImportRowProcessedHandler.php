@@ -22,9 +22,15 @@ class ImportRowProcessedHandler
      */
     public function handle(ImportRowProcessed $event): void
     {
+        Log::debug('ImportRowProcessed before incrementing processed_rows: ' . $event->import_log->processed_rows);
+        $event->import_log->processed_rows += 1;
+        $event->import_log->save();
+
         Log::debug('ImportRowProcessed!', [
-            'entry' => $event->entry ?? 'no entry on event?!?',
+            // 'entry' => $event->entry ?? 'no entry on event?!?',
             'row_data' => $event->row_data ?? 'no row_data on event?!?',
+            'processed' => $event->import_log->processed_rows,
+            'importId' => $event->import_log->id,
         ]);
     }
 }
