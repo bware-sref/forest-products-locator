@@ -227,11 +227,6 @@ trait MillImportOperation
         $disk = config('backpack.operations.import.disk') ?? 'local';
         $path = config('backpack.operations.import.path') ?? 'imports';
 
-        Log::debug('Uploaded file: ', [
-            'file' => $request->file('file'),
-            'originalName' => $request->file('file')->getClientOriginalName(),
-        ]);
-
         try {
             $file_path = $request->file('file')->store($path, $disk);
         } catch (Exception $e) {
@@ -240,6 +235,12 @@ trait MillImportOperation
             )->flash();
             return redirect()->back();
         }
+
+        $originalFileName = $request->file('file')->getClientOriginalName();
+        Log::debug('Uploaded file: ', [
+            'file' => $request->file('file'),
+            'originalName' => $originalFileName,
+        ]);
 
         $log_model = $this->getImportLogModel();
 
@@ -258,8 +259,12 @@ trait MillImportOperation
             'user_id' => backpack_user()->id,
             'file_path' => $file_path,
             'disk' => $disk,
-            'model' => get_class($this->crud->model),
+            'model' => \get_class($this->crud->model),
             'model_primary_key' => $model_primary_key,
+            'original_file_name' => $originalFileName,
+            'processed_rows' => 0,
+            'failed_rows' => 0,
+            'total_rows' => 0,
         ]);
 
         /**
@@ -270,9 +275,9 @@ trait MillImportOperation
         //If a custom import is set, skip directly to handle the import
         // if (!is_null($this->custom_import_handler)) {
         if (null !== $this->custom_import_handler) {
-            Log::debug('We have a custom_import_handler but we\'re still going to map the fields, dammit!', [
-                'custom_import_handler' => $this->custom_import_handler,
-            ]);
+            // Log::debug('We have a custom_import_handler but we\'re still going to map the fields, dammit!', [
+            //     'custom_import_handler' => $this->custom_import_handler,
+            // ]);
             // return $this->handleImport($log->id);
         }
 
@@ -324,7 +329,7 @@ trait MillImportOperation
         $column_headers = Excel::toArray($headingImport, $log->file_path, $log->disk);
         do {
             $column_headers = $column_headers[0];
-        } while (isset($column_headers[0]) && is_array($column_headers[0]));
+        } while (isset($column_headers[0]) && \is_array($column_headers[0]));
 
         $required_columns = $this->getRequiredImportColumns();
 
