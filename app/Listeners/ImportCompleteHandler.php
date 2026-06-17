@@ -22,6 +22,12 @@ class ImportCompleteHandler
      */
     public function handle(ImportCompleteEvent $event): void
     {
-        Log::debug('ImportCompleted!', ['event' => $event]);
+        Log::debug('ImportCompleted!', [
+            // 'event' => $event
+            'importedFile' => $event->import_log->original_file_name,
+            'totalRows' => $event->import_log->total_rows,
+            'processedRows' => $event->import_log->processed_rows,
+            'failedRows' => $event->import_log->failed_rows,
+        ]);
     }
 }
