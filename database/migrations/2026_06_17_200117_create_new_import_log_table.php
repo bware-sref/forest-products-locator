@@ -11,24 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create("import_configs", function (Blueprint $table) {
-            $table->id();
-            /**
-             * model_primary_key
-             * model
-             * config
-             * and arguably delete_file_after_import
-             * can/should be moved to the new import_(maps|mappings|settings) table
-             */
-            $table->string('model_primary_key')
-                ->nullable(true)
-                ->default(null);
-            $table->text('model');
-            $table->longText('config')->nullable();
-            $table->boolean('delete_file_after_import')->default(false);
+        // Schema::create("import_configs", function (Blueprint $table) {
+        //     $table->id();
+        //     /**
+        //      * model_primary_key
+        //      * model
+        //      * config
+        //      * and arguably delete_file_after_import
+        //      * can/should be moved to the new import_(maps|mappings|settings) table
+        //      */
+        //     $table->string('model_primary_key')
+        //         ->nullable(true)
+        //         ->default(null);
+        //     $table->text('model');
+        //     $table->longText('config')->nullable();
+        //     $table->boolean('delete_file_after_import')->default(false);
 
-            $table->timestamps();
-        });
+        //     $table->timestamps();
+        // });
 
         Schema::create('imports', function (Blueprint $table) {
             $table->id();
@@ -48,6 +48,20 @@ return new class extends Migration
             $table->string('disk')->default('local');
 
             /**
+             * model_primary_key
+             * model
+             * config
+             * and arguably delete_file_after_import
+             * can/should be moved to the new import_(maps|mappings|settings) table
+             */
+            $table->string('model_primary_key')
+                ->nullable(true)
+                ->default(null);
+            $table->text('model');
+            $table->longText('config')->nullable();
+            $table->boolean('delete_file_after_import')->default(false);
+
+            /**
              * Add columns for total rows, processed rows, and failed rows.
              */
             $table->integer('total_rows')->default(0);
@@ -61,7 +75,7 @@ return new class extends Migration
              * And I'm not sure we want it to be nullable...
              * Well, we need it to be nullable in case this record is created before the config record.
              */
-            $table->foreignId('import_config_id')->nullable()->default(null)->constrained();
+            // $table->foreignId('import_config_id')->nullable()->default(null)->constrained();
             
             $table->dateTime('started_at')->nullable();
             $table->dateTime('completed_at')->nullable();
@@ -74,7 +88,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('import_configs');
+        // Schema::dropIfExists('import_configs');
         Schema::dropIfExists('imports');
     }
 };

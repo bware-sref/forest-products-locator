@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Import;
 use RedSquirrelStudio\LaravelBackpackImportOperation\Columns;
 use RedSquirrelStudio\LaravelBackpackImportOperation\Models\ImportLog;
 
@@ -8,7 +9,8 @@ use RedSquirrelStudio\LaravelBackpackImportOperation\Models\ImportLog;
  */
 
 return [
-    'import_log_model' => ImportLog::class,
+    // 'import_log_model' => ImportLog::class,
+    'import_log_model' => Import::class,
 
     //Filesystem disk to store uploaded import files
     'disk' => env('FILESYSTEM_DISK', 'local'),
