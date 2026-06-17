@@ -161,7 +161,8 @@ class ImportMillRequest extends FormRequest
         /**
          * Most state-supplied mill data does not include match_id or physical_state (or even state)
          * Mississippi includes state.
-         * But SC exports don't even include the name of the mill.
+         * SC exports don't even include the name of the mill, FFS.
+         * And TX puts the entire address in a single column.
          */
 
         /**
