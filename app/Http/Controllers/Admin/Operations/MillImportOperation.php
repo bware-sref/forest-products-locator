@@ -119,6 +119,9 @@ trait MillImportOperation
         // CRUD::operation('list', function () {
         //     CRUD::addButton('top', 'import', 'view', 'import-operation::buttons.import_button');
         // });
+        /**
+         * Just to be clear, this hooks into the CrudController::list() method for the current model, e.g., Mills.
+         */
         LifecycleHook::hookInto('list:before_setup', function () {
             CRUD::addButton('top', 'import', 'view', 'import-operation::buttons.import_button');
         });
@@ -224,6 +227,11 @@ trait MillImportOperation
 
         $request = $this->crud->validateRequest();
 
+        /**
+         * using config() with ?? instead of using the second parameter for default value seems strange.
+         * Another thing I don't like about what happens below is that it defines defaults in multiple places,
+         * here and in the config file.
+         */
         $disk = config('backpack.operations.import.disk') ?? 'local';
         $path = config('backpack.operations.import.path') ?? 'imports';
 
@@ -236,6 +244,9 @@ trait MillImportOperation
             return redirect()->back();
         }
 
+        /**
+         * Snag the original file name and add it to the log.
+         */
         $originalFileName = $request->file('file')->getClientOriginalName();
         Log::debug('Uploaded file: ', [
             'file' => $request->file('file'),
@@ -321,6 +332,10 @@ trait MillImportOperation
         //Find the import log
         $log = $this->getCurrentImportLog($id);
 
+        /**
+         * If validating the upload fails...
+         * validateUploadedFile() would be a better name for the function invoked below.
+         */
         if (!$this->validateImport($log)) {
             return redirect($this->crud->route . '/import');
         }
@@ -333,7 +348,10 @@ trait MillImportOperation
 
         $required_columns = $this->getRequiredImportColumns();
 
+        $autoMap = $this->getAutoMap($column_headers);
+
         return view('import-operation::map-fields', [
+            'autoMap' => $autoMap,
             'crud' => $this->crud,
             'title' => CRUD::getTitle() ?? __('import-operation::import.import') . ' ' . $this->crud->entity_name_plural,
             'column_headers' => $column_headers,
@@ -591,5 +609,37 @@ trait MillImportOperation
             })->keys()->toArray();
         }
         return $required_columns;
+    }
+
+    /**
+     * I don't remember why I thought I needed this method...
+     * Handling automap in the view almost seems better because we're already doing a nested loop to populate the select options.
+     * @param array $headings
+     * @return array
+     */
+    protected function getAutoMap(array $headings): array
+    {
+        /**
+         * If we have no columns, what is there to map?
+         */
+        $columns = $this->crud->columns();
+        if (empty($columns) || empty($headings)) {
+            return [];
+        }
+
+        $cols = collect($columns);
+        /**
+         * loop over the headings to find the first item that satisfies the conditions
+         */
+        $autoMap = [];
+
+        foreach ($headings as $heading) {
+            $column = $cols->first(fn ($col, $key) => $col['name'] === $heading || $col['key'] === $heading || strtolower($col['label']) === strtolower($heading));
+            if ($column) {
+                $autoMap[$heading] = $column['name'];
+            }
+        }
+
+        return $autoMap;
     }
 }
