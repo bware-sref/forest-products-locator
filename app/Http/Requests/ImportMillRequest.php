@@ -180,7 +180,7 @@ class ImportMillRequest extends FormRequest
             $this->replace(['web_site' => 'http://' . $this->input('web_site')]);
         }
 
-        Log::debug('After preparingForValidation()...', ['data'=> $this->all()]);
+        Log::debug('After ImportMillRequest::prepareForValidation()...', ['data'=> $this->all()]);
     }
 
     public function replaceNewLines(string $haystack, string $replacement = '|'): string
