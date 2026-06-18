@@ -1,0 +1,17 @@
+[bp-section=crud-operation-list] {
+    .bp-datagrid-title {
+        color: #fff;
+    }
+}
+
+[bp-section=crud-operation-show] {
+    .bp-datagrid-title {
+        color: #fff;
+    }
+}
+
+[bp-section=import-select-file] {
+    form .help-block {
+        color: --var(--color-beluga);
+    }
+}

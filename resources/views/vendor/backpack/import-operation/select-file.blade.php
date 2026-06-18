@@ -12,7 +12,7 @@
 @endphp
 
 @section('header')
-    <section class="container-fluid">
+    <section class="container-fluid" bp-section="page-header">
         <h2>
             <span class="text-capitalize">
                 {!! $crud->getHeading() ?? $crud->entity_name_plural !!}
@@ -38,7 +38,7 @@
 
 @section('content')
 
-    <div class="row">
+    <div class="row" bp-section="import-select-file">
         <div class="col-md-8">
             {{-- Default box --}}
 
