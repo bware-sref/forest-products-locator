@@ -8,6 +8,7 @@ use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
 use App\Models\State;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -438,13 +439,13 @@ class Mill extends Model
          */
         if (session()->cache()->has('mills')) {
             $mills = session()->cache()->get('mills');
-            Log::debug("found mills in session cache!", ['count' => count($mills)]);
+            Log::debug("found mills in session cache!", ['count' => \count($mills)]);
             return $mills;
         }
 
         if (session()->has('mills')) {
             $mills = session()->get('mills');
-            Log::debug('found mills in session', ['count' => count($mills)]);
+            Log::debug('found mills in session', ['count' => \count($mills)]);
             return $mills;
         }
 
@@ -615,5 +616,63 @@ class Mill extends Model
             'lastThreeMonths' => Carbon::now()->minus(months: 3),
             'lastYear' => Carbon::now()->minus(years: 1),
         ];
+    }
+
+    public static function makeMatchId(Mill|array $mill): string
+    {
+        $mill = \is_array($mill) ? $mill : $mill->toArray();
+        /**
+         * go with the default matchId at first
+         */
+        $slug = Str::slug($mill['mill_name']);
+        $slugWithCity = Str::slug($mill['mill_name'] . ' ' . $mill['physical_city']);
+
+        /**
+         * see if there's an exact match
+         */
+        $others = Mill::select('match_id')
+            ->where('match_id', $slug)
+            ->orWhere('match_id', $slugWithCity)
+            ->orWhereLike('match_id', "$slug%", caseSensitive: false)
+            ->orWhereLike('match_id', "$slugWithCity%", false)
+            ->orderBy('match_id','desc')
+            ->first();
+
+        /**
+         * if not, go with the simplest version
+         */
+        if (empty($others)) {
+            return $slug;
+        }
+
+        /**
+         * here's where things get interesting and/or annoying.
+         * we have to make something unique...easiest way is to append a number instead of doing something more meaningful.
+         * in that case, we could change our earlier query to find Mills
+         * with match_id LIKE 'simple%' and order them by match_id descending so that we only get the latest (or the one that sorts last)
+         * now isolate the suffix by replacing $matchId in the fetched row.
+         * then what?
+         * Well now.
+         * They're not all numeric.
+         * Maybe we should look for both the mill name slug and the mill slug
+         * followed by city name
+         */
+        /**
+         * Next simplest version is appending the city
+         */
+        if ($others->match_id !== $slugWithCity) {
+            return $slugWithCity;
+        }
+        
+        $suffix = Str::ltrim(Str::remove($slug, $others->match_id), '-_ ');
+
+        /**
+         * if the suffix is numeric, increment it and bail.
+         * if not, make a numeric suffix
+         */
+        $suffix = is_numeric($suffix) ? (int) $suffix : 0;
+        $suffix += 1;
+        
+        return "$slug-$suffix";
     }
 }
