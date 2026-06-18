@@ -56,10 +56,14 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
     {
         // Log::debug('CustomCrud, validator is huh?', ['validator' => $validator]);
         if ($validator !== ImportMillRequest::class) {
-            // $oldValidator = $validator;
+            $oldValidator = $validator;
             $validator = ImportMillRequest::class;
-            // Log::debug('CustomCrud, changing validator from "'.$oldValidator.'" to "'.$validator.'"', ['validator' => $validator]);
+            Log::debug(self::class . '::__construct(), changing validator.', [
+                'validator' => $validator,
+                'oldValidator' => $oldValidator,
+            ]);
         }
+
         //Find the import log
         // $model = config('backpack.operations.import.import_log_model') ?? ImportLog::class;
         // $import_log = $model::find($import_log_id);
@@ -74,12 +78,19 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
          */
         parent::__construct($import_log_id, $validator);
 
+        /**
+         * import_log->config will be empty if we didn't go through MapFields before arriving here.
+         */
         if (empty($this->import_log->config)) {
+            Log::debug(self::class . '::__construct(), making config because it was empty.');
             $this->import_log->config = $this->makeConfig();
             // Log::debug('import_log->config: ', ['config' => $this->import_log->config]);
             $this->import_log->save();
         }
         
+        /**
+         * This is essentially the same as the original since we set $validator to ImportMillRequest.
+         */
         if (empty($this->rules)) {
             $this->rules = (new ImportMillRequest())->rules();
             // Log::debug('CustomCrud: adding rules where there were none.', ['rules' => $this->rules]);
@@ -206,9 +217,13 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
 
             // if (count($mapped_rules) > 0 && Validator::make($row, $mapped_rules)->fails()) {
             if (\count($mapped_rules) > 0) {
+                /**
+                 * FYI, using Validator::make() to perform validation allows validating without throwing exceptions.
+                 */
                 $val = Validator::make($rowArray, $mapped_rules);
                 if ($val->fails()) { // Validator::make($row, $mapped_rules)->fails()) {
-                    $this->import_log->failed_rows += 1;
+                    // $this->import_log->failed_rows += 1;
+                    $this->import_log->increment('failed_rows');
                     $this->import_log->save();
 
                     Log::debug('Import row '.$rowIndex.' failed: ', [
@@ -448,11 +463,14 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
      */
     public function prepareForValidation(array $data, int $rowIndex): array
     {
-        Log::debug('MillsCrudImport::prepareForValidation(): start', [
-            'importId' => $this->import_log->id,
-            'data' => $data,
-            'rowIndex' => $rowIndex,
-        ]);
+        /**
+         * Should we just use
+         */
+        // Log::debug('MillsCrudImport::prepareForValidation(): start', [
+        //     'importId' => $this->import_log->id,
+        //     'data' => $data,
+        //     'rowIndex' => $rowIndex,
+        // ]);
 
         /**
          * Bail if none of the other special fields need attention.
