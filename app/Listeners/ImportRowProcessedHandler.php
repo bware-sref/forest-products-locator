@@ -22,15 +22,27 @@ class ImportRowProcessedHandler
      */
     public function handle(ImportRowProcessed $event): void
     {
-        Log::debug('ImportRowProcessed before incrementing processed_rows: ' . $event->import_log->processed_rows);
-        $event->import_log->processed_rows += 1;
-        $event->import_log->save();
-
-        Log::debug('ImportRowProcessed!', [
-            // 'entry' => $event->entry ?? 'no entry on event?!?',
-            'row_data' => $event->row_data ?? 'no row_data on event?!?',
-            'processed' => $event->import_log->processed_rows,
+        Log::debug('ImportRowProcessed before incrementing processed_rows: ', [
+            'entryId' => $event->entry->id,
+            'processRows' => $event->import_log->processed_rows,
             'importId' => $event->import_log->id,
+            'updatedAt' => $event->import_log->updated_at->toDateTimeString(),
+        ]);
+
+        /**
+         * Phucking Intelephense phailing to discern default values...
+         */
+        $event->import_log->increment('processed_rows', amount: 1);
+        // $event->import_log->processed_rows += 1;
+        // $event->import_log->save();
+
+        Log::debug('ImportRowProcessed after incrementing processed_rows!', [
+            // 'entry' => $event->entry ?? 'no entry on event?!?',
+            'entryId' => $event->entry->id,
+            // 'row_data' => $event->row_data ?? 'no row_data on event?!?',
+            'processedRows' => $event->import_log->processed_rows,
+            'importId' => $event->import_log->id,
+            'updatedAt' => $event->import_log->updated_at->toDateTimeString(),
         ]);
     }
 }
