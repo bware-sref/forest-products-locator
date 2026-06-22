@@ -569,7 +569,7 @@ trait MillImportOperation
                 if ($first_column) {
                     $primary_key = $first_column['name'];
                 } else {
-                    throw new PrimaryKeyNotFoundException(get_class($this->crud->model));
+                    throw new PrimaryKeyNotFoundException(\get_class($this->crud->model));
                 }
             }
         }
