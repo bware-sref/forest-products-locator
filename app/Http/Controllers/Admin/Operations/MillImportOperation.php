@@ -248,7 +248,7 @@ trait MillImportOperation
          * Snag the original file name and add it to the log.
          */
         $originalFileName = $request->file('file')->getClientOriginalName();
-        Log::debug('Uploaded file: ', [
+        Log::debug(self::class . '::handleFile(): Uploaded file: ', [
             'file' => $request->file('file'),
             'originalName' => $originalFileName,
         ]);
@@ -266,6 +266,9 @@ trait MillImportOperation
             $model_primary_key = $this->getImportPrimaryKey();
         }
 
+        /**
+         * Add our additional columns when the log record is created.
+         */
         $log = $log_model::create([
             'user_id' => backpack_user()->id,
             'file_path' => $file_path,
@@ -348,10 +351,10 @@ trait MillImportOperation
 
         $required_columns = $this->getRequiredImportColumns();
 
-        $autoMap = $this->getAutoMap($column_headers);
+        // $autoMap = $this->getAutoMap($column_headers);
 
         return view('import-operation::map-fields', [
-            'autoMap' => $autoMap,
+            // 'autoMap' => $this->getAutoMap($column_headers),
             'crud' => $this->crud,
             'title' => CRUD::getTitle() ?? __('import-operation::import.import') . ' ' . $this->crud->entity_name_plural,
             'column_headers' => $column_headers,
@@ -575,6 +578,8 @@ trait MillImportOperation
 
     /**
      * This poorly-named method actually validates the import_log file upload
+     * 
+     * IMO, this method should be named validateUploadedFile().
      * 
      * @param Model $log
      * @param bool $include_config
