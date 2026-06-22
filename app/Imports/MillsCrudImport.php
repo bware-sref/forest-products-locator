@@ -375,11 +375,19 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
             /**
              * I don't know why we would need to, but we can use $event->getConcernable() to fetch the importer if that seems useful.
              */
+            $importer = $event->getConcernable();
+            $log = $importer->getImportLog();
+            // $reader = $event->getDelegate();
+
             Log::debug(self::class.'::AfterChunkHandler() starting on row #' . $event->getStartRow(), [
-                'importId' => $this->import_log->id,
-                'processedRows' => $this->import_log->processed_rows,
-                'failed(orSkipped)Rows' => $this->import_log->failed_rows,
-                'updatedAt' => $this->import_log->updated_at,
+                'importId' => $log->id,
+                'processedRows' => $log->processed_rows,
+                'failed(orSkipped)Rows' => $log->failed_rows,
+                'updatedAt' => $log->updated_at,
+                // 'importId' => $this->import_log->id,
+                // 'processedRows' => $this->import_log->processed_rows,
+                // 'failed(orSkipped)Rows' => $this->import_log->failed_rows,
+                // 'updatedAt' => $this->import_log->updated_at,
             ]);
         };
 
@@ -435,7 +443,13 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         /**
          * We can't require match_id because it simply doesn't exist outside our system.
          */
-        return empty($row['mill_name']);
+        $isEmpty = empty($row['mill_name']);
+        if ($isEmpty) {
+            Log::debug(self::class.'::isEmptyWhen() no idea what row or anything because madness.', [
+                'row' => $row,
+            ]);
+        }
+        return $isEmpty;
         // return empty($row['match_id']);
     }
 
