@@ -22,10 +22,25 @@ class ImportRowProcessedHandler
      */
     public function handle(ImportRowProcessed $event): void
     {
-        Log::debug('ImportRowProcessed before incrementing processed_rows: ', [
-            'entryId' => $event->entry->id,
-            'processRows' => $event->import_log->processed_rows,
+        // Log::debug('ImportRowProcessed before incrementing processed_rows: ', [
+        //     'entryId' => $event->entry->id,
+        //     'processRows' => $event->import_log->processed_rows,
+        //     'importId' => $event->import_log->id,
+        //     'updatedAt' => $event->import_log->updated_at->toDateTimeString(),
+        // ]);
+        $staleValue = $event->import_log->processed_rows;
+
+        /**
+         * Use refresh() to make sure the log is...fresh.
+         * Use refresh() because fresh() returns a separate instance which must be assigned to a variable.
+         */
+        $event->import_log->refresh();
+        
+        Log::debug('ImportRowProcessed after refreshing the log but before incrementing processed_rows: ', [
             'importId' => $event->import_log->id,
+            'entryId' => $event->entry->id,
+            'staleProcessedRows' => $staleValue,
+            'processRows' => $event->import_log->processed_rows,
             'updatedAt' => $event->import_log->updated_at->toDateTimeString(),
         ]);
 
