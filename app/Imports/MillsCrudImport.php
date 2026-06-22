@@ -162,11 +162,17 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         $rowIndex = $row->getIndex();
         $rowArray = $row->toArray();
 
+        /**
+         * Freshen the import_log
+         * Use refresh() because fresh() returns a separate instance which must be assigned to a variable.
+         */
+        $this->import_log->refresh();
+
         // getRowNumber() does nothing!
-        $currentRow = $this->getRowNumber();
+        // $currentRow = $this->getRowNumber();
 
         if (collect($rowArray)->filter()->isEmpty()) {
-            Log::debug('skipping empty row #'.$rowIndex);
+            Log::debug(self::class.'::onRow(), skipping empty row #'.$rowIndex);
             ImportRowSkippedEvent::dispatch($this->import_log, $rowArray);
             return;
         }
@@ -175,7 +181,7 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
          * We can't rely on match_id being present.
          */
         if (empty($rowArray['match_id']) || empty($rowArray['mill_name'])) {
-            Log::debug('skipping empty match_id or mill_name on row #'.$rowIndex);
+            Log::debug(self::class.'::onRow(), skipping empty match_id or mill_name on row #'.$rowIndex);
             ImportRowSkippedEvent::dispatch($this->import_log, $rowArray);
             return;
         }
@@ -203,6 +209,7 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         //If validation is set, we need to map the file columns to our model fields
         /**
          * For some reason, our only rule is for "file"
+         * That's because the original validation ends up being for the file upload rather than the import itself.
          */
         if ($this->rules) {
             // Log::debug('Import row: we have rules!', ['rules' => $this->rules]);
@@ -279,25 +286,30 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         //Save the entry
         $entry->save();
 
-        Log::debug('onRow, before incrementing processed_rows...', [
-            'processed_rows' => $this->import_log->processed_rows,
-            'rowIndex' => $rowIndex,
-            'import->id' => $this->import_log->id,
-            'updatedAt' => $this->import_log->updated_at,
-        ]);
+        // Log::debug(self::class . '::onRow(), before incrementing processed_rows...', [
+        //     'processed_rows' => $this->import_log->processed_rows,
+        //     'rowIndex' => $rowIndex,
+        //     'import->id' => $this->import_log->id,
+        //     'updatedAt' => $this->import_log->updated_at,
+        // ]);
 
         /**
          * Why isn't this updating processed_rows?
+         * Because we weren't refreshing the log record.
+         * We can punt this to our listeners instead if we want.
+         * But if we already have a refreshed() record here, it seems like fewer DB calls to just increment here.
+         * For now, let the event handlers handle it.
          */
-        $this->import_log->processed_rows += 1;
-        $this->import_log->save();
+        // $this->import_log->processed_rows += 1;
+        // $this->import_log->increment('processed_rows');
+        // $this->import_log->save();
 
-        Log::debug('onRow, after incrementing processed_rows...', [
-            'processed_rows' => $this->import_log->processed_rows,
-            'rowIndex' => $rowIndex,
-            'import->id' => $this->import_log->id,
-            'updatedAt' => $this->import_log->updated_at,
-        ]);
+        // Log::debug(self::class.'::onRow(), after incrementing processed_rows...', [
+        //     'processed_rows' => $this->import_log->processed_rows,
+        //     'rowIndex' => $rowIndex,
+        //     'import->id' => $this->import_log->id,
+        //     'updatedAt' => $this->import_log->updated_at,
+        // ]);
 
         ImportRowProcessedEvent::dispatch($this->import_log, $entry, $rowArray);
     }
@@ -315,6 +327,11 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
          * we want to grab properties of the file we're working with to help us understand how well (or not) the import goes.
          */
         $events[BeforeImport::class] = function (BeforeImport $event) {
+            /**
+             * I get that this is an event handler, but it still seems a weird way to get the importer class from within
+             * the importer class.
+             * That said, I suppose that because this is an event handler, then it is probably executed outside of this context.
+             */
             $importer = $event->getConcernable();
             $log = $importer->getImportLog();
 
@@ -325,7 +342,7 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
             $totalRows = array_reduce($reader->getTotalRows(), fn($carry, $item) => $carry + $item, 0);
             // $spreadsheet = $reader->getDelegate();
             // $props = $spreadsheet->getProperties();
-            Log::debug('BeforeImport for ImportLog #'.$log->id.': ', [
+            Log::debug(self::class . '::BeforeImport() for ImportLog #'.$log->id.': ', [
                 'totalRows' => $totalRows,
                 'importClass' => class_basename($importer),
                 // 'props' => print_r($props, true),
@@ -357,8 +374,11 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
             /**
              * I don't know why we would need to, but we can use $event->getConcernable() to fetch the importer if that seems useful.
              */
-            Log::debug('AfterChunk starting on row #' . $event->getStartRow(), [
+            Log::debug(self::class.'::AfterChunkHandler() starting on row #' . $event->getStartRow(), [
                 'importId' => $this->import_log->id,
+                'processedRows' => $this->import_log->processed_rows,
+                'failed(orSkipped)Rows' => $this->import_log->failed_rows,
+                'updatedAt' => $this->import_log->updated_at,
             ]);
         };
 
@@ -373,9 +393,12 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
                 Storage::disk($log->disk)->delete($log->file_path);
             }
 
-            Log::debug('AfterImport event!', [
+            Log::debug(self::class.'::AfterImportHandler() event!', [
                 'event' => $event,
-                'importLog' => $log->id,
+                'importLogId' => $log->id,
+                'processedRows' => $log->processed_rows,
+                'failedRows' => $log->failed_rows,
+                'updatedAt' => $log->updated_at,
             ]);
 
             ImportCompleteEvent::dispatch($log);
