@@ -180,8 +180,9 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         /**
          * We can't rely on match_id being present.
          */
-        if (empty($rowArray['match_id']) || empty($rowArray['mill_name'])) {
-            Log::debug(self::class.'::onRow(), skipping empty match_id or mill_name on row #'.$rowIndex);
+        // if (empty($rowArray['match_id']) || empty($rowArray['mill_name'])) {
+        if (empty($rowArray['mill_name'])) {
+            Log::debug(self::class.'::onRow(), skipping empty mill_name on row #'.$rowIndex);
             ImportRowSkippedEvent::dispatch($this->import_log, $rowArray);
             return;
         }
