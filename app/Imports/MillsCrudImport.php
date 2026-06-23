@@ -162,6 +162,11 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         $rowIndex = $row->getIndex();
         $rowArray = $row->toArray();
 
+        Log::debug(self::class.'::onRow(), #'.$rowIndex, [
+            'isThisBefore isWhenEmpty?' => 'dunno',
+            'when' => Carbon::now(),
+        ]);
+
         /**
          * Freshen the import_log
          * Use refresh() because fresh() returns a separate instance which must be assigned to a variable.
@@ -171,6 +176,12 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         // getRowNumber() does nothing!
         // $currentRow = $this->getRowNumber();
 
+        /**
+         * We don't need this empty check if we use SkipsEmptyRows
+         * However, as demonstrated by the above Log output, SkipsEmptyRows causes the row to be skipped before we enter this method.
+         * That probably only matters if we need to know why we skipped an empty row.
+         * Well, mostly I wanted to be able to identify and count skipped rows, but that's not entirely necessary.
+         */
         if (collect($rowArray)->filter()->isEmpty()) {
             Log::debug(self::class.'::onRow(), skipping empty row #'.$rowIndex);
             ImportRowSkippedEvent::dispatch($this->import_log, $rowArray);
@@ -179,6 +190,7 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
 
         /**
          * We can't rely on match_id being present.
+         * We also don't need this empty check if we use SkipsEmptyRows
          */
         // if (empty($rowArray['match_id']) || empty($rowArray['mill_name'])) {
         if (empty($rowArray['mill_name'])) {
@@ -211,6 +223,7 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         /**
          * For some reason, our only rule is for "file"
          * That's because the original validation ends up being for the file upload rather than the import itself.
+         * We should have proper validation rules now.
          */
         if ($this->rules) {
             // Log::debug('Import row: we have rules!', ['rules' => $this->rules]);
@@ -286,24 +299,6 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         }
         //Save the entry
         $entry->save();
-
-        // Log::debug(self::class . '::onRow(), before incrementing processed_rows...', [
-        //     'processed_rows' => $this->import_log->processed_rows,
-        //     'rowIndex' => $rowIndex,
-        //     'import->id' => $this->import_log->id,
-        //     'updatedAt' => $this->import_log->updated_at,
-        // ]);
-
-        /**
-         * Why isn't this updating processed_rows?
-         * Because we weren't refreshing the log record.
-         * We can punt this to our listeners instead if we want.
-         * But if we already have a refreshed() record here, it seems like fewer DB calls to just increment here.
-         * For now, let the event handlers handle it.
-         */
-        // $this->import_log->processed_rows += 1;
-        // $this->import_log->increment('processed_rows');
-        // $this->import_log->save();
 
         // Log::debug(self::class.'::onRow(), after incrementing processed_rows...', [
         //     'processed_rows' => $this->import_log->processed_rows,
@@ -443,10 +438,11 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         /**
          * We can't require match_id because it simply doesn't exist outside our system.
          */
-        $isEmpty = empty($row['mill_name']);
+        $isEmpty = empty(array_filter($row)) || empty($row['mill_name']);
         if ($isEmpty) {
             Log::debug(self::class.'::isEmptyWhen() no idea what row or anything because madness.', [
                 'row' => $row,
+                'when' => Carbon::now(),
             ]);
         }
         return $isEmpty;
