@@ -22,6 +22,11 @@ class ImportStartedHandler
      */
     public function handle(ImportStarted $event): void
     {
-        Log::debug('ImportStarted!', ['event' => $event]);
+        Log::debug('ImportStarted!', [
+            // 'event' => $event
+            'importId' => $event->import_log->id,
+            'originalFile' => $event->import_log->original_file_name,
+            'file' => $event->import_log->file_path,
+        ]);
     }
 }

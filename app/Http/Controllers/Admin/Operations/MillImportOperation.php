@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Operations;
 
 use App\Http\Requests\UploadImportFileRequest;
+use App\Imports\MillsCrudImport;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\HeadingRowImport;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -101,6 +103,23 @@ trait MillImportOperation
             'uses' => $controller . '@handleImport',
             'operation' => 'import',
         ]);
+
+                /**
+         * Add routes for previewing data
+         */
+        Route::get($segment . '/import/{id}/preview', [
+            'as' => $routeName . '.import.preview',
+            'uses' => $controller . '@preview',
+            'operation' => 'import',
+        ]);
+
+        Route::post($segment . '/import/{id}/preview', [
+            'as' => $routeName . '.import.acceptPreview',
+            'uses' => $controller . '@acceptPreview',
+            'operation' => 'import',
+        ]);
+
+
     }
 
     /**
@@ -204,56 +223,56 @@ trait MillImportOperation
      * Disable the user column mapping step of the import
      * @return void
      */
-    public function disableUserMapping(): void
-    {
-        CRUD::setOperationSetting("disableUserMapping", true);
-    }
+    // public function disableUserMapping(): void
+    // {
+    //     CRUD::setOperationSetting("disableUserMapping", true);
+    // }
 
     /**
      * Queue imports to be handled in the background
      * @return void
      */
-    public function queueImport(): void
-    {
-        CRUD::setOperationSetting('queueImport', true);
-    }
+    // public function queueImport(): void
+    // {
+    //     CRUD::setOperationSetting('queueImport', true);
+    // }
 
     /**
      * Delete the spreadsheet file after an import is complete
      * @return void
      */
-    public function deleteFileAfterImport(): void
-    {
-        CRUD::setOperationSetting('deleteFileAfterImport', true);
-    }
+    // public function deleteFileAfterImport(): void
+    // {
+    //     CRUD::setOperationSetting('deleteFileAfterImport', true);
+    // }
 
     /**
      * Remove the need for a primary key, only create models
      * @return void
      */
-    public function withoutPrimaryKey(): void
-    {
-        CRUD::setOperationSetting('disablePrimaryKey', true);
-    }
+    // public function withoutPrimaryKey(): void
+    // {
+    //     CRUD::setOperationSetting('disablePrimaryKey', true);
+    // }
 
     /**
      * Set a custom import class, this will skip the mapping phase on the front end
      * @param string $import_class
      * @return void
      */
-    public function setImportHandler(string $import_class): void
-    {
-        $this->custom_import_handler = $import_class;
-    }
+    // public function setImportHandler(string $import_class): void
+    // {
+    //     $this->custom_import_handler = $import_class;
+    // }
 
     /**
      * @param string $url
      * @return void
      */
-    public function setExampleFileUrl(string $url): void
-    {
-        $this->example_file_url = $url;
-    }
+    // public function setExampleFileUrl(string $url): void
+    // {
+    //     $this->example_file_url = $url;
+    // }
 
     /**
      * @return View
@@ -263,6 +282,9 @@ trait MillImportOperation
     {
         $this->crud->hasAccessOrFail('import');
 
+        /**
+         * FYI, $this->data comes from CrudController
+         */
         $this->data['crud'] = $this->crud;
         $this->data['title'] = CRUD::getTitle() ?? __('import-operation::import.import') . ' ' . $this->crud->entity_name_plural;
 
@@ -586,56 +608,56 @@ trait MillImportOperation
      * @param int $id
      * @return ImportLog
      */
-    protected function getCurrentImportLog(int $id): ImportLog
-    {
-        $log_model = $this->getImportLogModel();
-        $log = $log_model::find($id);
-        if (!$log) {
-            abort(404);
-        }
-        return $log;
-    }
+    // protected function getCurrentImportLog(int $id): ImportLog
+    // {
+    //     $log_model = $this->getImportLogModel();
+    //     $log = $log_model::find($id);
+    //     if (!$log) {
+    //         abort(404);
+    //     }
+    //     return $log;
+    // }
 
     /**
      * @return Model|string
      */
-    protected function getImportLogModel(): Model|string
-    {
-        return config('backpack.operations.import.import_log_model') ?? ImportLog::class;
-    }
+    // protected function getImportLogModel(): Model|string
+    // {
+    //     return config('backpack.operations.import.import_log_model') ?? ImportLog::class;
+    // }
 
     /**
      * @return string
      * @throws Exception
      * Get the model's primary key based on the import config or model setup
      */
-    protected function getImportPrimaryKey(): string
-    {
-        //First look for a column with primary_key => true
-        $primary_key_column = collect($this->crud->columns())->where('primary_key', true)->first();
-        if ($primary_key_column) {
-            $primary_key = $primary_key_column['name'];
-        } else {
-            //Get the current CRUD models' primary key as a fallback if the user has not defined a column as primary key
-            $model = (new $this->crud->model);
-            $primary_key = $model->getKeyName();
+    // protected function getImportPrimaryKey(): string
+    // {
+    //     //First look for a column with primary_key => true
+    //     $primary_key_column = collect($this->crud->columns())->where('primary_key', true)->first();
+    //     if ($primary_key_column) {
+    //         $primary_key = $primary_key_column['name'];
+    //     } else {
+    //         //Get the current CRUD models' primary key as a fallback if the user has not defined a column as primary key
+    //         $model = (new $this->crud->model);
+    //         $primary_key = $model->getKeyName();
 
-            //Check if a column is defined in import setup
-            $primary_key_column = collect($this->crud->columns())->where('name', $primary_key)->first();
-            if (!$primary_key_column) {
-                //If a column hasn't been set with the model's primary key, choose the first text/number column as a primary key
-                $first_column = collect($this->crud->columns())->whereIn('type', [
-                    'text', 'number', TextColumn::class, NumberColumn::class,
-                ])->first();
-                if ($first_column) {
-                    $primary_key = $first_column['name'];
-                } else {
-                    throw new PrimaryKeyNotFoundException(\get_class($this->crud->model));
-                }
-            }
-        }
-        return $primary_key;
-    }
+    //         //Check if a column is defined in import setup
+    //         $primary_key_column = collect($this->crud->columns())->where('name', $primary_key)->first();
+    //         if (!$primary_key_column) {
+    //             //If a column hasn't been set with the model's primary key, choose the first text/number column as a primary key
+    //             $first_column = collect($this->crud->columns())->whereIn('type', [
+    //                 'text', 'number', TextColumn::class, NumberColumn::class,
+    //             ])->first();
+    //             if ($first_column) {
+    //                 $primary_key = $first_column['name'];
+    //             } else {
+    //                 throw new PrimaryKeyNotFoundException(\get_class($this->crud->model));
+    //             }
+    //         }
+    //     }
+    //     return $primary_key;
+    // }
 
     /**
      * This poorly-named method actually validates the import_log file upload
@@ -707,5 +729,70 @@ trait MillImportOperation
         }
 
         return $autoMap;
+    }
+
+    public function preview(int $id): View|RedirectResponse
+    {
+        $this->crud->hasAccessOrFail('import');
+        $log = $this->getCurrentImportLog($id);
+
+        $this->data['crud'] = $this->crud;
+
+        $importer = new MillsCrudImport($log->id);
+
+        $rules = $importer->rules();
+        $msgs = [];
+        foreach($rules as $k => $v) {
+            if (Str::doesntStartWith('*.', $k)) {
+                $rules['*.'.$k] = $v;
+                unset($rules[$k]);
+                $msgs['*.'.$k] = "$k must be off...";
+            }
+        }
+
+        /**
+         * Okay!
+         * Something I hadn't expected is that the imported data is doubly nested, I guess because of sheets.
+         * By doubly nested I mean 
+         * [
+         *  0 => [
+         *      0 => [
+         *          ...actual data
+         *      ]
+         *  ]
+         * ]
+         * So how do we figure out WTF is going on with it?
+         */
+        $importData = Excel::toArray($importer, $log->file_path);
+        /**
+         * I think this will do the trick...
+         */
+        while (isset($importData[0]) && isset($importData[0][0])) {
+            $importData = $importData[0];
+        }
+
+        $validator = Validator::make($importData, $rules, $msgs);
+
+        if ($validator->fails()) {
+            /**
+             * I see.
+             * It wasn't failing validation after all because the dd() does not execute.
+             * Instead, it turns out that the view already had a variable named $errors.
+             */
+            // dd([
+            //     '1_is_strict_array' => is_array($importData) && is_array($importData[0] ?? null),
+            //     '2_raw_first_row'   => $importData[0] ?? 'Array is empty',
+            //     '3_raw_messages'    => $validator->messages()->toArray(),
+            //     '4_raw_errors' => $validator->errors()->toArray(),
+            // ]);
+
+            $this->data['errorMessages'] = $validator->errors(); // ->all();
+            $this->data['messages'] = $validator->messages();
+        }
+
+        $this->data['rules'] = $rules;
+        $this->data['importData'] = $importData;
+
+        return view('import-operation::preview', $this->data);
     }
 }

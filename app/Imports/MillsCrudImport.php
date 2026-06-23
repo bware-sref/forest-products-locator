@@ -47,6 +47,11 @@ use Throwable;
  *  OnEachRow, ToModel, WithHeadingRow, WithCrudSupport, WithEvents
  */
 class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows, WithChunkReading, SkipsOnFailure, SkipsOnError, WithValidation
+/**
+ * without SkipsEmptyRows
+ * 
+ */
+// class MillsCrudImport extends CrudImport implements ShouldQueue, WithChunkReading, SkipsOnFailure, SkipsOnError, WithValidation
 {
     use RemembersRowNumber;
     use SkipsErrors;
@@ -336,6 +341,9 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
              */
             $reader = $event->getDelegate();
             $totalRows = array_reduce($reader->getTotalRows(), fn($carry, $item) => $carry + $item, 0);
+            if ($importer instanceof WithHeadingRow) {
+                $totalRows--;
+            }
             // $spreadsheet = $reader->getDelegate();
             // $props = $spreadsheet->getProperties();
             Log::debug(self::class . '::BeforeImport() for ImportLog #'.$log->id.': ', [
@@ -438,7 +446,7 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         /**
          * We can't require match_id because it simply doesn't exist outside our system.
          */
-        $isEmpty = empty(array_filter($row)) || empty($row['mill_name']);
+        $isEmpty = empty(array_filter($row)); // || empty($row['mill_name']);
         if ($isEmpty) {
             Log::debug(self::class.'::isEmptyWhen() no idea what row or anything because madness.', [
                 'row' => $row,
