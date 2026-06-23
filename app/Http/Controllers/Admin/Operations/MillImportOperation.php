@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Operations;
 
+use App\Http\Requests\UploadImportFileRequest;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
@@ -119,8 +120,9 @@ trait MillImportOperation
         // CRUD::operation('list', function () {
         //     CRUD::addButton('top', 'import', 'view', 'import-operation::buttons.import_button');
         // });
+
         /**
-         * Just to be clear, this hooks into the CrudController::list() method for the current model, e.g., Mills.
+         * Just to be clear, this hooks into the CrudController::list() method for the current Controller, e.g., MillCrudController.
          */
         LifecycleHook::hookInto('list:before_setup', function () {
             CRUD::addButton('top', 'import', 'view', 'import-operation::buttons.import_button');
@@ -133,7 +135,12 @@ trait MillImportOperation
     protected function setupImportFileUpload(): void
     {
         $this->crud->hasAccessOrFail('import');
-        CRUD::setValidation(ImportFileRequest::class);
+
+        /**
+         * We probably want to extend ImportFileRequest to make it do more of what we want it to do.
+         */
+        // CRUD::setValidation(ImportFileRequest::class);
+        CRUD::setValidation(UploadImportFileRequest::class);
 
         CRUD::addField([
             'name' => 'file',
@@ -142,6 +149,55 @@ trait MillImportOperation
             'hint' => __('import-operation::import.accepted_types') . '. ' .
                 ($this->example_file_url ? '<a target="_blank" download title="' . __('import-operation::import.download_example') . '" href="' . $this->example_file_url . '">' . __('import-operation::import.download_example') . '</a>' : ''),
         ]);
+        
+        /**
+         * If the user is not a State Agent, add a State selector.
+         * If the user is a State Agent, add a State selector but set its value and make it read-only.
+         * Either way, we apparently need a State field.
+         * We also need a checkbox to indicate if all the state's Mills should be deleted, but we can do that later.
+         * Should this be a hidden field for State Agents?
+         */
+        $user = backpack_user();
+        $state = [
+            'name' => 'state_id',
+            'label' => 'State',
+            'type' => 'select',
+            'entity' => 'state',
+            'model' => 'App\Models\State',
+            'attribute' => 'name',
+        ];
+        /**
+         * If the user is a State Agent, we need to make some changes.
+         * Rename the select element, disable it, and add a hidden field for state_id instead.
+         */
+        if ($user->isStateAgent() && !empty($user->state_id)) {
+            $state['name'] .= '_display';
+            $state['default'] = $user->state_id;
+            $state['attributes'] = [
+                'disabled' => 'disabled',
+            ];
+
+            CRUD::addField([
+                'name' => 'state_id',
+                'type' => 'hidden',
+                'value' => $user->state_id,
+            ]);
+        }
+        CRUD::addField($state);
+
+        /**
+         * Add a switch for handling delete all from State
+         * Should this only display for state agents?
+         * Should this instead appear on the Confirm screen?
+         * If next to the state selector we can use JavaScript to keep it updated...
+         */
+        $stateName = $user?->state?->name ?? 'this state';
+        CRUD::addField([
+            'name' => 'delete_from_state',
+            'type' => 'switch',
+            'label' => "Delete existing Mills in $stateName?",
+        ]);
+
     }
 
     /**
@@ -209,6 +265,11 @@ trait MillImportOperation
 
         $this->data['crud'] = $this->crud;
         $this->data['title'] = CRUD::getTitle() ?? __('import-operation::import.import') . ' ' . $this->crud->entity_name_plural;
+
+        $user = backpack_user();
+        $this->data['user'] = $user;
+        $this->data['userRoles'] = $user->roles()->pluck('name')->toArray();
+        $this->data['isStateAgent'] = $user->isStateAgent();
 
         $this->setupImportFileUpload();
 

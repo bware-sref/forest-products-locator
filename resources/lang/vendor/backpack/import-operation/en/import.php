@@ -13,7 +13,7 @@ return [
      * .xls cannot be queued because of some issue with non-Unicode characters.
      * As such, we don't want to allow .xls files.
      */
-    'accepted_types' => 'Upload a .csv or .xlsx file',
+    'accepted_types' => 'Upload a .csv or an .xlsx file',
     'select_a_column' => 'Select a file column',
     'dont_import' => "Don't Import",
     'primary_key' => 'Primary Key',
