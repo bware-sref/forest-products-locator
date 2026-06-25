@@ -138,7 +138,8 @@ class State extends Model
 
     public function stateResources(): HasMany
     {
-        return $this->hasMany(StateResource::class);
+        return $this->hasMany(StateResource::class)
+            ->orderBy('sort_weight', 'asc');
     }
 
     /**
