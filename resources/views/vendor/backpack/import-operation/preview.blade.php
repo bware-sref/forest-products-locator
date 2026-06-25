@@ -50,19 +50,67 @@
             </pre>
             @endif
 
-            <h2>Data</h2>
+            @if (!empty($sortedMessages))
+            <h2>sortedMessages</h2>
             <pre class="text-white">
                 @php
-                    print_r($importData);
+                    print_r($sortedMessages);
                 @endphp
             </pre>
+            @endif
 
+            <h2>Data</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <th scope="col">Row #</th>
+                        @foreach ($columns as $col)
+                            <th scope="col">{{ $col }}</th>                        
+                        @endforeach
+                    </thead>
+                    <tbody>
+                        @foreach ($importData as $index => $row)
+                            @php
+                                // if we don't have errors, we can plow through without checking for the problematic column(s)
+                                $rowErrors = $errorMessages[$index] ?? false;
+                                // $rowClass = empty($errorMessages[$index]) ? 'valid' : 'error';
+                            @endphp
+                            @if (!$rowErrors)
+                                <tr class="valid table-success">
+                                    <th scope="row">{{ $index + 2 }}</th>
+                                    @foreach ($row as $key => $value)
+                                        <td>{{ $value }}</td>
+                                    @endforeach
+                                </tr>                            
+                            @else
+                                <tr class="error table-danger">
+                                    <th scope="row">{{ $index + 2 }}</th>
+                                    @foreach ($row as $key => $value)
+                                        @php
+                                            $cellClass = !empty($rowErrors[$key]) ? 'border-danger' : '';
+                                        @endphp
+                                        <td class="{{ $cellClass }}">
+                                            {{ $value }}
+                                            @if (!empty($rowErrors[$key]))
+                                                <span class="text-danger">{{ $rowErrors[$key] }}</span>
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            @if (false)
             <h2>Rules</h2>
             <pre class="text-white">
                 @php
                     print_r($rules);
                 @endphp
             </pre>
+            @endif
         </div>
     </div>
 @endsection

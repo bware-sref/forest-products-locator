@@ -220,39 +220,4 @@ class ImportMillRequest extends FormRequest
 
     //     Log::debug('Data after merging additional fields in prepareForValidation(): ', $this->all());
     // }
-
-
-    /**
-     * after validation, we need to "flesh out" the data by:
-     *  - adding submitter's IP address
-     *  - set status to "pending"
-     *  - generate a unique slug for match_id
-     *  - what is our strategy for handling duplicate match_id slugs?
-     *      query for the slug with possible suffixes, e.g., 'slug%'
-     *      sort the results by match_id in descending order
-     *     if the base slug exists, add a suffix of -2, -3, etc. based on the number of existing slugs
-     *  - also, we need to check to see if mailing and physical addresses are the same and if so, copy the physical address fields to the mailing address fields
-     *  - do we want to normalize phone numbers here too?
-     *  - preg replace all non-digit characters, ltrim leading 1 if present, and then reformat as 123.456.7890
-     * passedValidation() doesn't seem to do anything, so I'm doing this in prepareForValidation() instead, which runs before validation and allows us to modify the data before it is validated.
-     */
-    // protected function passedValidation(): void
-    // {
-        // Log::debug('Running passedValidation() to flesh out data', $this->all());
-        // $this->replace([
-        //     'submitter_ip' => $this->ip(),
-        //     'status' => PublicationStatus::Pending->value,
-        //     'match_id' => Str::slug($this->mill_name),
-        // ]);
-
-        // if mailing and physical addresses are the same, copy physical address fields to mailing address fields
-        // if ($this->input('mailing_address_same_as_physical')) {
-        //     $this->replace([
-        //         'mailing_address' => $this->input('physical_address'),
-        //         'mailing_city' => $this->input('physical_city'),
-        //         'mailing_state_id' => $this->input('state_id'),
-        //         'mailing_zip' => $this->input('physical_zip'),
-        //     ]);
-        // }
-    // }
 }

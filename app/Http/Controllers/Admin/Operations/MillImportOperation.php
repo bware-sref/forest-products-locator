@@ -740,15 +740,17 @@ trait MillImportOperation
 
         $importer = new MillsCrudImport($log->id);
 
-        $rules = $importer->rules();
-        $msgs = [];
-        foreach($rules as $k => $v) {
-            if (Str::doesntStartWith('*.', $k)) {
-                $rules['*.'.$k] = $v;
-                unset($rules[$k]);
-                $msgs['*.'.$k] = "$k must be off...";
-            }
-        }
+        // $rules = $importer->bulkRules();
+        $rules = $importer->bulkRules();
+        $msgs = $importer->bulkMessages();
+        // $msgs = [];
+        // foreach($rules as $k => $v) {
+        //     if (Str::doesntStartWith('*.', $k)) {
+        //         $rules['*.'.$k] = $v;
+        //         unset($rules[$k]);
+        //         $msgs['*.'.$k] = "$k must be off...";
+        //     }
+        // }
 
         /**
          * Okay!
@@ -771,7 +773,8 @@ trait MillImportOperation
             $importData = $importData[0];
         }
 
-        $validator = Validator::make($importData, $rules, $msgs);
+        // $validator = Validator::make($importData, $rules, $msgs);
+        $validator = Validator::make($importData, $rules, [], $importer->bulkAttributes());
 
         if ($validator->fails()) {
             /**
@@ -786,10 +789,33 @@ trait MillImportOperation
             //     '4_raw_errors' => $validator->errors()->toArray(),
             // ]);
 
-            $this->data['errorMessages'] = $validator->errors(); // ->all();
-            $this->data['messages'] = $validator->messages();
+            $formattedErrors = [];
+            $rawErrors = $validator->errors()->toArray();
+            ksort($rawErrors);
+            // foreach ($validator->errors()->toArray() as $rawKey => $messages) {
+            foreach ($rawErrors as $rawKey => $messages) {
+                [$index, $field] = explode('.', $rawKey, 2);
+                $formattedErrors[$index][$field] = $messages[0];
+            }
+
+            // $this->data['errorMessages'] = $validator->errors()->toArray();
+            $this->data['errorMessages'] = $formattedErrors;
+            // $this->data['messages'] = $validator->messages()->messages();
+            // $rawMessages = $validator->messages()->messages();
+            // $sortedKeys = array_keys($rawMessages);
+            // sort($sortedKeys);
+            // ksort($rawMessages);
+            // foreach($rawMessages as $k => $message) {
+            //     list($rowIndex, $field) = explode('.', $k, 2);
+            //     $message = \is_array($message) ? $message[0] : $message;
+            // }
+            // $this->data['sortedMessages'] = array_keys($rawMessages);
+            // $this->data['sortedMessages'] = $sortedKeys;
+            // $this->data['sortedMessages'] = $rawMessages;
         }
 
+        $this->data['columns'] = array_keys($importData[0]);
+        // $this->data['columnCount'] = \count($rules);
         $this->data['rules'] = $rules;
         $this->data['importData'] = $importData;
 

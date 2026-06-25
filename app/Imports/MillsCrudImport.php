@@ -57,6 +57,10 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
     use SkipsErrors;
     use SkipsFailures;
 
+    protected $bulkRules = [];
+    protected $bulkMessages = [];
+    protected $bulkAttributes = [];
+
     public function __construct(int $import_log_id, ?string $validator = null)
     {
         // Log::debug('CustomCrud, validator is huh?', ['validator' => $validator]);
@@ -561,5 +565,39 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
     public function rules(): array
     {
         return $this->rules ?? [];
+    }
+
+    public function bulkRules(): array
+    {
+        if (empty($this->bulkRules) && !empty($this->rules)) {
+            foreach ($this->rules as $k => $rule) {
+                if (Str::doesntStartWith('*.', $k)) {
+                    $k = '*.'.$k;
+                }
+                $this->bulkRules[$k] = $rule;
+            }
+        }
+        return $this->bulkRules;
+    }
+
+    public function bulkMessages(): array
+    {
+        if (empty($this->bulkMessages)) {
+            foreach ($this->bulkRules() as $k => $v) {
+            // foreach ($this->rules() as $k => $v) {
+                $this->bulkMessages[$k] = 'There is an issue with :attribute on row #:position.';
+            }
+        }
+        return $this->bulkMessages;
+    }
+
+    public function bulkAttributes(): array
+    {
+        if (empty($this->bulkAttributes)) {
+            foreach ($this->bulkRules() as $k => $rule) {
+                $this->bulkAttributes[$k] = Str::ucwords(Str::replace(['*.', '_'], ['', ' '], $k));
+            }
+        }
+        return $this->bulkAttributes;
     }
 }
