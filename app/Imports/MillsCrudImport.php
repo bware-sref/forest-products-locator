@@ -46,12 +46,16 @@ use Throwable;
  * CrudImport already implements the following concerns
  *  OnEachRow, ToModel, WithHeadingRow, WithCrudSupport, WithEvents
  */
-class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows, WithChunkReading, SkipsOnFailure, SkipsOnError, WithValidation
+// class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows, WithChunkReading, SkipsOnFailure, SkipsOnError, WithValidation
 /**
  * without SkipsEmptyRows
  * 
  */
 // class MillsCrudImport extends CrudImport implements ShouldQueue, WithChunkReading, SkipsOnFailure, SkipsOnError, WithValidation
+/**
+ * Without ShouldQueue
+ */
+class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkReading, SkipsOnFailure, SkipsOnError, WithValidation
 {
     use RemembersRowNumber;
     use SkipsErrors;
@@ -89,9 +93,11 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
 
         /**
          * import_log->config will be empty if we didn't go through MapFields before arriving here.
+         * Right!
+         * That's why I added makeConfig() and crudlate().
          */
         if (empty($this->import_log->config)) {
-            Log::debug(self::class . '::__construct(), making config because it was empty.');
+            Log::debug(self::class . "::__construct(), making config for import #{$this->import_log->id} because it was empty.");
             $this->import_log->config = $this->makeConfig();
             // Log::debug('import_log->config: ', ['config' => $this->import_log->config]);
             $this->import_log->save();
@@ -101,6 +107,9 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
          * This is essentially the same as the original since we set $validator to ImportMillRequest.
          */
         if (empty($this->rules)) {
+            /**
+             * We should just be able to do (new $validator())->rules();
+             */
             $this->rules = (new ImportMillRequest())->rules();
             // Log::debug('CustomCrud: adding rules where there were none.', ['rules' => $this->rules]);
         } else {
@@ -227,15 +236,17 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         } else {
             // Log::debug('import_log->config is empty!', ['import_log' => $this->import_log]);
         }
+        // FFS, what does the import config do if not map spreadsheet columns to db fields?
 
         //If validation is set, we need to map the file columns to our model fields
         /**
          * For some reason, our only rule is for "file"
          * That's because the original validation ends up being for the file upload rather than the import itself.
          * We should have proper validation rules now.
+         * However, prepareForValidation() has already been executed and in fact, this mofo is acting like...a jerk?
          */
         if ($this->rules) {
-            // Log::debug('Import row: we have rules!', ['rules' => $this->rules]);
+            Log::debug('Import row: we have rules!', ['rules' => $this->rules]);
 
             $mapped_rules = [];
             foreach ($this->rules as $key => $rule) {
@@ -247,14 +258,23 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
 
             // if (count($mapped_rules) > 0 && Validator::make($row, $mapped_rules)->fails()) {
             if (\count($mapped_rules) > 0) {
+                // dump('mappedRules');
+                // dd($mapped_rules);
+
+                Log::debug('We have mapped_rules!', ['mappedRules' => $mapped_rules]);
+
                 /**
                  * FYI, using Validator::make() to perform validation allows validating without throwing exceptions.
                  */
                 $val = Validator::make($rowArray, $mapped_rules);
                 if ($val->fails()) { // Validator::make($row, $mapped_rules)->fails()) {
                     // $this->import_log->failed_rows += 1;
-                    $this->import_log->increment('failed_rows');
-                    $this->import_log->save();
+                    /**
+                     * Umm...weren't we moving this to the event handler?
+                     * Yeah, it's there, and confirmed to be working.
+                     */
+                    // $this->import_log->increment('failed_rows');
+                    // $this->import_log->save();
 
                     Log::debug('Import row '.$rowIndex.' failed: ', [
                         'row' => $rowArray,
@@ -268,6 +288,8 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
                     ImportRowSkippedEvent::dispatch($this->import_log, $rowArray);
                     return;
                 }
+            } else {
+                Log::debug('No mapped_rules?!?', ['rules' => $this->rules, 'rowKeys' => array_keys($rowArray)]);
             }
         }
 
@@ -295,26 +317,9 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
                     $entry->{$model_field} = $data;
                 }
             }
-            /**
-             * Replace any newlines in type or species values with | or some such
-             * We may not need this anymore because I added prepareForValidation() to the FormRequest...
-             */
-            // if (\in_array($model_field, ['type', 'species']) && Str::contains($data, "\n")) {
-            //     Log::debug('Fixing '.$model_field.' because it contains new lines.', ['data' => $data]);
-            //     $entry->{$model_field} = $this->replaceNewlines($data); // Str::trim(Str::replace("\n", '|', Str::trim($data)));
-            // } else {
-            //     // Log::debug('model_field "'.$model_field.'" not type or species...', ['data' => $data]);
-            // }
         }
         //Save the entry
         $entry->save();
-
-        // Log::debug(self::class.'::onRow(), after incrementing processed_rows...', [
-        //     'processed_rows' => $this->import_log->processed_rows,
-        //     'rowIndex' => $rowIndex,
-        //     'import->id' => $this->import_log->id,
-        //     'updatedAt' => $this->import_log->updated_at,
-        // ]);
 
         ImportRowProcessedEvent::dispatch($this->import_log, $entry, $rowArray);
     }
@@ -433,6 +438,8 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
 
     /**
      * Fakes import config JSON for a single column
+     * I forget why I thought I needed this method.
+     * Was it because initially using a custom import would preclude mapping?
      */
     protected function crudulate(string $key, int $priority = 0): array
     {
@@ -518,10 +525,35 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
         //     'rowIndex' => $rowIndex,
         // ]);
 
+        Log::debug(self::class.'::prepareForValidation(): ', [
+            'importId' => $this->import_log->id,
+            'data' => $data,
+            'rowIndex' => $rowIndex,
+        ]);
+
+        /**
+         * Make sure our data is mapped correctly...
+         * Except mapping columns fucks shit up when we're in onRow()
+         */
+        // if (empty($data['mill_name'])) {
+        //     $data = $this->mapRowKeysToDBColumns($data);
+
+        //     Log::debug(self::class.'::prepareForValidation(), after mapping:', ['data' => $data]);
+        // }
+
         /**
          * Bail if none of the other special fields need attention.
+         * FFS, turns out zip codes might need to be cast to strings
          */
-        if (empty($data['type']) && empty($data['species']) && empty($data['web_site']) && !empty($data['match_id'])) {
+        // if (empty($data['type']) && empty($data['species']) && empty($data['web_site']) && !empty($data['match_id']) &&
+        //     empty($data['physical_zip']) && empty($data['mailing_zip'])
+        // ) {
+        if (empty($data['type']) && // may need new lines removed
+            empty($data['species']) && // may need new lines removed
+            empty($data['web_site']) && // may need http://
+            empty($data['physical_zip']) && // may need to be cast to string
+            empty($data['mailing_zip']) // may need to be cast to string
+        ) {
             Log::debug('MillsCrudImport::prepareForValidation(): no fields need attention.', [
                 'rowIndex' => $rowIndex,
             ]);
@@ -536,9 +568,11 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
          * at a time.
          * This might be something to add to the Mill model...
          */
-        if (empty($data['match_id'])) {
-            $data['match_id'] = Mill::makeMatchId($data);
-        }
+        // if (empty($data['match_id'])) {
+            // dd(debug_backtrace());
+            // dd($this);
+        //     $data['match_id'] = Mill::makeMatchId($data);
+        // }
 
         /**
          * Not sure if this is even needed anymore since applying the trimCells middleware
@@ -552,6 +586,15 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
 
         if (!empty($data['web_site']) && Str::doesntStartWith($data['web_site'], ['http://', 'https://'])) {
             $data['web_site'] = 'http://' . $data['web_site'];
+        }
+
+        /**
+         * Cast zips if present
+         */
+        foreach (['physical_zip', 'mailing_zip'] as $field) {
+            if (!empty($data[$field]) && !\is_string($data[$field])) {
+                $data[$field] = (string) $data[$field];
+            }
         }
 
         // Log::debug('After CustomCrudImport::prepareForValidation(): ', ['data' => $data, 'row' => $rowIndex]);
@@ -599,5 +642,43 @@ class MillsCrudImport extends CrudImport implements ShouldQueue, SkipsEmptyRows,
             }
         }
         return $this->bulkAttributes;
+    }
+
+    /**
+     * Holy mole.
+     * This method was created to handle prepareForValidation() being invoked before we hit onRow()
+     * However, mapping when prepareForValidation executes results in the mapped validation in onRow() having the wrong fields.
+     * It's a pickle.
+     * 
+     * @param array $row
+     * @return array
+     */
+    protected function mapRowKeysToDBColumns(array $row): array
+    {
+        if (empty($this->import_log->config)) {
+            // do something drastic?
+            Log::error(self::class.'::mapRowKeysToDBColumns() invoked without an import_log->config!');
+            return $row;
+        }
+        $configs = collect($this->import_log->config);
+        // $ssKeys = array_keys($row);
+        $mapped = [];
+        foreach ($row as $heading => $value) {
+            if (empty($configs[$heading])) {
+                Log::debug(self::class.'::mapRowKeysToDBColumns(): No config for '. $heading);
+                continue;
+            }
+            /**
+             * FFS, these damn things are nested arrays
+             * numeric index wrapping a
+             */
+            $config = $configs[$heading];
+            while (\is_array($config) && isset($config[0])) {
+                $config = $config[0];
+            }
+
+            $mapped[$config['name']] = $value;
+        }
+        return $mapped;
     }
 }
