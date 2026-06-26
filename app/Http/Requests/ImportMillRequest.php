@@ -11,6 +11,9 @@ use Illuminate\Validation\Rule;
 
 use function Symfony\Component\Clock\now;
 
+/**
+ * This class informs validation and other mess for MillsCrudImport
+ */
 class ImportMillRequest extends FormRequest
 {
     /**
@@ -38,15 +41,18 @@ class ImportMillRequest extends FormRequest
              *  - we could still use unique here ensure that no new mills are submitted with duplicate names
              *  - if we reject duplicate names, we prevent multiple submissions for the same mill, which is good, but we also prevent submissions for mills that share a name with an existing mill, which is bad.
              */
-            // 'mill_name'=> 'required|string|unique:mills,mill_name|max:255',
             'mill_name'=> 'required|string|min:2|max:255',
+
             /**
              * match_id can be created with slugify
              * still needs to be unique
+             * we can't require match_id and mill_id at this point...
+             * or maybe we can.
+             * match_id is required and must be unique in the DB, but that doesn't mean we have to show it on the front-end of the import.
              */
-            'match_id' => 'required|string|max:255|unique:mills,match_id',
+            // 'match_id' => 'required|string|max:255|unique:mills,match_id',
 
-            'mill_id' => 'string|nullable|max:255',
+            // 'mill_id' => 'string|nullable|max:255',
 
             'physical_address' => 'string|nullable|max:255',
             'physical_city' => 'string|nullable|max:255',
