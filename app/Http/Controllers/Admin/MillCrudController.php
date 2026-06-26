@@ -309,11 +309,6 @@ class MillCrudController extends CrudController
     protected function setupImportOperation()
     {
         /**
-         * crud->columns() is empty here because we haven't set up any columns for this operation yet.
-         */
-        // Log::debug('at the top of setupImportOperation(), importCrudColumns: ', ['crudColumns' => $this->crud->columns()]);
-
-        /**
          * withoutPrimaryKey() causes the import to insert without primary keys
          */
         $this->withoutPrimaryKey();
@@ -323,7 +318,6 @@ class MillCrudController extends CrudController
          * When MapFields is enabled, the validator marks "required" fields as required on the front-end.
          */
         CRUD::setValidation(ImportMillRequest::class);
-        // $this->setImportHandler(FloridaMills::class);
 
         // $this->disableUserMapping();
 
@@ -331,17 +325,20 @@ class MillCrudController extends CrudController
 
         // basic info fields
         // match_id is a unique identifier that will be used to link mills to mill edits. It should be generated automatically and not editable by the user.
-        CRUD::addColumn([
-            'name' => 'match_id',
-            'label' => 'Match ID',
-            'type' => 'text',
-        ]);
+        /**
+         * In fact, let's get rid of it here and just generate it before validating.
+         */
+        // CRUD::addColumn([
+        //     'name' => 'match_id',
+        //     'label' => 'Match ID',
+        //     'type' => 'text',
+        // ]);
 
-        CRUD::addColumn([
-            'name' => 'mill_id',
-            'label' => 'Mill ID',
-            'type' => 'text',
-        ]);
+        // CRUD::addColumn([
+        //     'name' => 'mill_id',
+        //     'label' => 'Mill ID',
+        //     'type' => 'text',
+        // ]);
 
         CRUD::addColumn([
             'name' => 'mill_name',
