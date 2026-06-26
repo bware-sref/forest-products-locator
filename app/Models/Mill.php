@@ -214,6 +214,22 @@ class Mill extends Model
     ];
 
     /**
+     * Register event handlers in booted
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Mill $mill) {
+            if (!empty($mill->match_id)) {
+                Log::debug("Mill '$mill->mill_name' already has match_id: '$mill->match_id'");
+                return;
+            }
+            $mill->match_id = Mill::makeMatchId($mill);
+
+            Log::debug("Made match_id '$mill->match_id' for '$mill->mill_name'.");
+        });
+    }
+
+    /**
      * Accessors for physical and mailing address
      */
     protected function physicalAddressTwo(): Attribute
@@ -623,7 +639,12 @@ class Mill extends Model
         $mill = \is_array($mill) ? $mill : $mill->toArray();
         /**
          * go with the default matchId at first
+         * should probably throw an exception here
          */
+        if (empty($mill['mill_name'])) {
+            Log::error(self::class.'makeMatchId(): no mill name?!?', ['mill' => $mill]);
+            // dd($mill);
+        }
         $slug = Str::slug($mill['mill_name']);
         $slugWithCity = Str::slug($mill['mill_name'] . ' ' . $mill['physical_city']);
 
