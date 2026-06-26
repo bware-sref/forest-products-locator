@@ -22,31 +22,12 @@ class ImportRowSkippedHandler
      */
     public function handle(ImportRowSkipped $event): void
     {
-        Log::debug('ImportRowSkipped before incrementing!', [
-            'import_log.id' => $event->import_log->id,
-            'updatedAt' => $event->import_log->updated_at->toDateTimeString(),
-            'row_data' => $event->row_data ?? 'No row data on skipped row!?!',
-            'failedRows' => $event->import_log->failed_rows,
-        ]);
-
-        $staleValue = $event->import_log->failed_rows;
-
         /**
          * Freshen the import_log record.
          * Use refresh() because fresh() returns a separate instance which must be assigned to a variable.
          */
         $event->import_log->refresh();
 
-        Log::debug('ImportRowSkipped after freshening but before incrementing!', [
-            'import_log.id' => $event->import_log->id,
-            'row_data' => $event->row_data ?? 'No row data on skipped row!?!',
-            'failedRows' => $event->import_log->failed_rows,
-            'staleFailedRows' => $staleValue,
-            'updatedAt' => $event->import_log->updated_at,
-        ]);
-
-        // $event->import_log->failed_rows += 1;
-        // $event->import_log->save();
         /**
          * Phucking Intelephense phailing to discern default values...
          */        
