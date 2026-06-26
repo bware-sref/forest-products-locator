@@ -3,8 +3,8 @@
 return [
     'import' => 'Import',
     'confirm_selection' => 'Confirm Selection',
-    'into_field' => 'Into Field',
-    'import_data_from' => 'Import Data From',
+    'into_field' => 'Into Database Field',
+    'import_data_from' => 'Import Data From File',
     'map_fields' => 'Map Fields',
     'map_fields_for' => 'Map Fields For',
     'confirm_mapping' => 'Confirm Mapping',
