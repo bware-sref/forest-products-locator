@@ -49,6 +49,7 @@ trait MillImportOperation
     protected function setupImportRoutes(string $segment, string $routeName, string $controller): void
     {
         /**
+         * Step 1
          * Displays the "SelectFile" screen
          * Note that 'uses' points to the 'selectFile' method that this trait adds to the current CrudController.
          */
@@ -59,6 +60,7 @@ trait MillImportOperation
         ]);
 
         /**
+         * Step 2
          * Catches the POST request from SelectFile
          */
         Route::post($segment . '/import', [
@@ -68,6 +70,7 @@ trait MillImportOperation
         ]);
 
         /**
+         * Step 3
          * displays the MapFields screen
          */
         Route::get($segment . '/import/{id}/map', [
@@ -77,6 +80,7 @@ trait MillImportOperation
         ]);
 
         /**
+         * Step 4
          * Catches the POST from MapFields
          */
         Route::post($segment . '/import/{id}/map', [
@@ -86,7 +90,8 @@ trait MillImportOperation
         ]);
 
         /**
-         * Displays the ConfirmImport screen
+         * Step 5
+         * Displays the ConfirmImport screen which actually confirms the mapping
          */
         Route::get($segment . '/import/{id}/confirm', [
             'as' => $routeName . '.import.confirmImport',
@@ -104,7 +109,7 @@ trait MillImportOperation
             'operation' => 'import',
         ]);
 
-                /**
+        /**
          * Add routes for previewing data
          */
         Route::get($segment . '/import/{id}/preview', [
@@ -592,9 +597,11 @@ trait MillImportOperation
         }
 
         if ($import_should_queue) {
+            Log::debug(self::class.'::handleImport(): starting queued import...');
             Excel::queueImport(new $import_class($log->id, $formRequest), $log->file_path, $log->disk)->onQueue(config('backpack.operations.import.queue'));
             \Alert::add('success', __('import-operation::import.your_import_has_been_queued'))->flash();
         } else {
+            Log::debug(self::class.'::handleImport(): starting immediate import...', ['importClass' => $import_class]);
             Excel::import(new $import_class($log->id, $formRequest), $log->file_path, $log->disk);
             \Alert::add('success', __('import-operation::import.your_import_has_been_processed'))->flash();
         }
@@ -675,6 +682,11 @@ trait MillImportOperation
             'model_primary_key' => ($this->crud->getOperationSetting('disablePrimaryKey', 'import') ?? false) ? 'nullable' : 'required',
             'model' => 'required',
         ];
+        /**
+         * I still haven't figured out why $include_config is an option.
+         * Is config maybe in a hidden field on the upload page?
+         * If so, that's weird.
+         */
         if ($include_config) {
             $rules['config'] = 'required|min:1';
         }
@@ -742,7 +754,7 @@ trait MillImportOperation
 
         // $rules = $importer->bulkRules();
         $rules = $importer->bulkRules();
-        $msgs = $importer->bulkMessages();
+        // $msgs = $importer->bulkMessages();
         // $msgs = [];
         // foreach($rules as $k => $v) {
         //     if (Str::doesntStartWith('*.', $k)) {
@@ -781,37 +793,11 @@ trait MillImportOperation
              * I see.
              * It wasn't failing validation after all because the dd() does not execute.
              * Instead, it turns out that the view already had a variable named $errors.
+             * We'll name ours errorMessages instead.
              */
-            // dd([
-            //     '1_is_strict_array' => is_array($importData) && is_array($importData[0] ?? null),
-            //     '2_raw_first_row'   => $importData[0] ?? 'Array is empty',
-            //     '3_raw_messages'    => $validator->messages()->toArray(),
-            //     '4_raw_errors' => $validator->errors()->toArray(),
-            // ]);
 
-            $formattedErrors = [];
-            $rawErrors = $validator->errors()->toArray();
-            ksort($rawErrors);
-            // foreach ($validator->errors()->toArray() as $rawKey => $messages) {
-            foreach ($rawErrors as $rawKey => $messages) {
-                [$index, $field] = explode('.', $rawKey, 2);
-                $formattedErrors[$index][$field] = $messages[0];
-            }
-
-            // $this->data['errorMessages'] = $validator->errors()->toArray();
-            $this->data['errorMessages'] = $formattedErrors;
-            // $this->data['messages'] = $validator->messages()->messages();
-            // $rawMessages = $validator->messages()->messages();
-            // $sortedKeys = array_keys($rawMessages);
-            // sort($sortedKeys);
-            // ksort($rawMessages);
-            // foreach($rawMessages as $k => $message) {
-            //     list($rowIndex, $field) = explode('.', $k, 2);
-            //     $message = \is_array($message) ? $message[0] : $message;
-            // }
-            // $this->data['sortedMessages'] = array_keys($rawMessages);
-            // $this->data['sortedMessages'] = $sortedKeys;
-            // $this->data['sortedMessages'] = $rawMessages;
+            $this->data['errorMessages'] = $this->formatErrors($validator->errors()->toArray());
+            $this->data['errorRows'] = array_keys($this->data['errorMessages']);
         }
 
         $this->data['columns'] = array_keys($importData[0]);
@@ -820,5 +806,16 @@ trait MillImportOperation
         $this->data['importData'] = $importData;
 
         return view('import-operation::preview', $this->data);
+    }
+
+    protected function formatErrors(array $errors): array
+    {
+        $formattedErrors = [];
+        ksort($errors);
+        foreach ($errors as $rawKey => $messages) {
+            [$index, $field] = explode('.', $rawKey, 2);
+            $formattedErrors[$index][$field] = $messages[0];
+        }
+        return $formattedErrors;
     }
 }
