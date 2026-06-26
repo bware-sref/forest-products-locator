@@ -65,6 +65,18 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
     protected $bulkMessages = [];
     protected $bulkAttributes = [];
 
+    protected $mappedRules = [];
+    protected $bulkMappedRules = [];
+    protected $bulkMappedAttributes = [];
+
+    /**
+     * Keys are DB fields
+     * Values are mapped import column headings
+     * 
+     * @var array
+     */
+    protected $fieldMap = [];
+
     public function __construct(int $import_log_id, ?string $validator = null)
     {
         // Log::debug('CustomCrud, validator is huh?', ['validator' => $validator]);
@@ -119,6 +131,9 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
 
     protected function makeConfig(): array
     {
+        Log::debug(self::class ."::makeConfig() is happening for import #{$this->import_log->id}.", [
+            'when' => now()->format('Y-m-d H:i:s.v'),
+        ]);
         /**
          * The keys should correspond to spreadsheet columns?
          * Or is it database columns?
@@ -178,11 +193,17 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
     public function onRow(Row $row): void
     {
         $rowIndex = $row->getIndex();
+        Log::debug(self::class.'::onRow(), #'.$rowIndex.': allegedly Row::toArray() causes prepareForValidation() to execute.', [
+            'if so, we should see that here' => 'dunno',
+            'when' => Carbon::now()->format('Y-m-d H:i:s.v'),
+        ]);
+
+
         $rowArray = $row->toArray();
 
         Log::debug(self::class.'::onRow(), #'.$rowIndex, [
             'isThisBefore isWhenEmpty?' => 'dunno',
-            'when' => Carbon::now(),
+            'when' => Carbon::now()->format('Y-m-d H:i:s.v'),
         ]);
 
         /**
@@ -206,27 +227,10 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             return;
         }
 
-        /**
-         * We can't rely on match_id being present.
-         * We also don't need this empty check if we use SkipsEmptyRows
-         */
-        // if (empty($rowArray['match_id']) || empty($rowArray['mill_name'])) {
-        if (empty($rowArray['mill_name'])) {
-            Log::debug(self::class.'::onRow(), skipping empty mill_name on row #'.$rowIndex);
-            ImportRowSkippedEvent::dispatch($this->import_log, $rowArray);
-            return;
-        }
-
-        // Log::debug('in onRow(), importing from ' . $this->import_log->file_name . '...', [
-        //     'currentRow' => $currentRow,
-        //     'rowIndex' => $rowIndex,
-        //     "\n",
-        //     'row' => $rowArray,
-        //     // 'import_log' => $this->import_log,
-        // ]);
-
         //Get the current model entry based on the primary key field
         $entry = $this->getEntry($rowArray);
+
+        
         //Filter the spreadsheet row down to mapped columns, exclude the primary key
         /**
          * make sure import_log->config isn't empty before attempting to filter
@@ -244,6 +248,9 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
          * That's because the original validation ends up being for the file upload rather than the import itself.
          * We should have proper validation rules now.
          * However, prepareForValidation() has already been executed and in fact, this mofo is acting like...a jerk?
+         * Did validation also already run, or just prepareForValidation()?
+         * This could be called mapValidationRules() + soft validation
+         * And hold the phone, this shit should only run once for the import, not on every row.
          */
         if ($this->rules) {
             Log::debug('Import row: we have rules!', ['rules' => $this->rules]);
@@ -293,7 +300,14 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             }
         }
 
-        //Loop through row headings
+        /**
+         * This could be called mapHeadingsToFields()
+         * It also probably only needs to be run once instead of for every row.
+         * Well, much of it only needs to run once per import.
+         * Mapping the headings to configs, and the configs to handler_classses seems like it only needs to happen once per import.
+         * 
+         * Loop through row headings to map import data to DB columns.
+         */
         foreach ($rowArray as $heading => $value) {
             $data = null;
             //Get the config that matches the current column heading
@@ -307,6 +321,10 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             $data = $value;
 
             if ($matched_config && \count($handler_classes) === \count($matched_config)) {
+                Log::debug(self::class.'::onRow(): we have matched_config and handler_classes for row #'.$rowIndex, [
+                    'matched_config' => $matched_config,
+                    'how many handlers?' => \count($handler_classes),
+                ]);
                 foreach ($handler_classes as $index => $handler_class) {
                     //Instantiate handler class, process data from column
                     $handler = new $handler_class($value, $matched_config[$index], $this->import_log->model);
@@ -358,6 +376,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             Log::debug(self::class . '::BeforeImport() for ImportLog #'.$log->id.': ', [
                 'totalRows' => $totalRows,
                 'importClass' => class_basename($importer),
+                'when' => now()->format('Y-m-d H:i:s.v'),
                 // 'props' => print_r($props, true),
             ]);
             $log->total_rows = $totalRows;
@@ -404,7 +423,12 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         };
 
         $events[AfterImport::class] = function (AfterImport $event) {
-            
+            /**
+             * Okay!
+             * Turns out that Excel::toArray() dispatches an AfterImport event.
+             * Hilariously, there doesn't seem to be a corresponding BeforeImport event.
+             */    
+
             $importer = $event->getConcernable();
             $log = $importer->getImportLog();
             $log->completed_at = Carbon::now();
@@ -451,9 +475,14 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
 
     /**
      * Extend empty rows logic
+     * isEmptyWhen() is apparently triggered by Excel::toArray().
      */
     public function isEmptyWhen(array $row): bool
     {
+        // Log::debug(self::class.'::isEmptyWhen()', [
+        //     'when' => now()->format('Y-m-d H:i:s.v'),
+        // ]);
+
         /**
          * We can't require match_id because it simply doesn't exist outside our system.
          */
@@ -461,7 +490,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         if ($isEmpty) {
             Log::debug(self::class.'::isEmptyWhen() no idea what row or anything because madness.', [
                 'row' => $row,
-                'when' => Carbon::now(),
+                'when' => Carbon::now()->format('Y-m-d H:i:s.v'),
             ]);
         }
         return $isEmpty;
@@ -516,30 +545,12 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
      */
     public function prepareForValidation(array $data, int $rowIndex): array
     {
-        /**
-         * Should we just use
-         */
-        // Log::debug('MillsCrudImport::prepareForValidation(): start', [
-        //     'importId' => $this->import_log->id,
-        //     'data' => $data,
-        //     'rowIndex' => $rowIndex,
-        // ]);
-
-        Log::debug(self::class.'::prepareForValidation(): ', [
-            'importId' => $this->import_log->id,
-            'data' => $data,
-            'rowIndex' => $rowIndex,
+        Log::debug(self::class.'::prepareForValidation(): import #'.$this->import_log->id.', row #'.$rowIndex, [
+            // 'importId' => $this->import_log->id,
+            // 'data' => $data,
+            // 'rowIndex' => $rowIndex,
+            'when' => now()->format('Y-m-d H:i:s.v'),
         ]);
-
-        /**
-         * Make sure our data is mapped correctly...
-         * Except mapping columns fucks shit up when we're in onRow()
-         */
-        // if (empty($data['mill_name'])) {
-        //     $data = $this->mapRowKeysToDBColumns($data);
-
-        //     Log::debug(self::class.'::prepareForValidation(), after mapping:', ['data' => $data]);
-        // }
 
         /**
          * Bail if none of the other special fields need attention.
@@ -548,11 +559,11 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         // if (empty($data['type']) && empty($data['species']) && empty($data['web_site']) && !empty($data['match_id']) &&
         //     empty($data['physical_zip']) && empty($data['mailing_zip'])
         // ) {
-        if (empty($data['type']) && // may need new lines removed
-            empty($data['species']) && // may need new lines removed
-            empty($data['web_site']) && // may need http://
-            empty($data['physical_zip']) && // may need to be cast to string
-            empty($data['mailing_zip']) // may need to be cast to string
+        if (empty($data[$this->mapField('type')]) && // may need new lines removed
+            empty($data[$this->mapField('species')]) && // may need new lines removed
+            empty($data[$this->mapField('web_site')]) && // may need http://
+            empty($data[$this->mapField('physical_zip')]) && // may need to be cast to string
+            empty($data[$this->mapField('mailing_zip')]) // may need to be cast to string
         ) {
             Log::debug('MillsCrudImport::prepareForValidation(): no fields need attention.', [
                 'rowIndex' => $rowIndex,
@@ -561,37 +572,26 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         }
 
         /**
-         * But before we do this, we need to make sure match_id is populated.
-         * More annoying still, we need to comeup with an unique value for
-         * match_id.
-         * That might be damn near impossible if we weren't doing one row 
-         * at a time.
-         * This might be something to add to the Mill model...
-         */
-        // if (empty($data['match_id'])) {
-            // dd(debug_backtrace());
-            // dd($this);
-        //     $data['match_id'] = Mill::makeMatchId($data);
-        // }
-
-        /**
          * Not sure if this is even needed anymore since applying the trimCells middleware
          */
         foreach (['type', 'species'] as $field) {
+            $field = $this->mapField($field);
             if (empty($data[$field])) {
                 continue;
             }
             $data[$field] = $this->replaceNewlines($data[$field]);
         }
 
-        if (!empty($data['web_site']) && Str::doesntStartWith($data['web_site'], ['http://', 'https://'])) {
-            $data['web_site'] = 'http://' . $data['web_site'];
+        $webSite = $this->mapField('web_site');
+        if (!empty($data[$webSite]) && Str::doesntStartWith($data[$webSite], ['http://', 'https://'])) {
+            $data[$webSite] = 'http://' . $data[$webSite];
         }
 
         /**
          * Cast zips if present
          */
         foreach (['physical_zip', 'mailing_zip'] as $field) {
+            $field = $this->mapField($field);
             if (!empty($data[$field]) && !\is_string($data[$field])) {
                 $data[$field] = (string) $data[$field];
             }
@@ -610,15 +610,28 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         return $this->rules ?? [];
     }
 
+    protected function bulkUp(array $data): array
+    {
+        $bulk = [];
+        foreach ($data as $k => $v) {
+            if (Str::doesntStartWith($k, '*.')) {
+                $k = '*.'.$k;
+            }
+            $bulk[$k] = $v;
+        }
+        return $bulk;
+    }
+
     public function bulkRules(): array
     {
         if (empty($this->bulkRules) && !empty($this->rules)) {
-            foreach ($this->rules as $k => $rule) {
-                if (Str::doesntStartWith('*.', $k)) {
-                    $k = '*.'.$k;
-                }
-                $this->bulkRules[$k] = $rule;
-            }
+            // foreach ($this->rules as $k => $rule) {
+            //     if (Str::doesntStartWith('*.', $k)) {
+            //         $k = '*.'.$k;
+            //     }
+            //     $this->bulkRules[$k] = $rule;
+            // }
+            $this->bulkRules = $this->bulkUp($this->rules);
         }
         return $this->bulkRules;
     }
@@ -680,5 +693,72 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             $mapped[$config['name']] = $value;
         }
         return $mapped;
+    }
+
+    /**
+     * Input a DB field, get a mapped column heading back
+     * @param string $field
+     * @return string
+     */
+    public function mapFieldToHeading(string $field): string
+    {
+        if (empty($this->fieldMap[$field])) {
+            // if nothing else found, use the original field name
+            $this->fieldMap[$field] = $this->getMatchedHeading($field) ?? $field;
+        }
+        return $this->fieldMap[$field]; // $this->getMatchedHeading($field) ?? $field;
+    }
+
+    public function mapField(string $field): string
+    {
+        return $this->mapFieldToHeading($field);
+    }
+
+    public function fieldMap(): array
+    {
+        if (empty($this->fieldMap) || \count($this->fieldMap) < \count($this->rules)) {
+            // dd($this->rules());
+            foreach ($this->rules as $k => $v) {
+                $this->fieldMap[$k] = $this->getMatchedHeading($k) ?? $k;
+            }
+        }
+        return $this->fieldMap;
+    }
+
+    public function mappedRules(): array
+    {
+        if (empty($this->mappedRules) && !empty($this->rules)) {
+            foreach ($this->rules as $key => $rule) {
+                $matchedHeading = $this->getMatchedHeading($key);
+                if (!empty($matchedHeading)) {
+                    $this->mappedRules[$matchedHeading] = $rule;
+                }
+            }
+        }
+        return $this->mappedRules;
+    }
+
+    public function bulkMappedRules(): array
+    {
+        if (empty($this->bulkMappedRules) && !empty($this->mappedRules())) {
+            // foreach ($this->mappedRules as $key => $rule) {
+            //     if (Str::doesntStartWith('*.', $key)) {
+            //         $key = '*.' . $key;
+            //     }
+            //     $this->bulkMappedRules[$key] = $rule;
+            // }
+            $this->bulkMappedRules = $this->bulkUp($this->mappedRules());
+        }
+        return $this->bulkMappedRules;
+    }
+
+    public function bulkMappedAttributes(): array
+    {
+        if (empty($this->bulkMappedAttributes) && !empty($this->bulkMappedRules())) {
+            foreach ($this->bulkMappedRules() as $k => $rule) {
+                $this->bulkMappedAttributes[$k] = Str::ucwords(Str::replace(['*.', '_'], ['', ' '], $k));
+            }
+        }
+        return $this->bulkMappedAttributes;
     }
 }

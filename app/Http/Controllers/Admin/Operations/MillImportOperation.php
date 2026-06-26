@@ -749,20 +749,24 @@ trait MillImportOperation
         $log = $this->getCurrentImportLog($id);
 
         $this->data['crud'] = $this->crud;
+        $this->data['title'] = 'Preview ' . ucwords($this->crud->entity_name) . ' Import';
 
         $importer = new MillsCrudImport($log->id);
 
-        // $rules = $importer->bulkRules();
-        $rules = $importer->bulkRules();
-        // $msgs = $importer->bulkMessages();
-        // $msgs = [];
-        // foreach($rules as $k => $v) {
-        //     if (Str::doesntStartWith('*.', $k)) {
-        //         $rules['*.'.$k] = $v;
-        //         unset($rules[$k]);
-        //         $msgs['*.'.$k] = "$k must be off...";
-        //     }
-        // }
+        /**
+         * If there's a user mapping, we need to use bulkMappedRules instead of bulkRules.
+         * IIRC, user mapping is indicated by $log->config being populated.
+         * 
+         */
+        if (empty($log->config)) {
+            $rules = $importer->rules();
+            $bulkRules = $importer->bulkRules();
+            $attr = $importer->bulkAttributes();
+        } else {
+            $rules = $importer->mappedRules();
+            $bulkRules = $importer->bulkMappedRules();
+            $attr = $importer->bulkMappedAttributes();
+        }
 
         /**
          * Okay!
@@ -785,8 +789,8 @@ trait MillImportOperation
             $importData = $importData[0];
         }
 
-        // $validator = Validator::make($importData, $rules, $msgs);
-        $validator = Validator::make($importData, $rules, [], $importer->bulkAttributes());
+        // $validator = Validator::make($importData, $bulkRules, $msgs);
+        $validator = Validator::make($importData, $bulkRules, [], $attr);
 
         if ($validator->fails()) {
             /**
@@ -800,10 +804,17 @@ trait MillImportOperation
             $this->data['errorRows'] = array_keys($this->data['errorMessages']);
         }
 
-        $this->data['columns'] = array_keys($importData[0]);
-        // $this->data['columnCount'] = \count($rules);
+        /**
+         * Actually, we probably want to use the rule keys for columns because that corresponds to the mapped fields
+         */
+        // $this->data['columns'] = array_keys($importData[0]);
+        $this->data['columns'] = array_keys($rules);
+        $this->data['columnCount'] = \count($this->data['columns']);
+        // $this->data['columnCount'] = \count($bulkRules);
         $this->data['rules'] = $rules;
+        $this->data['attributes'] = $attr;
         $this->data['importData'] = $importData;
+        $this->data['fieldMap'] = $importer->fieldMap();
 
         return view('import-operation::preview', $this->data);
     }
@@ -811,11 +822,15 @@ trait MillImportOperation
     protected function formatErrors(array $errors): array
     {
         $formattedErrors = [];
-        ksort($errors);
+        /**
+         * Why sort before?
+         */
+        // ksort($errors);
         foreach ($errors as $rawKey => $messages) {
             [$index, $field] = explode('.', $rawKey, 2);
             $formattedErrors[$index][$field] = $messages[0];
         }
+        ksort($formattedErrors, SORT_NUMERIC);
         return $formattedErrors;
     }
 }

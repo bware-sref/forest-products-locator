@@ -25,8 +25,10 @@ class ImportStartedHandler
         Log::debug('ImportStarted!', [
             // 'event' => $event
             'importId' => $event->import_log->id,
+            'startedAt' => $event->import_log->started_at,
             'originalFile' => $event->import_log->original_file_name,
             'file' => $event->import_log->file_path,
+            'when' => now()->format('Y-m-d H:i:s.v'),
         ]);
     }
 }

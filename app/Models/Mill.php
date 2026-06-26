@@ -176,6 +176,9 @@ class Mill extends Model
     /**
      * Keys correspond to spreadsheet headings
      * Values are DB column names
+     * zOMG, this is too specific.
+     * Also, we nixed match_id and mill_id because they're only meaningful in our system.
+     * And lastly, I think county => county_name is the only deviation from actual DB field names.
      */
     public const IMPORT_COLUMNS = [
         "match_id" => "match_id",

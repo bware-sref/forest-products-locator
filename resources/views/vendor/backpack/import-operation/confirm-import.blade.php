@@ -56,9 +56,16 @@
                 <div class="card">
                     <div class="card-body row">
                         <div class="col-md-12">
-                            <h3>
-                                @lang('import-operation::import.confirm_your_import')
-                            </h3>
+                            <div class="d-flex flex-row justify-content-between">
+                                <h3>
+                                    @lang('import-operation::import.confirm_your_import')
+                                </h3>
+                                <a 
+                                    href="{{ url($crud->route.'/import/'.$import->id.'/preview') }}"
+                                    target="_blank"
+                                    class=""
+                                >Preview Import</a>
+                            </div>
                             <div>
                                 @php
                                 dump($import->config);

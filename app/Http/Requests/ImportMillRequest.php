@@ -59,8 +59,10 @@ class ImportMillRequest extends FormRequest
 
             // should this be the database column or the request parameter?
             // the latter, I think
-            // 'county_name' => 'string|nullable|max:255',
-            'county' => 'string|nullable|max:255',
+            // it's typically the case that these should be the request parameter names
+            // however, in this case, it should be the db field names
+            // 'county' => 'string|nullable|max:255',
+            'county_name' => 'string|nullable|max:255',
 
             // we need physical_state instead of state_id
             'physical_state' => 'required|string|max:50',
