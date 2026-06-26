@@ -56,10 +56,14 @@
                 <div class="card">
                     <div class="card-body row">
                         <div class="col-md-12">
-                            <h5>
+                            <h3>
                                 @lang('import-operation::import.confirm_your_import')
-                            </h5>
-
+                            </h3>
+                            <div>
+                                @php
+                                dump($import->config);
+                                @endphp
+                            </div>
                             <table
                                 class="table  nowrap rounded card-table table-vcenter card-table shadow-xs border-xs">
                                 <thead>
@@ -67,23 +71,24 @@
                                     <th>
                                         @lang('import-operation::import.import_data_from')
                                     </th>
-                                    <th colspan="2">
+                                    <th Xcolspan="2">
                                         @lang('import-operation::import.into_field')
                                     </th>
                                 </tr>
                                 </thead>
-                                <tbody>
+                                <tbody>                                    
                                 @foreach($import->config as $heading => $columns)
                                     @foreach($columns as $column)
                                         <tr>
                                             @if($loop->index === 0)
                                                 <td class="border-right" rowspan="{{ count($columns) }}">
-                                                    {{ ucfirst(str_replace('_', ' ', $heading)) }}
+                                                    {{ ucwords(str_replace('_', ' ', $heading)) }}
                                                 </td>
                                             @endif
                                             <td>
                                                 {{ $column['label'] }}
                                             </td>
+                                            @if(false)
                                             <td>
                                                 @if(in_array($column['type'], array_keys(config('backpack.operations.import.column_aliases'))))
                                                     @php
@@ -101,6 +106,7 @@
                                                     </small>
                                                 @endif
                                             </td>
+                                            @endif
                                         </tr>
                                         @endforeach
                                     @endforeach
