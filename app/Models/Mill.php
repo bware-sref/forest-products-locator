@@ -221,14 +221,21 @@ class Mill extends Model
      */
     protected static function booted(): void
     {
+        /**
+         * I kinda think this should go on saving...but then again we shouldn't need it except when creating
+         * either way, kill the Log output.
+         */
         static::creating(function (Mill $mill) {
+            /**
+             * Now that I think about it, match_id should never be populated here (except maybe when created by a Factory)
+             */
             if (!empty($mill->match_id)) {
-                Log::debug("Mill '$mill->mill_name' already has match_id: '$mill->match_id'");
+                // Log::debug("Mill '$mill->mill_name' already has match_id: '$mill->match_id'");
                 return;
             }
             $mill->match_id = Mill::makeMatchId($mill);
 
-            Log::debug("Made match_id '$mill->match_id' for '$mill->mill_name'.");
+            // Log::debug("Made match_id '$mill->match_id' for '$mill->mill_name'.");
         });
     }
 
@@ -647,6 +654,7 @@ class Mill extends Model
         if (empty($mill['mill_name'])) {
             Log::error(self::class.'makeMatchId(): no mill name?!?', ['mill' => $mill]);
             // dd($mill);
+            // throw new exception
         }
         $slug = Str::slug($mill['mill_name']);
         $slugWithCity = Str::slug($mill['mill_name'] . ' ' . $mill['physical_city']);
@@ -660,7 +668,9 @@ class Mill extends Model
             ->orWhereLike('match_id', "$slug%", caseSensitive: false)
             ->orWhereLike('match_id', "$slugWithCity%", false)
             ->orderBy('match_id','desc')
-            ->first();
+            ->get()
+            ->withoutAppends()
+            ->pluck('match_id');
 
         /**
          * if not, go with the simplest version
@@ -684,11 +694,21 @@ class Mill extends Model
         /**
          * Next simplest version is appending the city
          */
-        if ($others->match_id !== $slugWithCity) {
+        // if (!in_array($slugWithCity, $others->toArray())) { //$others->match_id !== $slugWithCity) {
+        if (!$others->contains($slugWithCity)) {
             return $slugWithCity;
         }
-        
-        $suffix = Str::ltrim(Str::remove($slug, $others->match_id), '-_ ');
+
+        /**
+         * since we've determined slugWithCity is already in there, we can use it as the basis for this slug
+         * but we need to find the last one that includes $slugWithCity
+         * then add a suffix to that one
+         */
+        $latest = $others->filter(function ($item) use ($slugWithCity) {
+            return Str::startsWith($item, $slugWithCity);
+        })->sortDesc()->first();
+
+        $suffix = Str::ltrim(Str::remove($slugWithCity, $latest), '-_ ');
 
         /**
          * if the suffix is numeric, increment it and bail.
@@ -697,6 +717,6 @@ class Mill extends Model
         $suffix = is_numeric($suffix) ? (int) $suffix : 0;
         $suffix += 1;
         
-        return "$slug-$suffix";
+        return "$slugWithCity-$suffix";
     }
 }
