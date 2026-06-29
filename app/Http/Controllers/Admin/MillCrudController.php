@@ -319,8 +319,9 @@ class MillCrudController extends CrudController
          */
         CRUD::setValidation(ImportMillRequest::class);
 
-        // $this->disableUserMapping();
+        $this->disableUserMapping();
 
+        $this->previewData();
         // return;
 
         // basic info fields
