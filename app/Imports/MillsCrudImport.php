@@ -193,18 +193,18 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
     public function onRow(Row $row): void
     {
         $rowIndex = $row->getIndex();
-        Log::debug(self::class.'::onRow(), #'.$rowIndex.': allegedly Row::toArray() causes prepareForValidation() to execute.', [
-            'if so, we should see that here' => 'dunno',
-            'when' => Carbon::now()->format('Y-m-d H:i:s.v'),
-        ]);
+        // Log::debug(self::class.'::onRow(), #'.$rowIndex.': allegedly Row::toArray() causes prepareForValidation() to execute.', [
+        //     'if so, we should see that here' => 'dunno',
+        //     'when' => Carbon::now()->format('Y-m-d H:i:s.v'),
+        // ]);
 
 
         $rowArray = $row->toArray();
 
-        Log::debug(self::class.'::onRow(), #'.$rowIndex, [
-            'isThisBefore isWhenEmpty?' => 'dunno',
-            'when' => Carbon::now()->format('Y-m-d H:i:s.v'),
-        ]);
+        // Log::debug(self::class.'::onRow(), #'.$rowIndex, [
+        //     'isThisBefore isWhenEmpty?' => 'dunno',
+        //     'when' => Carbon::now()->format('Y-m-d H:i:s.v'),
+        // ]);
 
         /**
          * Freshen the import_log
@@ -253,7 +253,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
          * And hold the phone, this shit should only run once for the import, not on every row.
          */
         if ($this->rules) {
-            Log::debug('Import row: we have rules!', ['rules' => $this->rules]);
+            // Log::debug(self::class.'::onRow(), Import row: we have rules!', ['rules' => $this->rules]);
 
             $mapped_rules = [];
             foreach ($this->rules as $key => $rule) {
@@ -268,7 +268,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
                 // dump('mappedRules');
                 // dd($mapped_rules);
 
-                Log::debug('We have mapped_rules!', ['mappedRules' => $mapped_rules]);
+                // Log::debug('We have mapped_rules!', ['mappedRules' => $mapped_rules]);
 
                 /**
                  * FYI, using Validator::make() to perform validation allows validating without throwing exceptions.
@@ -296,7 +296,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
                     return;
                 }
             } else {
-                Log::debug('No mapped_rules?!?', ['rules' => $this->rules, 'rowKeys' => array_keys($rowArray)]);
+                // Log::debug('No mapped_rules?!?', ['rules' => $this->rules, 'rowKeys' => array_keys($rowArray)]);
             }
         }
 
@@ -321,10 +321,10 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             $data = $value;
 
             if ($matched_config && \count($handler_classes) === \count($matched_config)) {
-                Log::debug(self::class.'::onRow(): we have matched_config and handler_classes for row #'.$rowIndex, [
-                    'matched_config' => $matched_config,
-                    'how many handlers?' => \count($handler_classes),
-                ]);
+                // Log::debug(self::class.'::onRow(): we have matched_config and handler_classes for row #'.$rowIndex, [
+                //     'matched_config' => $matched_config,
+                //     'how many handlers?' => \count($handler_classes),
+                // ]);
                 foreach ($handler_classes as $index => $handler_class) {
                     //Instantiate handler class, process data from column
                     $handler = new $handler_class($value, $matched_config[$index], $this->import_log->model);
@@ -338,6 +338,10 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         }
         //Save the entry
         $entry->save();
+
+        Log::debug(self::class."::onRow(): entry #{$entry->id} created for \"{$entry->mill_name}\" from row #".($rowIndex).".", [
+            'processed_so_far (not counting this one)' => $this->import_log->processed_rows,
+        ]);
 
         ImportRowProcessedEvent::dispatch($this->import_log, $entry, $rowArray);
     }
@@ -377,6 +381,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
                 'totalRows' => $totalRows,
                 'importClass' => class_basename($importer),
                 'when' => now()->format('Y-m-d H:i:s.v'),
+                'rawTotalRows' => $reader->getTotalRows(),
                 // 'props' => print_r($props, true),
             ]);
             $log->total_rows = $totalRows;
@@ -545,12 +550,19 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
      */
     public function prepareForValidation(array $data, int $rowIndex): array
     {
-        Log::debug(self::class.'::prepareForValidation(): import #'.$this->import_log->id.', row #'.$rowIndex, [
-            // 'importId' => $this->import_log->id,
-            // 'data' => $data,
-            // 'rowIndex' => $rowIndex,
-            'when' => now()->format('Y-m-d H:i:s.v'),
-        ]);
+        $millName = $this->mapField('mill_name');
+
+        /**
+         * When we actually execute the import, something causes prepareForValidation() to be executed twice for each row.
+         */
+        // Log::debug(self::class.'::prepareForValidation(): import #'.$this->import_log->id.', row #'.$rowIndex, [
+        //     'millName' => $millName,
+        //     'mill_name' => $data[$millName] ?? $millName . ' is null?!?',
+        //     // 'importId' => $this->import_log->id,
+        //     // 'data' => $data,
+        //     // 'rowIndex' => $rowIndex,
+        //     'when' => now()->format('Y-m-d H:i:s.v'),
+        // ]);
 
         /**
          * Bail if none of the other special fields need attention.
@@ -583,7 +595,14 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         }
 
         $webSite = $this->mapField('web_site');
-        if (!empty($data[$webSite]) && Str::doesntStartWith($data[$webSite], ['http://', 'https://'])) {
+        if (!empty($data[$webSite]) && 
+            /**
+             * If website doesn't even resemble a URL, we shouldn't prepend http://.
+             * Or does it even matter?
+             * If it's invalid with http:// it's also invalid without it.
+             */
+            // parse_url($data[$webSite], PHP_URL_HOST) &&
+            Str::doesntStartWith($data[$webSite], ['http://', 'https://'])) {
             $data[$webSite] = 'http://' . $data[$webSite];
         }
 
