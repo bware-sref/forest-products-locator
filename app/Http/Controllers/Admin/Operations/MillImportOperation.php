@@ -118,11 +118,15 @@ trait MillImportOperation
             'operation' => 'import',
         ]);
 
-        Route::post($segment . '/import/{id}/preview', [
-            'as' => $routeName . '.import.acceptPreview',
-            'uses' => $controller . '@acceptPreview',
-            'operation' => 'import',
-        ]);
+        /**
+         * I don't know that we need this route
+         * If preview is successful, we just continue to /import/{id}/confirm
+         */
+        // Route::post($segment . '/import/{id}/preview', [
+        //     'as' => $routeName . '.import.acceptPreview',
+        //     'uses' => $controller . '@acceptPreview',
+        //     'operation' => 'import',
+        // ]);
 
 
     }
@@ -250,6 +254,11 @@ trait MillImportOperation
     // {
     //     CRUD::setOperationSetting('deleteFileAfterImport', true);
     // }
+
+    public function previewData(): void
+    {
+        CRUD::setOperationSetting('previewData', true);
+    }
 
     /**
      * Remove the need for a primary key, only create models
@@ -380,6 +389,9 @@ trait MillImportOperation
             // Log::debug('We have a custom_import_handler but we\'re still going to map the fields, dammit!', [
             //     'custom_import_handler' => $this->custom_import_handler,
             // ]);
+            // if ($this->crud->getOperationSetting('previewData', 'import')) {
+            //     return redirect($this->crud->route . '/import/' . $log->id . '/preview');
+            // }
             // return $this->handleImport($log->id);
         }
 
@@ -405,6 +417,14 @@ trait MillImportOperation
             }
             $log->config = $config;
             $log->save();
+
+            /**
+             * If Preview enabled, go there instead.
+             */
+            if ($this->crud->getOperationSetting('previewData', 'import')) {
+                return redirect($this->crud->route . '/import/' . $log->id . '/preview');
+            }
+
             return $this->handleImport($log->id);
         }
 
@@ -601,9 +621,20 @@ trait MillImportOperation
             Excel::queueImport(new $import_class($log->id, $formRequest), $log->file_path, $log->disk)->onQueue(config('backpack.operations.import.queue'));
             \Alert::add('success', __('import-operation::import.your_import_has_been_queued'))->flash();
         } else {
+            /**
+             * Here's where we'll wrap this in a transaction...except I'm pretty sure it's already in a transaction...
+             * Except!
+             * We can turn off automatic transactions and do it ourselves...
+             */
             Log::debug(self::class.'::handleImport(): starting immediate import...', ['importClass' => $import_class]);
             Excel::import(new $import_class($log->id, $formRequest), $log->file_path, $log->disk);
-            \Alert::add('success', __('import-operation::import.your_import_has_been_processed'))->flash();
+            /**
+             * Let's refresh the import log so we can report stats to the user
+             */
+            $log->refresh();
+
+            // \Alert::add('success', __('import-operation::import.your_import_has_been_processed'))->flash();
+            \Alert::add('success', "Import processed. Inserted {$log->processed_rows} out of {$log->total_rows} total rows.")->flash();
         }
 
         return redirect($this->crud->route);
@@ -749,7 +780,7 @@ trait MillImportOperation
         $log = $this->getCurrentImportLog($id);
 
         $this->data['crud'] = $this->crud;
-        $this->data['title'] = 'Preview ' . ucwords($this->crud->entity_name) . ' Import';
+        $this->data['title'] = ucwords($this->crud->entity_name) . ' Import Preview';
 
         $importer = new MillsCrudImport($log->id);
 
@@ -815,6 +846,8 @@ trait MillImportOperation
         $this->data['attributes'] = $attr;
         $this->data['importData'] = $importData;
         $this->data['fieldMap'] = $importer->fieldMap();
+        $this->data['import'] = $log;
+        $this->data['rowCount'] = \count($importData);
 
         return view('import-operation::preview', $this->data);
     }
@@ -832,5 +865,14 @@ trait MillImportOperation
         }
         ksort($formattedErrors, SORT_NUMERIC);
         return $formattedErrors;
+    }
+
+    protected function makeConfig(): array
+    {
+        $config = [];
+        foreach ($this->crud->columns() as $column) {
+            $config[$column['name']] = [$column];
+        }
+        return $config;
     }
 }
