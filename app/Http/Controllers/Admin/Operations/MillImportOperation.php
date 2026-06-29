@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Operations;
 
 use App\Http\Requests\UploadImportFileRequest;
 use App\Imports\MillsCrudImport;
+use Backpack\CRUD\app\Library\Widget;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
@@ -849,6 +850,13 @@ trait MillImportOperation
         $this->data['fieldMap'] = $importer->fieldMap();
         $this->data['import'] = $log;
         $this->data['rowCount'] = \count($importData);
+
+        /**
+         * Add our custom JS as a script Widget.
+         */
+        Widget::add()
+            ->type('script')
+            ->content(asset('assets/js/admin/forms/mill-import.js'));
 
         return view('import-operation::preview', $this->data);
     }
