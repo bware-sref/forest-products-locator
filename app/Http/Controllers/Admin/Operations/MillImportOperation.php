@@ -780,7 +780,8 @@ trait MillImportOperation
         $log = $this->getCurrentImportLog($id);
 
         $this->data['crud'] = $this->crud;
-        $this->data['title'] = ucwords($this->crud->entity_name) . ' Import Preview';
+        // $this->data['title'] = ucwords($this->crud->entity_name) . ' Import Preview';
+        $this->data['title'] = 'Import Preview :: ' . ucwords($this->crud->entity_name_plural);
 
         $importer = new MillsCrudImport($log->id);
 
