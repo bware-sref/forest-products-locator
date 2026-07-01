@@ -220,7 +220,7 @@ trait MillImportOperation
          * Should this instead appear on the Confirm screen?
          * If next to the state selector we can use JavaScript to keep it updated...
          */
-        $stateName = $user?->state?->name ?? 'this state';
+        $stateName = $user?->state?->name ?? 'the selected state';
         CRUD::addField([
             'name' => 'delete_from_state',
             'type' => 'switch',
@@ -373,10 +373,22 @@ trait MillImportOperation
             'disk' => $disk,
             'model' => \get_class($this->crud->model),
             'model_primary_key' => $model_primary_key,
+            /**
+             * added original_file_name for tracking
+             * same for processed_rows, failed_rows, total_rows
+             * BTW, no distinction is made between failed and skipped rows at present but of course we can add that if it seems useful.
+             */
             'original_file_name' => $originalFileName,
             'processed_rows' => 0,
             'failed_rows' => 0,
             'total_rows' => 0,
+            'imported_rows' => 0,
+            /**
+             * added state_id and delete_from_state so we don't have to juggle them through the process
+             * we might consider renaming the Import/imports class & table to MillImports/mill_imports
+             */
+            'state_id' => $request->input('state_id'),
+            'delete_from_state' => $request->input('delete_from_state', false),
         ]);
 
         /**
