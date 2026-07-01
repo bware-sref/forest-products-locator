@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Enums\PublicationStatus;
 use App\Http\Requests\ImportMillRequest;
 use App\Models\Mill;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -345,6 +346,19 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         $entry->import_id = $this->import_log->id;
         $entry->user_id = $this->import_log->user_id;
 
+        /**
+         * Even more lastly, see if the import has a state_id
+         * If so, add it to the entry.
+         * Actually, the default is null for both, so we can just assign whatever the value is.
+         */
+        $entry->state_id = $this->import_log->state_id;
+
+        /**
+         * More lastly yet, set status to pending because we still need to do more processing in the background.
+         * Model relationships, location verification and/or completion.
+         */
+        $entry->status = PublicationStatus::Pending;
+
         //Save the entry
         $entry->save();
 
@@ -441,6 +455,22 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
              * Okay!
              * Turns out that Excel::toArray() dispatches an AfterImport event.
              * Hilariously, there doesn't seem to be a corresponding BeforeImport event.
+             * 
+             * On the other hand, we could use that to determine whether or not to proceed with deleting
+             * other mills in this state (if that's what we're actually spozta do).
+             * Actually, we perhaps should not delete the old mills before fully processing these.
+             * By fully processing, I mean adding the model relationships and fleshing out the location data.
+             * Fleshing out the location data is especially important because the state data is poorly formatted and sometimes wrong.
+             * So, to recap, even if we're spozta delete old records from this state, we need to keep processing this data first.
+             * That seems like it actually makes the whole damn thing easier.
+             * I could be wrong though.
+             * In any case, what needs to happen now is that we set status = pending for all the mills we import here.
+             * Then, once the import actually completes (as evidenced by having both started_at and completed_at), we can 
+             * queue a job to finish filling in the data for the mills in this import.
+             * After that job finishes, then we can delete old mills from this state.
+             * Start a transaction, delete mills in this state with import_id not null (meaning the mill was added manually 
+             * instead of as part of an import) and lower than this import_id, then update mills.status for this import to 
+             * approved.
              */    
 
             $importer = $event->getConcernable();
@@ -455,9 +485,13 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             Log::debug(self::class.'::AfterImportHandler() event!', [
                 'event' => $event,
                 'importLogId' => $log->id,
+                'startedAt' => $log->started_at,
+                'completedAt' => $log->completed_at,
                 'processedRows' => $log->processed_rows,
                 'failedRows' => $log->failed_rows,
                 'updatedAt' => $log->updated_at,
+                'stateId' => $log->state_id,
+                'delete_from_state' => $log->delete_from_state,
             ]);
 
             ImportCompleteEvent::dispatch($log);
@@ -553,6 +587,11 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
 
     /**
      * Optional when implementing WithValidation
+     * 
+     * BTW, this method gets called multiple times per row.
+     * Some of those calls result from the Preview step we added.
+     * The onRow() method causes it to execute, as does the Import::toArray() method.
+     * 
      * @param array $data
      * @param int $rowIndex
      * @return array
