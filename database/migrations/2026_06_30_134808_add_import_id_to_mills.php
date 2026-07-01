@@ -56,7 +56,7 @@ return new class extends Migration
     {
         Schema::table('mills', function (Blueprint $table) {
             //
-            $table->dropColumn([
+            $table->dropForeign([
                 'import_id',
                 'user_id',
             ]);
