@@ -86,6 +86,7 @@
             <form method="post"
                   action="{{ url($crud->route.'/import/'.$import->id.'/confirm') }}"
                   enctype="multipart/form-data"
+                  id="import-preview"
             >
                 {!! csrf_field() !!}
                 {{-- <div class="card">
@@ -104,12 +105,16 @@
                         </span>
                     </a>
                     <button title="@lang('import-operation::import.start_import')"
-                            class="btn btn-success me-2 justify-end">
+                            class="btn btn-success me-2 justify-end position-relative"
+                            id="start-import"
+                    >
                         <span class="ladda-label">
                             <i class="las la-file-upload"></i>
                             @lang('import-operation::import.start_import')
                         </span>
+                        <span class="loader position-absolute" style="display: none;"></span>
                     </button>
+                    <span class="loader" style="display: none;"></span>
                 </div>
             </form>
 

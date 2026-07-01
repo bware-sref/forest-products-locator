@@ -28,18 +28,12 @@ class ImportRowProcessedHandler
          */
         $event->import_log->refresh();
         
-        // Log::debug('ImportRowProcessed after refreshing the log but before incrementing processed_rows: ', [
-        //     'importId' => $event->import_log->id,
-        //     'entryId' => $event->entry->id,
-        //     'staleProcessedRows' => $staleValue,
-        //     'processRows' => $event->import_log->processed_rows,
-        //     'updatedAt' => $event->import_log->updated_at->toDateTimeString(),
-        // ]);
-
         /**
          * Phucking Intelephense phailing to discern default values...
+         * Changing this to imported_rows.
+         * processed_rows will be used for keeping track of post-import processing instead.
          */
-        $event->import_log->increment('processed_rows', amount: 1);
+        $event->import_log->increment('imported_rows', amount: 1);
 
 
         // Log::debug('ImportRowProcessedHandler: ', [
@@ -48,7 +42,7 @@ class ImportRowProcessedHandler
         //     'entryId' => $event->entry->id,
         //     'millName' => $event->entry->mill_name,
         //     // 'row_data' => $event->row_data ?? 'no row_data on event?!?',
-        //     'processedRows' => $event->import_log->processed_rows,
+        //     'importedRows' => $event->import_log->imported_rows,
         //     'updatedAt' => $event->import_log->updated_at->toDateTimeString(),
         // ]);
     }
