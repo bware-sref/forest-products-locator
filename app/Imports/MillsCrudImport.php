@@ -127,6 +127,9 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         } else {
             // Log::debug('we have rules: ', ['rules' => $this->rules]);
         }
+        /**
+         * This is where we should create mappedRules if we even need to
+         */
     }
 
     protected function makeConfig(): array
@@ -336,6 +339,12 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
                 }
             }
         }
+        /**
+         * Lastly, add the import_id and the user_id!
+         */
+        $entry->import_id = $this->import_log->id;
+        $entry->user_id = $this->import_log->user_id;
+
         //Save the entry
         $entry->save();
 
@@ -550,7 +559,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
      */
     public function prepareForValidation(array $data, int $rowIndex): array
     {
-        $millName = $this->mapField('mill_name');
+        // $millName = $this->mapField('mill_name');
 
         /**
          * When we actually execute the import, something causes prepareForValidation() to be executed twice for each row.
@@ -575,7 +584,9 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             empty($data[$this->mapField('species')]) && // may need new lines removed
             empty($data[$this->mapField('web_site')]) && // may need http://
             empty($data[$this->mapField('physical_zip')]) && // may need to be cast to string
-            empty($data[$this->mapField('mailing_zip')]) // may need to be cast to string
+            empty($data[$this->mapField('mailing_zip')])  && // may need to be cast to string
+            empty($data[$this->mapField('latitude')]) &&    // may need to be cast to string
+            empty($data[$this->mapField('longitude')])  // may need to be cast to string
         ) {
             Log::debug('MillsCrudImport::prepareForValidation(): no fields need attention.', [
                 'rowIndex' => $rowIndex,
@@ -609,7 +620,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         /**
          * Cast zips if present
          */
-        foreach (['physical_zip', 'mailing_zip'] as $field) {
+        foreach (['physical_zip', 'mailing_zip', 'latitude', 'longitude'] as $field) {
             $field = $this->mapField($field);
             if (!empty($data[$field]) && !\is_string($data[$field])) {
                 $data[$field] = (string) $data[$field];

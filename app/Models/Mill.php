@@ -160,9 +160,14 @@ class Mill extends Model
         // more foreign keys!
         'mailing_state_id',
         'mailing_county_id',
+        // even more foreign keys!
+        'import_id',
+        'user_id',
+
 
         /**
          * new fields to handle user submitted mills
+         * I think we're moving these to another table, mill_edits maybe?
          */
         'status',
         'submitter_email',
@@ -203,7 +208,7 @@ class Mill extends Model
         "email" => "email",
         "web_site" => "web_site",
         "size" => "size",
-        "modification_date" => "modification_date",        
+        "modification_date" => "modification_date",
     ];
 
     /**
@@ -310,6 +315,15 @@ class Mill extends Model
         return $this->hasMany(MillEdit::class);
     }
 
+    public function import(): BelongsTo
+    {
+        return $this->belongsTo(Import::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * helper to jam together the second line of addresses
