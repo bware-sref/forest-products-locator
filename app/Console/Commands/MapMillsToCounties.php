@@ -34,8 +34,11 @@ class MapMillsToCounties extends Command
 
         // count mills with county_id null
         $millCount = Mill::query()
-            ->whereNull('county_id')
-            ->count();
+            /**
+             * Phucking intelliphense
+             */
+            ->whereNull('county_id', boolean: 'and', not: false)
+            ->count(columns: '*');
 
         if (1 > $millCount) {
             $this->info('No Mills without counties. Exiting.');
@@ -46,10 +49,10 @@ class MapMillsToCounties extends Command
         $statesWithMills = State::has('mills')
             ->get();
 
-        $this->info(sprintf(
+        $this->info(\sprintf(
             '%d Mills with county_id null across %d states.',
             $millCount,
-            count($statesWithMills)
+            \count($statesWithMills)
         ));
 
         $totalAffected = 0;
