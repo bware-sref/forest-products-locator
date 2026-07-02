@@ -2,8 +2,7 @@
 
 namespace App\Console\Commands;
 
-use Aws\GeoPlaces\GeoPlacesClient;
-use Aws\Laravel\AwsFacade as AWS;
+use App\Services\GeocodingService;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -16,19 +15,15 @@ class Geocode extends Command implements PromptsForMissingInput
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(GeocodingService $geo)
     {
-        /**
-         * @var GeoPlacesClient
-         */
-        $geoplacesClient = AWS::createClient('geoPlaces');        
 
-        $query = [
-            'QueryText' => $this->option('query'),
-            'MaxResults' => $this->option('limit'),
-        ];
+        if (empty($this->option('query'))) {
+            $this->error('The "query" option cannot be empty. Exiting...');
+            return parent::FAILURE;
+        }
 
-        $result = $geoplacesClient->geocode($query);
+        $result = $geo->geocode($this->option('query'), $this->option('limit'));
 
         dump($result);
 

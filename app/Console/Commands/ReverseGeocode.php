@@ -2,8 +2,7 @@
 
 namespace App\Console\Commands;
 
-use Aws\GeoPlaces\GeoPlacesClient;
-use Aws\Laravel\AwsFacade as AWS;
+use App\Services\GeocodingService;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -16,19 +15,14 @@ class ReverseGeocode extends Command implements PromptsForMissingInput
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(GeocodingService $geo)
     {
-        $geoPlacesClient = AWS::createClient('geoPlaces');
-        //
-        $query = [
-            'QueryPosition' => [
-                (float) $this->option('lng'),
-                (float) $this->option('lat')
-            ],
-            'MaxResults' => $this->option('limit'),
-        ];
+        if (empty($this->option('lng')) || empty($this->option('lat'))) {
+            $this->error('"lng" and "lat" are required parameters. Exiting...');
+            return parent::FAILURE;
+        }
 
-        $result = $geoPlacesClient->reverseGeocode($query);
+        $result = $geo->reverse($this->option('lng'), $this->option('lat'), $this->option('limit'));
 
         dump($result);
 
