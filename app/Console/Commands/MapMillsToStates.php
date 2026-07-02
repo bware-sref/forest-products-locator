@@ -48,7 +48,7 @@ class MapMillsToStates extends Command
             return self::SUCCESS;
         }
 
-        $this->info(sprintf('Found %d Mills without a State relationship.', $millCount));
+        $this->info(\sprintf('Found %d Mills without a State relationship.', $millCount));
 
         // get distinct physical_state where state_id null
         $millStates = Mill::query()
@@ -59,7 +59,7 @@ class MapMillsToStates extends Command
             ->toArray();
 
         if (empty($millStates)) {
-            $this->error(sprintf('Weird. No mill.physical_state values found despite %d mills without a state_id.', $millCount));
+            $this->error(\sprintf('Weird. No mill.physical_state values found despite %d mills without a state_id.', $millCount));
             return self::FAILURE;
         }
         
@@ -83,7 +83,7 @@ class MapMillsToStates extends Command
                     ->where('physical_state', $state->abbreviation)
                     ->whereNull('state_id')
                     ->count();
-                $this->warn(sprintf(
+                $this->warn(\sprintf(
                     'No Mills updated for state abbreviation "%s", yet %d have that physical_state and no state_id!?!',
                     $state->abbreviation,
                     $spoztaBeen
@@ -93,14 +93,14 @@ class MapMillsToStates extends Command
 
             $totalAffected += $affectedRows;
 
-            $this->info(sprintf(
+            $this->info(\sprintf(
                 '%d Mills updated to belong to %s',
                 $affectedRows,
                 $state->name
             ));
         }
 
-        $this->info(sprintf(
+        $this->info(\sprintf(
             'Updated state relationships for %d Mills.',
             $totalAffected
         ));
