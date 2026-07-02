@@ -245,7 +245,7 @@ class Mill extends Model
      */
     protected static function buildAddress(string $city = '', string $state = '', string $zip = ''): string
     {
-        $address = sprintf(
+        $address = \sprintf(
             '%s, %s  %s',
             $city,
             $state,
@@ -300,7 +300,7 @@ class Mill extends Model
             $latitudeRadius = Geo::distanceToDegreesLatitude($radius);
             $longitudeRadius = Geo::distanceToDegreesLongitude($radius, $latitude);
             Log::debug('proximity params in API request: ', ['lng' => $validated['lng'], 'lat' => $validated['lat']]);
-            Log::debug(sprintf('radius %s miles at latitude %f =~ %f degrees longitude', $radius, $latitude, $longitudeRadius));
+            Log::debug(\sprintf('radius %s miles at latitude %f =~ %f degrees longitude', $radius, $latitude, $longitudeRadius));
 
             $query->whereRaw('(
                 CAST(latitude AS DECIMAL) <= (? + ?) AND 
@@ -689,6 +689,19 @@ class Mill extends Model
             return false;
         }
         return true;
+    }
+
+    /**
+     * Returns an array containing the longitude and latitude values for this Mill.
+     * The array is keyed by the full field names and ordered so that longitude is first to accomodate geocoding.
+     * @return array{longitude: string|null, latitude: string|null}
+     */
+    public function lngLat(): array
+    {
+        return [
+            'longitude' => $this->longitude,
+            'latitude' => $this->latitude,
+        ];
     }
 
     /**
