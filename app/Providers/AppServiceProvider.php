@@ -26,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
         // so we don't want to paginate ours Mill JsonResources
         JsonResource::withoutWrapping();
 
+        /**
+         * Gemini has suggested that modern Laravel discourages creating aliases like I've done below.
+         * Instead, just import the damn class into the files where it's needed and use 'as' to alias in place.
+         * I'm leaving it for now, but making this note.
+         */
         $loader = AliasLoader::getInstance();
         $loader->alias('AWS', \Aws\Laravel\AwsFacade::class);
 

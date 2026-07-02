@@ -18,7 +18,9 @@ class Geocode extends Command implements PromptsForMissingInput
      */
     public function handle()
     {
-        //
+        /**
+         * @var GeoPlacesClient
+         */
         $geoplacesClient = AWS::createClient('geoPlaces');        
 
         $query = [
