@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Mill;
-use Aws\GeoPlaces\GeoPlacesClient;
+use App\Services\GeocodingService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -23,7 +23,7 @@ class GeocodeMill implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(GeoPlacesClient $client): void
+    public function handle(GeocodingService $geo): void
     {
         if ($this->batch()->cancelled()) {
             // The batch has been cancelled...
@@ -44,13 +44,22 @@ class GeocodeMill implements ShouldQueue
 
         /**
          * maybe we extract some of this to a model method?
+         * probably a good idea
+         * what exactly are we doing?
+         * if we have an address, use geocode
+         * if we have latlng, use reverse
+         * if we have both, use both and compare the results
          */
-        if (!empty($this->mill->physical_address)) {
-        }
+        $geocode = $this->mill->hasAddress() ? $geo->geocode($this->mill->rawAddress()) : [];
 
-        $stuff = $client->reverseGeocode([
-            // remember, position is x,y so longitude comes first
-            'QueryPosition' => [(float) $this->mill->longitude, (float) $this->mill->latitude]
-        ]);
+        // $reverse = $this->mill->hasLatLng() ? $geo->reverse($this->mill->longitude, $this->mill->latitude) : [];
+        $reverse = $this->mill->hasLatLng() ? $geo->reverse(...$this->mill->lngLat()) : [];
+
+        if ($geocode != $reverse) {
+            Log::warning(self::class.': geocode and reverse geocode returned different data!?!', [
+                'geocode' => $geocode,
+                'reverse' => $reverse,
+            ]);
+        }
     }
 }
