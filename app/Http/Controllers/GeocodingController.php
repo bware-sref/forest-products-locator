@@ -31,9 +31,13 @@ class GeocodingController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
         ]);
 
+        /**
+         * I changed the type of longitude and latitude from float to int|float|string so we can let reverse() 
+         * handle casting them to floats so we don't have to do it everywhere
+         */
         $result = $this->geocoding->reverse(
-            (float) $request->input('longitude'),
-            (float) $request->input('latitude')
+            $request->input('longitude'),
+            $request->input('latitude')
         );
 
         return response()->json(['result' => $result]);
