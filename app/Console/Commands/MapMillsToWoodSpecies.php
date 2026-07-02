@@ -43,7 +43,7 @@ class MapMillsToWoodSpecies extends Command
         $millsWithoutSpecies = Mill::doesntHave('woodSpecies')->count();
         $totalMills = Mill::all()->count();
 
-        $this->info(sprintf(
+        $this->info(\sprintf(
             '%d mills without wood species out of %d total mills.',
             $millsWithoutSpecies,
             $totalMills
