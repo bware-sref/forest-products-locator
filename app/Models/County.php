@@ -10,46 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @property int $id
- * @property string $name
- * @property string|null $type
- * @property string|null $full_name
- * @property string|null $county_code
- * @property string|null $state_code
- * @property string|null $latitude
- * @property string|null $longitude
- * @property string|null $geo_shape
- * @property string|null $fips_code
- * @property string|null $gnis_code
- * @property int $state_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mill> $mills
- * @property-read int|null $mills_count
- * @property-read \App\Models\State $state
- * @method static \Database\Factories\CountyFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereCountyCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereFipsCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereFullName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereGeoShape($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereGnisCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereLatitude($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereLongitude($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereStateCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereStateId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|County whereUpdatedAt($value)
- * @property-read mixed $label
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mill> $mailingMills
- * @property-read int|null $mailing_mills_count
- * @property-read mixed $value
- * @mixin \Eloquent
+
  */
 class County extends Model
 {
