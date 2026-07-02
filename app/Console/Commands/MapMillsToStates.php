@@ -39,8 +39,8 @@ class MapMillsToStates extends Command
          */
         // get count of Mills with state_id null
         $millCount = Mill::query()
-            ->whereNull('state_id')
-            ->count();
+            ->whereNull('state_id', boolean: 'and', not: false)
+            ->count('*');
 
         // if none exist, exit
         if (empty($millCount) || 1 > $millCount) {
@@ -53,7 +53,7 @@ class MapMillsToStates extends Command
         // get distinct physical_state where state_id null
         $millStates = Mill::query()
             ->select('physical_state')
-            ->whereNull('state_id')
+            ->whereNull('state_id', boolean: 'and', not: false)
             ->distinct()
             ->pluck('physical_state')
             ->toArray();
@@ -66,7 +66,7 @@ class MapMillsToStates extends Command
 
         // fetch states with at least one Mill
         $states = State::query()
-            ->whereIn('abbreviation', $millStates)
+            ->whereIn('abbreviation', $millStates, boolean: 'and', not: false)
             ->get();
 
         // accounting
@@ -75,14 +75,14 @@ class MapMillsToStates extends Command
         foreach ($states as $state) {
             $affectedRows = Mill::query()
                 ->where('physical_state', $state->abbreviation)
-                ->whereNull('state_id')
+                ->whereNull('state_id', boolean: 'and', not: false)
                 ->update(['state_id' => $state->id]);
             
             if (empty($affectedRows) || 1 > $affectedRows) {
                 $spoztaBeen = Mill::query()
                     ->where('physical_state', $state->abbreviation)
-                    ->whereNull('state_id')
-                    ->count();
+                    ->whereNull('state_id', boolean: 'and', not: false)
+                    ->count('*');
                 $this->warn(\sprintf(
                     'No Mills updated for state abbreviation "%s", yet %d have that physical_state and no state_id!?!',
                     $state->abbreviation,

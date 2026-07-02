@@ -70,7 +70,7 @@ class MapMillsToWoodSpecies extends Command
                      * check for empty mill->species
                      */
                     if (empty($mill->species)) {
-                        $msg = sprintf(
+                        $msg = \sprintf(
                             'Mill #%d (%s) has an empty species field.',
                             $mill->id,
                             $mill->mill_name
@@ -84,7 +84,7 @@ class MapMillsToWoodSpecies extends Command
 
                     foreach ($millSpecies as $species) {
                         if (empty($woodSpecies[$species])) {
-                            $msg = sprintf(
+                            $msg = \sprintf(
                                 'Mill %d (%s) has an unknown wood species "%s".',
                                 $mill->id,
                                 $mill->mill_name,
@@ -98,7 +98,7 @@ class MapMillsToWoodSpecies extends Command
                          */
                         $mill->woodSpecies()->attach($woodSpecies[$species], ['created_at' => now(), 'updated_at' => now()]);
 
-                        $msg = sprintf(
+                        $msg = \sprintf(
                             'Attached WoodSpecies "%s" to Mill #%d (%s)!',
                             $species,
                             $mill->id,
@@ -118,7 +118,7 @@ class MapMillsToWoodSpecies extends Command
                  * abort if too many errors
                  */
                 if ($this->maxErrors < $audit['fail']) {
-                    $msg = sprintf(
+                    $msg = \sprintf(
                         'Aborting because too many errors: %d of %d allowed.',
                         $audit['fail'],
                         $this->maxErrors
@@ -128,6 +128,6 @@ class MapMillsToWoodSpecies extends Command
                     return false;
                 }
             }
-        });
+        }, null, null);
     }
 }
