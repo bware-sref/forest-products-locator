@@ -63,13 +63,19 @@ class GeocodingService
         }, $results['ResultItems']);
     }
 
-    public function reverse(float $longitude, float $latitude, int $maxResults = 1): ?array
+    public function reverse(int|float|string $longitude, int|float|string $latitude, int $maxResults = 1): ?array
     {
+        /**
+         * Hmm...I might rather handle casting longitude and latitude to floats here instead of requiring them to be passed that way
+         */
         $results = $this->client->reverseGeocode([
             'QueryPosition' => [
-                // remember: x,y
-                $longitude,
-                $latitude,
+                /**
+                 * remember: x,y
+                 * also, let's cast to float here so we don't ahve to do it everywhere
+                 */
+                (float) $longitude,
+                (float) $latitude,
             ],
             'MaxResults' => $maxResults,
         ]);
