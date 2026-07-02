@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * 
@@ -49,4 +51,24 @@ class MillType extends Model
         return $this->belongsToMany(Mill::class);
     }
 
+    public static function rawToIds(string $raw): array
+    {
+        /**
+         * I have mixed feelings about handling the separator this way, we'll see how it goes.
+         */
+        $raw = Str::lower($raw);
+        $separator = Str::contains($raw, '|') ? '|' : ',';
+        $types = explode($separator, $raw);
+        $ids = MillType::whereIn('name', $types, boolean: 'and', not: false)->pluck('id')->all();
+        if (\count($ids) !== \count($types)) {
+            Log::warning(self::class.'::rawToIds(): different number of types supplied than ids found.', [
+                'ids' => $ids,
+                'idCount' => \count($ids),                
+                'types' => $types,
+                'typeCount' => \count($types),
+                'raw' => $raw,
+            ]);
+        }
+        return $ids;
+    }
 }
