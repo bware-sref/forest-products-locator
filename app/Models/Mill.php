@@ -94,8 +94,11 @@ class Mill extends Model
      * And lastly, I think county => county_name is the only deviation from actual DB field names.
      */
     public const IMPORT_COLUMNS = [
-        "match_id" => "match_id",
-        "mill_id" => "mill_id",
+        /**
+         * match_id and mill_id have been removed from import configs
+         */
+        // "match_id" => "match_id",
+        // "mill_id" => "mill_id",
         "mill_name" => "mill_name",
         "latitude" => "latitude",
         "longitude" => "longitude",
@@ -200,6 +203,10 @@ class Mill extends Model
         return $this->belongsTo(State::class, 'mailing_state_id');
     }
 
+    /**
+     * I don't think we actually use this because so far we haven't been given data with mailing address county in it
+     * 
+     */
     public function mailingCounty(): BelongsTo
     {
         return $this->belongsTo(County::class, 'mailing_county_id');
@@ -641,4 +648,55 @@ class Mill extends Model
         
         return "$slugWithCity-$suffix";
     }
+
+    /**
+     * Join all portions of an address into a single string.
+     * Used for geocoding.
+     * 
+     * @param mixed $type = 'physical'
+     * @return string
+     */
+    public function rawAddress(?string $type = 'physical'): string
+    {
+        $type = ('mailing' === $type ? $type : 'physical');
+
+        $fields = [
+            $this->{"{$type}_street"} ?? '',
+            $this->{"{$type}_city"} ?? '',
+            $this->{"{$type}_state"} ?? '',
+            $this->{"{$type}_zip"} ?? '',
+        ];
+
+        return join(' ', $fields);
+    }
+
+    public function hasAddress(?string $type = 'physical'): bool
+    {
+        $type = ('mailing' === $type ? $type : 'physical');
+        return ! empty($this->rawAddress($type));
+    }
+
+    public function hasLatLng(): bool
+    {
+        /**
+         * do we actually need to do the value
+         */
+        $lat = (float) $this->latitude ?? null;
+        $lng = (float) $this->longitude ?? null;
+        if (empty($lat) || $lat > 90 || $lat < -90 ||
+            empty($lng) || $lng > 180 || $lat < -180
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * map type to mill_types
+     * maybe this is better for MillTypes to handle?
+     */
+
+    /**
+     * map species to wood_species
+     */
 }
