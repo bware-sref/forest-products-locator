@@ -2,24 +2,23 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ProcessMill;
 use App\Models\Mill;
 use App\Models\Scopes\ApprovedScope;
-use App\Jobs\GeocodeMill;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('zed:geocode-mill {mill* : id(s) of Mill(s) for which to dispatch GeocodeMill job(s)}')]
-#[Description('Performs geocode (or reverse) geocode for the given mill(s) and updates the records')]
-class DispatchGeocodeMill extends Command
+#[Signature('zed:process-mill {mill* : Id(s) of the Mill(s) to process}')]
+#[Description('Dispatches ProcessMill job(s) for the Mill(s) specified by id(s)')]
+class DispatchProcessMill extends Command
 {
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $job = GeocodeMill::class;
-
+        $job = ProcessMill::class;
         // get the mill ids
         $millIds = $this->argument('mill');
 
@@ -28,7 +27,7 @@ class DispatchGeocodeMill extends Command
             'success' => 0,
             'failed' => 0,
             'missing' => [],
-        ];
+        ];        
 
         /**
          * We could search all mill ids up front, but that might not help us identify granular failure as easily...
@@ -47,7 +46,7 @@ class DispatchGeocodeMill extends Command
                 continue;
             }
 
-            GeocodeMill::dispatch($mill);
+            ProcessMill::dispatch($mill);
             $this->info("Dispatched {$job} job for Mill #{$millId}.");
             $audit['success']++;
         }
@@ -59,6 +58,6 @@ class DispatchGeocodeMill extends Command
         }
 
         $this->info("Dispatched {$audit['success']} {$job} jobs for {$audit['total']} Mills.");
-        return parent::SUCCESS;
+        return parent::SUCCESS;        
     }
 }

@@ -2,23 +2,23 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ProcessMillMillTypes;
 use App\Models\Mill;
 use App\Models\Scopes\ApprovedScope;
-use App\Jobs\GeocodeMill;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('zed:geocode-mill {mill* : id(s) of Mill(s) for which to dispatch GeocodeMill job(s)}')]
-#[Description('Performs geocode (or reverse) geocode for the given mill(s) and updates the records')]
-class DispatchGeocodeMill extends Command
+#[Signature('zed:process-mill-mill-types {mill* : id(s) of Mill(s) for which to process MillTypes}')]
+#[Description('Reads mills.type value and creates relationships from the Mill to MillTypes')]
+class DispatchProcessMillMillTypes extends Command
 {
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $job = GeocodeMill::class;
+        $job = ProcessMillMillTypes::class;
 
         // get the mill ids
         $millIds = $this->argument('mill');
@@ -28,7 +28,7 @@ class DispatchGeocodeMill extends Command
             'success' => 0,
             'failed' => 0,
             'missing' => [],
-        ];
+        ];        
 
         /**
          * We could search all mill ids up front, but that might not help us identify granular failure as easily...
@@ -39,6 +39,10 @@ class DispatchGeocodeMill extends Command
              * Otherwise, you'll get an empty result.
              */
             $mill = Mill::withoutGlobalScope(ApprovedScope::class)->find($millId, '*');
+
+            /**
+             * if we didn't find the mill, output that situation and continue...
+             */
             if (!$mill) {
                 $this->error("No Mill found with id '{$millId}'. Continuing...");
                 $audit['missing'][] = $millId;
@@ -47,7 +51,12 @@ class DispatchGeocodeMill extends Command
                 continue;
             }
 
-            GeocodeMill::dispatch($mill);
+            /**
+             * We could also check for empty mills.type here, but if we're doing it in the job as well, then we can just let it
+             * handle all the logging and error reporting for that.
+             */
+
+            ProcessMillMillTypes::dispatch($mill);
             $this->info("Dispatched {$job} job for Mill #{$millId}.");
             $audit['success']++;
         }

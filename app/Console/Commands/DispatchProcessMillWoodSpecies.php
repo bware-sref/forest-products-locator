@@ -2,23 +2,23 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ProcessMillWoodSpecies;
 use App\Models\Mill;
 use App\Models\Scopes\ApprovedScope;
-use App\Jobs\GeocodeMill;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('zed:geocode-mill {mill* : id(s) of Mill(s) for which to dispatch GeocodeMill job(s)}')]
-#[Description('Performs geocode (or reverse) geocode for the given mill(s) and updates the records')]
-class DispatchGeocodeMill extends Command
+#[Signature('zed:process-mill-wood-species {mill* : Id(s) of the Mill(s) for which to process WoodSpecies}')]
+#[Description('Command description')]
+class DispatchProcessMillWoodSpecies extends Command
 {
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $job = GeocodeMill::class;
+        $job = ProcessMillWoodSpecies::class;
 
         // get the mill ids
         $millIds = $this->argument('mill');
@@ -47,7 +47,7 @@ class DispatchGeocodeMill extends Command
                 continue;
             }
 
-            GeocodeMill::dispatch($mill);
+            ProcessMillWoodSpecies::dispatch($mill);
             $this->info("Dispatched {$job} job for Mill #{$millId}.");
             $audit['success']++;
         }
