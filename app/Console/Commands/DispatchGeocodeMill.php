@@ -9,8 +9,8 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('zed:dispatch-geocode-mill {mill* : id(s) of Mill(s) for which to dispatch GeocodeMill job(s)}')]
-#[Description('Performs geocode (or reverse) geocode for the given mill(s)')]
+#[Signature('zed:geocode-mill {mill* : id(s) of Mill(s) for which to dispatch GeocodeMill job(s)}')]
+#[Description('Performs geocode (or reverse) geocode for the given mill(s) and updates the records')]
 class DispatchGeocodeMill extends Command
 {
     /**

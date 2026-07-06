@@ -29,7 +29,7 @@ class GeocodeMill implements ShouldQueue
         // add null-safe prefix to ->s
         if ($this?->batch()?->cancelled()) {
             // The batch has been cancelled...
-            Log::debug(self::class.': Apparently the job batch for '.$this->mill->import_id.' was cancelled?');
+            Log::debug(self::class.': Apparently the job batch for Import #'.$this->mill->import_id.' or Mill #'.$this->mill->id.' was cancelled?');
 
             return;
         }
