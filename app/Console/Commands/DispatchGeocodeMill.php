@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\Mill;
+use App\Models\Scopes\ApprovedScope;
+use App\Jobs\GeocodeMill;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
+use Illuminate\Console\Command;
+
+#[Signature('zed:dispatch-geocode-mill {mill* : id(s) of Mill(s) for which to dispatch GeocodeMill job(s)}')]
+#[Description('Performs geocode (or reverse) geocode for the given mill(s)')]
+class DispatchGeocodeMill extends Command
+{
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        // get the mill ids
+        $millIds = $this->argument('mill');
+
+        $audit = [
+            'total' => \count($millIds),
+            'success' => 0,
+            'failed' => 0,
+            'missing' => [],
+        ];
+
+        /**
+         * We could search all mill ids up front, but that might not help us identify granular failure as easily...
+         */
+        foreach ($millIds as $millId) {
+            /**
+             * Remember to query withoutGlobalScope()!
+             * Otherwise, you'll get an empty result.
+             */
+            $mill = Mill::withoutGlobalScope(ApprovedScope::class)->find($millId, '*');
+            if (!$mill) {
+                $this->error("No Mill found with id '{$millId}'. Continuing...");
+                $audit['missing'][] = $millId;
+                // missing technically lets us skip counting failures...
+                $audit['failed']++;                
+                continue;
+            }
+
+            GeocodeMill::dispatch($mill);
+            $this->info("Dispatched GeocodeMill for Mill #{$millId}.");
+            $audit['success']++;
+        }
+
+        if ($audit['total'] !== $audit['success']) {
+            $this->warn("Only dispatched jobs for {$audit['success']} Mills instead of {$audit['total']} as expected.");
+            $this->warn("Mills with the following ids were not found: " . print_r($audit['missing'], true));
+            return parent::FAILURE;
+        }
+
+        $this->info("Dispatched GeocodeMill jobs for {$audit['total']} Mills.");
+        return parent::SUCCESS;
+    }
+}
