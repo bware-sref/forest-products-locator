@@ -72,6 +72,11 @@ class Mill extends Model
         'import_id',
         'user_id',
 
+        /**
+         * raw address fields to preserve pre-normalized addresses
+         */
+        'raw_physical_address',
+        'raw_mailing_address',
 
         /**
          * new fields to handle user submitted mills
@@ -103,12 +108,19 @@ class Mill extends Model
         "latitude" => "latitude",
         "longitude" => "longitude",
         "year" => "year",
-        "physical_address" => "physical_address",
+        /**
+         * I don't remember how this works.
+         * I think that we need to change the values for physical_address and mailing_address to point at the raw fields
+         * if those are the fields where we want to store the unaltered imported address data
+         */
+        // "physical_address" => "physical_address",
+        "physical_address" => "raw_physical_address",
         "physical_city" => "physical_city",
         "county" => "county_name",
         "physical_state" => "physical_state",
         "physical_zip" => "physical_zip",
-        "mailing_address" => "mailing_address",
+        // "mailing_address" => "mailing_address",
+        "mailing_address" => "raw_mailing_address",
         "mailing_city" => "mailing_city",
         "mailing_state" => "mailing_state",
         "mailing_zip" => "mailing_zip",
@@ -120,6 +132,10 @@ class Mill extends Model
         "web_site" => "web_site",
         "size" => "size",
         "modification_date" => "modification_date",
+
+        /**
+         * Raw address fields should be used above instead of the actual fields.
+         */
     ];
 
     /**
@@ -130,6 +146,10 @@ class Mill extends Model
      */
     protected $appends = [
         'physical_address_two',
+    ];
+
+    protected $casts = [
+        'status' => PublicationStatus::class,
     ];
 
     /**
@@ -446,18 +466,19 @@ class Mill extends Model
     /**
      * Scopes!
      * as indicated by the #[Scope] attribute/decorator
+     * Do we need to remove the Global ApprovedScope for pending() to work right?
      */
 
     #[Scope]
     protected function pending(Builder $query): void
     {
-        $query->where('status', PublicationStatus::Pending);
+        $query->withoutGlobalScope(ApprovedScope::class)->where('status', PublicationStatus::Pending);
     }
 
     #[Scope]
     protected function rejected(Builder $query): void
     {
-        $query->where('status', PublicationStatus::Rejected);
+        $query->withoutGlobalScope(ApprovedScope::class)->where('status', PublicationStatus::Rejected);
     }
 
     /**
@@ -656,12 +677,16 @@ class Mill extends Model
      * @param mixed $type = 'physical'
      * @return string
      */
-    public function rawAddress(?string $type = 'physical'): string
+    public function getRawAddress(?string $type = 'physical'): string
     {
         $type = ('mailing' === $type ? $type : 'physical');
 
+        if (!empty($this->{"raw_{$type}_address"})) {
+            return $this->{"raw_{$type}_address"};
+        }
+
         $fields = [
-            $this->{"{$type}_street"} ?? '',
+            $this->{"{$type}_address"} ?? '',
             $this->{"{$type}_city"} ?? '',
             $this->{"{$type}_state"} ?? '',
             $this->{"{$type}_zip"} ?? '',
@@ -672,8 +697,14 @@ class Mill extends Model
 
     public function hasAddress(?string $type = 'physical'): bool
     {
-        $type = ('mailing' === $type ? $type : 'physical');
-        return ! empty($this->rawAddress($type));
+        /**
+         * Should we even take raw_physical_address into account here?
+         * No.
+         * Let getRawAddress() handle it.
+         * Also, we don't need to check the value of $type here either, because getRawAddress() will handle it.
+         */
+        // $type = ('mailing' === $type ? $type : 'physical');
+        return ! empty($this->getRawAddress($type));
     }
 
     public function hasLatLng(): bool

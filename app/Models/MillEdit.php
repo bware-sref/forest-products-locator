@@ -32,6 +32,10 @@ class MillEdit extends Model
         'updated_at',
     ];
 
+    protected $casts = [
+        'status' => PublicationStatus::class,
+    ];
+
     /**
      * The glue.
      */
