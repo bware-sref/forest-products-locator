@@ -28,7 +28,7 @@ class ProcessImportedMills implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->batch()->cancelled()) {
+        if ($this?->batch()?->cancelled()) {
             // The batch has been cancelled...
             Log::debug(self::class.': Apparently the job batch for '.$this->import->id.' was cancelled?');
 
