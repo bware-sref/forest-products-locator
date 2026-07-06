@@ -738,9 +738,73 @@ class Mill extends Model
     /**
      * map type to mill_types
      * maybe this is better for MillTypes to handle?
+     * maybe, but we can at least make it easy to explode the raw data into a list
      */
+    public function getRawTypeList(): array
+    {
+        return $this->getRawList('type');
+    }
 
     /**
-     * map species to wood_species
+     * same for wood species
      */
+    public function getRawSpeciesList(): array
+    {
+        return $this->getRawList('species');
+    }
+
+    protected function getRawList(string $field = 'type'): array
+    {
+        /**
+         * how do we limit only to a few fields?
+         * same as mailing and physical: make the typical the default value, then assert against the other value
+         * or else just make an array to check against
+         */
+        $allowedFields = [
+            'type',
+            'species'
+        ];
+
+        /**
+         * If this isn't a valid field, just bail silently and without error.
+         * Maybe log it :-D
+         */
+        if (! \in_array($field, $allowedFields)) {
+            Log::error(self::class."::getRawList(): invalid field name '{$field}'. Failing silently...");
+            return [];
+        }
+
+        /**
+         * get the field
+         * if empty return an empty array
+         */
+        $value = Str::trim($this->$field);
+
+        /**
+         * get the separator, if any
+         */
+        $separators = ['|', ','];
+        $separator = null;        
+        foreach ($separators as $sep) {
+            if (Str::contains($value, $sep)) {
+                $separator = $sep;
+                break;
+            }
+        }
+
+        /**
+         * if we found a separator, explode on it and return
+         */
+        if (!empty($separator)) {
+            return array_map(
+                fn ($item) => Str::trim($item),
+                explode($separator, $value)
+            );
+        }
+
+        /**
+         * if no separator, return the field in an array.
+         */
+        return [$value];
+    }
 }
