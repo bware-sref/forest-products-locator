@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Aws\Laravel\AwsFacade as AWS;
 use Aws\GeoPlaces\GeoPlacesClient;
+use Illuminate\Support\Str;
 
 class GeocodingService
 {
@@ -53,6 +54,8 @@ class GeocodingService
                 'zip' => $item['Address']['PostalCode'] ?? null,
                 'street' => $item['Address']['Street'] ?? null,
                 'street_number' => $item['Address']['AddressNumber'] ?? null,
+                // make it easier-ish by doing all this mess here
+                'street_address' => Str::trim((($item['Address']['AddressNumber'] ?? '') . ' ' . ($item['Address']['Street'] ?? ''))),
                 /**
                  * I'm omitting SecondaryAddressComponents for now because I don't think we need it.
                  * It's a 2D array, with inner keys 'Number' and 'Designator' in the example I made up.
@@ -101,6 +104,7 @@ class GeocodingService
                 'zip' => $item['Address']['PostalCode'] ?? null,
                 'street' => $item['Address']['Street'] ?? null,
                 'street_number' => $item['Address']['AddressNumber'] ?? null,
+                'street_address' => Str::trim(($item['Address']['AddressNumber'] ?? '' . ' ' . $item['Address']['Street'] ?? '')),
             ];
         }, $results['ResultItems']);
     }
