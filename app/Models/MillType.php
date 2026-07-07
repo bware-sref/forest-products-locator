@@ -58,15 +58,27 @@ class MillType extends Model
          */
         $raw = Str::lower($raw);
         $separator = Str::contains($raw, '|') ? '|' : ',';
-        $types = explode($separator, $raw);
-        $ids = MillType::whereIn('name', $types, boolean: 'and', not: false)->pluck('id')->all();
-        if (\count($ids) !== \count($types)) {
-            Log::warning(self::class.'::rawToIds(): different number of types supplied than ids found.', [
+        $types = array_map(
+            fn ($item) => Str::trim($item),
+            explode($separator, $raw)
+        );
+        return self::namesToIds($types);
+    }
+
+    public static function namesToIds(array $names): array
+    {
+        $ids = MillType::whereIn('name', $names, boolean: 'and', not: false)
+            ->pluck('id', 'name')
+            ->all();
+
+        $idCount = \count($ids);
+        $nameCount = \count($names);
+        if ($idCount !== $nameCount) {
+            Log::warning(self::class.'::rawToIds(): different number of names supplied than ids found.', [
                 'ids' => $ids,
-                'idCount' => \count($ids),                
-                'types' => $types,
-                'typeCount' => \count($types),
-                'raw' => $raw,
+                'idCount' => $idCount,                
+                'names' => $names,
+                'nameCount' => $nameCount,
             ]);
         }
         return $ids;
