@@ -34,7 +34,7 @@ class ProcessMillWoodSpecies implements ShouldQueue
             return;
         }
 
-        $woodSpecies = Mill::getRawSpeciesList();
+        $woodSpecies = $this->mill->getRawSpeciesList();
 
         /**
          * Bail if this mill has an empty species field.
@@ -89,7 +89,13 @@ class ProcessMillWoodSpecies implements ShouldQueue
         $now = now();
         $extra = ['created_at' => $now, 'updated_at' => $now];
 
-        $this->mill->woodSpecies()->attach($speciesIds, $extra);
+        /**
+         * We need to use sync() (or maybe syncWithPivotValues()) because attach() will create duplicates.
+         * Yep, just confirmed that sync doesn't update timestamps.
+         * syncWithPivotValues() it is!
+         */
+        // $this->mill->woodSpecies()->attach($speciesIds, $extra);
+        $this->mill->woodSpecies()->syncWithPivotValues($speciesIds, $extra);
 
         //
         Log::debug(self::class." attached {$foundWoodSpeciesCount} WoodSpecies to Mill #{$this->mill->id}.");

@@ -51,6 +51,11 @@ class ProcessMillMillTypes implements ShouldQueue
 
         /**
          * Get all MillType ids from DB, keyed by name
+         * We could actually just do whereIn('name', $millTypes)...
+         * And FFS, I apparently already wrote a method to handle most of this...
+         * MillType::rawToIds(string $raw)
+         * It even explodes the string, but it didn't trim the resulting values...until now!
+         * It also logs a warning if the count of the raw list and actual DB results differ.
          */
         $allMillTypes = MillType::all()->pluck('id', 'name')->toArray();
 
@@ -91,7 +96,19 @@ class ProcessMillMillTypes implements ShouldQueue
         $now = now();
         $extra = ['created_at' => $now, 'updated_at' => $now];
 
-        $this->mill->millTypes()->attach($typeIds, $extra);
+        /**
+         * Doh!
+         * We need to use sync() instead because attach doesn't check existing
+         * Actually, we probably need syncWithPivotValues() so we can add timestamps.
+         * Yep, just confirmed that sync doesn't update timestamps.
+         * syncWithPivotValues() it is!
+         * 
+         * Also, I discovered that sync() doesn't necessarily eliminate existing rows with duplicate ids.
+         * If the new ids you pass are all already in the DB and duplicated, sync() doesn't insert new ones.
+         * However, because sync() also only deletes ids that aren't in the new list, it doesn't touch the existing duplicates.
+         * It all makes sense, but the docs didn't cover that particular weird scenario.
+         */
+        $this->mill->millTypes()->syncWithPivotValues($typeIds, $extra);
 
         //
         Log::debug(self::class." attached {$foundMillTypeCount} MillTypes to Mill #{$this->mill->id}.");
