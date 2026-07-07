@@ -37,7 +37,10 @@ class ProcessImportedMills implements ShouldQueue
 
         Log::debug(self::class.': setting up job batch to process '.$this->import->imported_rows.' mills for import #'.$this->import->id.'.');
 
-        // we should make sure we get mills back before tearing out
+        /**
+         * we should make sure we get mills back before tearing out
+         * NOTE: the Mill::pending() scope disables the globally enabled ApprovedScope.
+         */
         $mills = Mill::pending()
             ->where('import_id', $this->import->id)
             ->lazyById();
