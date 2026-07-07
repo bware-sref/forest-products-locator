@@ -56,7 +56,9 @@ class ProcessImportedMills implements ShouldQueue
             $jobs[] = [
                 // geocode first so we'll (hopefully) have full address info
                 new GeocodeMill($mill),
-                new ProcessMill($mill),
+                new ProcessMillState($mill),
+                new ProcessMillMillTypes($mill),
+                new ProcessMillWoodSpecies($mill),
             ];
         }
 
