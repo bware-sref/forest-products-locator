@@ -7,6 +7,7 @@ use App\Models\Mill;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 class ProcessMill implements ShouldQueue
@@ -33,22 +34,13 @@ class ProcessMill implements ShouldQueue
         }
 
         /**
-         * what all do we need to do?
-         *  - relationships
-         *      - address (a.k.a., state and county)
-         *      - state_id should already be present
-         *      - county_id
-         *      - mailing_state_id
-         *      - mill_types
-         *      - wood_species
-         * 
-         * We need to be sure we have a usable address at this point.
+         * This job will chain dispatching the jobs listed below.
          */
-
-        /**
-         * Do we really even need this job since we now have individual jobs for MillTypes and WoodSpecies?
-         * Yes, we probably still need this job (or equivalent) because we haven't yet created the relationships for mailing_state_id and county_id.
-         */
-
+        Bus::chain([
+            new GeocodeMill($this->mill),
+            new ProcessMillState($this->mill),
+            new ProcessMillMillTypes($this->mill),
+            new ProcessMillWoodSpecies($this->mill),
+        ])->dispatch();
     }
 }
