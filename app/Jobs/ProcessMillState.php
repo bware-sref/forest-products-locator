@@ -47,6 +47,7 @@ class ProcessMillState implements ShouldQueue
          * We need to be sure we have a usable address at this point.
          * 
          * Note: don't check for physical_state yet because lack of physical_state should emit an error.
+         * If this mill was added via import, the import record might have a state_id.
          */
         $needsStateId = empty($this->mill->state_id);
         /**
