@@ -243,4 +243,22 @@ class State extends Model
 
         return $changed;
     }
+
+    public static function byNameOrAbbreviation(string $name, ?string $countyName = null): ?State
+    {
+        $query = State::select(['id', 'name'])
+            ->where('abbreviation', $name, null, 'and')
+            ->orWhere('name', $name);
+        
+        if (null !== $countyName) {
+            $query = $query->with([
+                'counties' => function ($q) use ($countyName) {
+                    $q->select(['id', 'name', 'type', 'state_id'])                        
+                        ->where('name', $countyName);
+                }
+            ]);
+        }
+
+        return $query->first()?->withoutAppends();
+    }
 }
