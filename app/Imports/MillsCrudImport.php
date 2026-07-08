@@ -626,7 +626,9 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             empty($data[$this->mapField('physical_zip')]) && // may need to be cast to string
             empty($data[$this->mapField('mailing_zip')])  && // may need to be cast to string
             empty($data[$this->mapField('latitude')]) &&    // may need to be cast to string
-            empty($data[$this->mapField('longitude')])  // may need to be cast to string
+            empty($data[$this->mapField('longitude')]) &&  // may need to be cast to string
+            empty($data[$this->mapField('physical_address')]) && // we may need to fill in "SAME" values, a la Florida's data
+            empty($data[$this->mapField('mailing_address')])
         ) {
             Log::debug('MillsCrudImport::prepareForValidation(): no fields need attention.', [
                 'rowIndex' => $rowIndex,
@@ -667,6 +669,30 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             }
         }
 
+        /**
+         * if physical_address is populated, and it contains 'same', we need to overwrite that value with mailing_address
+         */
+        if (!empty($data[$this->mapField('physical_address')]) && !empty($data[$this->mapField('mailing_address')])) {
+            $paKey = $this->mapField('physical_address');
+            $maKey = $this->mapField('mailing_address');
+            $phys = Str::of($data[$paKey])->trim();
+            $mail = Str::of($data[$maKey])->trim();
+            if ('same' === $phys->lower()->toString()) {
+                $data[$paKey] = $data[$maKey];
+                Log::debug(self::class." filling in same physical address for Mill '{$data[$this->mapField('mill_name')]}'", [
+                    'phys' => $phys->toString(),
+                    'physical_address' => $data[$paKey],
+                    'mailing_address' => $data[$maKey],
+                ]);
+            } else if ('same' === $mail->lower()->toString()) {
+                $data[$maKey] = $data[$paKey];
+                Log::debug(self::class." filling in same mailing address for Mill '{$data[$this->mapField('mill_name')]}'", [
+                    'mail' => $mail->toString(),
+                    'physical_address' => $data[$paKey],
+                    'mailing_address' => $data[$maKey],
+                ]);
+            }
+        }
         // Log::debug('After CustomCrudImport::prepareForValidation(): ', ['data' => $data, 'row' => $rowIndex]);
         return $data;
     }
