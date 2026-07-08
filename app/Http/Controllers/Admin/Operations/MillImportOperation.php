@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Operations;
 
 use App\Http\Requests\UploadImportFileRequest;
 use App\Imports\MillsCrudImport;
+use App\Models\User;
 use Backpack\CRUD\app\Library\Widget;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -185,6 +186,7 @@ trait MillImportOperation
          * Either way, we apparently need a State field.
          * We also need a checkbox to indicate if all the state's Mills should be deleted, but we can do that later.
          * Should this be a hidden field for State Agents?
+         * @var User
          */
         $user = backpack_user();
         $state = [
@@ -303,6 +305,9 @@ trait MillImportOperation
         $this->data['crud'] = $this->crud;
         $this->data['title'] = CRUD::getTitle() ?? __('import-operation::import.import') . ' ' . $this->crud->entity_name_plural;
 
+        /**
+         * @var User
+         */
         $user = backpack_user();
         $this->data['user'] = $user;
         $this->data['userRoles'] = $user->roles()->pluck('name')->toArray();
@@ -640,14 +645,20 @@ trait MillImportOperation
              * We can turn off automatic transactions and do it ourselves...
              */
             Log::debug(self::class.'::handleImport(): starting immediate import...', ['importClass' => $import_class]);
+            $t0 = now()->format('Uu');
             Excel::import(new $import_class($log->id, $formRequest), $log->file_path, $log->disk);
+            $t1 = now()->format('Uu');
             /**
              * Let's refresh the import log so we can report stats to the user
              */
             $log->refresh();
 
+            $deltaT = $t1 - $t0;
             // \Alert::add('success', __('import-operation::import.your_import_has_been_processed'))->flash();
-            \Alert::add('success', "Import processed. Inserted {$log->processed_rows} out of {$log->total_rows} total rows.")->flash();
+            \Alert::add(
+                'success',
+                "Import processed. Inserted {$log->imported_rows} out of {$log->total_rows} total rows in {$deltaT} microseconds."
+            )->flash();
         }
 
         return redirect($this->crud->route);
