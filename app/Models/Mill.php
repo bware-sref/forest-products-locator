@@ -23,6 +23,8 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * TypeScript attribute marks data objects for transformation to TypeScript type for front-end
+ *
+ * @mixin IdeHelperMill
  */
 #[TypeScript]
 #[ScopedBy([ApprovedScope::class])]
@@ -472,13 +474,15 @@ class Mill extends Model
     #[Scope]
     protected function pending(Builder $query): void
     {
-        $query->withoutGlobalScope(ApprovedScope::class)->where('status', PublicationStatus::Pending);
+        $query->withoutGlobalScope(ApprovedScope::class)
+            ->where('status', PublicationStatus::Pending);
     }
 
     #[Scope]
     protected function rejected(Builder $query): void
     {
-        $query->withoutGlobalScope(ApprovedScope::class)->where('status', PublicationStatus::Rejected);
+        $query->withoutGlobalScope(ApprovedScope::class)
+            ->where('status', PublicationStatus::Rejected);
     }
 
     /**
@@ -806,5 +810,32 @@ class Mill extends Model
          * if no separator, return the field in an array.
          */
         return [$value];
+    }
+
+    public static function deleteOldImports(int $importId, int $stateId): int
+    {
+        /**
+         * @suppress PHP1005
+         * well that didn't phucking work
+         * back to adding optional parameters that already have default values that aren't properly identified by one of the damn 
+         * things: Intelephense, Laravel VS Code extension, or barryvhd/ide-helper
+         */
+        return Mill::whereNotNull('import_id', boolean: 'and')
+            ->whereNot('import_id', $importId)
+            ->where('state_id', $stateId)
+            ->delete();
+    }
+
+    public static function publishFromImport(int $importId): bool
+    {
+        /**
+         * Holy mole!
+         * After a bunch of BS, going back to using query() first made Intelephense happy.
+         */
+        return Mill::query()->pending()
+            ->where('import_id', $importId)
+            ->update([
+                'status' => PublicationStatus::Approved,
+            ]);
     }
 }

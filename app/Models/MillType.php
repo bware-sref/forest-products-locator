@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * 
+ * @mixin IdeHelperMillType
  */
 class MillType extends Model
 {

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
+ * @mixin IdeHelperFaqCategory
  */
 #[TypeScript]
 #[ScopedBy(OrderedScope::class)]

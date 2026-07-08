@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
+ * @mixin IdeHelperStateResource
  */
 class StateResource extends Model
 {

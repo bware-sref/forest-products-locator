@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 
 /**
-
+ * @mixin IdeHelperState
  */
 class State extends Model
 {

@@ -16,6 +16,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
+ * @mixin IdeHelperUser
  */
 class User extends Authenticatable
 {

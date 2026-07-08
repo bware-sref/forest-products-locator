@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
+ * @mixin IdeHelperFaq
  */
 #[TypeScript]
 #[ScopedBy(PublishedDateScope::class)]

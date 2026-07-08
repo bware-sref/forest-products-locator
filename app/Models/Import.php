@@ -56,6 +56,7 @@ use RedSquirrelStudio\LaravelBackpackImportOperation\Models\ImportLog;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereUserId($value)
  * @mixin \Eloquent
+ * @mixin IdeHelperImport
  */
 class Import extends ImportLog
 {
