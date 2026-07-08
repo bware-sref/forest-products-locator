@@ -363,7 +363,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         $entry->save();
 
         Log::debug(self::class."::onRow(): entry #{$entry->id} created for \"{$entry->mill_name}\" from row #".($rowIndex).".", [
-            'processed_so_far (not counting this one)' => $this->import_log->processed_rows,
+            'imported_so_far (not counting this one)' => $this->import_log->imported_rows,
         ]);
 
         ImportRowProcessedEvent::dispatch($this->import_log, $entry, $rowArray);
@@ -441,6 +441,7 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             Log::debug(self::class.'::AfterChunkHandler() starting on row #' . $event->getStartRow(), [
                 'importId' => $log->id,
                 'processedRows' => $log->processed_rows,
+                'importedRows' => $log->imported_rows,
                 'failed(orSkipped)Rows' => $log->failed_rows,
                 'updatedAt' => $log->updated_at,
                 // 'importId' => $this->import_log->id,
