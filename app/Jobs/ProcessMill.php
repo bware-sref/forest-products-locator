@@ -35,6 +35,7 @@ class ProcessMill implements ShouldQueue
 
         /**
          * This job will chain dispatching the jobs listed below.
+         * We never update the import to indicate the number of processed rows...
          */
         Bus::chain([
             new GeocodeMill($this->mill),
