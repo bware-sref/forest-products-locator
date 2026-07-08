@@ -78,6 +78,8 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
      */
     protected $fieldMap = [];
 
+    protected string $stateAbbreviation = '';
+
     public function __construct(int $import_log_id, ?string $validator = null)
     {
         // Log::debug('CustomCrud, validator is huh?', ['validator' => $validator]);
@@ -127,10 +129,18 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             // Log::debug('CustomCrud: adding rules where there were none.', ['rules' => $this->rules]);
         } else {
             // Log::debug('we have rules: ', ['rules' => $this->rules]);
-        }
+        }        
         /**
          * This is where we should create mappedRules if we even need to
          */
+
+        /**
+         * Okay, if the import has a state_id, let's grab and store the state abbreviation (or name) so we can use it to fill in 
+         * physical_state in the event that the data doesn't include it (looking at most of y'all)
+         */
+        if (!empty($this->import_log->state_id)) {
+            $this->stateAbbreviation = $this->import_log->state->abbreviation;
+        }
     }
 
     protected function makeConfig(): array
@@ -628,7 +638,8 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
             empty($data[$this->mapField('latitude')]) &&    // may need to be cast to string
             empty($data[$this->mapField('longitude')]) &&  // may need to be cast to string
             empty($data[$this->mapField('physical_address')]) && // we may need to fill in "SAME" values, a la Florida's data
-            empty($data[$this->mapField('mailing_address')])
+            empty($data[$this->mapField('mailing_address')]) &&
+            !empty($data[$this->mapField('physical_state')])
         ) {
             Log::debug('MillsCrudImport::prepareForValidation(): no fields need attention.', [
                 'rowIndex' => $rowIndex,
@@ -693,6 +704,14 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
                 ]);
             }
         }
+
+        /**
+         * Now make sure we have a damn physical_state
+         */
+        if (empty($data[$this->mapField('physical_state')]) && !empty($this->stateAbbreviation)) {
+            $data[$this->mapField('physical_state')] = $this->stateAbbreviation;
+        }
+        
         // Log::debug('After CustomCrudImport::prepareForValidation(): ', ['data' => $data, 'row' => $rowIndex]);
         return $data;
     }
