@@ -62,13 +62,11 @@ class ProcessImportedMills implements ShouldQueue
         $jobs = [];
         
         foreach ($mills as $mill) {
-            $jobs[] = [
-                // geocode first so we'll (hopefully) have full address info
-                new GeocodeMill($mill),
-                new ProcessMillState($mill),
-                new ProcessMillMillTypes($mill),
-                new ProcessMillWoodSpecies($mill),
-            ];
+            /**
+             * We should just dispatch a single ProcessMill job for each mill.
+             * Otherwise we'll have to keep these both in sync.
+             */
+            $jobs[] = new ProcessMill($mill);
         }
 
         $batch = Bus::batch($jobs)
