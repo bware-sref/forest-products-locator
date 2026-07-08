@@ -43,9 +43,18 @@ class ImportCompleteHandler
             'deleteFromState' => $event->import_log->delete_from_state,
         ]);
 
-        if (!empty($log->started_at) && !empty($log->completed_at)) {
+        /**
+         * If the log has both start and end time 
+         * and the total number of rows is greater than 0
+         * and the number of imported rows is also greater than 0
+         */
+        if (!empty($log->started_at) && 
+            !empty($log->completed_at) && 
+            0 < $log->imported_rows &&
+            $log->imported_rows <= $log->total_rows
+        ) {
             ProcessImportedMills::dispatch($log);
-            Log::debug("Dispatched ProcessImportedMills job for import #{$log->id}!");
+            Log::debug("Dispatched ProcessImportedMills job for import #{$log->id} to process {$log->imported_rows} out of {$log->total_rows} total rows!");
         }
     }
 }
