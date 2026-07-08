@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Jobs\ProcessImportedMills;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
@@ -43,7 +44,8 @@ class ImportCompleteHandler
         ]);
 
         if (!empty($log->started_at) && !empty($log->completed_at)) {
-            Log::debug('We need to queue a job for processing import #' . $log->id . '!');
+            ProcessImportedMills::dispatch($log);
+            Log::debug("Dispatched ProcessImportedMills job for import #{$log->id}!");
         }
     }
 }
