@@ -611,7 +611,11 @@ class Mill extends Model
             // throw new exception
         }
         $slug = Str::slug($mill['mill_name']);
-        $slugWithCity = Str::slug($mill['mill_name'] . ' ' . $mill['physical_city']);
+        /**
+         * shirts!
+         * physical_city doesn't always exist at this time
+         */
+        $slugWithCity = Str::slug($mill['mill_name'] . ' ' . ($mill['physical_city'] ?? ''));
 
         /**
          * see if there's an exact match
