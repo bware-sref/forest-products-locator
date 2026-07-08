@@ -42,6 +42,7 @@ class ProcessMill implements ShouldQueue
             new ProcessMillState($this->mill),
             new ProcessMillMillTypes($this->mill),
             new ProcessMillWoodSpecies($this->mill),
+            new UpdateImportProcessedRows($this->mill),
         ])->dispatch();
     }
 }
