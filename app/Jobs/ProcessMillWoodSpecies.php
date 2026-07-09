@@ -8,6 +8,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ProcessMillWoodSpecies implements ShouldQueue
 {
@@ -34,6 +35,9 @@ class ProcessMillWoodSpecies implements ShouldQueue
             return;
         }
 
+        /**
+         * fetch the nearly raw imported value (nearly because it's been exploded on either | or ,)
+         */
         $woodSpecies = $this->mill->getRawSpeciesList();
 
         /**
@@ -47,30 +51,56 @@ class ProcessMillWoodSpecies implements ShouldQueue
         $woodSpeciesCount = \count($woodSpecies);
 
         /**
-         * Get all WoodSpecies ids from DB, keyed by name
+         * Get all WoodSpecies from DB, names keyed by id so we can easily convert them all to lowercase for comparison.
+         * Or, should we make the query whereIn?
+         * Either way, we have to identify which values are not already present in the DB and then decide whether to add them.
+         * I think we should probably add them since they're coming from state data.
+         * However, if some rando submits new values, then we should be more thoughtful.
+         * So, back to this, let's get all the names keyed by id so we can squish them to lower case.
          */
-        $allWoodSpecies = WoodSpecies::all()->pluck('id', 'name')->toArray();
-
+        $allWoodSpecies = WoodSpecies::all()
+            ->pluck('name', 'id')
+            ->map(fn ($item) => Str::lower($item))
+            ->toArray();
 
         /**
          * Collect all WoodSpecies ids so we can attach them in a single DB query.
          */
         $speciesIds = [];
 
+        /**
+         * Loop over the values found in the imported data
+         */
         foreach ($woodSpecies as $wSpecies) {
-            if (! \array_key_exists($wSpecies, $allWoodSpecies)) {
-                Log::warning(self::class.": Mill #{$this->mill->id} has an unknown WoodSpecies value: `{$wSpecies}`.");
+            /**
+             * I almost forgot!
+             * Be sure to convert $wSpecies to lower case inline without storing the result so we don't corrupt the original value (yet*).
+             * (*prolly gonna do ucwords on $wSpecies before inserting)
+             */
+            $id = array_search(Str::lower($wSpecies), $allWoodSpecies);
+
+            if (false === $id) {
+                Log::warning(self::class.": Mill #{$this->mill->id} has an unknown WoodSpecies value: `{$wSpecies}`. Preparing to insert...", [
+                    'allWoodSpecies' => $allWoodSpecies,
+                ]);
+
+                $newWood = WoodSpecies::create([
+                    'name' => Str::ucwords($wSpecies),
+                ]);
+                $id = $newWood->id;
                 /**
-                 * Question for the future: should we insert new values?
-                 * If we do, we'll need to update $allwoodSpecies afterward, which is fine.
-                 * In fact, if we were crazier, we might trigger a job to get insert new woodSpecies and requeue this job to run after
-                 * that one...
+                 * Do we even need to add this to the allWoodSpecies array?
+                 * Because the next job will do a fresh fetch...
                  */
-                continue;
+                $allWoodSpecies[$id] = $newWood->name; // so we get the ucwords version
             }
 
-            // key ids by name
-            $speciesIds[$wSpecies] = $allWoodSpecies[$wSpecies];
+            /**
+             * Now that we're keying the names by id, we should already have the id from array_search().
+             * Or else we just created it.
+             * And we really don't need to key the speciesIds by name, but oh well.
+             */
+            $speciesIds[$wSpecies] = $id;
         }
 
         if (empty($speciesIds)) {
@@ -86,6 +116,9 @@ class ProcessMillWoodSpecies implements ShouldQueue
             'woodSpecies' => $woodSpecies,
         ]);
 
+        /**
+         * @FYI: we have to manually supply the timestamp values for the pivot table; non-pivot seems to do it automatically.
+         */
         $now = now();
         $extra = ['created_at' => $now, 'updated_at' => $now];
 
