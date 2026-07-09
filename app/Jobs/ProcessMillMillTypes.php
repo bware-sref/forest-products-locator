@@ -8,6 +8,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ProcessMillMillTypes implements ShouldQueue
 {
@@ -50,14 +51,13 @@ class ProcessMillMillTypes implements ShouldQueue
         $millTypeCount = \count($millTypes);
 
         /**
-         * Get all MillType ids from DB, keyed by name
-         * We could actually just do whereIn('name', $millTypes)...
-         * And FFS, I apparently already wrote a method to handle most of this...
-         * MillType::rawToIds(string $raw)
-         * It even explodes the string, but it didn't trim the resulting values...until now!
-         * It also logs a warning if the count of the raw list and actual DB results differ.
+         * Get all MillTypes from DB, names keyed by id, converted to lowercase for comparison.
          */
-        $allMillTypes = MillType::all()->pluck('id', 'name')->toArray();
+        // $allMillTypes = MillType::all()->pluck('id', 'name')->toArray();
+        $allMillTypes = MillType::all()
+            ->pluck('name', 'id')
+            ->map(fn ($item) => Str::lower($item))
+            ->toArray();
 
         /**
          * Collect all MillType ids so we can attach them in a single DB query.
@@ -65,19 +65,30 @@ class ProcessMillMillTypes implements ShouldQueue
         $typeIds = [];
 
         foreach ($millTypes as $mType) {
-            if (! \array_key_exists($mType, $allMillTypes)) {
-                Log::warning(self::class.": Mill #{$this->mill->id} has an unknown MillType value: `{$mType}`.");
+            /**
+             * remember to convert $mType to lower before comparing!
+             */
+            $id = array_search(Str::lower($mType), $allMillTypes);
+
+            if (false === $id) {
+                Log::warning(self::class.": Mill #{$this->mill->id} has an unknown MillType value: `{$mType}`. Preparing to insert...", [
+                    'allMillTypes' => $allMillTypes,
+                ]);
+
                 /**
-                 * Question for the future: should we insert new values?
-                 * If we do, we'll need to update $allMillTypes afterward, which is fine.
-                 * In fact, if we were crazier, we might trigger a job to get insert new MillTypes and requeue this job to run after
-                 * that one...
+                 * rember to ucwords before inserting!
                  */
-                continue;
+                $newMillType = MillType::create([
+                    'name' => Str::ucwords($mType),
+                ]);
+
+                $id = $newMillType->id;
+
+                $allMillTypes[$id] = $newMillType->name;
             }
 
             // key ids by name
-            $typeIds[$mType] = $allMillTypes[$mType];
+            $typeIds[$mType] = $id;
         }
 
         if (empty($typeIds)) {
