@@ -69,6 +69,15 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
             PMA_HOST: mysql
+            UPLOAD_LIMIT: 300M
+            # PMA image supposedly allows setting configs with environment variables to increase the login timeout
+            PMA_PHP_SESSION_GC_MAXLIFETIME: '${PMA_LOGIN_TIMEOUT:-86400}' # defaults to 24 HOURS IN SECONDS
+            # PHP_INI_* version
+            PHP_INI_session.gc_maxlifetime: '${PMA_LOGIN_TIMEOUT:-86400}'
+            PHP_INI_session.cookie_lifetime: '${PMA_LOGIN_TIMEOUT:-86400}'
+        # mount config volume so we can increase the login timeout
+        volumes:
+            - './docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php'
         networks:
             - sail
         depends_on:
