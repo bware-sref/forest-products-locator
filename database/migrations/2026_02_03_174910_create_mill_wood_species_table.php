@@ -14,11 +14,23 @@ return new class extends Migration
         Schema::create('mill_wood_species', function (Blueprint $table) {
             $table->id();
 
+            /**
+             * @FYI
+             * constrained() must come before cascadeOnX() to work properly!!!
+             * The ordering below creates the foreign key index, but it doesn't
+             * apply the cascades in MySQL.
+             */
             $table->foreignId('mill_id')
                 ->cascadeOnUpdate()
                 ->cascaseOnDelete()
                 ->constrained();
                 
+            /**
+             * @FYI
+             * constrained() must come before cascadeOnX() to work properly!!!
+             * The ordering below creates the foreign key index, but it doesn't
+             * apply the cascades in MySQL.
+             */
             $table->foreignId('wood_species_id')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete()

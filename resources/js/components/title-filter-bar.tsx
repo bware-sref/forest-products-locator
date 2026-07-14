@@ -77,9 +77,9 @@ export function TitleFilterBar({
             <div className="w-full lg:max-w-7xl mx-auto flex flex-row items-center justify-between pl-2 md:px-0 2xl:px-6 py-2">
                 <div data-thing="" className="flex flex-row gap-x-5 items-center">
                     <h1 className="font-bold text-3xl text-beluga">{headline}</h1>
-                    {millCount && (
+                    {millCount && millCount > 0 ? (
                         <span className="text-beluga">{millCount} mills found.</span>
-                    )}
+                    ) : ''}
                     {isLoading || isDownloading ? (
                         <Spinner data-icon="inline-end" className="ml-auto size-8 text-beluga" />
                     ) : ''}

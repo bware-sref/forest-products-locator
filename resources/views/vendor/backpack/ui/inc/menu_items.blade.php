@@ -6,6 +6,7 @@
     <x-backpack::menu-dropdown-item title="Mill Edits" icon="la la-edit" :link="backpack_url('mill-edits')" />
     <x-backpack::menu-dropdown-item title="Mill Types" icon="la la-keyboard" :link="backpack_url('mill-type')" />
     <x-backpack::menu-dropdown-item title="Wood Species" icon="la la-tree" :link="backpack_url('wood-species')" />
+    <x-backpack::menu-dropdown-item title="Import" icon="la la-tree" :link="backpack_url('mill/import')" />
 </x-backpack::menu-dropdown>
 <x-backpack::menu-dropdown title="States" icon="la la-landmark"> 
     <x-backpack::menu-dropdown-item title="States" icon="la la-flag-usa" :link="backpack_url('state')" />

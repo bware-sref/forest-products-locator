@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\GeocodingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 // use Laravel\Fortify\Features;
@@ -44,7 +45,8 @@ Route::post('/mill', [MillController::class, 'store'])
 Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
     ->name('mill-list-item');
 
-Route::match(['get', 'post'], '/mills/export/', [MillController::class, 'export'])->name('mill-export');
+Route::match(['get', 'post'], '/mills/export/', [MillController::class, 'export'])
+    ->name('mill-export');
 
 /**
  * FAQ
@@ -119,6 +121,24 @@ Route::get('/sitemap', function () {
 Route::get('/accessibility', function () {
     return Inertia::render('accessibility', []);
 })->name('accessibility');
+
+
+/**
+ * Geocoding Routes
+ */
+Route::controller(GeocodingController::class)
+    ->prefix('geocoding')
+    ->name('geocoding.')
+    ->group(function () {
+    /**
+     * Allowing get and post makes testing easier
+     */
+    Route::match(['get', 'post'], '/geocode', 'geocode')
+        ->name('geocode');
+
+    Route::match(['get', 'post'], '/reverse', 'reverseGeocode')
+        ->name('reverse');
+});
 
 /**
  * Again, Backpack so standard dashboard not needed.

@@ -52,6 +52,8 @@
     /* tblr-light gets used for tblr-secondary-fg, which is in turn used for tblr-btn-color */
     /* --tblr-light: #f8fafc; */
     --tblr-light: var(--color-beluga);
+    /* tblr-light becomes btn-fg */
+    --tblr-light: var(--color-velvet);
     --tblr-dark: #241f2d;
     /* muted is the color used for table headings. that gray wasn't cutting it. */
     /* --tblr-muted: #66626c; */

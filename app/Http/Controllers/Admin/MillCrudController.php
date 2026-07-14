@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Operations\MillImportOperation;
+use App\Http\Requests\ImportMillRequest;
 use App\Http\Requests\MillRequest;
+use App\Imports\FloridaMills;
+use App\Imports\MillsCrudImport;
 use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class MillCrudController
@@ -20,6 +25,8 @@ class MillCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use CrudPermissionTrait;
+    // use \RedSquirrelStudio\LaravelBackpackImportOperation\ImportOperation;
+    use MillImportOperation;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -294,5 +301,216 @@ class MillCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    /**
+     * Set up Excel import operation
+     */
+    protected function setupImportOperation()
+    {
+        /**
+         * withoutPrimaryKey() causes the import to insert without primary keys
+         */
+        $this->withoutPrimaryKey();
+
+        /**
+         * Interesting.
+         * When MapFields is enabled, the validator marks "required" fields as required on the front-end.
+         */
+        CRUD::setValidation(ImportMillRequest::class);
+
+        $this->disableUserMapping();
+
+        $this->previewData();
+        // return;
+
+        // basic info fields
+        // match_id is a unique identifier that will be used to link mills to mill edits. It should be generated automatically and not editable by the user.
+        /**
+         * In fact, let's get rid of it here and just generate it before validating.
+         */
+        // CRUD::addColumn([
+        //     'name' => 'match_id',
+        //     'label' => 'Match ID',
+        //     'type' => 'text',
+        // ]);
+
+        // CRUD::addColumn([
+        //     'name' => 'mill_id',
+        //     'label' => 'Mill ID',
+        //     'type' => 'text',
+        // ]);
+
+        CRUD::addColumn([
+            'name' => 'mill_name',
+            'label' => 'Mill Name',
+            'type' => 'text',
+        ]); // ;
+
+        CRUD::addColumn([
+            'name' => 'latitude',
+            'label' => 'Latitude',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'longitude',
+            'label' => 'Longitude',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'year',
+            'label' => 'Year',
+            'type' => 'text',
+        ]);
+
+        // physical address fields
+        CRUD::addColumn([
+            'name' => 'physical_address',
+            'label' => 'Physical Address',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'physical_city',
+            'label' => 'Physical City',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'county_name',
+            'label' => 'County',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'physical_state',
+            'label' => 'Physical State',
+            'type' => 'text',
+        ]);
+
+        // CRUD::addColumn([
+        //     'name' => 'state_id',
+        //     'label' => 'State',
+        //     'type' => 'select',
+        //     'entity' => 'state',
+        //     'model' => 'App\Models\State',
+        //     'attribute' => 'name',
+        // ]);
+
+        CRUD::addColumn([
+            'name' => 'physical_zip',
+            'label' => 'Physical ZIP',
+            'type' => 'text',
+        ]);
+
+
+        // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
+
+        // mailing address fields
+        CRUD::addColumn([
+            'name' => 'mailing_address',
+            'label' => 'Mailing Address',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'mailing_city',
+            'label' => 'Mailing City',
+            'type' => 'text',
+        ]);
+
+        /**
+         * The database still has text columns for all the relationship fields leftover from the original import.
+         * E.g., both mills.mailing_state and mills.mailing_state_id columns exist so we can always do a quick import into mills
+         * and then update the relationships with the job queue.
+         */
+        CRUD::addColumn([
+            'name' => 'mailing_state',
+            'label' => 'Mailing State',
+            'type' => 'text',
+        ]);
+
+        // CRUD::addColumn([
+        //     'name' => 'mailing_state_id',
+        //     'label' => 'State',
+        //     'type' => 'select',
+        //     'entity' => 'mailingState',
+        //     'model' => 'App\Models\State',
+        //     'attribute' => 'name',
+        // ]);
+        
+        CRUD::addColumn([
+            'name' => 'mailing_zip',
+            'label' => 'Mailing ZIP',
+            'type' => 'text',
+        ]);
+        // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
+
+        // contact info fields
+        CRUD::addColumn([
+            'name' => 'telephone',
+            'label' => 'Telephone',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'fax',
+            'label' => 'Fax',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'type',
+            'label' => 'Type',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'species',
+            'label' => 'Species',
+            'type' => 'text',
+        ]);
+
+        /**
+         * Email isn't getting saved for whatever reason...
+         * I think the issue with email was related to fields that were wrapped in quotes because they contained new lines.
+         */
+        CRUD::addColumn([
+            'name' => 'email',
+            'label' => 'Email',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'web_site',
+            'label' => 'Web Site',
+            'type' => 'text',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'size',
+            'label' => 'Size',
+            'type' => 'text',
+        ]);
+
+
+        CRUD::addColumn([
+            'name' => 'modification_date',
+            'label' => 'Modification Date',
+            'type' => 'text',
+        ]);
+
+        // Log::debug('at the bottom of setupImportOperation(), importCrudColumns: ', ['crudColumns' => $this->crud->columns()]);
+
+        /**
+         * What if we don't queue the import?
+         */
+        // $this->queueImport();
+
+        /**
+         * Our custom crud import.
+         * At present we still need to use it for a successful import.
+         * But also at present if we set it, the MapFields view doesn't display.
+         */
+        $this->setImportHandler(MillsCrudImport::class);
     }
 }

@@ -35,4 +35,22 @@ export default defineConfig({
     esbuild: {
         jsx: 'automatic',
     },
+    // attempt to resolve the dynamic import warning from Vite
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    // Force all leaflet-related packages into a single dedicated bundle
+                    if (
+                        id.includes('node_modules/leaflet') ||
+                        id.includes('node_modules/react-leaflet') ||
+                        id.includes('node_modules/@react-leaflet') ||
+                        id.includes('node_modules/react-leaflet-markercluster')
+                    ) {
+                        return 'leaflet-vendor';
+                    }
+                }
+            }
+        },
+    },
 });

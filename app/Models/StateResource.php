@@ -11,28 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * @property int $id
- * @property int $state_id
- * @property string $title
- * @property string|null $content
- * @property int $sort_weight
- * @property PublicationStatus $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read State|null $state
- * @method static \Database\Factories\StateResourceFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource whereContent($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource whereSortWeight($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource whereStateId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StateResource whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @mixin IdeHelperStateResource
  */
 class StateResource extends Model
 {

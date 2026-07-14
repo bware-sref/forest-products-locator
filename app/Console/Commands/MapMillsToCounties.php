@@ -34,8 +34,11 @@ class MapMillsToCounties extends Command
 
         // count mills with county_id null
         $millCount = Mill::query()
-            ->whereNull('county_id')
-            ->count();
+            /**
+             * Phucking intelliphense
+             */
+            ->whereNull('county_id', boolean: 'and', not: false)
+            ->count(columns: '*');
 
         if (1 > $millCount) {
             $this->info('No Mills without counties. Exiting.');
@@ -46,10 +49,10 @@ class MapMillsToCounties extends Command
         $statesWithMills = State::has('mills')
             ->get();
 
-        $this->info(sprintf(
+        $this->info(\sprintf(
             '%d Mills with county_id null across %d states.',
             $millCount,
-            count($statesWithMills)
+            \count($statesWithMills)
         ));
 
         $totalAffected = 0;
@@ -87,7 +90,7 @@ class MapMillsToCounties extends Command
             
 
             // this is all mills in the state, regardless of their county status
-            $totalMillsInState = count($state->mills);
+            $totalMillsInState = \count($state->mills);
 
             $millsInStateNoCounty = $state->mills()
                 ->whereNull('county_id')
@@ -99,10 +102,10 @@ class MapMillsToCounties extends Command
             // and also to blow up output without adding utility!
             // maybe do it for states that have significant mismatches
             // $audit[$state->name]['mills.county_names'] = $millCountyNames->toArray();
-            $millCountyNamesCount = count($millCountyNames);
+            $millCountyNamesCount = \count($millCountyNames);
             $audit[$state->name]['mills.countyNamesCount'] = $millCountyNamesCount; 
 
-            $this->info(sprintf(
+            $this->info(\sprintf(
                 '%s has %d mills with no county_id across %d counties.',
                 $state->name,
                 // $totalMillsInState,
@@ -125,10 +128,10 @@ class MapMillsToCounties extends Command
              * this all so convoluted and in the name of efficiency. B0)
              * peeling through the list of Mills would at least allow identifying the specific problem data.
              */
-            $stateCountiesCount = count($counties);
+            $stateCountiesCount = \count($counties);
             if ($millCountyNamesCount != $stateCountiesCount) {
 
-                $this->warn(sprintf(
+                $this->warn(\sprintf(
                     '%d mills.county_name values for %s, but only %d from state match.',
                     $millCountyNamesCount,
                     $state->name,
@@ -149,13 +152,13 @@ class MapMillsToCounties extends Command
                     // ));
 
                     $millCountyDiff = array_diff($millCountyNames->toArray(), $stateCountyNames);
-                    $this->warn(sprintf(
+                    $this->warn(\sprintf(
                         '%s Counties in mill.county_name that are not in state.county.name: %s',
                         $state->name,
                         print_r($millCountyDiff, true)
                     ));
                     $stateCountyDiff = array_diff($stateCountyNames, $millCountyNames->toArray());
-                    $this->warn(sprintf(
+                    $this->warn(\sprintf(
                         '%s state.county.name not in mill.county_name: %s',
                         $state->name,
                         print_r($stateCountyDiff, true)
@@ -196,10 +199,10 @@ class MapMillsToCounties extends Command
                     ->toArray();
                 
                 // only add the number of orphans to the audit
-                $audit[$state->name]['orphanMillCount'] = count($millsWithoutCounty);
+                $audit[$state->name]['orphanMillCount'] = \count($millsWithoutCounty);
 
                 // send the full list to the log
-                Log::warning(sprintf(
+                Log::warning(\sprintf(
                     '%d Orphan mills in %s: %s',
                     $audit[$state->name]['orphanMillCount'],
                     $state->name,
@@ -220,7 +223,7 @@ class MapMillsToCounties extends Command
                     ->where('county_name', $countyName)
                     ->update(['county_id' => $county->id]);
 
-                $this->info(sprintf(
+                $this->info(\sprintf(
                     'Updated %d Mills in %s, %s.',
                     $countyAffected,
                     $county->full_name,
@@ -230,7 +233,7 @@ class MapMillsToCounties extends Command
                 $stateAffected += $countyAffected;
             }
 
-            $this->info(sprintf(
+            $this->info(\sprintf(
                 'Updated %d Mills total in %s.',
                 $stateAffected,
                 $state->name
@@ -241,10 +244,10 @@ class MapMillsToCounties extends Command
             $totalAffected += $stateAffected;
         }
 
-        $this->info(sprintf(
+        $this->info(\sprintf(
             'Updated %d Mills across %d states.',
             $totalAffected,
-            count($statesWithMills)
+            \count($statesWithMills)
         ));
 
         dump($audit);
