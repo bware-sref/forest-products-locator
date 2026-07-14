@@ -7,25 +7,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
- * @property int $id
- * @property string $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mill> $mills
- * @property-read int|null $mills_count
- * @method static \Database\Factories\MillTypeFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MillType whereUpdatedAt($value)
- * @property-read mixed $label
- * @property-read mixed $value
- * @mixin \Eloquent
+ * @mixin IdeHelperMillType
  */
 class MillType extends Model
 {
@@ -65,4 +51,36 @@ class MillType extends Model
         return $this->belongsToMany(Mill::class);
     }
 
+    public static function rawToIds(string $raw): array
+    {
+        /**
+         * I have mixed feelings about handling the separator this way, we'll see how it goes.
+         */
+        $raw = Str::lower($raw);
+        $separator = Str::contains($raw, '|') ? '|' : ',';
+        $types = array_map(
+            fn ($item) => Str::trim($item),
+            explode($separator, $raw)
+        );
+        return self::namesToIds($types);
+    }
+
+    public static function namesToIds(array $names): array
+    {
+        $ids = MillType::whereIn('name', $names, boolean: 'and', not: false)
+            ->pluck('id', 'name')
+            ->all();
+
+        $idCount = \count($ids);
+        $nameCount = \count($names);
+        if ($idCount !== $nameCount) {
+            Log::warning(self::class.'::rawToIds(): different number of names supplied than ids found.', [
+                'ids' => $ids,
+                'idCount' => $idCount,                
+                'names' => $names,
+                'nameCount' => $nameCount,
+            ]);
+        }
+        return $ids;
+    }
 }

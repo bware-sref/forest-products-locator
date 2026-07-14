@@ -41,11 +41,15 @@ return [
         // base_path('vendor/backpack/theme-tabler/resources/assets/css/skins/backpack-color-palette.css'),
         base_path('resources/css/fpn-backpack-color-palette.css'),
         base_path('vendor/backpack/theme-tabler/resources/assets/css/skins/glass.css'),
-        base_path('vendor/backpack/theme-tabler/resources/assets/css/skins/fuzzy-background.css'),
+        // base_path('vendor/backpack/theme-tabler/resources/assets/css/skins/fuzzy-background.css'),
         // base_path('vendor/backpack/theme-tabler/resources/assets/css/skins/dotted-background.css'),
         // base_path('vendor/backpack/theme-tabler/resources/assets/css/skins/vertical-lines-background.css'),
         // base_path('vendor/backpack/theme-tabler/resources/assets/css/skins/pinstripe-background.css'),
-        // base_path('vendor/backpack/theme-tabler/resources/assets/css/skins/paper-background.css'),
+        base_path('vendor/backpack/theme-tabler/resources/assets/css/skins/paper-background.css'),
+        /**
+         * Overrides for fucking common.css, which uses colors that are not defined in the fucking color scheme file, FFS.
+         */
+        base_path('resources/css/bp-hooks.css'),
     ],
 
     /**

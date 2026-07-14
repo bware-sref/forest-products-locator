@@ -1,0 +1,46 @@
+[bp-section=crud-operation-list] {
+    .bp-datagrid-title {
+        color: #fff;
+    }
+}
+
+[bp-section=crud-operation-show] {
+    .bp-datagrid-title {
+        color: #fff;
+    }
+}
+
+[bp-section=import-select-file] {
+    form .help-block {
+        color: --var(--color-beluga);
+    }
+}
+
+/**
+ may as well add spinner CSS here
+*/
+.loader {
+  --color-1: #fff;
+  --color-2: #5A340A;
+  --size: 1px;
+  --base-size: 24;
+  --border-base: 2;
+
+  width: calc(var(--base-size) * var(--size));
+  height: calc(var(--base-size) * var(--size));
+  border: calc(var(--border-base) * var(--size)) solid var(--color-1);
+  border-bottom-color: var(--color-2);
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

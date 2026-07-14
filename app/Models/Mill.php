@@ -8,6 +8,7 @@ use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
 use App\Models\State;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -23,97 +24,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 /**
  * TypeScript attribute marks data objects for transformation to TypeScript type for front-end
  *
- * @property int $id
- * @property string $match_id
- * @property string|null $mill_id
- * @property string|null $mill_name
- * @property string|null $latitude
- * @property string|null $longitude
- * @property string|null $year
- * @property string|null $physical_address
- * @property string|null $physical_city
- * @property string|null $county_name
- * @property int|null $county_id
- * @property string|null $physical_state
- * @property int|null $state_id
- * @property string|null $physical_zip
- * @property string|null $mailing_address
- * @property string|null $mailing_city
- * @property string|null $mailing_state
- * @property string|null $mailing_zip
- * @property string|null $telephone
- * @property string|null $fax
- * @property string|null $type
- * @property string|null $species
- * @property string|null $email
- * @property string|null $web_site
- * @property string|null $size
- * @property string|null $modification_date
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\County|null $county
- * @property-read mixed $mailing_address_two
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MillType> $millTypes
- * @property-read int|null $mill_types_count
- * @property-read mixed $physical_address_two
- * @property-read \App\Models\State|null $state
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\WoodSpecies> $woodSpecies
- * @property-read int|null $wood_species_count
- * @method static \Database\Factories\MillFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereCountyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereCountyName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereFax($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereLatitude($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereLongitude($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMailingAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMailingCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMailingState($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMailingZip($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMatchId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMillId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereMillName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereModificationDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill wherePhysicalAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill wherePhysicalCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill wherePhysicalState($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill wherePhysicalZip($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereSpecies($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereStateId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereTelephone($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereWebSite($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Mill whereYear($value)
- * @property int|null $mailing_state_id
- * @property int|null $mailing_county_id
- * @property string $status
- * @property string|null $submitter_email
- * @property string|null $submitter_ip
- * @property string|null $approve_hash
- * @property string|null $reject_hash
- * @property string|null $reviewed_at
- * @property-read \App\Models\County|null $mailingCounty
- * @property-read \App\Models\State|null $mailingState
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MillEdit> $millEdits
- * @property-read int|null $mill_edits_count
- * @method static Builder<static>|Mill pending()
- * @method static Builder<static>|Mill rejected()
- * @method static Builder<static>|Mill whereApproveHash($value)
- * @method static Builder<static>|Mill whereMailingCountyId($value)
- * @method static Builder<static>|Mill whereMailingStateId($value)
- * @method static Builder<static>|Mill whereRejectHash($value)
- * @method static Builder<static>|Mill whereReviewedAt($value)
- * @method static Builder<static>|Mill whereStatus($value)
- * @method static Builder<static>|Mill whereSubmitterEmail($value)
- * @method static Builder<static>|Mill whereSubmitterIp($value)
- * @mixin \Eloquent
+ * @mixin IdeHelperMill
  */
 #[TypeScript]
 #[ScopedBy([ApprovedScope::class])]
@@ -159,9 +70,19 @@ class Mill extends Model
         // more foreign keys!
         'mailing_state_id',
         'mailing_county_id',
+        // even more foreign keys!
+        'import_id',
+        'user_id',
+
+        /**
+         * raw address fields to preserve pre-normalized addresses
+         */
+        'raw_physical_address',
+        'raw_mailing_address',
 
         /**
          * new fields to handle user submitted mills
+         * I think we're moving these to another table, mill_edits maybe?
          */
         'status',
         'submitter_email',
@@ -173,6 +94,53 @@ class Mill extends Model
     ];
 
     /**
+     * Keys correspond to spreadsheet headings
+     * Values are DB column names
+     * zOMG, this is too specific.
+     * Also, we nixed match_id and mill_id because they're only meaningful in our system.
+     * And lastly, I think county => county_name is the only deviation from actual DB field names.
+     */
+    public const IMPORT_COLUMNS = [
+        /**
+         * match_id and mill_id have been removed from import configs
+         */
+        // "match_id" => "match_id",
+        // "mill_id" => "mill_id",
+        "mill_name" => "mill_name",
+        "latitude" => "latitude",
+        "longitude" => "longitude",
+        "year" => "year",
+        /**
+         * I don't remember how this works.
+         * I think that we need to change the values for physical_address and mailing_address to point at the raw fields
+         * if those are the fields where we want to store the unaltered imported address data
+         */
+        // "physical_address" => "physical_address",
+        "physical_address" => "raw_physical_address",
+        "physical_city" => "physical_city",
+        "county" => "county_name",
+        "physical_state" => "physical_state",
+        "physical_zip" => "physical_zip",
+        // "mailing_address" => "mailing_address",
+        "mailing_address" => "raw_mailing_address",
+        "mailing_city" => "mailing_city",
+        "mailing_state" => "mailing_state",
+        "mailing_zip" => "mailing_zip",
+        "telephone" => "telephone",
+        "fax" => "fax",
+        "type" => "type",
+        "species" => "species",
+        "email" => "email",
+        "web_site" => "web_site",
+        "size" => "size",
+        "modification_date" => "modification_date",
+
+        /**
+         * Raw address fields should be used above instead of the actual fields.
+         */
+    ];
+
+    /**
      * List of accessors to append to the model's array/JSON form.
      * Accessors with the same name as the underlying attribute do not need to be appended.
      * 
@@ -181,6 +149,33 @@ class Mill extends Model
     protected $appends = [
         'physical_address_two',
     ];
+
+    protected $casts = [
+        'status' => PublicationStatus::class,
+    ];
+
+    /**
+     * Register event handlers in booted
+     */
+    protected static function booted(): void
+    {
+        /**
+         * I kinda think this should go on saving...but then again we shouldn't need it except when creating
+         * either way, kill the Log output.
+         */
+        static::creating(function (Mill $mill) {
+            /**
+             * Now that I think about it, match_id should never be populated here (except maybe when created by a Factory)
+             */
+            if (!empty($mill->match_id)) {
+                // Log::debug("Mill '$mill->mill_name' already has match_id: '$mill->match_id'");
+                return;
+            }
+            $mill->match_id = Mill::makeMatchId($mill);
+
+            // Log::debug("Made match_id '$mill->match_id' for '$mill->mill_name'.");
+        });
+    }
 
     /**
      * Accessors for physical and mailing address
@@ -230,6 +225,10 @@ class Mill extends Model
         return $this->belongsTo(State::class, 'mailing_state_id');
     }
 
+    /**
+     * I don't think we actually use this because so far we haven't been given data with mailing address county in it
+     * 
+     */
     public function mailingCounty(): BelongsTo
     {
         return $this->belongsTo(County::class, 'mailing_county_id');
@@ -253,13 +252,22 @@ class Mill extends Model
         return $this->hasMany(MillEdit::class);
     }
 
+    public function import(): BelongsTo
+    {
+        return $this->belongsTo(Import::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * helper to jam together the second line of addresses
      */
     protected static function buildAddress(string $city = '', string $state = '', string $zip = ''): string
     {
-        $address = sprintf(
+        $address = \sprintf(
             '%s, %s  %s',
             $city,
             $state,
@@ -290,6 +298,13 @@ class Mill extends Model
         $query = Mill::with(['millTypes', 'woodSpecies', 'state', 'county']);
 
         /**
+         * We need to exclude Mills which have mills.state_id === null (or empty) because they break MillResources logic.
+         * Actually, I fixed the MillResources logic. However, excluding mills without state_id is probably a good thing
+         * because it means that Mills that haven't been fully processed would automagically be excluded from search results.
+         * However, we can do that later, perhaps with a scope...
+         */
+
+        /**
          * Need to add query parameters for specifying a search location and search radius
          * Okay.
          * Proximity fields are only used if all are present.
@@ -307,7 +322,7 @@ class Mill extends Model
             $latitudeRadius = Geo::distanceToDegreesLatitude($radius);
             $longitudeRadius = Geo::distanceToDegreesLongitude($radius, $latitude);
             Log::debug('proximity params in API request: ', ['lng' => $validated['lng'], 'lat' => $validated['lat']]);
-            Log::debug(sprintf('radius %s miles at latitude %f =~ %f degrees longitude', $radius, $latitude, $longitudeRadius));
+            Log::debug(\sprintf('radius %s miles at latitude %f =~ %f degrees longitude', $radius, $latitude, $longitudeRadius));
 
             $query->whereRaw('(
                 CAST(latitude AS DECIMAL) <= (? + ?) AND 
@@ -401,13 +416,13 @@ class Mill extends Model
          */
         if (session()->cache()->has('mills')) {
             $mills = session()->cache()->get('mills');
-            Log::debug("found mills in session cache!", ['count' => count($mills)]);
+            Log::debug("found mills in session cache!", ['count' => \count($mills)]);
             return $mills;
         }
 
         if (session()->has('mills')) {
             $mills = session()->get('mills');
-            Log::debug('found mills in session', ['count' => count($mills)]);
+            Log::debug('found mills in session', ['count' => \count($mills)]);
             return $mills;
         }
 
@@ -453,18 +468,21 @@ class Mill extends Model
     /**
      * Scopes!
      * as indicated by the #[Scope] attribute/decorator
+     * Do we need to remove the Global ApprovedScope for pending() to work right?
      */
 
     #[Scope]
     protected function pending(Builder $query): void
     {
-        $query->where('status', PublicationStatus::Pending);
+        $query->withoutGlobalScope(ApprovedScope::class)
+            ->where('status', PublicationStatus::Pending);
     }
 
     #[Scope]
     protected function rejected(Builder $query): void
     {
-        $query->where('status', PublicationStatus::Rejected);
+        $query->withoutGlobalScope(ApprovedScope::class)
+            ->where('status', PublicationStatus::Rejected);
     }
 
     /**
@@ -578,5 +596,250 @@ class Mill extends Model
             'lastThreeMonths' => Carbon::now()->minus(months: 3),
             'lastYear' => Carbon::now()->minus(years: 1),
         ];
+    }
+
+    public static function makeMatchId(Mill|array $mill): string
+    {
+        $mill = \is_array($mill) ? $mill : $mill->toArray();
+        /**
+         * go with the default matchId at first
+         * should probably throw an exception here
+         */
+        if (empty($mill['mill_name'])) {
+            Log::error(self::class.'makeMatchId(): no mill name?!?', ['mill' => $mill]);
+            // dd($mill);
+            // throw new exception
+        }
+        $slug = Str::slug($mill['mill_name']);
+        /**
+         * shirts!
+         * physical_city doesn't always exist at this time
+         */
+        $slugWithCity = Str::slug($mill['mill_name'] . ' ' . ($mill['physical_city'] ?? ''));
+
+        /**
+         * see if there's an exact match
+         */
+        $others = Mill::select('match_id')
+            ->where('match_id', $slug)
+            ->orWhere('match_id', $slugWithCity)
+            ->orWhereLike('match_id', "$slug%", caseSensitive: false)
+            ->orWhereLike('match_id', "$slugWithCity%", false)
+            ->orderBy('match_id','desc')
+            ->get()
+            ->withoutAppends()
+            ->pluck('match_id');
+
+        /**
+         * if not, go with the simplest version
+         */
+        if (empty($others)) {
+            return $slug;
+        }
+
+        /**
+         * here's where things get interesting and/or annoying.
+         * we have to make something unique...easiest way is to append a number instead of doing something more meaningful.
+         * in that case, we could change our earlier query to find Mills
+         * with match_id LIKE 'simple%' and order them by match_id descending so that we only get the latest (or the one that sorts last)
+         * now isolate the suffix by replacing $matchId in the fetched row.
+         * then what?
+         * Well now.
+         * They're not all numeric.
+         * Maybe we should look for both the mill name slug and the mill slug
+         * followed by city name
+         */
+        /**
+         * Next simplest version is appending the city
+         */
+        // if (!in_array($slugWithCity, $others->toArray())) { //$others->match_id !== $slugWithCity) {
+        if (!$others->contains($slugWithCity)) {
+            return $slugWithCity;
+        }
+
+        /**
+         * since we've determined slugWithCity is already in there, we can use it as the basis for this slug
+         * but we need to find the last one that includes $slugWithCity
+         * then add a suffix to that one
+         */
+        $latest = $others->filter(function ($item) use ($slugWithCity) {
+            return Str::startsWith($item, $slugWithCity);
+        })->sortDesc()->first();
+
+        $suffix = Str::ltrim(Str::remove($slugWithCity, $latest), '-_ ');
+
+        /**
+         * if the suffix is numeric, increment it and bail.
+         * if not, make a numeric suffix
+         */
+        $suffix = is_numeric($suffix) ? (int) $suffix : 0;
+        $suffix += 1;
+        
+        return "$slugWithCity-$suffix";
+    }
+
+    /**
+     * Join all portions of an address into a single string.
+     * Used for geocoding.
+     * 
+     * @param mixed $type = 'physical'
+     * @return string
+     */
+    public function getRawAddress(?string $type = 'physical'): string
+    {
+        $type = ('mailing' === $type ? $type : 'physical');
+
+        if (!empty($this->{"raw_{$type}_address"})) {
+            return $this->{"raw_{$type}_address"};
+        }
+
+        $fields = [
+            $this->{"{$type}_address"} ?? '',
+            $this->{"{$type}_city"} ?? '',
+            $this->{"{$type}_state"} ?? '',
+            $this->{"{$type}_zip"} ?? '',
+        ];
+
+        return join(' ', $fields);
+    }
+
+    public function hasAddress(?string $type = 'physical'): bool
+    {
+        /**
+         * Should we even take raw_physical_address into account here?
+         * No.
+         * Let getRawAddress() handle it.
+         * Also, we don't need to check the value of $type here either, because getRawAddress() will handle it.
+         */
+        // $type = ('mailing' === $type ? $type : 'physical');
+        return ! empty($this->getRawAddress($type));
+    }
+
+    public function hasLatLng(): bool
+    {
+        /**
+         * do we actually need to do the value
+         */
+        $lat = (float) $this->latitude ?? null;
+        $lng = (float) $this->longitude ?? null;
+        if (empty($lat) || $lat > 90 || $lat < -90 ||
+            empty($lng) || $lng > 180 || $lat < -180
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns an array containing the longitude and latitude values for this Mill.
+     * The array is keyed by the full field names and ordered so that longitude is first to accomodate geocoding.
+     * @return array{longitude: string|null, latitude: string|null}
+     */
+    public function lngLat(): array
+    {
+        return [
+            'longitude' => $this->longitude,
+            'latitude' => $this->latitude,
+        ];
+    }
+
+    /**
+     * map type to mill_types
+     * maybe this is better for MillTypes to handle?
+     * maybe, but we can at least make it easy to explode the raw data into a list
+     */
+    public function getRawTypeList(): array
+    {
+        return $this->getRawList('type');
+    }
+
+    /**
+     * same for wood species
+     */
+    public function getRawSpeciesList(): array
+    {
+        return $this->getRawList('species');
+    }
+
+    protected function getRawList(string $field = 'type'): array
+    {
+        /**
+         * how do we limit only to a few fields?
+         * same as mailing and physical: make the typical the default value, then assert against the other value
+         * or else just make an array to check against
+         */
+        $allowedFields = [
+            'type',
+            'species'
+        ];
+
+        /**
+         * If this isn't a valid field, just bail silently and without error.
+         * Maybe log it :-D
+         */
+        if (! \in_array($field, $allowedFields)) {
+            Log::error(self::class."::getRawList(): invalid field name '{$field}'. Failing silently...");
+            return [];
+        }
+
+        /**
+         * get the field
+         * if empty return an empty array
+         */
+        $value = Str::trim($this->$field);
+
+        /**
+         * get the separator, if any
+         */
+        $separators = ['|', ','];
+        $separator = null;        
+        foreach ($separators as $sep) {
+            if (Str::contains($value, $sep)) {
+                $separator = $sep;
+                break;
+            }
+        }
+
+        /**
+         * if we found a separator, explode on it and return
+         */
+        if (!empty($separator)) {
+            return array_map(
+                fn ($item) => Str::trim($item),
+                explode($separator, $value)
+            );
+        }
+
+        /**
+         * if no separator, return the field in an array.
+         */
+        return [$value];
+    }
+
+    public static function deleteOldImports(int $importId, int $stateId): int
+    {
+        /**
+         * @suppress PHP1005
+         * well that didn't phucking work
+         * back to adding optional parameters that already have default values that aren't properly identified by one of the damn 
+         * things: Intelephense, Laravel VS Code extension, or barryvhd/ide-helper
+         */
+        return Mill::whereNotNull('import_id', boolean: 'and')
+            ->whereNot('import_id', $importId)
+            ->where('state_id', $stateId)
+            ->delete();
+    }
+
+    public static function publishFromImport(int $importId): bool
+    {
+        /**
+         * Holy mole!
+         * After a bunch of BS, going back to using query() first made Intelephense happy.
+         */
+        return Mill::query()->pending()
+            ->where('import_id', $importId)
+            ->update([
+                'status' => PublicationStatus::Approved,
+            ]);
     }
 }

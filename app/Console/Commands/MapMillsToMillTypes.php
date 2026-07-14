@@ -50,7 +50,7 @@ class MapMillsToMillTypes extends Command
          */
         $this->maxErrors = ceil($millCount * 0.1);
 
-        $this->info(sprintf(
+        $this->info(\sprintf(
             '%d mills without mill type out of %d total mills.',
             $millCount,
             $totalMills
@@ -75,7 +75,7 @@ class MapMillsToMillTypes extends Command
                      * We need to check for $mill->type being empty
                      */
                     if (empty(trim($mill->type))) {
-                        $msg = sprintf(
+                        $msg = \sprintf(
                             'Mill #%d (%s) has an empty type field!',
                             $mill->id,
                             $mill->mill_name
@@ -87,19 +87,19 @@ class MapMillsToMillTypes extends Command
 
                     $type = explode('|', trim($mill->type));
 
-                    $this->info(sprintf(
+                    $this->info(\sprintf(
                         'Mill #%d (%s) has %d type(s): "%s"',
                         $mill->id,
                         $mill->mill_name,
-                        count($type),
+                        \count($type),
                         // $mill->type
                         implode(', ', $type)
                     ));
 
                     foreach ($type as $t) {
                         // if (! $millTypes->has($t)) {
-                        if (! array_key_exists($t, $millTypes)) {
-                            $msg = sprintf(
+                        if (! \array_key_exists($t, $millTypes)) {
+                            $msg = \sprintf(
                                 'Mill #%d (%s) has an unknown mill type: "%s"',
                                 $mill->id,
                                 $mill->mill_name,
@@ -115,7 +115,7 @@ class MapMillsToMillTypes extends Command
                         $mill->millTypes()->attach($millTypes[$t]['id'], ['created_at' => now(), 'updated_at' => now()]);
 
                         // log and output successes
-                        $msg = sprintf(
+                        $msg = \sprintf(
                             'Attached mill type #%d (%s) to mill #%d (%s).',
                             $millTypes[$t]['id'],
                             $t,
@@ -138,7 +138,7 @@ class MapMillsToMillTypes extends Command
                  * return false from the closure to abort the chunking loop
                  */
                 if ($this->maxErrors < $audit['fail']) {
-                    $msg = sprintf(
+                    $msg = \sprintf(
                         'Too many errors to continue: %d of %d.',
                         $audit['fail'],
                         $this->maxErrors
@@ -146,6 +146,9 @@ class MapMillsToMillTypes extends Command
                     return false;
                 }
             }
-        });        
+            /**
+             * Phucking intelliphense
+             */
+        }, column: null, alias: null);
     }
 }

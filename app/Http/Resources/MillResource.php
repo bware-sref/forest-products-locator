@@ -64,8 +64,9 @@ class MillResource extends JsonResource
             'wood_species' => WoodSpeciesResource::collection($this->whenLoaded('woodSpecies')),
             // 'state' => new StateResource($this->whenLoaded('state')),
             $this->mergeWhen($this->whenLoaded('state'), [
-                'state' => $state->abbreviation,
-                'state_name' => $state->name,
+                // prevent exception when state not populated
+                'state' => $state->abbreviation ?? '',
+                'state_name' => $state->name ?? '',
             ]),
             // I forgot why I wanted to make this more complex...
             $this->mergeWhen($this->whenLoaded('county'), [

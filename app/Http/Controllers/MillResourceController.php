@@ -27,12 +27,14 @@ class MillResourceController extends Controller
         // if we store this request or the mills in the session, then we could just export the mills in the session...
         $validated = $request->validated();
 
-        Log::debug('API params', ['validated' => $validated]);
+        if (\count($validated) > 0) {
+            Log::debug('API params', ['validated' => $validated]);
+        }
 
         $mills = Mill::apiSearch($validated);
 
         // log requests that yield empty results.
-        if (1 > count($mills)) {
+        if (1 > \count($mills)) {
             Log::debug('Empty Mill API request result: ', [
                 'request.input' => collect($request->input())->toArray(),
                 // 'mills' => $mills->toArray()

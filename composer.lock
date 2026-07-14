@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "152da226868e10d1e50f04021f46102b",
+    "content-hash": "97adfcc165beee9283fb18ba6055a03e",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.384.5",
+            "version": "3.384.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c7d34f2d60515bd0c307e462268f75877842da4a"
+                "reference": "073ff664a003798a673aaa2494a0bb1b904cfeba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c7d34f2d60515bd0c307e462268f75877842da4a",
-                "reference": "c7d34f2d60515bd0c307e462268f75877842da4a",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/073ff664a003798a673aaa2494a0bb1b904cfeba",
+                "reference": "073ff664a003798a673aaa2494a0bb1b904cfeba",
                 "shasum": ""
             },
             "require": {
@@ -153,9 +153,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.384.5"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.384.6"
             },
-            "time": "2026-06-08T18:25:02+00:00"
+            "time": "2026-06-09T19:00:05+00:00"
         },
         {
             "name": "aws/aws-sdk-php-laravel",
@@ -354,16 +354,16 @@
         },
         {
             "name": "backpack/crud",
-            "version": "7.0.45",
+            "version": "7.0.46",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Backpack/CRUD.git",
-                "reference": "6d3105a6527dc36cc1635c39fcc62da2d8ce2fe6"
+                "reference": "9992c27d60a2da1bace045f700d24c0b2d76083c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Backpack/CRUD/zipball/6d3105a6527dc36cc1635c39fcc62da2d8ce2fe6",
-                "reference": "6d3105a6527dc36cc1635c39fcc62da2d8ce2fe6",
+                "url": "https://api.github.com/repos/Laravel-Backpack/CRUD/zipball/9992c27d60a2da1bace045f700d24c0b2d76083c",
+                "reference": "9992c27d60a2da1bace045f700d24c0b2d76083c",
                 "shasum": ""
             },
             "require": {
@@ -442,9 +442,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Laravel-Backpack/CRUD/issues",
-                "source": "https://github.com/Laravel-Backpack/CRUD/tree/7.0.45"
+                "source": "https://github.com/Laravel-Backpack/CRUD/tree/7.0.46"
             },
-            "time": "2026-06-04T18:22:30+00:00"
+            "time": "2026-06-09T14:20:36+00:00"
         },
         {
             "name": "backpack/permissionmanager",
@@ -2319,16 +2319,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v13.14.0",
+            "version": "v13.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "e60b1c817a9ef7da319e4007de6cfda5301a58c0"
+                "reference": "7e23b2aa4e1133a43835c93a810b4bedc40e425b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/e60b1c817a9ef7da319e4007de6cfda5301a58c0",
-                "reference": "e60b1c817a9ef7da319e4007de6cfda5301a58c0",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/7e23b2aa4e1133a43835c93a810b4bedc40e425b",
+                "reference": "7e23b2aa4e1133a43835c93a810b4bedc40e425b",
                 "shasum": ""
             },
             "require": {
@@ -2539,7 +2539,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-06-04T18:46:35+00:00"
+            "time": "2026-06-09T13:45:51+00:00"
         },
         {
             "name": "laravel/passkeys",
@@ -5658,6 +5658,53 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.2"
             },
             "time": "2025-12-14T04:43:48+00:00"
+        },
+        {
+            "name": "redsquirrelstudio/laravel-backpack-import-operation",
+            "version": "dev-feature/backpack-7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bware-sref/laravel-backpack-import-operation.git",
+                "reference": "380ffc1766613e5fad33e93ce17a0963f7b4b0ea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bware-sref/laravel-backpack-import-operation/zipball/380ffc1766613e5fad33e93ce17a0963f7b4b0ea",
+                "reference": "380ffc1766613e5fad33e93ce17a0963f7b4b0ea",
+                "shasum": ""
+            },
+            "require": {
+                "backpack/crud": "^6.0 || ^7.0",
+                "maatwebsite/excel": "^3.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "RedSquirrelStudio\\LaravelBackpackImportOperation\\Providers\\ImportOperationProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "RedSquirrelStudio\\LaravelBackpackImportOperation\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Lewis Raggett",
+                    "email": "lewisraggett17@gmail.com",
+                    "homepage": "https://github.com/redsquirrelstudio"
+                }
+            ],
+            "description": "An operation to make configurable imports for your CRUDs using the Backpack api you know and love",
+            "support": {
+                "source": "https://github.com/bware-sref/laravel-backpack-import-operation/tree/1.6.8"
+            },
+            "time": "2026-06-10T12:52:09+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",
@@ -13112,9 +13159,18 @@
             "time": "2025-12-08T11:19:18+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "redsquirrelstudio/laravel-backpack-import-operation",
+            "version": "dev-feature/backpack-7.0",
+            "alias": "1.6.8",
+            "alias_normalized": "1.6.8.0"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "redsquirrelstudio/laravel-backpack-import-operation": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
