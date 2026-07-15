@@ -27,6 +27,8 @@ class ArcGisFeatureService
          * And because this is a constant, we can't change it.
          * These should really be moved to the config file.
          * And then overridable for each endpoint.
+         * I'm pretty sure we don't need orderByFields.
+         * It seems to mostly cause trouble for states that use a different column.
          */
         'orderByFields' => 'OBJECTID',
     ];
@@ -255,24 +257,11 @@ class ArcGisFeatureService
             /**
              * use configurable params instead of self::DEFAULT_PARAMS
              */
-            // dd($this);
-            // dump('this params');
-            // dump($this->params);
-            $queryParams = array_merge($this->params, [
-                    'resultOffset'      => $offset,
-                    'resultRecordCount' => self::PAGE_SIZE,
-                ]);
-            // dump('queryParams');
-            // dump($queryParams);
             $response = Http::timeout($this->timeoutSeconds)
                 ->get("{$this->baseUrl}/query", array_merge($this->params, [
                     'resultOffset'      => $offset,
                     'resultRecordCount' => self::PAGE_SIZE,
                 ]));
-                // ->get("{$this->baseUrl}/query", array_merge(self::DEFAULT_PARAMS, [
-                //     'resultOffset'      => $offset,
-                //     'resultRecordCount' => self::PAGE_SIZE,
-                // ]));
         } catch (ConnectionException $e) {
             throw new RuntimeException(
                 "ArcGIS connection failed (offset {$offset}): {$e->getMessage()}",
@@ -381,6 +370,14 @@ class ArcGisFeatureService
             //     array_values($feature['properties'] ?? []),
             //     [$coords[0] ?? null, $coords[1] ?? null],
             // ));
+
+            /**
+             * Should we trim all values?
+             * Probably.
+             * We should also use null coalescence inside trim just in case a value is null.
+             */
+            $row = collect($row)->map(fn ($item) => Str::trim($item ?? ''))->all();
+
             /**
              * The default value of the escape parameter, "\\", has been deprecated.
              * It is now recommended to pass an empty string as the value for escape.

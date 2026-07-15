@@ -35,6 +35,11 @@ class ArcGisExportCommand extends Command
         $failed = 0;
 
         foreach ($endpoints as $key) {
+            if (empty(config("arcgis.endpoints.{$key}.url"))) {
+                $this->newLine();
+                $this->warn("Endpoint config '{$key}' does not have a URL defined. Skipping...");
+                continue;
+            }
             $failed += $this->exportEndpoint($key) ? 0 : 1;
         }
 
@@ -92,6 +97,7 @@ class ArcGisExportCommand extends Command
     {
         $config      = config("arcgis.endpoints.{$key}", []);
         $description = $config['description'] ?? $key;
+
         /**
          * FFS, this is so stupid.
          * The command shouldn't double up on this crap.
