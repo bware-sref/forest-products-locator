@@ -92,24 +92,25 @@ return [
         /**
          * Arkansas?
          * Nope!
+         * Technically, we could pull Arkansas data from Texas, but it's the same data we already have.
          */
-        // 'ar' => [
-        //     'url' => env('ARCGIS_AR_URL', ''),
-        //     'description' => env('ARCGIS_AR_DESCRIPTION', 'Arkansas Mills'),
-        //     'slug' => env('ARCGIS_AR_SLUG', 'arkansas'),
-        //     'params' => json_decode(env('ARCGIS_AR_PARAMS', '{}'), true),
-        // ],
+        'ar' => [
+            'url' => env('ARCGIS_AR_URL', ''),
+            'description' => env('ARCGIS_AR_DESCRIPTION', 'Arkansas Mills'),
+            'slug' => env('ARCGIS_AR_SLUG', 'arkansas'),
+            'params' => json_decode(env('ARCGIS_AR_PARAMS', '{}'), true),
+        ],
 
         /**
          * Florida?
          * Nope!
          */
-        // 'fl' => [
-        //     'url' => env('ARCGIS_FL_URL', ''),
-        //     'description' => env('ARCGIS_FL_DESCRIPTION', 'Florida Mills'),
-        //     'slug' => env('ARCGIS_FL_SLUG', 'florida'),
-        //     'params' => json_decode(env('ARCGIS_FL_PARAMS', '{}'), true),
-        // ],
+        'fl' => [
+            'url' => env('ARCGIS_FL_URL', ''),
+            'description' => env('ARCGIS_FL_DESCRIPTION', 'Florida Mills'),
+            'slug' => env('ARCGIS_FL_SLUG', 'florida'),
+            'params' => json_decode(env('ARCGIS_FL_PARAMS', '{}'), true),
+        ],
 
         /**
          * Georgia
@@ -126,12 +127,12 @@ return [
         /**
          * Kentucky?
          */
-        // 'ky' => [
-        //     'url' => env('ARCGIS_KY_URL', ''),
-        //     'description' => env('ARCGIS_KY_DESCRIPTION', 'Kentucky Mills'),
-        //     'slug' => env('ARCGIS_KY_SLUG', 'kentucky'),
-        //     'params' => json_decode(env('ARCGIS_KY_PARAMS', '{}'), true),
-        // ],
+        'ky' => [
+            'url' => env('ARCGIS_KY_URL', ''),
+            'description' => env('ARCGIS_KY_DESCRIPTION', 'Kentucky Mills'),
+            'slug' => env('ARCGIS_KY_SLUG', 'kentucky'),
+            'params' => json_decode(env('ARCGIS_KY_PARAMS', '{}'), true),
+        ],
 
         /**
          * Louisiana
@@ -149,18 +150,18 @@ return [
         /**
          * Mississippi?
          */
-        // 'ms' => [
-        //     'url' => env('ARCGIS_MS_URL', ''),
-        //     'description' => env('ARCGIS_MS_DESCRIPTION', 'Mississippi Mills'),
-        //     'slug' => env('ARCGIS_MS_SLUG', 'mississippi'),
-        //     'params' => json_decode(env('ARCGIS_MS_PARAMS', '{}'), true),
-        // ],
+        'ms' => [
+            'url' => env('ARCGIS_MS_URL', 'https://services5.arcgis.com/hE6urTTXj32LRUqx/arcgis/rest/services/2025_MS_Forest_Products_Companies/FeatureServer/0'),
+            'description' => env('ARCGIS_MS_DESCRIPTION', 'Mississippi Mills'),
+            'slug' => env('ARCGIS_MS_SLUG', 'mississippi'),
+            'params' => json_decode(env('ARCGIS_MS_PARAMS', '{}'), true),
+        ],
 
         /**
          * North Carolina
          */
         'nc' => [
-            'url'         => env('ARCGIS_NC_URL', 'https://services6.arcgis.com/3Sj1fiIDvQtFfbvg/arcgis/rest/services/Primary_Processors_Website_Map_Updated_4_23_/FeatureServer/1'),
+            'url' => env('ARCGIS_NC_URL', 'https://services6.arcgis.com/3Sj1fiIDvQtFfbvg/arcgis/rest/services/Primary_Processors_Website_Map_Updated_4_23_/FeatureServer/1'),
             'description' => env('ARCGIS_NC_DESCRIPTION', 'North Carolina Primary Processors Website Map'),
             'slug' => env('ARCGIS_NC_SLUG', 'north-carolina'),
             'params' => json_decode(env('ARCGIS_NC_PARAMS', '{}'), true),
@@ -200,22 +201,22 @@ return [
          * Texas
          * uses our old data so we don't even need to mess with it!
          */
-        // 'tx' => [
-        //     'url' => env('ARCGIS_TX_URL', ''),
-        //     'description' => env('ARCGIS_TX_DESCRIPTION', 'Texas Mills'),
-        //     'slug' => env('ARCGIS_TX_SLUG', 'texas'),
-        //     'params' => json_decode(env('ARCGIS_TX_PARAMS', '{"where": "Physical_S=\'TX\'"}'), true),
-        // ],
+        'tx' => [
+            'url' => env('ARCGIS_TX_URL', 'https://tfsgis02.tfs.tamu.edu/arcgis/rest/services/TSA/Mills/MapServer/0'),
+            'description' => env('ARCGIS_TX_DESCRIPTION', 'Texas Mills'),
+            'slug' => env('ARCGIS_TX_SLUG', 'texas'),
+            'params' => json_decode(env('ARCGIS_TX_PARAMS', '{"where": "Physical_S=\'TX\'"}'), true),
+        ],
 
         /**
          * Virginia?
          */
-        // 'va' => [
-        //     'url' => env('ARCGIS_VA_URL', ''),
-        //     'description' => env('ARCGIS_VA_DESCRIPTION', 'Virginia Mills'),
-        //     'slug' => env('ARCGIS_VA_SLUG', 'virginia'),
-        //     'params' => json_decode(env('ARCGIS_VA_PARAMS', '{}'), true),
-        // ],
+        'va' => [
+            'url' => env('ARCGIS_VA_URL', ''),
+            'description' => env('ARCGIS_VA_DESCRIPTION', 'Virginia Mills'),
+            'slug' => env('ARCGIS_VA_SLUG', 'virginia'),
+            'params' => json_decode(env('ARCGIS_VA_PARAMS', '{}'), true),
+        ],
 
 
         /*
