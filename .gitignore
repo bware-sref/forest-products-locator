@@ -40,6 +40,7 @@ Thumbs.db
 # ignore ide-helper files
 _ide_helper.php
 _ide_helper_models.php
+_ide_helper_pest.php
 .phpstorm.meta.php
 # ignore build files?
 /assets
