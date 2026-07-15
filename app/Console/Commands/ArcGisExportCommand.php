@@ -73,6 +73,15 @@ class ArcGisExportCommand extends Command
             return [];
         }
 
+        /**
+         * Check for empty URL
+         */
+        $url = config("arcgis.endpoints.{$argument}.url", '');
+        if (empty($url)) {
+            $this->error("Endpoint \"{$argument}\" does not have a URL defined in config/arcgis.php.");
+            return [];
+        }
+
         return [$argument];
     }
 
@@ -133,6 +142,12 @@ class ArcGisExportCommand extends Command
 
         $rows = [];
         foreach ($endpoints as $key => $cfg) {
+            /**
+             * We only want to list the endpoints with URLs defined.
+             */
+            if (empty($cfg['url'])) {
+                continue;
+            }
             $rows[] = [
                 $key,
                 $cfg['description'] ?? '—',
