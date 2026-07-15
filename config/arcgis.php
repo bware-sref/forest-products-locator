@@ -154,7 +154,7 @@ return [
             'url' => env('ARCGIS_MS_URL', 'https://services5.arcgis.com/hE6urTTXj32LRUqx/arcgis/rest/services/2025_MS_Forest_Products_Companies/FeatureServer/0'),
             'description' => env('ARCGIS_MS_DESCRIPTION', 'Mississippi Mills'),
             'slug' => env('ARCGIS_MS_SLUG', 'mississippi'),
-            'params' => json_decode(env('ARCGIS_MS_PARAMS', '{}'), true),
+            'params' => json_decode(env('ARCGIS_MS_PARAMS', '{"orderByFields": "FID"}'), true),
         ],
 
         /**
