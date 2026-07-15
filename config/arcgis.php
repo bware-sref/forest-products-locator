@@ -95,9 +95,9 @@ return [
          */
         // 'ar' => [
         //     'url' => env('ARCGIS_AR_URL', ''),
-            // 'description' => 'Arkansas Mills',
-        //     'slug' => 'arkansas',
-        //     'params' => ['where' => "Physical_S='AR'"]
+        //     'description' => env('ARCGIS_AR_DESCRIPTION', 'Arkansas Mills'),
+        //     'slug' => env('ARCGIS_AR_SLUG', 'arkansas'),
+        //     'params' => json_decode(env('ARCGIS_AR_PARAMS', '{}'), true),
         // ],
 
         /**
@@ -106,8 +106,9 @@ return [
          */
         // 'fl' => [
         //     'url' => env('ARCGIS_FL_URL', ''),
-            // 'description' => 'Florida Mills',        
-        //     'slug' => 'florida',
+        //     'description' => env('ARCGIS_FL_DESCRIPTION', 'Florida Mills'),
+        //     'slug' => env('ARCGIS_FL_SLUG', 'florida'),
+        //     'params' => json_decode(env('ARCGIS_FL_PARAMS', '{}'), true),
         // ],
 
         /**
@@ -119,9 +120,7 @@ return [
             'url'         => env('ARCGIS_GA_URL', 'https://services2.arcgis.com/iXA1dC6ldRMKRwra/arcgis/rest/services/Primary_Wood_Using_Industries_of_Georgia__Public_View/FeatureServer/0'),
             'description' => env('ARCGIS_GA_DESCRIPTION', 'Primary Wood Using Industries of Georgia'),
             'slug' => env('ARCGIS_GA_SLUG', 'georgia'),
-            // 'disk'        => env('ARCGIS_GA_DISK', null),   // falls back to default_disk
-            // 'geojson'     => env('ARCGIS_GA_GEOJSON', 'arcgis/georgia_mills.geojson'),
-            // 'csv'         => env('ARCGIS_GA_CSV',     'arcgis/georgia_mills.csv'),
+            'params' => json_decode(env('ARCGIS_GA_PARAMS', '{}'), true),
         ],
 
         /**
@@ -129,8 +128,9 @@ return [
          */
         // 'ky' => [
         //     'url' => env('ARCGIS_KY_URL', ''),
-        //     'description' => 'Kentucky Mills',
-        //     'slug' => 'kentucky',
+        //     'description' => env('ARCGIS_KY_DESCRIPTION', 'Kentucky Mills'),
+        //     'slug' => env('ARCGIS_KY_SLUG', 'kentucky'),
+        //     'params' => json_decode(env('ARCGIS_KY_PARAMS', '{}'), true),
         // ],
 
         /**
@@ -152,7 +152,7 @@ return [
         // 'ms' => [
         //     'url' => env('ARCGIS_MS_URL', ''),
         //     'description' => env('ARCGIS_MS_DESCRIPTION', 'Mississippi Mills'),
-        //     'slug' => env('ARCGIS_NC_SLUG', 'mississippi'),
+        //     'slug' => env('ARCGIS_MS_SLUG', 'mississippi'),
         //     'params' => json_decode(env('ARCGIS_MS_PARAMS', '{}'), true),
         // ],
 
@@ -164,9 +164,6 @@ return [
             'description' => env('ARCGIS_NC_DESCRIPTION', 'North Carolina Primary Processors Website Map'),
             'slug' => env('ARCGIS_NC_SLUG', 'north-carolina'),
             'params' => json_decode(env('ARCGIS_NC_PARAMS', '{}'), true),
-            // 'disk'        => env('ARCGIS_NC_DISK', null),
-            // 'geojson'     => env('ARCGIS_NC_GEOJSON', 'arcgis/north-carolina-mills.geojson'),
-            // 'csv'         => env('ARCGIS_NC_CSV',     'arcgis/north-carolina-mills.csv'),
         ],
 
         /**
@@ -205,8 +202,8 @@ return [
          */
         // 'tx' => [
         //     'url' => env('ARCGIS_TX_URL', ''),
-            // 'description' => 'Texas Mills',
-        //     'slug' => 'texas',
+        //     'description' => env('ARCGIS_TX_DESCRIPTION', 'Texas Mills'),
+        //     'slug' => env('ARCGIS_TX_SLUG', 'texas'),
         //     'params' => json_decode(env('ARCGIS_TX_PARAMS', '{"where": "Physical_S=\'TX\'"}'), true),
         // ],
 
@@ -215,8 +212,9 @@ return [
          */
         // 'va' => [
         //     'url' => env('ARCGIS_VA_URL', ''),
-            // 'description' => 'Virginia Mills',
-        //     'slug' => 'virginia',
+        //     'description' => env('ARCGIS_VA_DESCRIPTION', 'Virginia Mills'),
+        //     'slug' => env('ARCGIS_VA_SLUG', 'virginia'),
+        //     'params' => json_decode(env('ARCGIS_VA_PARAMS', '{}'), true),
         // ],
 
 
@@ -225,10 +223,10 @@ return [
         |
         | 'my_layer' => [
         |     'url'         => env('ARCGIS_MY_LAYER_URL', 'https://services…/FeatureServer/0'),
-        |     'description' => 'My Custom Layer',
-        |     'disk'        => null,
-        |     'geojson'     => 'arcgis/my_layer.geojson',
-        |     'csv'         => 'arcgis/my_layer.csv',
+        |     'description' => env('ARCGIS_MY_LAYER_DESCRIPTION', 'My Custom Layer'),
+        |     'slug'        => env('ARCGIS_MY_LAYER_SLUG', 'my-layer'),
+        |     'disk'        => env('ARCGIS_MY_LAYER_DISK', null),
+        |     'params'      => json_decode(env('ARCGIS_MY_LAYER_PARAMS', '{}'), true),
         | ],
         */
 
