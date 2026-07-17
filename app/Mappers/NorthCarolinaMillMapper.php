@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Mappers;
+
+/**
+ * Maps ArcGIS GeoJSON features from North Carolina's mill layer.
+ *
+ * Source: ArcGIS FeatureServer API extract
+ * Records: 31 (replaces 246 historical NC records)
+ *
+ * NC is the most minimal dataset — name, coordinates, and one type
+ * field (OP1) only. No address, no contact, no county, no species.
+ */
+class NorthCarolinaMillMapper extends AbstractMillMapper
+{
+    public function stateAbbreviation(): string
+    {
+        return 'NC';
+    }
+
+    public function map(array $feature): array
+    {
+        $props = $feature['properties'] ?? [];
+
+        return array_filter([
+            'mill_name'         => $this->clean($props['Company'] ?? null),
+            'latitude'          => $this->latitude($feature),
+            'longitude'         => $this->longitude($feature),
+            'physical_state'    => 'NC',
+            'type'              => $this->mapType($props['OP1'] ?? null),
+            'modification_date' => $this->fromUnixMs($props['EditDate'] ?? null),
+        ], fn ($v) => $v !== null);
+    }
+
+    private function mapType(?string $raw): ?string
+    {
+        $crosswalk = [
+            'Sawmill'               => 'Sawmill',
+            'Pulp & Paper Mill'     => 'Pulp & Paper',
+            'Chip Mill'             => 'Chip Mill',
+            'Plywood/Veneer Mill'   => 'Veneer / Plywood / Panels',
+            'OSB Mfg Plant'         => 'OSB',
+            'Pellet Mill'           => 'Pellet',
+            'Firewood'              => 'Firewood',
+            'Commercial Firewood'   => 'Firewood',
+            'Mulch Plant'           => 'Mulch',
+            'Electrical Power Plant'=> 'Electrical Power Plant',
+            'Fiberboard Plant (MDF)'=> 'Fiberboard Plant (MDF)',
+            'Particle Board'        => 'Particle Board',
+            'Log Export Yard'       => 'Log Export',
+        ];
+
+        $cleaned = $this->clean($raw);
+
+        if ($cleaned === null) {
+            return null;
+        }
+
+        $canonical = $crosswalk[$cleaned] ?? null;
+
+        return $canonical !== null ? $this->titleCase($canonical) : null;
+    }
+}

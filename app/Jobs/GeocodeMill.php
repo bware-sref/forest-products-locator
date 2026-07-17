@@ -81,6 +81,7 @@ class GeocodeMill implements ShouldQueue
             $this->mill->update([
                 'status' => PublicationStatus::Invalid,
             ]);
+            $this->mill->import?->increment('failed_rows');
             $this->fail($msg);
             return;
         }

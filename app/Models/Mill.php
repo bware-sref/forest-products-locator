@@ -91,6 +91,17 @@ class Mill extends Model
         'reject_hash',
         'reviewed_at',
 
+        /**
+         * Fields added for ArcGis imports
+        */
+        'mill_raw_import_id',
+        'contact_name',
+        'contact_title',
+        'telephone_2',
+        'email_2',
+        'needs_review',
+        'extended_attributes',
+
     ];
 
     /**
@@ -152,6 +163,7 @@ class Mill extends Model
 
     protected $casts = [
         'status' => PublicationStatus::class,
+        'extended_attributes' => 'array',
     ];
 
     /**
@@ -506,66 +518,9 @@ class Mill extends Model
         ];
     }
 
-    // public static function updates(): array
-    // {
-    //     /**
-    //      * Updates are a little messier.
-    //      * number and percentage updated, total and by state, timeframes
-    //      * 
-    //      */
-
-    //     $timeframes = self::getTimeframes();
-
-    //     $data = [];
-        
-    //     /**
-    //      * We only need to count all mills once.
-    //      * Now think of a good way to hoist doing that to the level we need.
-    //      * That probably means passing $millCount to this function.
-    //      */
-    //     $millCount = Mill::all()->count();
-
-    //     foreach ($timeframes as $key => $tf) {
-    //         $block = [];
-    //         $updated = Mill::updatedSince($tf);
-    //         $block['total']['number'] = $updated;
-    //         $block['total']['percentage'] = ($updated / $millCount) * 100;
-
-    //         $block['byState'] = [];
-    //         $block['since'] = $tf->toDateTimeString();
-    //         $data[$key] = $block;
-    //     }
-
-    //     return $data;
-    // }
-
-    // public static function additions(): array
-    // {
-    //     return self::sinceTimeframes('created');
-    // } 
-
-    // protected static function sinceTimeframes(string $action = 'updated'): array
-    // {
-    //     $timeframes = self::getTimeframes();
-
-    //     $data = [];
-
-    //     $millCount = Mill::countAll();
-
-    //     foreach ($timeframes as $key => $tf) {
-    //         $block = [];
-    //         $updated = Mill::updatedSince($tf);
-    //         $block['total']['number'] = $updated;
-    //         $block['total']['percentage'] = ($updated / $millCount) * 100;
-
-    //         $block['byState'] = [];
-    //         $block['since'] = $tf->toDateTimeString();
-    //         $data[$key] = $block;
-    //     }
-
-    //     return $data;
-    // }
-
+    /**
+     * Should I have just made scopes for these instead?
+     */
     public static function createdSince(Carbon $since): int
     {
         return self::changedSince($since, 'created');

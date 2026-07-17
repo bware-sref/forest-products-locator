@@ -88,7 +88,9 @@ class ProcessMillState implements ShouldQueue
         if (! $state) {
             $msg = self::class.": unable to process Mill #{$this->mill->id} because no State found for '{$this->mill->physical_state}'.";
             Log::error($msg, $this->mill->toArray());
+            $this->mill->import?->increment('failed_rows');
             $this->fail($msg);
+            return;
         }
 
         if ($needsStateId) {
@@ -104,7 +106,9 @@ class ProcessMillState implements ShouldQueue
                  */
                 $msg = self::class.": unable to process Mill #{$this->mill->id} because it does not have a value for 'physical_state'.";
                 Log::error($msg, $this->mill->toArray());
+                $this->mill->import?->increment('failed_rows');
                 $this->fail($msg);
+                return;
             }
 
             /**

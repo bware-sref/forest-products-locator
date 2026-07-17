@@ -79,6 +79,7 @@ return [
         'al' => [
             'url' => env('ARCGIS_AL_URL', 'https://gis.forestry.alabama.gov/arcgis/rest/services/AFCEnterprise/ForestIndustryDirectory/MapServer/0'),
             'description' => env('ARCGIS_AL_DESCRIPTION', 'Alabama Forest Industry Directory'),
+            'mapper'      => env('ARCGIS_AL_MAPPER', \App\Mappers\AlabamaMillMapper::class),
             'slug' => env('ARCGIS_AL_SLUG', 'alabama'),
             /**
              * There's probably a better way to handle a possible array of params
@@ -96,6 +97,7 @@ return [
          */
         'ar' => [
             'url' => env('ARCGIS_AR_URL', ''),
+            'mapper'      => env('ARCGIS_AR_MAPPER', \App\Mappers\ArkansasMillMapper::class),
             'description' => env('ARCGIS_AR_DESCRIPTION', 'Arkansas Mills'),
             'slug' => env('ARCGIS_AR_SLUG', 'arkansas'),
             'params' => json_decode(env('ARCGIS_AR_PARAMS', '{}'), true),
@@ -107,6 +109,7 @@ return [
          */
         'fl' => [
             'url' => env('ARCGIS_FL_URL', ''),
+            'mapper' => env('ARCGIS_FL_MAPPER', \App\Mappers\FloridaMillMapper::class),
             'description' => env('ARCGIS_FL_DESCRIPTION', 'Florida Mills'),
             'slug' => env('ARCGIS_FL_SLUG', 'florida'),
             'params' => json_decode(env('ARCGIS_FL_PARAMS', '{}'), true),
@@ -118,7 +121,8 @@ return [
          * The latter are only 2 letters
          */
         'ga' => [
-            'url'         => env('ARCGIS_GA_URL', 'https://services2.arcgis.com/iXA1dC6ldRMKRwra/arcgis/rest/services/Primary_Wood_Using_Industries_of_Georgia__Public_View/FeatureServer/0'),
+            'url' => env('ARCGIS_GA_URL', 'https://services2.arcgis.com/iXA1dC6ldRMKRwra/arcgis/rest/services/Primary_Wood_Using_Industries_of_Georgia__Public_View/FeatureServer/0'),
+            'mapper' => env('ARCGIS_GA_MAPPER', \App\Mappers\GeorgiaMillMapper::class),
             'description' => env('ARCGIS_GA_DESCRIPTION', 'Primary Wood Using Industries of Georgia'),
             'slug' => env('ARCGIS_GA_SLUG', 'georgia'),
             'params' => json_decode(env('ARCGIS_GA_PARAMS', '{}'), true),
@@ -129,6 +133,7 @@ return [
          */
         'ky' => [
             'url' => env('ARCGIS_KY_URL', ''),
+            'mapper' => env('ARCGIS_KY_MAPPER', \App\Mappers\KentuckyMillMapper::class),
             'description' => env('ARCGIS_KY_DESCRIPTION', 'Kentucky Mills'),
             'slug' => env('ARCGIS_KY_SLUG', 'kentucky'),
             'params' => json_decode(env('ARCGIS_KY_PARAMS', '{}'), true),
@@ -139,6 +144,7 @@ return [
          */
         'la' => [
             'url' => env('ARCGIS_LA_URL', 'https://services2.arcgis.com/njxlOVQKvDzk10uN/arcgis/rest/services/Location_of_Mills/FeatureServer/0'),
+            'mapper' => env('ARCGIS_LA_MAPPER', \App\Mappers\LouisianaMillMapper::class),
             'description' => env('ARCGIS_LA_DESCRIPTION', 'Lousiana Location of Mills'),
             'slug' => env('ARCGIS_LA_SLUG', 'louisiana'),
             /**
@@ -152,6 +158,7 @@ return [
          */
         'ms' => [
             'url' => env('ARCGIS_MS_URL', 'https://services5.arcgis.com/hE6urTTXj32LRUqx/arcgis/rest/services/2025_MS_Forest_Products_Companies/FeatureServer/0'),
+            'mapper' => env('ARCGIS_MS_MAPPER', \App\Mappers\MississippiMillMapper::class),
             'description' => env('ARCGIS_MS_DESCRIPTION', 'Mississippi Mills'),
             'slug' => env('ARCGIS_MS_SLUG', 'mississippi'),
             'params' => json_decode(env('ARCGIS_MS_PARAMS', '{"orderByFields": "FID"}'), true),
@@ -162,6 +169,7 @@ return [
          */
         'nc' => [
             'url' => env('ARCGIS_NC_URL', 'https://services6.arcgis.com/3Sj1fiIDvQtFfbvg/arcgis/rest/services/Primary_Processors_Website_Map_Updated_4_23_/FeatureServer/1'),
+            'mapper'      => env('ARCGIS_NC_MAPPER', \App\Mappers\NorthCarolinaMillMapper::class),
             'description' => env('ARCGIS_NC_DESCRIPTION', 'North Carolina Primary Processors Website Map'),
             'slug' => env('ARCGIS_NC_SLUG', 'north-carolina'),
             'params' => json_decode(env('ARCGIS_NC_PARAMS', '{}'), true),
@@ -172,6 +180,7 @@ return [
          */
         'ok' => [
             'url' => env('ARCGIS_OK_URL', 'https://services3.arcgis.com/yrIZ0Nv0mSGTWJsH/arcgis/rest/services/OK_Sawmill_Locations_view/FeatureServer/0'),
+            'mapper'      => env('ARCGIS_OK_MAPPER', \App\Mappers\OklahomaMillMapper::class),
             'description' => env('ARCGIS_OK_DESCRIPTION', 'Oklahoma Sawmill Locations'),
             'slug' => env('ARCGIS_OK_SLUG', 'oklahoma'),
             'params' => json_decode(env('ARCGIS_OK_PARAMS', '{}'), true),
@@ -182,6 +191,7 @@ return [
          */
         'sc' => [
             'url' => env('ARCGIS_SC_URL', 'https://services9.arcgis.com/MvVEDRWecTZBD2xl/arcgis/rest/services/PrimaryMills_SC_view/FeatureServer/0'),
+            'mapper'      => env('ARCGIS_SC_MAPPER', \App\Mappers\SouthCarolinaMillMapper::class),
             'description' => env('ARCGIS_SC_DESCRIPTION', 'Primary Mills of South Carolina'),
             'slug' => env('ARCGIS_SC_SLUG', 'south-carolina'),
             'params' => json_decode(env('ARCGIS_SC_PARAMS', '{}'), true),
@@ -192,6 +202,7 @@ return [
          */
         'tn' => [
             'url' => env('ARCGIS_TN_URL', 'https://services.arcgis.com/lvPBAGXeSupVUvx2/arcgis/rest/services/TNForestProductsCompanies/FeatureServer/0'),
+            'mapper'      => env('ARCGIS_TN_MAPPER', \App\Mappers\TennesseeMillMapper::class),
             'description' => env('ARCGIS_TN_DESCRIPTION', 'Tennessee Forest Products Companies'),
             'slug' => env('ARCGIS_TN_SLUG', 'tennessee'),
             'params' => json_decode(env('ARCGIS_TN_PARAMS', '{}'), true),
@@ -203,6 +214,7 @@ return [
          */
         'tx' => [
             'url' => env('ARCGIS_TX_URL', 'https://tfsgis02.tfs.tamu.edu/arcgis/rest/services/TSA/Mills/MapServer/0'),
+            'mapper'      => env('ARCGIS_TX_MAPPER', \App\Mappers\TexasMillMapper::class),
             'description' => env('ARCGIS_TX_DESCRIPTION', 'Texas Mills'),
             'slug' => env('ARCGIS_TX_SLUG', 'texas'),
             'params' => json_decode(env('ARCGIS_TX_PARAMS', '{"where": "Physical_S=\'TX\'"}'), true),
@@ -213,6 +225,7 @@ return [
          */
         'va' => [
             'url' => env('ARCGIS_VA_URL', ''),
+            'mapper'      => env('ARCGIS_VA_MAPPER', \App\Mappers\VirginiaMillMapper::class),
             'description' => env('ARCGIS_VA_DESCRIPTION', 'Virginia Mills'),
             'slug' => env('ARCGIS_VA_SLUG', 'virginia'),
             'params' => json_decode(env('ARCGIS_VA_PARAMS', '{}'), true),
