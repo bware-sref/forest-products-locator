@@ -175,8 +175,8 @@ class ProcessMillState implements ShouldQueue
                     Log::warning(self::class.": Mill #{$this->mill->id}: failed to find county '{$this->mill->county_name}' in the state of {$state->name}. Skipping.");
                 } else {
                     $this->mill->county_id = $county->id ?? null;
-                    $countyType = ucfirst($county->type ?? '');
-                    Log::debug(self::class.": Mill #{$this->mill->id} is located in {$county->name} {$countyType}, {$state->name} (#{$state->id})!");
+                    // $countyType = ucfirst($county->type ?? '');
+                    // Log::debug(self::class.": Mill #{$this->mill->id} is located in {$county->name} {$countyType}, {$state->name} (#{$state->id})!");
 
                 }
             }
@@ -208,7 +208,7 @@ class ProcessMillState implements ShouldQueue
              */
             $this->mill->mailing_state_id = $state?->id ?? null;
 
-            Log::debug(self::class.": Mill #{$this->mill->id}'s mail is delivered to the great state of {$state->name} (#{$state->id})!");
+            // Log::debug(self::class.": Mill #{$this->mill->id}'s mail is delivered to the great state of {$state->name} (#{$state->id})!");
         }
 
         // persist our updates
