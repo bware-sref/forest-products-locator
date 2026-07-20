@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\FetchArcGisFeaturesJob;
+use App\Jobs\FetchArcGisFeatures;
 use App\Models\State;
 use Illuminate\Console\Command;
 
@@ -59,7 +59,7 @@ class ArcGisImportCommand extends Command
 
         $deleteFromState = $this->option('delete');
 
-        FetchArcGisFeaturesJob::dispatch($endpoint, $state->id, $deleteFromState);
+        FetchArcGisFeatures::dispatch($endpoint, $state->id, $deleteFromState);
 
         $this->info("Queued fetch for {$config['description']} ({$stateAbbr}) (deleteFromState? {$deleteFromState}). FetchArcGisFeaturesJob dispatched.");
 
