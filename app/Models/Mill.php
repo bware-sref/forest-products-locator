@@ -668,9 +668,39 @@ class Mill extends Model
          * No.
          * Let getRawAddress() handle it.
          * Also, we don't need to check the value of $type here either, because getRawAddress() will handle it.
+         * 
+         * This check is insufficient because of states like North Carolina, which do not include addresses.
+         * But since we already know the state, rawAddress ends up not empty, but only containing the state.
+         * So, this does seem like the right place handle that situation.
          */
         // $type = ('mailing' === $type ? $type : 'physical');
-        return ! empty($this->getRawAddress($type));
+        $addy = $this->getRawAddress($type);        
+
+        /**
+         * We can bail if it's truly empty.
+         * However, we have to do an empty check before we can trim it to know for sure.
+         * If not empty, go ahead and squish to lower when trimming
+         */
+        $addy = empty($addy) ? $addy : Str::trim(Str::lower($addy));
+
+        /**
+         * if truly empty, return false
+         */
+        if (empty($addy)) {
+            return false;
+        }
+
+        /**
+         * Crude but effective, replace physical_state and mailing_state if populated
+         * Be sure to convert to lower first!!!
+         */
+        $addy = Str::replace([
+            Str::lower($this->physical_state ?? ''),
+            Str::lower($this->mailing_state ?? ''),
+        ], '', $addy);
+
+        return !empty($addy);
+        // return ! empty($this->getRawAddress($type));
     }
 
     public function hasLatLng(): bool
