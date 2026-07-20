@@ -24,8 +24,14 @@ class NorthCarolinaMillMapper extends AbstractMillMapper
 
         return array_filter([
             'mill_name'         => $this->clean($props['Company'] ?? null),
+            /**
+             * Pass the entire feature just in case we have to fallback to coordinates.
+             */
             'latitude'          => $this->latitude($feature),
             'longitude'         => $this->longitude($feature),
+            /**
+             * Why doesn't the mapper use the stateAbbreviation() method?
+             */
             'physical_state'    => 'NC',
             'type'              => $this->mapType($props['OP1'] ?? null),
             'modification_date' => $this->fromUnixMs($props['EditDate'] ?? null),
@@ -59,5 +65,27 @@ class NorthCarolinaMillMapper extends AbstractMillMapper
         $canonical = $crosswalk[$cleaned] ?? null;
 
         return $canonical !== null ? $this->titleCase($canonical) : null;
+    }
+
+    /**
+     * Maps the Lat column to latitude.
+     * Falls back to parent method (coordinates[1]) if Lat column empty.
+     * @param array $feature
+     * @return float|null
+     */
+    protected function latitude(array $feature): ?float
+    {
+        return (float) $feature['properties']['Lat'] ?: parent::latitude($feature);
+    }
+
+    /**
+     * Maps the Long column to longitude.
+     * Falls back to parent method (coordinates[0]) if Long column empty.
+     * @param array $feature
+     * @return float|null
+     */
+    protected function longitude(array $feature): ?float
+    {
+        return (float) $feature['properties']['Long'] ?: parent::longitude($feature);
     }
 }
