@@ -24,7 +24,7 @@ use Throwable;
  * Replaces the synchronous fetch previously performed by
  * ArcGisImportCommand, so the command can dispatch and return immediately.
  */
-class FetchArcGisFeaturesJob implements ShouldQueue
+class FetchArcGisFeatures implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
