@@ -574,8 +574,11 @@ class Mill extends Model
 
         /**
          * see if there's an exact match
+         * Be sure to look at all mills, not just approved!
+         * i.e., withoutGlobalScope()
          */
-        $others = Mill::select('match_id')
+        $others = Mill::withoutGlobalScope(ApprovedScope::class)
+            ->select('match_id')
             ->where('match_id', $slug)
             ->orWhere('match_id', $slugWithCity)
             ->orWhereLike('match_id', "$slug%", caseSensitive: false)
