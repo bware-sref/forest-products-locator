@@ -746,7 +746,7 @@ class Mill extends Model
          * Return empty array if $field is empty.
          */
         if (empty($this->$field)) {
-            Log::warning(self::class."::getRawList() $field is empty for Mill #{$this->id} ($this->mill_name).");
+            // Log::debug(self::class."::getRawList() $field is empty for Mill #{$this->id} ($this->mill_name).");
             return [];
         }
 
