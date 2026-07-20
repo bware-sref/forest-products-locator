@@ -44,7 +44,9 @@ class ProcessMillWoodSpecies implements ShouldQueue
          * Bail if this mill has an empty species field.
          */
         if (empty($woodSpecies)) {
-            Log::debug(self::class.": Mill #{$this->mill->id} has an empty `species` field! Nothing for us to do here.", ['mill' => $this->mill->toArray()]);
+            Log::debug(self::class.": Mill #{$this->mill->id} has an empty `species` field! Nothing for us to do here.", [
+                'mill' => collect($this->mill->toArray())->only(['name', 'species'])->all(),
+            ]);
             return;
         }
 
@@ -111,10 +113,10 @@ class ProcessMillWoodSpecies implements ShouldQueue
         }
 
         $foundWoodSpeciesCount = \count($speciesIds);
-        Log::debug(self::class.": for Mill #{$this->mill->id}, found {$foundWoodSpeciesCount} valid WoodSpecies out of {$woodSpeciesCount} in the raw data: ", [
-            'foundSpeciesIds' => $speciesIds,
-            'woodSpecies' => $woodSpecies,
-        ]);
+        // Log::debug(self::class.": for Mill #{$this->mill->id}, found {$foundWoodSpeciesCount} valid WoodSpecies out of {$woodSpeciesCount} in the raw data: ", [
+        //     'foundSpeciesIds' => $speciesIds,
+        //     'woodSpecies' => $woodSpecies,
+        // ]);
 
         /**
          * @FYI: we have to manually supply the timestamp values for the pivot table; non-pivot seems to do it automatically.
@@ -131,7 +133,9 @@ class ProcessMillWoodSpecies implements ShouldQueue
         $this->mill->woodSpecies()->syncWithPivotValues($speciesIds, $extra);
 
         //
-        Log::debug(self::class." attached {$foundWoodSpeciesCount} WoodSpecies to Mill #{$this->mill->id}.");
+        Log::debug(self::class." attached {$foundWoodSpeciesCount} WoodSpecies to Mill #{$this->mill->id}.", [
+            'foundWoodSpecies' => $speciesIds,
+        ]);
 
         return;
 

@@ -44,7 +44,9 @@ class ProcessMillMillTypes implements ShouldQueue
          * Bail if this mill has an empty type field.
          */
         if (empty($millTypes)) {
-            Log::debug(self::class.": Mill #{$this->mill->id} has an empty `type` field! Nothing for us to do here.", ['mill' => $this->mill->toArray()]);
+            Log::debug(self::class.": Mill #{$this->mill->id} has an empty `type` field! Nothing for us to do here.", [
+                'mill' => collect($this->mill->toArray())->only(['name', 'type'])->all(),
+            ]);
             return;
         }
 
@@ -99,10 +101,10 @@ class ProcessMillMillTypes implements ShouldQueue
         }
 
         $foundMillTypeCount = \count($typeIds);
-        Log::debug(self::class.": for Mill #{$this->mill->id}, found {$foundMillTypeCount} valid MillTypes out of {$millTypeCount} in the raw data: ", [
-            'foundTypeIds' => $typeIds,
-            'millTypes' => $millTypes,
-        ]);
+        // Log::debug(self::class.": for Mill #{$this->mill->id}, found {$foundMillTypeCount} valid MillTypes out of {$millTypeCount} in the raw data: ", [
+        //     'foundTypeIds' => $typeIds,
+        //     'millTypes' => $millTypes,
+        // ]);
 
         $now = now();
         $extra = ['created_at' => $now, 'updated_at' => $now];
@@ -122,7 +124,9 @@ class ProcessMillMillTypes implements ShouldQueue
         $this->mill->millTypes()->syncWithPivotValues($typeIds, $extra);
 
         //
-        Log::debug(self::class." attached {$foundMillTypeCount} MillTypes to Mill #{$this->mill->id}.");
+        Log::debug(self::class." attached {$foundMillTypeCount} MillTypes to Mill #{$this->mill->id}.", [
+            'foundMillTypes' => $typeIds,
+        ]);
 
         return;
     }
