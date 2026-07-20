@@ -20,6 +20,7 @@ class ArcGisImportCommand extends Command
                             {endpoint? : Config key from config/arcgis.php}
                             {--L|list    : List configured endpoints and exit}
                             {--A|all : with list, shows incomplete endpoint configs}
+                            {--D|delete=true : Delete existing Mills in this state}
                             ';
 
     protected $description = 'Fetch mill data from an ArcGIS FeatureServer and queue for import';
@@ -56,9 +57,11 @@ class ArcGisImportCommand extends Command
             return self::FAILURE;
         }
 
-        FetchArcGisFeaturesJob::dispatch($endpoint, $state->id);
+        $deleteFromState = $this->option('delete');
 
-        $this->info("Queued fetch for {$config['description']} ({$stateAbbr}). FetchArcGisFeaturesJob dispatched.");
+        FetchArcGisFeaturesJob::dispatch($endpoint, $state->id, $deleteFromState);
+
+        $this->info("Queued fetch for {$config['description']} ({$stateAbbr}) (deleteFromState? {$deleteFromState}). FetchArcGisFeaturesJob dispatched.");
 
         return self::SUCCESS;
     }
