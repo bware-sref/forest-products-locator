@@ -741,6 +741,16 @@ class Mill extends Model
         }
 
         /**
+         * We need to do an empty check before passing the value to trim to avoid the warning caused by 
+         * passing null to Str::trim().
+         * Return empty array if $field is empty.
+         */
+        if (empty($this->$field)) {
+            Log::warning(self::class."::getRawList() $field is empty for Mill #{$this->id} ($this->mill_name).");
+            return [];
+        }
+
+        /**
          * get the field
          * if empty return an empty array
          */
