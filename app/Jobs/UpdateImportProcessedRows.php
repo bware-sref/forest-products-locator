@@ -40,14 +40,14 @@ class UpdateImportProcessedRows implements ShouldQueue
             return;
         }
 
-        Log::debug(self::class.": updating Import #{$this->mill->import_id} to reflect that Mill #{$this->mill->id} has been processed.");
+        // Log::debug(self::class.": updating Import #{$this->mill->import_id} to reflect that Mill #{$this->mill->id} has been processed.");
         /**
          * I wonder if we need to refresh the import first?
          */
-        $oldValue = $this->mill->import->processed_rows;
+        // $oldValue = $this->mill->import->processed_rows;
         $this->mill->import->increment('processed_rows');
-        $newValue = $this->mill->import->processed_rows;
+        // $newValue = $this->mill->import->processed_rows;
 
-        Log::debug(self::class.": incremented Import #{$this->mill->import_id}.processed_rows from {$oldValue} to {$newValue}");
+        // Log::debug(self::class.": incremented Import #{$this->mill->import_id}.processed_rows from {$oldValue} to {$newValue}");
     }
 }
