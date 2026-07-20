@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\MillRawImportStatus;
+use App\Enums\PublicationStatus;
 use App\Mappers\MillMapperInterface;
 use App\Models\Import;
 use App\Models\Mill;
@@ -86,7 +87,7 @@ class CreateMillFromArcGisFeature implements ShouldQueue
         $attributes['state_id']           = $this->import->state_id;
         $attributes['import_id']          = $this->import->id;
         $attributes['mill_raw_import_id'] = $rawImport->id;
-        $attributes['status']             = 'pending';
+        $attributes['status']             = PublicationStatus::Pending;
 
         return Mill::create($attributes);
     }
