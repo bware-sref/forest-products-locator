@@ -33,6 +33,7 @@ class FetchArcGisFeaturesJob implements ShouldQueue
     public function __construct(
         private readonly string $endpoint,
         private readonly int $stateId,
+        private readonly bool $deleteFromState = true,
     ) {}
 
     public function handle(): void
@@ -59,6 +60,12 @@ class FetchArcGisFeaturesJob implements ShouldQueue
                 'api_url'            => $this->buildApiUrl($config),
                 'status'             => ImportStatus::Pending,
                 'total_rows'         => $features->count(),
+
+                /**
+                 * Should ArcGIS imports always replace the previous data for that state?
+                 * Or, should we extract that option to the command (with default being true)?
+                 */
+                'delete_from_state' => $this->deleteFromState,
             ]);
 
             Log::info('FetchArcGisFeaturesJob: fetched and stored features', [
