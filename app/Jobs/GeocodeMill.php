@@ -45,6 +45,8 @@ class GeocodeMill implements ShouldQueue
         // Log::debug(self::class.': about to do a lookup for mill #'.$this->mill->id.' in import #'.$this->mill->import_id.'.', [
         //     'rawAddress' => $this->mill->getRawAddress(),
         //     'lngLat' => $this->mill->lngLat(),
+        //     'mill' => collect($this->mill->toArray())->only(['latitude', 'longitude', 'physical_address', 'raw_physical_address'])->all(),
+        //     'hasAddress?' => $this->mill->hasAddress(),
         //     // 'MILL' => $this->mill->toArray(),
         // ]);
 
