@@ -9,6 +9,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GeocodeMill implements ShouldQueue
 {
@@ -16,9 +17,16 @@ class GeocodeMill implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * $allowFailures: false (default) fails this job for real on error, which
+     * aborts the rest of this mill's chain and cancels a strict batch (the
+     * spreadsheet-import pipeline's intent). true logs + records the failure
+     * and returns normally instead, so a batch built to tolerate failures
+     * (ArcGIS imports) keeps going. See ProcessMill::jobChain().
      */
     public function __construct(
-        public Mill $mill
+        public Mill $mill,
+        public bool $allowFailures = false,
     ) {}
 
     /**
@@ -33,6 +41,22 @@ class GeocodeMill implements ShouldQueue
 
             return;
         }
+
+        try {
+            $this->geocode($geo);
+        } catch (Throwable $e) {
+            $msg = self::class.": failed to geocode Mill #{$this->mill->id}: {$e->getMessage()}";
+            Log::error($msg);
+            $this->mill->recordProcessingFailure($msg);
+
+            if (! $this->allowFailures) {
+                throw $e;
+            }
+        }
+    }
+
+    private function geocode(GeocodingService $geo): void
+    {
         /**
          * What all needs to happen?
          * 
@@ -65,9 +89,9 @@ class GeocodeMill implements ShouldQueue
             // ]);
             $results = $geo->geocode($this->mill->getRawAddress());
         } else if ($this->mill->hasLatLng()) {
-            Log::debug(self::class.": about to do a REVERSE geocode (edocoeg) lookup for mill #{$this->mill->id} in import #{$this->mill->import_id}: ", [
-                'mill->lngLat()' => $this->mill->lngLat(),
-            ]);
+            // Log::debug(self::class.": about to do a REVERSE geocode (edocoeg) lookup for mill #{$this->mill->id} in import #{$this->mill->import_id}: ", [
+            //     'mill->lngLat()' => $this->mill->lngLat(),
+            // ]);
             $results = $geo->reverse(...$this->mill->lngLat());
         } else {
             /**
@@ -89,9 +113,8 @@ class GeocodeMill implements ShouldQueue
             $this->mill->update([
                 'status' => PublicationStatus::Invalid,
             ]);
-            $this->mill->import?->increment('failed_rows');
-            $this->fail($msg);
-            return;
+
+            throw new \RuntimeException($msg);
         }
 
         /**

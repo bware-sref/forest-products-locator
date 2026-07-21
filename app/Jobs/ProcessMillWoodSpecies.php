@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Throwable;
 
 class ProcessMillWoodSpecies implements ShouldQueue
 {
@@ -16,9 +17,16 @@ class ProcessMillWoodSpecies implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * $allowFailures: false (default) fails this job for real on error, which
+     * aborts the rest of this mill's chain and cancels a strict batch (the
+     * spreadsheet-import pipeline's intent). true logs + records the failure
+     * and returns normally instead, so a batch built to tolerate failures
+     * (ArcGIS imports) keeps going. See ProcessMill::jobChain().
      */
     public function __construct(
-        public Mill $mill
+        public Mill $mill,
+        public bool $allowFailures = false,
     )
     {}
 
@@ -35,6 +43,21 @@ class ProcessMillWoodSpecies implements ShouldQueue
             return;
         }
 
+        try {
+            $this->assignWoodSpecies();
+        } catch (Throwable $e) {
+            $msg = self::class.": failed to process Mill #{$this->mill->id}: {$e->getMessage()}";
+            Log::error($msg);
+            $this->mill->recordProcessingFailure($msg);
+
+            if (! $this->allowFailures) {
+                throw $e;
+            }
+        }
+    }
+
+    private function assignWoodSpecies(): void
+    {
         /**
          * fetch the nearly raw imported value (nearly because it's been exploded on either | or ,)
          */
@@ -44,9 +67,9 @@ class ProcessMillWoodSpecies implements ShouldQueue
          * Bail if this mill has an empty species field.
          */
         if (empty($woodSpecies)) {
-            Log::debug(self::class.": Mill #{$this->mill->id} has an empty `species` field! Nothing for us to do here.", [
-                'mill' => collect($this->mill->toArray())->only(['name', 'species'])->all(),
-            ]);
+            // Log::debug(self::class.": Mill #{$this->mill->id} has an empty `species` field! Nothing for us to do here.", [
+            //     'mill' => collect($this->mill->toArray())->only(['name', 'species'])->all(),
+            // ]);
             return;
         }
 
@@ -133,9 +156,9 @@ class ProcessMillWoodSpecies implements ShouldQueue
         $this->mill->woodSpecies()->syncWithPivotValues($speciesIds, $extra);
 
         //
-        Log::debug(self::class." attached {$foundWoodSpeciesCount} WoodSpecies to Mill #{$this->mill->id}.", [
-            'foundWoodSpecies' => $speciesIds,
-        ]);
+        // Log::debug(self::class." attached {$foundWoodSpeciesCount} WoodSpecies to Mill #{$this->mill->id}.", [
+        //     'foundWoodSpecies' => $speciesIds,
+        // ]);
 
         return;
 

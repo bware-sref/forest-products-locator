@@ -10,6 +10,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ProcessMillState implements ShouldQueue
 {
@@ -17,9 +18,16 @@ class ProcessMillState implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * $allowFailures: false (default) fails this job for real on error, which
+     * aborts the rest of this mill's chain and cancels a strict batch (the
+     * spreadsheet-import pipeline's intent). true logs + records the failure
+     * and returns normally instead, so a batch built to tolerate failures
+     * (ArcGIS imports) keeps going. See ProcessMill::jobChain().
      */
     public function __construct(
-        public Mill $mill
+        public Mill $mill,
+        public bool $allowFailures = false,
     ) {}
 
     /**
@@ -33,6 +41,22 @@ class ProcessMillState implements ShouldQueue
 
             return;
         }
+
+        try {
+            $this->assignState();
+        } catch (Throwable $e) {
+            $msg = self::class.": failed to process Mill #{$this->mill->id}: {$e->getMessage()}";
+            Log::error($msg);
+            $this->mill->recordProcessingFailure($msg);
+
+            if (! $this->allowFailures) {
+                throw $e;
+            }
+        }
+    }
+
+    private function assignState(): void
+    {
 
         /**
          * what all do we need to do?
@@ -52,6 +76,9 @@ class ProcessMillState implements ShouldQueue
         $needsStateId = empty($this->mill->state_id);
         /**
          * However, make sure we have things we need before fooling with the optional items.
+         * 
+         * Okay.
+         * Clearly we might still the county despite not having that info here.
          */
         $needsCountyId = (empty($this->mill->county_id) && !empty($this->mill->county_name));
         $needsMailingStateId = (empty($this->mill->mailing_state_id) && !empty($this->mill->mailing_state));
@@ -62,7 +89,7 @@ class ProcessMillState implements ShouldQueue
         if (! $needsStateId && ! $needsCountyId && ! $needsMailingStateId) {
             Log::debug(
                 self::class.": Mill #{$this->mill->id} already has state_id, county_id, and mailing_state_id.", 
-                collect($this->mill->toArray())->only(['state_id', 'county_id', 'mailing_state_id'])->toArray()
+                collect($this->mill->toArray())->only(['state_id', 'county_name', 'county_id', 'mailing_state_id'])->toArray()
             );
             return;
         }
@@ -98,9 +125,7 @@ class ProcessMillState implements ShouldQueue
         if (! $state) {
             $msg = self::class.": unable to process Mill #{$this->mill->id} because no State found for '{$this->mill->physical_state}'.";
             Log::error($msg, $this->mill->toArray());
-            $this->mill->import?->increment('failed_rows');
-            $this->fail($msg);
-            return;
+            throw new \RuntimeException($msg);
         }
 
         if ($needsStateId) {
@@ -120,9 +145,7 @@ class ProcessMillState implements ShouldQueue
                  */
                 $msg = self::class.": unable to process Mill #{$this->mill->id} because it does not have a value for 'physical_state'.";
                 Log::error($msg, $this->mill->toArray());
-                $this->mill->import?->increment('failed_rows');
-                $this->fail($msg);
-                return;
+                throw new \RuntimeException($msg);
             }
 
             /**

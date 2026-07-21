@@ -8,6 +8,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class UpdateImportProcessedRows implements ShouldQueue
 {
@@ -15,9 +16,18 @@ class UpdateImportProcessedRows implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * $allowFailures: false (default) fails this job for real on error, which
+     * cancels a strict batch (the spreadsheet-import pipeline's intent).
+     * true logs + records the failure and returns normally instead, so a
+     * batch built to tolerate failures (ArcGIS imports) keeps going. See
+     * ProcessMill::jobChain(). This is the last job in the chain, so unlike
+     * the others, failing here doesn't orphan any further jobs — it's here
+     * for consistency and so a failure here still increments failed_rows.
      */
     public function __construct(
-        public Mill $mill
+        public Mill $mill,
+        public bool $allowFailures = false,
     ) {}
 
     /**
@@ -40,14 +50,16 @@ class UpdateImportProcessedRows implements ShouldQueue
             return;
         }
 
-        // Log::debug(self::class.": updating Import #{$this->mill->import_id} to reflect that Mill #{$this->mill->id} has been processed.");
-        /**
-         * I wonder if we need to refresh the import first?
-         */
-        // $oldValue = $this->mill->import->processed_rows;
-        $this->mill->import->increment('processed_rows');
-        // $newValue = $this->mill->import->processed_rows;
+        try {
+            $this->mill->import->increment('processed_rows');
+        } catch (Throwable $e) {
+            $msg = self::class.": failed to update processed_rows for Mill #{$this->mill->id}: {$e->getMessage()}";
+            Log::error($msg);
+            $this->mill->recordProcessingFailure($msg);
 
-        // Log::debug(self::class.": incremented Import #{$this->mill->import_id}.processed_rows from {$oldValue} to {$newValue}");
+            if (! $this->allowFailures) {
+                throw $e;
+            }
+        }
     }
 }
