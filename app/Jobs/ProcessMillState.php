@@ -10,6 +10,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ProcessMillState implements ShouldQueue
 {
@@ -17,9 +18,16 @@ class ProcessMillState implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * $allowFailures: false (default) fails this job for real on error, which
+     * aborts the rest of this mill's chain and cancels a strict batch (the
+     * spreadsheet-import pipeline's intent). true logs + records the failure
+     * and returns normally instead, so a batch built to tolerate failures
+     * (ArcGIS imports) keeps going. See ProcessMill::jobChain().
      */
     public function __construct(
-        public Mill $mill
+        public Mill $mill,
+        public bool $allowFailures = false,
     ) {}
 
     /**
@@ -33,6 +41,22 @@ class ProcessMillState implements ShouldQueue
 
             return;
         }
+
+        try {
+            $this->assignState();
+        } catch (Throwable $e) {
+            $msg = self::class.": failed to process Mill #{$this->mill->id}: {$e->getMessage()}";
+            Log::error($msg);
+            $this->mill->recordProcessingFailure($msg);
+
+            if (! $this->allowFailures) {
+                throw $e;
+            }
+        }
+    }
+
+    private function assignState(): void
+    {
 
         /**
          * what all do we need to do?
@@ -52,6 +76,9 @@ class ProcessMillState implements ShouldQueue
         $needsStateId = empty($this->mill->state_id);
         /**
          * However, make sure we have things we need before fooling with the optional items.
+         * 
+         * Okay.
+         * Clearly we might still the county despite not having that info here.
          */
         $needsCountyId = (empty($this->mill->county_id) && !empty($this->mill->county_name));
         $needsMailingStateId = (empty($this->mill->mailing_state_id) && !empty($this->mill->mailing_state));
@@ -62,7 +89,7 @@ class ProcessMillState implements ShouldQueue
         if (! $needsStateId && ! $needsCountyId && ! $needsMailingStateId) {
             Log::debug(
                 self::class.": Mill #{$this->mill->id} already has state_id, county_id, and mailing_state_id.", 
-                collect($this->mill->toArray())->only(['state_id', 'county_id', 'mailing_state_id'])->toArray()
+                collect($this->mill->toArray())->only(['state_id', 'county_name', 'county_id', 'mailing_state_id'])->toArray()
             );
             return;
         }
@@ -76,11 +103,21 @@ class ProcessMillState implements ShouldQueue
          * Let's go ahead and create the state variable so we may be able to reuse it for mailing_state_id.
          * Except...we need to pull the county lookup out of the state lookup.
          * Otherwise, we'll only get county_id when need state_id
+         * 
+         * Fetching state with only the one county we want is not working as expected.
+         * However, instead of chasing bugs that aren't show stoppers, we're just going to search the returned counties.
          */
         /**
          * @var State
          */
         $state = $this->mill->state ?? State::byNameOrAbbreviation($this->mill->physical_state, $this->mill->county_name ?? null);
+
+        // Log::debug(self::class.": looked up state and county for Mill #{$this->mill->id}. Found: ", [
+        //     'mill_physicalState' => $this->mill->physical_state,
+        //     'mill_countyName' => $this->mill->county_name ?? '?!?twas empty?!?',
+        //     'state?' => $state?->toArray(),
+        //     'howManyCounties?' => \count($state?->counties),
+        // ]);
 
         /**
          * More different error if no state found.
@@ -88,10 +125,14 @@ class ProcessMillState implements ShouldQueue
         if (! $state) {
             $msg = self::class.": unable to process Mill #{$this->mill->id} because no State found for '{$this->mill->physical_state}'.";
             Log::error($msg, $this->mill->toArray());
-            $this->fail($msg);
+            throw new \RuntimeException($msg);
         }
 
         if ($needsStateId) {
+            /**
+             * This should never be the case because already used mill->physical_state to lookup the state.
+             * 
+             */
             if (empty($this->mill->physical_state)) {
                 /**
                  * This is not good.
@@ -104,7 +145,7 @@ class ProcessMillState implements ShouldQueue
                  */
                 $msg = self::class.": unable to process Mill #{$this->mill->id} because it does not have a value for 'physical_state'.";
                 Log::error($msg, $this->mill->toArray());
-                $this->fail($msg);
+                throw new \RuntimeException($msg);
             }
 
             /**
@@ -129,7 +170,7 @@ class ProcessMillState implements ShouldQueue
             // $state = State::byNameOrAbbreviation($this->mill->physical_state, $this->mill->county_name ?? null);
 
             $this->mill->state_id = $state->id;
-            Log::debug(self::class.": Mill #{$this->mill->id} belongs to the great state of {$state->name} (#{$state->id})!");
+            // Log::debug(self::class.": Mill #{$this->mill->id} belongs to the great state of {$state->name} (#{$state->id})!");
         }
 
         if ($needsCountyId) {
@@ -140,11 +181,27 @@ class ProcessMillState implements ShouldQueue
             if (empty($state->counties) || 1 > \count($state->counties)) {
                 Log::warning(self::class.": Mill #{$this->mill->id}, county '{$this->mill->county_name}' not found in {$state->name}.");
             } else {
-                $county = $state->counties[0];
+                /**
+                 * The query to only select one county isn't working.
+                 * I.e., we're getting the full list of counties here.
+                 * However, if there's only one county, use it.
+                 * Otherwise, look the fucker up by name.
+                 */
+                $county = (1 === \count($state->counties)) ? 
+                    $state->counties->first() : // [0] : 
+                    $state->counties()->where('name', $this->mill->county_name)->first();
 
-                $this->mill->county_id = $county->id ?? null;
-                $countyType = ucfirst($county->type ?? '');
-                Log::debug(self::class.": Mill #{$this->mill->id} is located in {$county->name} {$countyType}, {$state->name} (#{$state->id})!");
+                /**
+                 * Check that we have a county before using it!
+                 */
+                if (empty($county)) {
+                    Log::warning(self::class.": Mill #{$this->mill->id}: failed to find county '{$this->mill->county_name}' in the state of {$state->name}. Skipping.");
+                } else {
+                    $this->mill->county_id = $county->id ?? null;
+                    // $countyType = ucfirst($county->type ?? '');
+                    // Log::debug(self::class.": Mill #{$this->mill->id} is located in {$county->name} {$countyType}, {$state->name} (#{$state->id})!");
+
+                }
             }
         }
 
@@ -174,7 +231,7 @@ class ProcessMillState implements ShouldQueue
              */
             $this->mill->mailing_state_id = $state?->id ?? null;
 
-            Log::debug(self::class.": Mill #{$this->mill->id}'s mail is delivered to the great state of {$state->name} (#{$state->id})!");
+            // Log::debug(self::class.": Mill #{$this->mill->id}'s mail is delivered to the great state of {$state->name} (#{$state->id})!");
         }
 
         // persist our updates

@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Throwable;
 
 class ProcessMillMillTypes implements ShouldQueue
 {
@@ -16,9 +17,16 @@ class ProcessMillMillTypes implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * $allowFailures: false (default) fails this job for real on error, which
+     * aborts the rest of this mill's chain and cancels a strict batch (the
+     * spreadsheet-import pipeline's intent). true logs + records the failure
+     * and returns normally instead, so a batch built to tolerate failures
+     * (ArcGIS imports) keeps going. See ProcessMill::jobChain().
      */
     public function __construct(
-        public Mill $mill
+        public Mill $mill,
+        public bool $allowFailures = false,
     )
     {}
 
@@ -35,6 +43,21 @@ class ProcessMillMillTypes implements ShouldQueue
             return;
         }
 
+        try {
+            $this->assignMillTypes();
+        } catch (Throwable $e) {
+            $msg = self::class.": failed to process Mill #{$this->mill->id}: {$e->getMessage()}";
+            Log::error($msg);
+            $this->mill->recordProcessingFailure($msg);
+
+            if (! $this->allowFailures) {
+                throw $e;
+            }
+        }
+    }
+
+    private function assignMillTypes(): void
+    {
         /**
          * Extract values from this Mill's `type` field.
          */
@@ -44,7 +67,9 @@ class ProcessMillMillTypes implements ShouldQueue
          * Bail if this mill has an empty type field.
          */
         if (empty($millTypes)) {
-            Log::debug(self::class.": Mill #{$this->mill->id} has an empty `type` field! Nothing for us to do here.", ['mill' => $this->mill->toArray()]);
+            // Log::debug(self::class.": Mill #{$this->mill->id} has an empty `type` field! Nothing for us to do here.", [
+            //     'mill' => collect($this->mill->toArray())->only(['name', 'type'])->all(),
+            // ]);
             return;
         }
 
@@ -99,10 +124,10 @@ class ProcessMillMillTypes implements ShouldQueue
         }
 
         $foundMillTypeCount = \count($typeIds);
-        Log::debug(self::class.": for Mill #{$this->mill->id}, found {$foundMillTypeCount} valid MillTypes out of {$millTypeCount} in the raw data: ", [
-            'foundTypeIds' => $typeIds,
-            'millTypes' => $millTypes,
-        ]);
+        // Log::debug(self::class.": for Mill #{$this->mill->id}, found {$foundMillTypeCount} valid MillTypes out of {$millTypeCount} in the raw data: ", [
+        //     'foundTypeIds' => $typeIds,
+        //     'millTypes' => $millTypes,
+        // ]);
 
         $now = now();
         $extra = ['created_at' => $now, 'updated_at' => $now];
@@ -122,7 +147,9 @@ class ProcessMillMillTypes implements ShouldQueue
         $this->mill->millTypes()->syncWithPivotValues($typeIds, $extra);
 
         //
-        Log::debug(self::class." attached {$foundMillTypeCount} MillTypes to Mill #{$this->mill->id}.");
+        // Log::debug(self::class." attached {$foundMillTypeCount} MillTypes to Mill #{$this->mill->id}.", [
+        //     'foundMillTypes' => $typeIds,
+        // ]);
 
         return;
     }

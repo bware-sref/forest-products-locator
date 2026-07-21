@@ -34,15 +34,39 @@ class ProcessMill implements ShouldQueue
         }
 
         /**
-         * This job will chain dispatching the jobs listed below.
-         * We never update the import to indicate the number of processed rows...
+         * NOTE: dispatched this way (standalone), this chain isn't tracked by
+         * any Bus::batch() — a batch built from ProcessMill instances only
+         * "sees" this dispatching job, which finishes as soon as the chain is
+         * enqueued, not when the chain actually completes. When you need
+         * batch progress/then()/finally() to wait for the real work, pass
+         * jobChain() results straight into Bus::batch() instead of wrapping
+         * them in ProcessMill (see ProcessImportedMills).
          */
-        Bus::chain([
-            new GeocodeMill($this->mill),
-            new ProcessMillState($this->mill),
-            new ProcessMillMillTypes($this->mill),
-            new ProcessMillWoodSpecies($this->mill),
-            new UpdateImportProcessedRows($this->mill),
-        ])->dispatch();
+        Bus::chain(self::jobChain($this->mill))->dispatch();
+    }
+
+    /**
+     * The per-mill processing chain. Public/static so batch-driven callers
+     * (ProcessImportedMills) can pass these directly into Bus::batch() as
+     * chains-within-a-batch, which — unlike dispatching this job standalone —
+     * Laravel tracks as complete only once the last job in the chain runs.
+     *
+     * $allowFailures controls how each job in the chain responds to its own
+     * errors: swallow-and-continue (true) so a batch built to tolerate
+     * failures can still finish and dispatch FinalizeMillImport, or truly
+     * fail (false) so a strict batch cancels as originally intended — see
+     * each job's catch block.
+     *
+     * @return array<int, ShouldQueue>
+     */
+    public static function jobChain(Mill $mill, bool $allowFailures = false): array
+    {
+        return [
+            new GeocodeMill($mill, $allowFailures),
+            new ProcessMillState($mill, $allowFailures),
+            new ProcessMillMillTypes($mill, $allowFailures),
+            new ProcessMillWoodSpecies($mill, $allowFailures),
+            new UpdateImportProcessedRows($mill, $allowFailures),
+        ];
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Services\ArcGisEndpointConfig;
+use App\Services\ArcGisFeatureExporter;
 use App\Services\ArcGisFeatureService;
 use Illuminate\Console\Command;
 use Throwable;
@@ -35,6 +37,11 @@ class ArcGisExportCommand extends Command
         $failed = 0;
 
         foreach ($endpoints as $key) {
+            if (empty(config("arcgis.endpoints.{$key}.url"))) {
+                $this->newLine();
+                $this->warn("Endpoint config '{$key}' does not have a URL defined. Skipping...");
+                continue;
+            }
             $failed += $this->exportEndpoint($key) ? 0 : 1;
         }
 
@@ -90,32 +97,21 @@ class ArcGisExportCommand extends Command
      */
     private function exportEndpoint(string $key): bool
     {
-        $config      = config("arcgis.endpoints.{$key}", []);
-        $description = $config['description'] ?? $key;
-        /**
-         * FFS, this is so stupid.
-         * The command shouldn't double up on this crap.
-         */
-        $geojson     = $config['geojson']     ?? ArcGisFeatureService::geojsonFileName($key); // '(not set)';
-        $csv         = $config['csv']         ?? ArcGisFeatureService::csvFileName($key); // '(not set)';
-        $disk        = $config['disk']        ?? config('arcgis.default_disk', 'local');
+        $config = ArcGisEndpointConfig::fromKey($key);
 
         $this->newLine();
-        $this->line("<fg=cyan;options=bold>► {$description}</> <fg=gray>[{$key}]</>");
-        $this->line("  GeoJSON : {$geojson}");
-        $this->line("  CSV     : {$csv}");
-        $this->line("  Disk    : {$disk}");
+        $this->line("<fg=cyan;options=bold>► {$config->description}</> <fg=gray>[{$key}]</>");
+        $this->line("  GeoJSON : {$config->geojsonPath}");
+        $this->line("  CSV     : {$config->csvPath}");
+        $this->line("  Disk    : {$config->disk}");
 
         try {
-            $service = ArcGisFeatureService::fromConfig($key);
-
             $this->output->write('  Fetching');
-            $features = $service->fetchAll();
-            $count    = $features->count();
-            $this->line(" → <info>{$count} features</info>");
+            $features = (new ArcGisFeatureService($config))->fetchAll();
+            $this->line(" → <info>{$features->count()} features</info>");
 
-            $this->output->write('  Writing GeoJSON');
-            $service->exportFromConfig($key);
+            $this->output->write('  Writing GeoJSON + CSV');
+            (new ArcGisFeatureExporter())->writeAll($features, $config->geojsonPath, $config->csvPath, $config->disk);
             $this->line(' → <info>done</info>');
 
             $this->line("  <fg=green>✓ {$key} exported successfully.</>");
@@ -148,13 +144,16 @@ class ArcGisExportCommand extends Command
             if (empty($cfg['url'])) {
                 continue;
             }
+
+            $config = ArcGisEndpointConfig::fromKey($key);
+
             $rows[] = [
                 $key,
-                $cfg['description'] ?? '—',
-                $cfg['slug'] ?? "{$key} (default)",
-                $cfg['geojson']     ?? ArcGisFeatureService::geojsonFileName($key) ?? '—',
-                $cfg['csv']         ?? ArcGisFeatureService::csvFileName($key) ?? '—',
-                $cfg['disk']        ?? config('arcgis.default_disk', 'local'),
+                $config->description,
+                $config->slug,
+                $config->geojsonPath,
+                $config->csvPath,
+                $config->disk,
             ];
         }
 

@@ -104,7 +104,10 @@ class GeocodingService
                 'zip' => $item['Address']['PostalCode'] ?? null,
                 'street' => $item['Address']['Street'] ?? null,
                 'street_number' => $item['Address']['AddressNumber'] ?? null,
-                'street_address' => Str::trim(($item['Address']['AddressNumber'] ?? '' . ' ' . $item['Address']['Street'] ?? '')),
+                /**
+                 * Wrap null coalescing in parentheses to make sure every possibly missing array key is accounted for.
+                 */
+                'street_address' => Str::trim((($item['Address']['AddressNumber'] ?? '') . ' ' . ($item['Address']['Street'] ?? ''))),
             ];
         }, $results['ResultItems']);
     }

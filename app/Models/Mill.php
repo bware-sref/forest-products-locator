@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use App\Enums\MillRawImportStatus;
 use App\Enums\PublicationStatus;
 use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
@@ -91,6 +92,17 @@ class Mill extends Model
         'reject_hash',
         'reviewed_at',
 
+        /**
+         * Fields added for ArcGis imports
+        */
+        'mill_raw_import_id',
+        'contact_name',
+        'contact_title',
+        'telephone_2',
+        'email_2',
+        'needs_review',
+        'extended_attributes',
+
     ];
 
     /**
@@ -152,6 +164,7 @@ class Mill extends Model
 
     protected $casts = [
         'status' => PublicationStatus::class,
+        'extended_attributes' => 'array',
     ];
 
     /**
@@ -255,6 +268,33 @@ class Mill extends Model
     public function import(): BelongsTo
     {
         return $this->belongsTo(Import::class);
+    }
+
+    public function millRawImport(): BelongsTo
+    {
+        return $this->belongsTo(MillRawImport::class);
+    }
+
+    /**
+     * Record a per-row processing failure against this mill's import and raw
+     * import record, without failing the current job.
+     *
+     * Used by the per-mill job chain (GeocodeMill, ProcessMillState, etc.)
+     * instead of $this->fail(): calling fail() mid-chain aborts every
+     * remaining job in that chain, which permanently orphans them in the
+     * enclosing batch's pending-job count (Laravel only advances a chain or
+     * records a batch job as done when the job did NOT fail) — so the
+     * batch's then()/finally() callbacks never fire and FinalizeMillImport
+     * never dispatches. Catching the error and returning normally instead
+     * keeps the chain — and the batch's bookkeeping — intact.
+     */
+    public function recordProcessingFailure(string $message): void
+    {
+        $this->import?->increment('failed_rows');
+        $this->millRawImport?->update([
+            'status' => MillRawImportStatus::Failed,
+            'errors' => $message,
+        ]);
     }
 
     public function user(): BelongsTo
@@ -506,66 +546,9 @@ class Mill extends Model
         ];
     }
 
-    // public static function updates(): array
-    // {
-    //     /**
-    //      * Updates are a little messier.
-    //      * number and percentage updated, total and by state, timeframes
-    //      * 
-    //      */
-
-    //     $timeframes = self::getTimeframes();
-
-    //     $data = [];
-        
-    //     /**
-    //      * We only need to count all mills once.
-    //      * Now think of a good way to hoist doing that to the level we need.
-    //      * That probably means passing $millCount to this function.
-    //      */
-    //     $millCount = Mill::all()->count();
-
-    //     foreach ($timeframes as $key => $tf) {
-    //         $block = [];
-    //         $updated = Mill::updatedSince($tf);
-    //         $block['total']['number'] = $updated;
-    //         $block['total']['percentage'] = ($updated / $millCount) * 100;
-
-    //         $block['byState'] = [];
-    //         $block['since'] = $tf->toDateTimeString();
-    //         $data[$key] = $block;
-    //     }
-
-    //     return $data;
-    // }
-
-    // public static function additions(): array
-    // {
-    //     return self::sinceTimeframes('created');
-    // } 
-
-    // protected static function sinceTimeframes(string $action = 'updated'): array
-    // {
-    //     $timeframes = self::getTimeframes();
-
-    //     $data = [];
-
-    //     $millCount = Mill::countAll();
-
-    //     foreach ($timeframes as $key => $tf) {
-    //         $block = [];
-    //         $updated = Mill::updatedSince($tf);
-    //         $block['total']['number'] = $updated;
-    //         $block['total']['percentage'] = ($updated / $millCount) * 100;
-
-    //         $block['byState'] = [];
-    //         $block['since'] = $tf->toDateTimeString();
-    //         $data[$key] = $block;
-    //     }
-
-    //     return $data;
-    // }
-
+    /**
+     * Should I have just made scopes for these instead?
+     */
     public static function createdSince(Carbon $since): int
     {
         return self::changedSince($since, 'created');
@@ -619,8 +602,11 @@ class Mill extends Model
 
         /**
          * see if there's an exact match
+         * Be sure to look at all mills, not just approved!
+         * i.e., withoutGlobalScope()
          */
-        $others = Mill::select('match_id')
+        $others = Mill::withoutGlobalScope(ApprovedScope::class)
+            ->select('match_id')
             ->where('match_id', $slug)
             ->orWhere('match_id', $slugWithCity)
             ->orWhereLike('match_id', "$slug%", caseSensitive: false)
@@ -652,7 +638,6 @@ class Mill extends Model
         /**
          * Next simplest version is appending the city
          */
-        // if (!in_array($slugWithCity, $others->toArray())) { //$others->match_id !== $slugWithCity) {
         if (!$others->contains($slugWithCity)) {
             return $slugWithCity;
         }
@@ -661,21 +646,35 @@ class Mill extends Model
          * since we've determined slugWithCity is already in there, we can use it as the basis for this slug
          * but we need to find the last one that includes $slugWithCity
          * then add a suffix to that one
+         * 
+         * All the others should already start with $slugWithCity, so this filter is probably pointless...
          */
         $latest = $others->filter(function ($item) use ($slugWithCity) {
             return Str::startsWith($item, $slugWithCity);
         })->sortDesc()->first();
 
-        $suffix = Str::ltrim(Str::remove($slugWithCity, $latest), '-_ ');
+        /**
+         * Let's use replaceStart() instead of remove()
+         */
+        $suffix = Str::ltrim(Str::replaceStart($slugWithCity, '', $latest), '-_ ');
 
         /**
          * if the suffix is numeric, increment it and bail.
-         * if not, make a numeric suffix
+         * if not, make a numeric suffix...however, if the current suffix is not numerica, we need to add the suffix to $latest
+         * instead of $slugWithCity
          */
-        $suffix = is_numeric($suffix) ? (int) $suffix : 0;
-        $suffix += 1;
-        
-        return "$slugWithCity-$suffix";
+        $newSuffix = is_numeric($suffix) ? (int) $suffix : 0;
+        $newSuffix += 1;
+
+
+        /**
+         * it might be as simple as $slugWithCity === $latest?
+         */
+        if ($slugWithCity !== $latest) {
+            $slugWithCity = Str::replaceEnd($slug, '', $latest);
+        }
+
+        return "{$slugWithCity}-{$newSuffix}";
     }
 
     /**
@@ -710,9 +709,39 @@ class Mill extends Model
          * No.
          * Let getRawAddress() handle it.
          * Also, we don't need to check the value of $type here either, because getRawAddress() will handle it.
+         * 
+         * This check is insufficient because of states like North Carolina, which do not include addresses.
+         * But since we already know the state, rawAddress ends up not empty, but only containing the state.
+         * So, this does seem like the right place handle that situation.
          */
         // $type = ('mailing' === $type ? $type : 'physical');
-        return ! empty($this->getRawAddress($type));
+        $addy = $this->getRawAddress($type);        
+
+        /**
+         * We can bail if it's truly empty.
+         * However, we have to do an empty check before we can trim it to know for sure.
+         * If not empty, go ahead and squish to lower when trimming
+         */
+        $addy = empty($addy) ? $addy : Str::trim(Str::lower($addy));
+
+        /**
+         * if truly empty, return false
+         */
+        if (empty($addy)) {
+            return false;
+        }
+
+        /**
+         * Crude but effective, replace physical_state and mailing_state if populated
+         * Be sure to convert to lower first!!!
+         */
+        $addy = Str::replace([
+            Str::lower($this->physical_state ?? ''),
+            Str::lower($this->mailing_state ?? ''),
+        ], '', $addy);
+
+        return !empty($addy);
+        // return ! empty($this->getRawAddress($type));
     }
 
     public function hasLatLng(): bool
@@ -783,6 +812,16 @@ class Mill extends Model
         }
 
         /**
+         * We need to do an empty check before passing the value to trim to avoid the warning caused by 
+         * passing null to Str::trim().
+         * Return empty array if $field is empty.
+         */
+        if (empty($this->$field)) {
+            // Log::debug(self::class."::getRawList() $field is empty for Mill #{$this->id} ($this->mill_name).");
+            return [];
+        }
+
+        /**
          * get the field
          * if empty return an empty array
          */
@@ -823,8 +862,12 @@ class Mill extends Model
          * well that didn't phucking work
          * back to adding optional parameters that already have default values that aren't properly identified by one of the damn 
          * things: Intelephense, Laravel VS Code extension, or barryvhd/ide-helper
+         * 
+         * Doh!
+         * We need to use withoutGlobalScope() on this query.
          */
-        return Mill::whereNotNull('import_id', boolean: 'and')
+        return Mill::withoutGlobalScope(ApprovedScope::class)
+            ->whereNotNull('import_id', boolean: 'and')
             ->whereNot('import_id', $importId)
             ->where('state_id', $stateId)
             ->delete();

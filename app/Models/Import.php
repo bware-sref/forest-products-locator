@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ImportStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -78,12 +79,20 @@ class Import extends ImportLog
         'config',
         'delete_file_after_import',
         'total_rows',
+        'imported_rows',
         'processed_rows',
         'failed_rows',
         'state_id',
         'delete_from_state',
         'started_at',
-        'completed_at'
+        'completed_at',
+
+        /**
+         * new for ArcGIS imports!!!
+         */
+        'status',
+        'api_url',
+        'errors',
     ];
     protected $casts = [
         'config' => 'array',
@@ -91,6 +100,7 @@ class Import extends ImportLog
         'completed_at' => 'datetime',
         'delete_file_after_import' => 'boolean',
         'delete_from_state' => 'boolean',
+        'status' => ImportStatus::class,
     ];
 
     /**
