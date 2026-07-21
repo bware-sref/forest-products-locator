@@ -2,7 +2,7 @@
 
 use App\Enums\ImportStatus;
 use App\Jobs\ProcessArcGisImport;
-use App\Jobs\QueueMillProcessingJobs;
+use App\Jobs\ProcessImportedMills;
 use App\Mappers\GeorgiaMillMapper;
 use App\Models\Import;
 use App\Models\Mill;
@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Storage;
  * the closures passed to Bus::batch()->catch()/->then() were plain (non-static)
  * closures defined inside an instance method, so PHP implicitly bound $this —
  * the whole job, including the Import model — into them. Serializing that for
- * batch storage blew the stack. QueueMillProcessingJobs had the same pattern.
+ * batch storage blew the stack. ProcessImportedMills (the downstream job the
+ * ArcGIS pipeline now converges onto via its finally() callback) had the same
+ * pattern in its own batch closures.
  *
  * Bus::fake() can't be used here: PendingBatchFake intercepts every
  * Bus::batch() call unconditionally, regardless of job filters, which would
@@ -107,8 +109,17 @@ it('dispatches a real batch of mill-processing job chains without crashing on cl
         'status'             => 'pending',
     ]);
 
-    (new QueueMillProcessingJobs($import->id))->handle();
+    /**
+     * This is what ProcessArcGisImport::handle()'s finally() callback
+     * dispatches once the CreateMillFromArcGisFeature batch is done —
+     * allowFailures: true, unlike the spreadsheet-import default.
+     */
+    (new ProcessImportedMills($import, allowFailures: true))->handle();
 
     expect(DB::table('job_batches')->count())->toBe(1)
         ->and(DB::table('jobs')->count())->toBeGreaterThan(0);
+
+    $batch = DB::table('job_batches')->first();
+    $options = unserialize($batch->options);
+    expect($options['allowFailures'])->toBeTrue();
 });
