@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\ImportStatus;
 use App\Models\Import;
 use App\Models\Mill;
 use Illuminate\Bus\Batch;
@@ -58,6 +59,8 @@ class FinalizeMillImport implements ShouldQueue
             Log::debug(self::class.": did publishing Mills from Import #{$this->importId} work?", [
                 'didItWork' => (string) $didItWork,
             ]);
+
+            Import::find($this->importId)?->update(['status' => ImportStatus::Completed]);
         });
         Log::debug(self::class.": finalized Import #{$this->importId} for State #{$stateId}.");
     }
