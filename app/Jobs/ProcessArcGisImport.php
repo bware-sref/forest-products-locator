@@ -22,8 +22,11 @@ use Throwable;
  * filters features via the endpoint's mapper, and dispatches a batch of
  * CreateMillFromArcGisFeature jobs — one per feature.
  *
- * QueueMillProcessingJobs takes over once that batch completes, building
- * the per-mill job chain and triggering FinalizeMillImport.
+ * ProcessImportedMills takes over once that batch is done (see finally()
+ * below — not then(), since a per-feature failure shouldn't block the rest
+ * of the import), building the per-mill job chain and triggering
+ * FinalizeMillImport. Same downstream job the spreadsheet-import pipeline
+ * uses, just dispatched with allowFailures: true.
  */
 class ProcessArcGisImport implements ShouldQueue
 {
@@ -40,6 +43,9 @@ class ProcessArcGisImport implements ShouldQueue
     {
         $this->import->update(['status' => ImportStatus::Processing]);
 
+        /**
+         * Local variable so we can use() it with callbacks.
+         */
         $importId = $this->import->id;
 
         try {
@@ -65,19 +71,36 @@ class ProcessArcGisImport implements ShouldQueue
                 ->name("ArcGIS raw import #{$importId} ({$this->endpoint})")
                 ->allowFailures()
                 ->catch(static function (Batch $batch, Throwable $e) use ($importId) {
-                    Log::error("ArcGIS raw import Batch #{$batch->id} failed", [
+                    Log::error(self::class.": ArcGIS raw import Batch #{$batch->id} for Import #{$importId} failed", [
                         'import_id' => $importId,
                         'error'     => $e->getMessage(),
                     ]);
 
+                    /**
+                     * Can we append a field value when updating?
+                     * Probably not.
+                     */
                     Import::find($importId)?->update([
                         'status' => ImportStatus::Failed,
                         'errors' => $e->getMessage(),
                     ]);
                 })
                 ->then(static function (Batch $batch) use ($importId) {
-                    Log::debug(self::class.": finished Batch #{$batch->id} for Import #{$importId}.");
-                    QueueMillProcessingJobs::dispatch($importId);
+                    Log::debug(self::class.": finished Batch #{$batch->id} for Import #{$importId} with no failures.");
+                })
+                ->finally(static function (Batch $batch) use ($importId) {
+                    /**
+                     * finally() fires once the batch is done — success or not —
+                     * unlike then(), which only fires when every job succeeded.
+                     * CreateMillFromArcGisFeature swallows per-feature errors into
+                     * failed_rows, so the pipeline needs to advance regardless.
+                     *
+                     * Converges onto the same downstream job the spreadsheet-import
+                     * pipeline uses (ProcessImportedMills -> ProcessMill), just with
+                     * allowFailures: true since API data always has some bad rows.
+                     */
+                    Log::debug(self::class.": Finally for batch #{$batch->id} and Import #{$importId}.");
+                    ProcessImportedMills::dispatch(Import::findOrFail($importId), allowFailures: true);
                 })
                 ->dispatch();
 
