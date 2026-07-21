@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use App\Enums\MillRawImportStatus;
 use App\Enums\PublicationStatus;
 use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
@@ -267,6 +268,33 @@ class Mill extends Model
     public function import(): BelongsTo
     {
         return $this->belongsTo(Import::class);
+    }
+
+    public function millRawImport(): BelongsTo
+    {
+        return $this->belongsTo(MillRawImport::class);
+    }
+
+    /**
+     * Record a per-row processing failure against this mill's import and raw
+     * import record, without failing the current job.
+     *
+     * Used by the per-mill job chain (GeocodeMill, ProcessMillState, etc.)
+     * instead of $this->fail(): calling fail() mid-chain aborts every
+     * remaining job in that chain, which permanently orphans them in the
+     * enclosing batch's pending-job count (Laravel only advances a chain or
+     * records a batch job as done when the job did NOT fail) — so the
+     * batch's then()/finally() callbacks never fire and FinalizeMillImport
+     * never dispatches. Catching the error and returning normally instead
+     * keeps the chain — and the batch's bookkeeping — intact.
+     */
+    public function recordProcessingFailure(string $message): void
+    {
+        $this->import?->increment('failed_rows');
+        $this->millRawImport?->update([
+            'status' => MillRawImportStatus::Failed,
+            'errors' => $message,
+        ]);
     }
 
     public function user(): BelongsTo
@@ -610,7 +638,6 @@ class Mill extends Model
         /**
          * Next simplest version is appending the city
          */
-        // if (!in_array($slugWithCity, $others->toArray())) { //$others->match_id !== $slugWithCity) {
         if (!$others->contains($slugWithCity)) {
             return $slugWithCity;
         }
@@ -619,21 +646,35 @@ class Mill extends Model
          * since we've determined slugWithCity is already in there, we can use it as the basis for this slug
          * but we need to find the last one that includes $slugWithCity
          * then add a suffix to that one
+         * 
+         * All the others should already start with $slugWithCity, so this filter is probably pointless...
          */
         $latest = $others->filter(function ($item) use ($slugWithCity) {
             return Str::startsWith($item, $slugWithCity);
         })->sortDesc()->first();
 
-        $suffix = Str::ltrim(Str::remove($slugWithCity, $latest), '-_ ');
+        /**
+         * Let's use replaceStart() instead of remove()
+         */
+        $suffix = Str::ltrim(Str::replaceStart($slugWithCity, '', $latest), '-_ ');
 
         /**
          * if the suffix is numeric, increment it and bail.
-         * if not, make a numeric suffix
+         * if not, make a numeric suffix...however, if the current suffix is not numerica, we need to add the suffix to $latest
+         * instead of $slugWithCity
          */
-        $suffix = is_numeric($suffix) ? (int) $suffix : 0;
-        $suffix += 1;
-        
-        return "$slugWithCity-$suffix";
+        $newSuffix = is_numeric($suffix) ? (int) $suffix : 0;
+        $newSuffix += 1;
+
+
+        /**
+         * it might be as simple as $slugWithCity === $latest?
+         */
+        if ($slugWithCity !== $latest) {
+            $slugWithCity = Str::replaceEnd($slug, '', $latest);
+        }
+
+        return "{$slugWithCity}-{$newSuffix}";
     }
 
     /**
@@ -821,8 +862,12 @@ class Mill extends Model
          * well that didn't phucking work
          * back to adding optional parameters that already have default values that aren't properly identified by one of the damn 
          * things: Intelephense, Laravel VS Code extension, or barryvhd/ide-helper
+         * 
+         * Doh!
+         * We need to use withoutGlobalScope() on this query.
          */
-        return Mill::whereNotNull('import_id', boolean: 'and')
+        return Mill::withoutGlobalScope(ApprovedScope::class)
+            ->whereNotNull('import_id', boolean: 'and')
             ->whereNot('import_id', $importId)
             ->where('state_id', $stateId)
             ->delete();
