@@ -19,6 +19,9 @@ abstract class AbstractMillMapper implements MillMapperInterface
 
     /**
      * Default implementation — import all features.
+     * No, actually.
+     * There are a few cases where we should always not attempt importing a mill.
+     * However, since column names differ, I suppose we'll still need to handle them in the state-specific mappers.
      * Override in concrete mappers to apply state-specific filtering.
      */
     public function shouldImport(array $feature): bool
