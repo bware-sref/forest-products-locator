@@ -88,4 +88,16 @@ class NorthCarolinaMillMapper extends AbstractMillMapper
     {
         return (float) $feature['properties']['Long'] ?: parent::longitude($feature);
     }
+
+    /**
+     * Probably a cleaner way to handle this.
+     * Basically, if the mill doesn't have a name, or it's missing lat & long, we can't do much with it.
+     * @param array $feature
+     * @return bool
+     */
+    public function shouldImport(array $feature): bool
+    {
+        $shouldImport = !blank($feature['properties']['Company']) && !blank($this->latitude($feature)) && !blank($this->longitude($feature));
+        return $shouldImport && parent::shouldImport($feature);
+    }
 }
