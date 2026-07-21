@@ -42,12 +42,27 @@ class CreateMillFromArcGisFeature implements ShouldQueue
             return;
         }
 
+        $rawImport = null;
+
         try {
             $mapper    = $this->resolveMapper();
             $rawImport = $this->createRawImport();
             $mill      = $this->createMill($mapper, $rawImport);
 
-            $rawImport->update(['mill_id' => $mill->id]);
+            /**
+             * Do we need to check for successful insert?
+             */
+            if (empty($mill)) {
+                $msg = "Failed to create Mill from MillRawImport #{$rawImport->id}.";
+                Log::error($msg);
+                throw new \Exception($msg);
+            }
+
+
+            $rawImport->update([
+                'mill_id' => $mill->id,
+                'status'  => MillRawImportStatus::Processed,
+            ]);
             /**
              * We need to increment $import->imported_rows after we create the mill record.
              */
@@ -59,6 +74,18 @@ class CreateMillFromArcGisFeature implements ShouldQueue
                 'raw_feature_id' => $this->rawFeatureId(),
                 'error'          => $e->getMessage(),
             ]);
+
+            /**
+             * $rawImport may still be null if createRawImport() itself threw,
+             * in which case there's no row to attach the error to.
+             */
+            $rawImport?->update([
+                'status' => MillRawImportStatus::Failed,
+                'errors' => $e->getMessage(),
+            ]);
+
+            $this->fail($e);
+            return;
         }
     }
 
