@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\ImportStatus;
 use App\Models\Import;
 use App\Models\Mill;
 use Illuminate\Bus\Batch;
@@ -19,9 +20,15 @@ class ProcessImportedMills implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * $allowFailures should stay false for user-uploaded spreadsheets — a bad
+     * row cancelling the batch is a signal to fix and re-upload. ArcGIS-sourced
+     * imports (see ProcessArcGisImport) pass true, since API data always has
+     * some unusable rows and one bad feature shouldn't block the rest.
      */
     public function __construct(
-        public Import $import
+        public Import $import,
+        public bool $allowFailures = false,
     ) {}
     
     /**
@@ -59,38 +66,59 @@ class ProcessImportedMills implements ShouldQueue
             return;
         }
 
-        $jobs = [];
-        
+        $jobChains = [];
+
         foreach ($mills as $mill) {
             /**
-             * We should just dispatch a single ProcessMill job for each mill.
-             * Otherwise we'll have to keep these both in sync.
+             * Pass chains directly into the batch (rather than wrapping each
+             * one in a ProcessMill job) so the batch actually waits for each
+             * mill's full chain to finish before then()/finally() fire — see
+             * ProcessMill::jobChain()'s docblock for why the wrapper doesn't.
+             *
+             * $this->allowFailures also has to reach each job individually —
+             * see the docblock on any of the chain jobs (e.g. GeocodeMill)
+             * for why the Batch's own allowFailures() isn't enough on its own.
              */
-            $jobs[] = new ProcessMill($mill);
+            $jobChains[] = ProcessMill::jobChain($mill, $this->allowFailures);
         }
 
-        $batch = Bus::batch($jobs)
-            ->before(function (Batch $batch) use ($importId) {
-                /**
-                 * We can't use $this in these callbacks because the methods are serialized and then executed in a different context.
-                 */
+        $pendingBatch = Bus::batch($jobChains)
+            ->before(static function (Batch $batch) use ($importId) {
                 Log::debug(self::class.": Before Batch #{$batch->id} processing Import #{$importId}.");
-            })->progress(function (Batch $batch) use ($importId) {
-                Log::debug(self::class.": a single job for Batch #{$batch->id} and Import #{$importId} has completed.");
-            })->then(function(Batch $batch) use ($importId, $stateId, $deleteFromState) {
+            // })->progress(static function (Batch $batch) use ($importId) {
+            //     Log::debug(self::class.": a single job for Batch #{$batch->id} and Import #{$importId} has completed.");
+            })->then(static function (Batch $batch) use ($importId) {
+                Log::debug(self::class." finished all jobs in Batch #{$batch->id} for Import #{$importId} with no failures.");
+            })->catch(static function (Batch $batch, Throwable $e) use ($importId) {
                 /**
-                 * We can't use $this in these callbacks.
+                 * With allowFailures: false (the spreadsheet-import default),
+                 * a chain job's real failure lands here and cancels the
+                 * batch — the mill's own failed chain permanently orphans
+                 * the rest of its jobs in the batch's pending count, so
+                 * finally() below will never fire for this run. Mark the
+                 * import Failed here instead of leaving it stuck at
+                 * Processing forever.
                  */
-                Log::debug(self::class." finished all jobs in Batch #{$batch->id} for Import #{$importId}.");
-                /**
-                 * Here's where we dispatch the FinalizeMillImport job.
-                 */
-                FinalizeMillImport::dispatch($importId, $stateId, $deleteFromState);
-
-            })->catch(function (Batch $batch, Throwable $e) use ($importId) {
                 Log::error(self::class.": exception during Batch #{$batch->id} for Import #{$importId}: ", ['msg' => $e->getMessage()]);
-            })->finally(function (Batch $batch) use ($importId) {
+
+                Import::find($importId)?->update([
+                    'status' => ImportStatus::Failed,
+                    'errors' => $e->getMessage(),
+                ]);
+            })->finally(static function (Batch $batch) use ($importId, $stateId, $deleteFromState) {
+                /**
+                 * finally() fires once the batch is done — success or not —
+                 * unlike then(), which only fires when every job succeeded.
+                 * The next stage needs to run regardless of per-row failures.
+                 */
                 Log::debug(self::class.": Finally for batch #{$batch->id} and Import #{$importId}.");
-            })->dispatch();
+                FinalizeMillImport::dispatch($importId, $stateId, $deleteFromState);
+            });
+
+        if ($this->allowFailures) {
+            $pendingBatch->allowFailures();
+        }
+
+        $pendingBatch->dispatch();
     }
 }
