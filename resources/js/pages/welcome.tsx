@@ -57,7 +57,9 @@ export default function Welcome() {
 
     return (
         <AppLayout>
-            <Head title={pageTitle} />
+            <Head title={pageTitle}>
+                <meta name="description" content="Welcome to Fantasy Isle!" />
+            </Head>
             {/** 
              * Hero must be in a full-width wrapper.
             */}
