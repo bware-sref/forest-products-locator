@@ -57,7 +57,13 @@ export default function Welcome() {
 
     return (
         <AppLayout>
-            <Head title={pageTitle} />
+            <Head title={pageTitle}>
+                <meta
+                    head-key="description"
+                    name="description"
+                    content="Welcome to the Primary Forest Products Locator!"
+                />
+            </Head>
             {/** 
              * Hero must be in a full-width wrapper.
             */}
