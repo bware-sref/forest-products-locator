@@ -39,7 +39,6 @@ Or do we?
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
-        <!--
         @inertia
     </body>
 </html>
