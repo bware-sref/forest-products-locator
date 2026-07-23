@@ -23,7 +23,9 @@ export function AppContent({
     }
     return (
         <main
+            id="main-content"
             className={cn("mx-auto flex h-full w-full max-w-screen flex-1 flex-col", contentClassName)}
+            tabIndex={-1}
             {...props}
         >
             {children}
