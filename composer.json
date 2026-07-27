@@ -21,15 +21,15 @@
         "backpack/crud": "^7.0",
         "backpack/permissionmanager": "^7.3",
         "backpack/theme-tabler": "^2.0",
-        "inertiajs/inertia-laravel": "^2.0",
+        "inertiajs/inertia-laravel": "^3.1",
         "laravel/fortify": "^1.30",
         "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.9",
         "maatwebsite/excel": "^3.1",
-        "spatie/laravel-typescript-transformer": "^2.5",
-        "redsquirrelstudio/laravel-backpack-import-operation": "dev-feature/backpack-7.0 as 1.6.8"
+        "redsquirrelstudio/laravel-backpack-import-operation": "dev-feature/backpack-7.0 as 1.6.8",
+        "spatie/laravel-typescript-transformer": "^2.5"
     },
     "require-dev": {
         "backpack/generators": "^4.1",
