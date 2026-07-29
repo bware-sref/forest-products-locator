@@ -1,5 +1,6 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { SizeOMeter } from '@/components/size-o-meter';
+import { ClientOnly } from '@/components/client-only';
 import { SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 
@@ -20,7 +21,9 @@ export function AppShell({ children, variant = 'header'}: AppShellProps) {
             <div className="flex min-h-screen w-full flex-col bg-nature">
                 {children}
                 { env !== 'local' ? '' : (
-                    <SizeOMeter />
+                    <ClientOnly>
+                        <SizeOMeter />
+                    </ClientOnly>
                 )}
 
             </div>
