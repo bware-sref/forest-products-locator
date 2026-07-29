@@ -80,7 +80,7 @@ return [
     // for a certain email, to make sure they cannot be spammed that way.
     // How many seconds should a visitor wait, after they've requested a
     // password reset, before they can try again for the same email?
-    'password_recovery_throttle_notifications' => 600, // time in seconds
+    'password_recovery_throttle_notifications' => (env('APP_ENV') === 'local') ? 60 : 600, // time in seconds
 
     // How much time should the token sent to the user email be considered valid?
     // After this time expires, user needs to request a new reset token.
@@ -94,7 +94,7 @@ return [
     // attempt a password reset? Take into account that user might wrongly
     // type an email at first, so at least allow one more try.
     // Defaults to 3,10 - 3 times in 10 minutes.
-    'password_recovery_throttle_access' => '3,10',
+    'password_recovery_throttle_access' => (env('APP_ENV') === 'local') ? '5,1' : '3,10',
 
     /*
     |--------------------------------------------------------------------------

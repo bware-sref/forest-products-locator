@@ -16,7 +16,26 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+        /**
+         * I'd love to be able to do an environment check before adding exceptions to encryptCookies()
+         * but config() hasn't loaded at this point.
+         * There's probably a way to do it.
+         */
+        $middleware->encryptCookies(except: [
+            'appearance',
+            'sidebar_state', // we don't need either of the above
+
+            /**
+             * Prevent invalidPayload DecryptExceptions caused by inspecting cookies from other apps on the same host.
+             * XDebug and phpMyAdmin cookies are not encrypted and thus need to be ignored WRT encrypting cookies.
+             */
+            'XDEBUG_SESSION', // prevent invalidPayload DecryptExceptions
+            'pma_lang', // phpMyAdmin language
+            'phpMyAdmin', // session identification cookie
+            'pmaAuth-1', // more pma
+            'pmaUser-1', // more pma
+            'pma_db_filename_template', // pma export file name template
+        ]);
 
         $middleware->web(append: [
             HandleAppearance::class,
