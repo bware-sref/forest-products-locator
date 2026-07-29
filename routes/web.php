@@ -154,3 +154,17 @@ Route::controller(GeocodingController::class)
  * I guess we'll see though.
  */
 // require __DIR__.'/settings.php';
+
+/**
+ * Prevent noise exceptions caused by Chrome dev tools running against localhost
+ */
+if (app()->environment('local')) {
+    Route::get('/.well-known/appspecific/com.chrome.devtools.json', function () {
+        return response()->json([
+            'workspace' => [
+                'root' => base_path(),
+                'uuid' => '7bc8a113-bc75-472e-89a1-b663b0a29ef1' // Any random UUID string
+            ]
+        ]);
+    });
+}
