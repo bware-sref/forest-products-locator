@@ -28,7 +28,11 @@ class CheckIfAdmin
     private function checkIfUserIsAdmin($user)
     {
         // return ($user->is_admin == 1);
-        return true;
+        // return true;
+        /**
+         * We only have "admin" users (meaning they can all see the basic admin panel), but we at least to have a user.
+         */
+        return null !== $user;
     }
 
     /**
