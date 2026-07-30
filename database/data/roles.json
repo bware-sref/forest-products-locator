@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Administrator",
+        "guard_name": "web"
+    },
+    {
+        "name": "Editor",
+        "guard_name": "web"
+    },
+    {
+        "name": "Mill Access",
+        "guard_name": "web"
+    },
+    {
+        "name": "State Agent",
+        "guard_name": "web"
+    },
+    {
+        "name": "Superadmin",
+        "guard_name": "web"
+    }
+]
