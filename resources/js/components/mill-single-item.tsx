@@ -1,4 +1,8 @@
 import {
+    lazy,
+    Suspense,
+} from 'react';
+import {
     cn
 } from '@/lib/utils';
 import {
@@ -14,10 +18,15 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import MillSingleMap from '@/components/mill-single-map';
+import { ClientOnly } from '@/components/client-only';
 import {
     ArrowRightIcon,
 } from 'lucide-react';
+
+// MillSingleMap pulls in react-leaflet/leaflet, which touch window/document
+// at import time and crash SSR. Lazy-loading it (and gating rendering with
+// ClientOnly below) keeps that module out of the server render entirely.
+const MillSingleMap = lazy(() => import('@/components/mill-single-map'));
 
 
 export default function MillSingleItem ({mill, children, ...props}: IMillListItemProps) {
@@ -143,7 +152,11 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                  * Yeah, maybe...
                  */}
                 {showMap && (
-                    <MillSingleMap mills={[mill]} />
+                    <ClientOnly fallback={<div className="min-h-[calc(100vh-6rem)] lg:min-h-96 w-full" />}>
+                        <Suspense fallback={<div className="min-h-[calc(100vh-6rem)] lg:min-h-96 w-full" />}>
+                            <MillSingleMap mills={[mill]} />
+                        </Suspense>
+                    </ClientOnly>
                 )}
 
                 { children }

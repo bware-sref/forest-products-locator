@@ -2,10 +2,11 @@
 // "use client" is also required to use WMS (or so I led myself to believe...)
 "use client"
 
+import { useEffect } from 'react';
 import {
     MillListProps,
 } from '@/types';
-import { 
+import {
     Map as MapContainer,
     MapCircle,
     MapMarker,
@@ -14,11 +15,26 @@ import {
     // MapWMSTileLayer,
 } from "@/components/ui/map"
 import { MapGestureHandler } from '@/components/extend/map-gesture-handler';
-import { LatLngExpression } from "leaflet";
+import type { Map as LeafletMap, LatLngExpression } from "leaflet";
+import { useMap } from "react-leaflet";
 import {
     CircleIcon,
 } from "lucide-react";
 import MillMapMarker from '@/components/mill-map-marker';
+
+/**
+ * useMap() is only available in children of MapContainer, so this bridges
+ * the map instance back out to the caller via onMapReady.
+ */
+function MapReadyBridge({ onMapReady }: { onMapReady: (map: LeafletMap) => void }) {
+    const map = useMap();
+
+    useEffect(() => {
+        onMapReady(map);
+    }, [map, onMapReady]);
+
+    return null;
+}
 
 
 // the Leaflet docs keep the ? on the URL :shrug:
@@ -48,19 +64,21 @@ export default function MillMap({
     children,
     coordinates = null,
     radius = null,
+    onMapReady,
 }: MillListProps) {
 
     // parse radius as a float, handling the empty case with '0'
     const filterRadius = parseFloat(radius ?? '0');
 
     return (
-        <MapContainer 
+        <MapContainer
             className="min-h-[calc(100vh-6rem)] lg:min-h-[calc(100vh-4rem)]"
             center={MAP_CENTER}
             zoom={5}
         >
+            {onMapReady && <MapReadyBridge onMapReady={onMapReady} />}
             <MapGestureHandler data-thing="map-gesture-handler" />
-            <MapTileLayer 
+            <MapTileLayer
                 data-thing="map-tile-layer"
             />
 {/*

@@ -1,0 +1,66 @@
+[
+    {
+        "name": "content.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "counties.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "faq_categories.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "faqs.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "mill_edits.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "mill_types.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "mills.approve",
+        "guard_name": "web"
+    },
+    {
+        "name": "mills.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "mills.import",
+        "guard_name": "web"
+    },
+    {
+        "name": "permissions.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "roles.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "state_resources.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "states.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "statistics.see",
+        "guard_name": "web"
+    },
+    {
+        "name": "users.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "wood_species.edit",
+        "guard_name": "web"
+    }
+]

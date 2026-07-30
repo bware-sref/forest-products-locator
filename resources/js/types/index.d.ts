@@ -8,6 +8,7 @@ import {
 } from "react";
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
+import type { Map as LeafletMap } from 'leaflet';
 
 export interface Auth {
     user: User;
@@ -202,6 +203,8 @@ export interface MillListProps {
     children?: ReactNode;
     coordinates?: {lat: number, lng: number} | null;
     radius?: string | null;
+    /** Called with the underlying Leaflet map instance once it's mounted. */
+    onMapReady?: (map: LeafletMap) => void;
     [key: string]: unknown;
 }
 
