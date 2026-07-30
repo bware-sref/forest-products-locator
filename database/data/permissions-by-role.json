@@ -1,0 +1,51 @@
+{
+    "Administrator": [
+        "content.edit",
+        "mills.edit",
+        "mills.approve",
+        "statistics.see",
+        "mill_types.edit",
+        "wood_species.edit",
+        "states.edit",
+        "counties.edit",
+        "faqs.edit",
+        "mills.import",
+        "mill_edits.edit"
+    ],
+    "Editor": [
+        "mills.edit",
+        "mills.approve",
+        "mill_types.edit",
+        "wood_species.edit",
+        "mill_edits.edit"
+    ],
+    "Mill Access": [],
+    "Superadmin": [
+        "content.edit",
+        "mills.edit",
+        "mills.approve",
+        "users.edit",
+        "statistics.see",
+        "mill_types.edit",
+        "wood_species.edit",
+        "states.edit",
+        "counties.edit",
+        "faqs.edit",
+        "mills.import",
+        "mill_edits.edit",
+        "roles.edit",
+        "permissions.edit",
+        "state_resources.edit",
+        "faq_categories.edit"
+    ],
+    "State Agent": [
+        "mills.edit",
+        "mills.approve",
+        "statistics.see",
+        "mill_types.edit",
+        "wood_species.edit",
+        "states.edit",
+        "counties.edit",
+        "mill_edits.edit"
+    ]
+}

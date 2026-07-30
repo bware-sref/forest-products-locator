@@ -1,11 +1,14 @@
 import {
     // MouseEvent,
     // useCallback,
+    lazy,
+    Suspense,
     useEffect,
     useMemo,
     useState,
 } from "react";
 import AppLayout from '@/layouts/app-layout';
+import { ClientOnly } from '@/components/client-only';
 import {
     type MillType,
     type State,
@@ -17,7 +20,12 @@ import {
 } from '@inertiajs/react';
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
-import MillMap from '@/components/mill-map';
+
+// MillMap (and everything it pulls in transitively — react-leaflet, leaflet
+// itself) touches window/document at import time, which crashes SSR. Lazy
+// loading it means the module is only ever fetched in the browser, since
+// ClientOnly keeps it from being rendered (and thus imported) server-side.
+const MillMap = lazy(() => import('@/components/mill-map'));
 // import {
 //     Button
 // } from "@/components/ui/button";
@@ -36,26 +44,8 @@ import {
     TitleFilterBar
 } from "@/components/title-filter-bar";
 
-// import Map so we can use it as a type
-// except we don't seem to need it...
-// we need map to be able to use flyTo()
-import { Map } from "leaflet";
-import { useMap } from "react-leaflet";
-
-// turns out we need a helper component to sync the map instance to the parent state
-// because useMap() is only available in children of the map component.
-// Initially tried to use ref={setMap} but the map component doesn't 
-// have the ref property.
-function MapStateSet({ setMap }: {
-    setMap: (map: Map) => void
-}) {
-    const map = useMap();
-    // wrap invoking setMap() in useEffect() to avoid updating another component during render.
-    useEffect(() => {
-        setMap(map);
-    }, [map, setMap]);    
-    return null;
-}
+// type-only: erased at compile time, so this doesn't pull leaflet into SSR
+import type { Map } from "leaflet";
 
 export default function MillMapPage() {
     const page = usePage<{
@@ -114,14 +104,17 @@ export default function MillMapPage() {
      * - yeah, we don't seem to need to save user's location
      */
     const displayMap = useMemo(() => (
-        <MillMap 
-            mills={mills}
-            className="lg:min-h-screen"
-            radius={radius}
-            coordinates={coordinates}
-        >
-            <MapStateSet setMap={setMap} />
-        </MillMap>
+        <ClientOnly fallback={<div className="lg:min-h-screen w-full" />}>
+            <Suspense fallback={<div className="lg:min-h-screen w-full" />}>
+                <MillMap
+                    mills={mills}
+                    className="lg:min-h-screen"
+                    radius={radius}
+                    coordinates={coordinates}
+                    onMapReady={setMap}
+                />
+            </Suspense>
+        </ClientOnly>
     ), [mills, radius, coordinates]);
 
     // handle map focus when coordinates are found
