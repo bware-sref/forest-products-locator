@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class PermissionSeeder extends Seeder
 {
@@ -30,5 +32,18 @@ class PermissionSeeder extends Seeder
          * 
          * Also also also, Spatie PermissionsManager docs suggest another approach to seeding permissions and roles.
          */
+
+        // read permission data file and insert in DB
+        $json = File::get(database_path('data/permissions.json'));
+        $data = json_decode($json, true);
+
+        foreach ($data as $permission) {
+            $permission['created_at'] = now();
+            $permission['updated_at'] = now();
+            DB::table('permissions')->updateOrInsert(
+                ['name' => $permission['name']], // lookup via
+                 $permission // values to updateOrInsert
+            );
+        }
     }
 }
