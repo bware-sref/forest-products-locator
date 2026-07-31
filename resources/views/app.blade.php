@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
 {{-- 
+        <title inertia>{{ config('app.name', 'Laravel') }}</title>
 Add Twitter card and Facebook OpenGraph meta tags here
 Or do we?
 <head> content can be added on individual page templates via the Head component (same thing that sets the title).
@@ -36,9 +36,20 @@ Or do we?
 
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
-        @inertiaHead
+        {{-- Prior to v3, IntertiaJS's Blade directives (@...) were used to render head and body. They're still supported, but Blade components are recommended for new apps because they allow for SSR head fallback content. --}}
+        {{-- @inertiaHead --}}
+        <x-inertia::head>
+            <title inertia>{{ config('app.name', 'Laravel') }}</title>
+            <meta
+                data-inertia="description"
+                name="description"
+                content="Provides a directory of primary and secondary forest products companies that produce products using raw forest material such as trees, logs, bark, etc."
+                inertia
+            />
+        </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
-        @inertia
+        {{-- @inertia --}}
+        <x-inertia::app />
     </body>
 </html>
