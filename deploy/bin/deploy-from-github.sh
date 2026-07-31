@@ -128,7 +128,14 @@ ln -nfs $STORAGE_PATH storage
 # update permissions and ownership of directories that webserver needs write access to
 echo "Updating owner and permissions to allow webserver write access to certain directories..."
 sudo chown -R $FILE_OWNER $NEW_BS_CACHE $STORAGE_PATH
-sudo chmod -R g+w $NEW_BS_CACHE $STORAGE_PATH
+# g+rwX: give the group full read/write, plus execute only where it's a
+# directory (or already executable) -- heals anything that ended up
+# group-inaccessible since the last deploy, without making plain files
+# executable. g+s on directories makes new files/dirs created inside
+# inherit group=apache automatically going forward, regardless of who
+# creates them.
+sudo chmod -R g+rwX $NEW_BS_CACHE $STORAGE_PATH
+sudo find $NEW_BS_CACHE $STORAGE_PATH -type d -exec chmod g+s {} \;
 
 # install composer packages
 echo "Installing composer packages..."
