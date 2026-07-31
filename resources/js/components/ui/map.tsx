@@ -914,24 +914,11 @@ function MapDrawControl({
     const deleteControlRef = useRef<EditToolbar.Delete | null>(null)
     const [activeMode, setActiveMode] = useState<MapDrawMode>(null)
 
-    // function handleDrawCreated(event: DrawEvents.Created) {
-    //     if (!featureGroupRef.current) return
-    //     const { layer } = event
-    //     featureGroupRef.current.addLayer(layer)
-    //     onLayersChange?.(featureGroupRef.current)
-    //     setActiveMode(null)
-    // }
-
-    // function handleDrawEditedOrDeleted() {
-    //     if (!featureGroupRef.current) return
-    //     onLayersChange?.(featureGroupRef.current)
-    //     setActiveMode(null)
-    // }
-
     useEffect(() => {
         if (!L || !LeafletDraw) return
 
-        // event handler definition moved into useEffect to avoid needing to wrap each in useCallback()
+        // moved event handler definition into useEffect (from immediately above) 
+        // to avoid needing to wrap each event handler in useCallback()
         function handleDrawCreated(event: DrawEvents.Created) {
             if (!featureGroupRef.current) return
             const { layer } = event
