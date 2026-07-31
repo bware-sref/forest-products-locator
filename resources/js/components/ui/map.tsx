@@ -914,22 +914,37 @@ function MapDrawControl({
     const deleteControlRef = useRef<EditToolbar.Delete | null>(null)
     const [activeMode, setActiveMode] = useState<MapDrawMode>(null)
 
-    function handleDrawCreated(event: DrawEvents.Created) {
-        if (!featureGroupRef.current) return
-        const { layer } = event
-        featureGroupRef.current.addLayer(layer)
-        onLayersChange?.(featureGroupRef.current)
-        setActiveMode(null)
-    }
+    // function handleDrawCreated(event: DrawEvents.Created) {
+    //     if (!featureGroupRef.current) return
+    //     const { layer } = event
+    //     featureGroupRef.current.addLayer(layer)
+    //     onLayersChange?.(featureGroupRef.current)
+    //     setActiveMode(null)
+    // }
 
-    function handleDrawEditedOrDeleted() {
-        if (!featureGroupRef.current) return
-        onLayersChange?.(featureGroupRef.current)
-        setActiveMode(null)
-    }
+    // function handleDrawEditedOrDeleted() {
+    //     if (!featureGroupRef.current) return
+    //     onLayersChange?.(featureGroupRef.current)
+    //     setActiveMode(null)
+    // }
 
     useEffect(() => {
         if (!L || !LeafletDraw) return
+
+        // event handler definition moved into useEffect to avoid needing to wrap each in useCallback()
+        function handleDrawCreated(event: DrawEvents.Created) {
+            if (!featureGroupRef.current) return
+            const { layer } = event
+            featureGroupRef.current.addLayer(layer)
+            onLayersChange?.(featureGroupRef.current)
+            setActiveMode(null)
+        }
+
+        function handleDrawEditedOrDeleted() {
+            if (!featureGroupRef.current) return
+            onLayersChange?.(featureGroupRef.current)
+            setActiveMode(null)
+        }
 
         map.on(
             L.Draw.Event.CREATED,
@@ -946,20 +961,17 @@ function MapDrawControl({
             map.off(L.Draw.Event.EDITED, handleDrawEditedOrDeleted)
             map.off(L.Draw.Event.DELETED, handleDrawEditedOrDeleted)
         }
-        // prevent bug with eslint react-hooks
-        // allegedly handleDrawCreated is a missing dependency
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [L, LeafletDraw, map, onLayersChange])
 
     return (
         <MapDrawContext.Provider
             // prevent eslint react-hooks bug
             // allegedly assigning 'value' is considered accessing a ref during render
-             
+            // eslint-disable-next-line 
             value={{
                 // prevent eslint react-hooks bug
                 // allegedly featureGroupRef.current is accessing a ref during render
-                 
+                // eslint-disable-next-line
                 featureGroup: featureGroupRef.current,
                 activeMode,
                 setActiveMode,
@@ -1262,7 +1274,7 @@ function MapDrawEdit({
         })
         // prevent eslint react-hooks bug
         // L is a constant but that doesn't mean we can't alter its properties
-         
+        // eslint-disable-next-line react-hooks/immutability
         L.drawLocal.edit.handlers.edit.tooltip = {
             text: "Drag handles or markers to edit.",
             subtext: "",
