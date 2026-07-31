@@ -15,9 +15,9 @@ import {
     type WoodSpecies,
 } from '@/types';
 import {
-    Head,
     usePage,
 } from '@inertiajs/react';
+import { Seo } from '@/components/seo';
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
 
@@ -130,7 +130,10 @@ export default function MillMapPage() {
 
 
         <AppLayout>
-            <Head title={page.props.pageTitle} />
+            <Seo
+                title={page.props.pageTitle || 'Mill Map'}
+                description="Search an interactive map of sawmills, pulp mills, and other forest product processors."
+            />
 
             <TitleFilterBar
                 // onClickCapture={}
