@@ -181,6 +181,7 @@ function usePlaceSearch({
 
     React.useEffect(() => {
         if (!debouncedQuery.trim()) {
+            // eslint-disable-next-line
             setResults([])
             setIsLoading(false)
             setHasSearched(false)
