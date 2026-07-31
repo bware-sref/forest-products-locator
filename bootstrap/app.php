@@ -8,6 +8,26 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Middleware\TrustProxies;
 
+/**
+ * New files/directories need to be group-writable regardless of which
+ * entry point creates them (web via php-fpm, queue worker, artisan CLI),
+ * since ec2-user (deploy) and apache (web/queue) both need access to
+ * storage content no matter who created it. Set before anything writes to
+ * disk, and here specifically since this file is loaded by both
+ * public/index.php and artisan.
+ * 
+ * We want directories to end up with 775.
+ * umask($mask) does logical AND on and $mask and 0777 to determine what 
+ * permissions to remove.
+ * E.g., (0002 & 0777) = 0002, yielding 775 permissions.
+ * Also, remember that in PHP, a leading 0 on an integer indicates that the
+ * integer is Octal!
+ * PHP 8.1 added the more explicit syntax which uses an O (upper or lower)
+ * after the leading 0.
+ * E.g., 0O002 === 0o002 === 0002.
+ */
+umask(0002);
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
