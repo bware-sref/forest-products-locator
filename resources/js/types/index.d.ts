@@ -40,12 +40,19 @@ export interface ErrorValueType {
     [key: string]: unknown;
 }
 
+export interface SeoDefaults {
+    description: string;
+    ogType: string;
+    twitterHandle: string | null;
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
     sidebarOpen: boolean;
     flash: FlashDataType;
+    seo: SeoDefaults;
     [key: string]: unknown;
 }
 

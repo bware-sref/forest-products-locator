@@ -47,6 +47,12 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'csrf_token' => csrf_token(),
             'env' => config('app.env'),
+
+            'seo' => [
+                'description' => config('seo.default_description'),
+                'ogType' => config('seo.default_og_type'),
+                'twitterHandle' => config('seo.twitter_handle'),
+            ],
         ];
     }
 
