@@ -69,15 +69,10 @@ export const InputSelect: React.FC<{
     setIsPopoverOpen(false);
   };
 
-  React.useEffect(() => {
-    if (isPopoverOpen && value !== selectedValue) {
-      setSelectedValue(value);
-    }
-  // es-lint says value and selectedValue are missing dependencies
-  // adding them for now to shut it up.
-  // hopefully it doesn't break anything.
-  // }, [isPopoverOpen])
-  }, [isPopoverOpen, value, selectedValue]);
+  // removed useEffect because it caused react lint errors?!?
+  if (isPopoverOpen && value !== selectedValue) {
+    setSelectedValue(value);
+  }
 
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>

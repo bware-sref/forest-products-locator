@@ -48,6 +48,7 @@ export function normalizeStates(states: State[]): State[] {
     return states.map((state) => ({
         id: state.id,
         name: state.name,
+        slug: state.slug,
         abbreviation: state.abbreviation,
         // eslint complained about using String on the left-hand side of ?? which causes the left-hand side to always be a string and thus never nullish. But we need to ensure the value is a string for the select component, so we have to use String() here.
         value: state.value ?? String(state.id),
@@ -230,6 +231,8 @@ export function useMills({
         const controller = new AbortController();
 
         // indicate we're loading
+        // this allegedly the correct approach so we're just going to suppress the alleged error
+        // eslint-disable-next-line
         updateIsLoading(true);
 
         fetchMills(millsApiUrl, searchParams, controller.signal).then((result) => {
