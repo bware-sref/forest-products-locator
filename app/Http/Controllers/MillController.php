@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\MillsExport;
+use App\Http\Requests\MillResourceRequest;
 use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
-use App\Http\Requests\MillResourceRequest;
 use App\Models\County;
 use App\Models\Mill;
-use App\Models\MillType;
+use App\Models\PageSeo;
 use App\Models\State;
 use App\Models\WoodSpecies;
 use Illuminate\Http\Request;
@@ -26,6 +26,11 @@ class MillController extends Controller
     {
         return Inertia::render('mill-list-page', [
             'pageTitle' => 'Mill List',
+            'pageSeo' => PageSeo::resolve(
+                'mill-list',
+                'Mill List',
+                'Browse a directory of sawmills, pulp mills, and other forest product processors.'
+            ),
             ...$this->getData($request),
         ]);
     }
@@ -37,14 +42,18 @@ class MillController extends Controller
     {
         return Inertia::render('mill-map-page', [
             'pageTitle' => 'Mill Map',
+            'pageSeo' => PageSeo::resolve(
+                'mill-map',
+                'Mill Map',
+                'Search an interactive map of sawmills, pulp mills, and other forest product processors.'
+            ),
             ...$this->getData($request),
         ]);
     }
 
-
     /**
      * Display the specified resource.
-     * 
+     *
      * NOTE: to avoid the need to create redirects for all individual mill pages,
      * MillController::show() needs to be routed to /mill-list/{match_id} (no trailing slash).
      * See database/data/searchMills.json for examples of old URLs.
@@ -58,8 +67,20 @@ class MillController extends Controller
             'state',
             'county',
         ]);
+        $location = collect([$mill->county?->name, $mill->state?->abbreviation])
+            ->filter()
+            ->implode(', ');
+
         return Inertia::render('mill-single', [
-            'pageTitle' => $mill->mill_name . ' | Details',
+            'pageTitle' => $mill->mill_name.' | Details',
+            'pageSeo' => [
+                'title' => $mill->mill_name.' | Details',
+                'description' => trim(sprintf(
+                    '%s%s. Contact information, products, and location details.',
+                    $mill->mill_name,
+                    $location ? " is a forest products company in {$location}" : ' is a forest products company'
+                )),
+            ],
             'mills' => [$mill],
         ]);
     }
@@ -71,11 +92,15 @@ class MillController extends Controller
     {
         return Inertia::render('add-business', [
             'pageTitle' => 'Add Your Business',
-            'states' => Inertia::once(fn() => 
-                State::getWithCounties(
-                    cols: ['id', 'name', 'abbreviation'],
-                    countyCols: ['id', 'name', 'state_id']            
-                )->toArray()
+            'pageSeo' => PageSeo::resolve(
+                'add-business',
+                'Add Your Business',
+                'List your sawmill, pulp mill, or forest product processing business in our directory.'
+            ),
+            'states' => Inertia::once(fn () => State::getWithCounties(
+                cols: ['id', 'name', 'abbreviation'],
+                countyCols: ['id', 'name', 'state_id']
+            )->toArray()
             ),
         ]);
     }
@@ -101,7 +126,6 @@ class MillController extends Controller
         /**
          * I don't think we need to wrap all this in a conditional because if the validation fails, it will automatically redirect back with errors and old input, so we won't even get to this point if the data is invalid.
          */
-
         try {
 
             /**
@@ -127,10 +151,10 @@ class MillController extends Controller
                 $newMill = Mill::create($data);
 
                 // attach mill types and wood species
-                if (!empty($millTypeIds)) {
+                if (! empty($millTypeIds)) {
                     $newMill->millTypes()->attach($millTypeIds);
                 }
-                if (!empty($woodSpeciesIds)) {
+                if (! empty($woodSpeciesIds)) {
                     $newMill->woodSpecies()->attach($woodSpeciesIds);
                 }
 
@@ -150,7 +174,7 @@ class MillController extends Controller
         }
 
         // Inertia::flash($flash);
-        return to_route('add-business');        
+        return to_route('add-business');
     }
 
     /**
@@ -162,7 +186,7 @@ class MillController extends Controller
         return Inertia::render('add-business', [
             'pageTitle' => 'Edit Mill',
             'mill' => $mill,
-            ...$this->getData()
+            ...$this->getData(),
         ]);
     }
 
@@ -190,11 +214,12 @@ class MillController extends Controller
          * in fact, we should probably pre-create and cache the full export via the job queue so it will load fastly
          */
         set_time_limit(300);
-        
+
         $validated = $request->validated();
         Log::debug('request params for export', ['validated' => $validated]);
         $mills = Mill::apiSearch($validated);
         Log::debug('exporting mills...', ['count' => count($mills)]);
+
         return Excel::download(new MillsExport($mills), 'mills.xlsx');
     }
 
@@ -207,28 +232,28 @@ class MillController extends Controller
             /**
              * we can forego the counties by just loading them onto the states
              * still need to only load the counties that have mills though.
-             * 
+             *
              * Dagnabbit!
              * We can't use with() to fetch each states millTypes and woodSpecies...
              * Maybe I should just install the deep relationship package?
              */
-            'states' => Inertia::once(fn() => State::has('mills')->with([
+            'states' => Inertia::once(fn () => State::has('mills')->with([
                 'counties' => function ($query) {
                     $query->select('id', 'name', 'state_id')
                         ->has('mills')
                         ->orderBy('name', 'asc');
-            }])->get(['id', 'name', 'abbreviation'])
+                }])->get(['id', 'name', 'abbreviation'])
                 ->append(['value', 'label'])
                 ->toArray()),
-            
+
             /**
-             * Move millTypes and woodSpecies to HandleInertiaRequests::shareOnce() because they are used on multiple pages
-             * and rarely, if ever, change.
-             * Could probably do the same with millsApiUrl but hold off
-             */
+                 * Move millTypes and woodSpecies to HandleInertiaRequests::shareOnce() because they are used on multiple pages
+                 * and rarely, if ever, change.
+                 * Could probably do the same with millsApiUrl but hold off
+                 */
 
             // easy way to inform the front end of the api url
-            'millsApiUrl' => route('api.v1.mills'),            
+            'millsApiUrl' => route('api.v1.mills'),
         ];
     }
 }
