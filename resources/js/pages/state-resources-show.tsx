@@ -1,18 +1,20 @@
 import AppLayout from "@/layouts/app-layout";
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 import {
+    type PageSeoOverride,
     State,
     StateResource,
 } from '@/types';
 import {
-    Head,
     Link,
     usePage,
 } from '@inertiajs/react';
+import { Seo } from '@/components/seo';
 
 export default function StateResourcesShow() {
     const page = usePage<{
         pageTitle?: string;
+        pageSeo: PageSeoOverride;
         state: State;
         resource: StateResource;
     }>();
@@ -22,7 +24,7 @@ export default function StateResourcesShow() {
 
     return (
         <AppLayout>
-            <Head title={page.props.pageTitle} />
+            <Seo {...page.props.pageSeo} />
 
             {/**
              * Probably should have made a content column component a while back...

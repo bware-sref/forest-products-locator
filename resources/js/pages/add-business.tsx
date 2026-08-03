@@ -1,16 +1,19 @@
 import {
     type County,
     type MillType,
+    type PageSeoOverride,
     type State,
     type WoodSpecies,
 } from '@/types';
 import AppLayout from '@/layouts/app-layout';
-import { Head, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
+import { Seo } from '@/components/seo';
 import { MillForm } from '@/components/mill-form';
 
 export default function AddBusiness() {
     const page = usePage<{
         pageTitle?: string;
+        pageSeo: PageSeoOverride;
         states: State[];
         counties?: County[];
         millTypes: MillType[];
@@ -21,7 +24,7 @@ export default function AddBusiness() {
 
     return (
         <AppLayout>
-            <Head title={pageTitle} />
+            <Seo {...page.props.pageSeo} />
             <div className="flex min-h-screen flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature">
                 <div className="flex flex-col w-full items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 md:max-w-md">
                     <h1 className="text-3xl text-bold Xw-full Xlg:max-w-6xl mb-6">{pageTitle}</h1>

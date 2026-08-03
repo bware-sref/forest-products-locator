@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PageSeo;
 use App\Models\State;
 use App\Models\StateResource;
-use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class StateResourceController extends Controller
 {
     /**
-     * StateResource index is slightly different than other indices 
+     * StateResource index is slightly different than other indices
      * because instead of showing state resources, it shows States with resources and links to each States
      * byState() page.
      */
@@ -24,8 +25,14 @@ class StateResourceController extends Controller
             ->has('stateResources')
             ->orderBy('name')
             ->get();
+
         return Inertia::render('state-resources', [
             'pageTitle' => 'State Resources',
+            'pageSeo' => PageSeo::resolve(
+                'state-resources',
+                'State Resources',
+                'Find forestry resources and contacts organized by state.'
+            ),
             'states' => $states,
         ]);
     }
@@ -42,7 +49,11 @@ class StateResourceController extends Controller
         $state->load('stateResources');
 
         return Inertia::render('state-resources-list', [
-            'pageTitle' => $state->name . ' Resources',
+            'pageTitle' => $state->name.' Resources',
+            'pageSeo' => [
+                'title' => $state->name.' Resources',
+                'description' => "Forestry resources and contacts for {$state->name}.",
+            ],
             'state' => $state,
         ]);
     }
@@ -53,8 +64,16 @@ class StateResourceController extends Controller
      */
     public function show(State $state, StateResource $stateResource)
     {
+        $description = $stateResource->teaser
+            ? Str::limit(strip_tags($stateResource->teaser), 160)
+            : "{$stateResource->title} — a {$state->name} forestry resource.";
+
         return Inertia::render('state-resources-show', [
-            'pageTitle' => $stateResource->title . ' : ' . $state->name . ' Resources',
+            'pageTitle' => $stateResource->title.' : '.$state->name.' Resources',
+            'pageSeo' => [
+                'title' => $stateResource->title.' | '.$state->name.' Resources',
+                'description' => $description,
+            ],
             'resource' => $stateResource,
             'state' => $state,
         ]);

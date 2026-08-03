@@ -11,13 +11,14 @@ import AppLayout from '@/layouts/app-layout';
 import { ClientOnly } from '@/components/client-only';
 import {
     type MillType,
+    type PageSeoOverride,
     type State,
     type WoodSpecies,
 } from '@/types';
 import {
-    Head,
     usePage,
 } from '@inertiajs/react';
+import { Seo } from '@/components/seo';
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
 
@@ -53,6 +54,7 @@ export default function MillMapPage() {
         millTypes?: MillType[];
         woodSpecies?: WoodSpecies[];
         pageTitle?: string;
+        pageSeo: PageSeoOverride;
         millsApiUrl: string;
         csrf_token: string;
     }>();
@@ -130,7 +132,7 @@ export default function MillMapPage() {
 
 
         <AppLayout>
-            <Head title={page.props.pageTitle} />
+            <Seo {...page.props.pageSeo} />
 
             <TitleFilterBar
                 // onClickCapture={}

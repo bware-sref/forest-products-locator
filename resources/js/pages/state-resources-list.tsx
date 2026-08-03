@@ -1,14 +1,15 @@
 import AppLayout from "@/layouts/app-layout";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import {
+    type PageSeoOverride,
     State,
     StateResource,
 } from '@/types';
 import {
-    Head,
     Link,
     usePage,
 } from '@inertiajs/react';
+import { Seo } from '@/components/seo';
 import {
     Card,
     CardContent,
@@ -23,14 +24,15 @@ export default function StateResourcesList() {
     const page = usePage<{
         state: State;
         pageTitle?: string;
+        pageSeo: PageSeoOverride;
     }>();
-    
+
     const state = page.props.state;
     const resources: StateResource[] = page.props.state.state_resources || [];
 
     return (
         <AppLayout>
-            <Head title={page.props.pageTitle} />
+            <Seo {...page.props.pageSeo} />
             {/** 
              * Do we need another Hero?
              * Maybe not, but we need something constrain width.

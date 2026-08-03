@@ -36,6 +36,10 @@
         "guard_name": "web"
     },
     {
+        "name": "page_seos.edit",
+        "guard_name": "web"
+    },
+    {
         "name": "permissions.edit",
         "guard_name": "web"
     },
