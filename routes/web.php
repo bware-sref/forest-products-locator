@@ -3,15 +3,23 @@
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\GeocodingController;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-// use Laravel\Fortify\Features;
 use App\Http\Controllers\MillController;
 use App\Http\Controllers\StateResourceController;
+use App\Models\PageSeo;
+// use Laravel\Fortify\Features;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
         // 'canRegister' => Features::enabled(Features::registration()),
+        // Not config('app.name') here -- Inertia's title callback already
+        // appends " - {app name}" globally, so that would duplicate it.
+        'pageSeo' => PageSeo::resolve(
+            'home',
+            'Home',
+            'Find sawmills, pulp mills, and other forest product processors near you.'
+        ),
     ]);
 })->name('home');
 
@@ -55,13 +63,18 @@ Route::match(['get', 'post'], '/mills/export/', [MillController::class, 'export'
 Route::get('/faqs', [FaqController::class, 'index'])
     ->name('faqs');
 
-
 /**
  * About Us
  * pages controller?
  */
 Route::get('/about-us', function () {
-    return Inertia::render('about-us', []);
+    return Inertia::render('about-us', [
+        'pageSeo' => PageSeo::resolve(
+            'about-us',
+            'About Us',
+            'Learn about the mission behind the Forest Products Locator.'
+        ),
+    ]);
 })->name('about-us');
 
 /**
@@ -111,7 +124,13 @@ Route::post('/contact', [ContactController::class, 'store'])
  * use a generator of some sort?
  */
 Route::get('/sitemap', function () {
-    return Inertia::render('sitemap', []);
+    return Inertia::render('sitemap', [
+        'pageSeo' => PageSeo::resolve(
+            'sitemap',
+            'Sitemap',
+            'A full listing of pages on this site.'
+        ),
+    ]);
 })->name('sitemap');
 
 /**
@@ -119,9 +138,14 @@ Route::get('/sitemap', function () {
  * PagesController
  */
 Route::get('/accessibility', function () {
-    return Inertia::render('accessibility', []);
+    return Inertia::render('accessibility', [
+        'pageSeo' => PageSeo::resolve(
+            'accessibility',
+            'Accessibility',
+            'Our commitment to digital accessibility.'
+        ),
+    ]);
 })->name('accessibility');
-
 
 /**
  * Geocoding Routes
@@ -130,15 +154,15 @@ Route::controller(GeocodingController::class)
     ->prefix('geocoding')
     ->name('geocoding.')
     ->group(function () {
-    /**
-     * Allowing get and post makes testing easier
-     */
-    Route::match(['get', 'post'], '/geocode', 'geocode')
-        ->name('geocode');
+        /**
+         * Allowing get and post makes testing easier
+         */
+        Route::match(['get', 'post'], '/geocode', 'geocode')
+            ->name('geocode');
 
-    Route::match(['get', 'post'], '/reverse', 'reverseGeocode')
-        ->name('reverse');
-});
+        Route::match(['get', 'post'], '/reverse', 'reverseGeocode')
+            ->name('reverse');
+    });
 
 /**
  * Again, Backpack so standard dashboard not needed.
@@ -163,8 +187,8 @@ if (app()->environment('local')) {
         return response()->json([
             'workspace' => [
                 'root' => base_path(),
-                'uuid' => '7bc8a113-bc75-472e-89a1-b663b0a29ef1' // Any random UUID string
-            ]
+                'uuid' => '7bc8a113-bc75-472e-89a1-b663b0a29ef1', // Any random UUID string
+            ],
         ]);
     });
 }
