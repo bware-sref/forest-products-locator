@@ -11,7 +11,7 @@ createInertiaApp({
         path: './pages',
         extension: '.tsx',
         lazy: true,
-        transform: (name, page) => name.replace('/', '-'),
+        transform: (name) => name.replace('/', '-'),
     },
     progress: {
         color: '#4B5563',
