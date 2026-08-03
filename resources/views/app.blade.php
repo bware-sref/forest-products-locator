@@ -39,12 +39,11 @@ Or do we?
         {{-- Prior to v3, IntertiaJS's Blade directives (@...) were used to render head and body. They're still supported, but Blade components are recommended for new apps because they allow for SSR head fallback content. --}}
         {{-- @inertiaHead --}}
         <x-inertia::head>
-            <title inertia>{{ config('app.name', 'Laravel') }}</title>
+            <title data-inertia>{{ config('app.name', 'Laravel') }}</title>
             <meta
                 data-inertia="description"
                 name="description"
-                content="Provides a directory of primary and secondary forest products companies that produce products using raw forest material such as trees, logs, bark, etc."
-                inertia
+                content="Provides a directory of primary and secondary forest products companies that produce products using raw forest material such as trees, logs, bark, etc."                
             />
         </x-inertia::head>
     </head>
