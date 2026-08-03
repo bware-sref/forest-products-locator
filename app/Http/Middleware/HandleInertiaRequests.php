@@ -47,14 +47,26 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'csrf_token' => csrf_token(),
             'env' => config('app.env'),
+
+            'seo' => [
+                'description' => config('seo.default_description'),
+                'ogType' => config('seo.default_og_type'),
+                'twitterHandle' => config('seo.twitter_handle'),
+                // Origin only (no trailing slash) -- combined with Inertia's
+                // own page.url (path, query stripped) client-side to build
+                // canonical/og:url. Sourced from config, not the request, so
+                // it's consistent between SSR and CSR and can't be spoofed
+                // via a forged Host header.
+                'siteUrl' => rtrim(config('app.url'), '/'),
+            ],
         ];
     }
 
     public function shareOnce(Request $request): array
     {
         return array_merge(parent::shareOnce($request), [
-            'millTypes' => fn() => MillType::get(['id', 'name'])->toArray(),
-            'woodSpecies' => fn() => WoodSpecies::get(['id', 'name'])->toArray(),
+            'millTypes' => fn () => MillType::get(['id', 'name'])->toArray(),
+            'woodSpecies' => fn () => WoodSpecies::get(['id', 'name'])->toArray(),
         ]);
     }
 }

@@ -40,3 +40,10 @@
     @endif
 </x-backpack::menu-dropdown>
 @endif
+@if(backpack_user()->can('page_seos.edit'))
+    <x-backpack::menu-item
+        title="Page SEO"
+        icon="la la-skull-crossbones"
+        :link="backpack_url('page-seo')"
+    />
+@endif

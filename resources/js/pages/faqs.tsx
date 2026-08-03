@@ -1,18 +1,19 @@
 import AppLayout from '@/layouts/app-layout';
-import { type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
-import { IFaqCategory } from '@/types';
+import { type PageSeoOverride, type IFaqCategory } from '@/types';
+import { usePage } from '@inertiajs/react';
+import { Seo } from '@/components/seo';
 
 export default function Faqs() {
-    const page = usePage<SharedData>();
-    const pageTitle = 'FAQs';
-    const faqsByCategory: IFaqCategory[] = page.props.faqsByCategory as IFaqCategory[];
-
-    // console.log(faqsByCategory);
+    const page = usePage<{
+        pageSeo: PageSeoOverride;
+        faqsByCategory: IFaqCategory[];
+    }>();
+    const pageTitle = page.props.pageSeo.title;
+    const faqsByCategory = page.props.faqsByCategory;
 
     return (
         <AppLayout>
-            <Head title={pageTitle} />
+            <Seo {...page.props.pageSeo} />
             <div className="flex min-h-screen flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature">
                 <div className="flex flex-col w-full lg:max-w-7xl items-center lg:items-start justify-start opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 px-6 gap-5">
                     <h1 className="font-bold text-3xl">{pageTitle}</h1>

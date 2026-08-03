@@ -10,7 +10,8 @@
         "counties.edit",
         "faqs.edit",
         "mills.import",
-        "mill_edits.edit"
+        "mill_edits.edit",
+        "page_seos.edit"
     ],
     "Editor": [
         "mills.edit",
@@ -36,7 +37,8 @@
         "roles.edit",
         "permissions.edit",
         "state_resources.edit",
-        "faq_categories.edit"
+        "faq_categories.edit",
+        "page_seos.edit"
     ],
     "State Agent": [
         "mills.edit",

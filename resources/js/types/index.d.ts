@@ -40,12 +40,34 @@ export interface ErrorValueType {
     [key: string]: unknown;
 }
 
+export interface SeoDefaults {
+    description: string;
+    ogType: string;
+    twitterHandle: string | null;
+    /** Origin only, no trailing slash (e.g. "https://example.com"). */
+    siteUrl: string;
+}
+
+/**
+ * Per-page override, shaped to match <Seo>'s props directly (see
+ * resources/js/components/seo.tsx). Distinct from SeoDefaults (the
+ * site-wide fallback shared on every request as `seo`) -- this is set
+ * per-page as `pageSeo`, via App\Models\PageSeo::resolve() or computed
+ * directly from a record's own fields for dynamic pages.
+ */
+export interface PageSeoOverride {
+    title: string;
+    description: string;
+    image?: string | null;
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
     sidebarOpen: boolean;
     flash: FlashDataType;
+    seo: SeoDefaults;
     [key: string]: unknown;
 }
 

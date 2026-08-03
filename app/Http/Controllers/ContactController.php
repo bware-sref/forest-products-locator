@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContactRequest;
 use App\Jobs\SendContactEmail;
-use App\Mail\ContactEmail;
 use App\Models\Contact;
+use App\Models\PageSeo;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class ContactController extends Controller
@@ -15,7 +14,14 @@ class ContactController extends Controller
     //
     public function index()
     {
-        return Inertia::render('contact', []);
+        return Inertia::render('contact', [
+            'pageTitle' => 'Contact',
+            'pageSeo' => PageSeo::resolve(
+                'contact',
+                'Contact',
+                'Get in touch with the Forest Products Locator team.'
+            ),
+        ]);
     }
 
     public function store(StoreContactRequest $request)
