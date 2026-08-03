@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-// import { type SharedData } from '@/types';
-// import { Head, Link, usePage } from '@inertiajs/react';
-import { Head, Link } from '@inertiajs/react';
+import { type PageSeoOverride } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import { Seo } from '@/components/seo';
 import Hero from '@/components/hero';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,11 +29,7 @@ const heroSources = [
 ];
 
 export default function Welcome() {
-    // const page = usePage<SharedData>();
-    const pageTitle = 'Welcome';
-    // temporary work-around for unused properties lint
-    // page.props.pageTitle = pageTitle;
-    // page.props.contentClassName = 'max-w-screen';
+    const page = usePage<{ pageSeo: PageSeoOverride }>();
     const cards = [
         {
             title: 'Mill List',
@@ -57,13 +53,7 @@ export default function Welcome() {
 
     return (
         <AppLayout>
-            <Head title={pageTitle}>
-                <meta
-                    head-key="description"
-                    name="description"
-                    content="Welcome to the Primary Forest Products Locator!"
-                />
-            </Head>
+            <Seo {...page.props.pageSeo} />
             {/** 
              * Hero must be in a full-width wrapper.
             */}

@@ -1,17 +1,14 @@
 import AppLayout from '@/layouts/app-layout';
-// import { type SharedData } from '@/types';
-// import { Head, usePage } from '@inertiajs/react';
-import { Head } from '@inertiajs/react';
+import { type PageSeoOverride } from '@/types';
+import { usePage } from '@inertiajs/react';
+import { Seo } from '@/components/seo';
 
-export default function StateResources() {
-    // const page = usePage<SharedData>();
-    const pageTitle = 'State Resources';
-    // temporary work-around for unused properties lint
-    // page.props.pageTitle = pageTitle;
+export default function Accessibility() {
+    const { pageSeo } = usePage<{ pageSeo: PageSeoOverride }>().props;
 
     return (
         <AppLayout>
-            <Head title={pageTitle} />
+            <Seo {...pageSeo} />
             <div className="flex min-h-screen flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature">
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
                     <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">

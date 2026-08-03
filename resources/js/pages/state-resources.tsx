@@ -1,12 +1,13 @@
 import AppLayout from '@/layouts/app-layout';
 import {
+    type PageSeoOverride,
     State,
 } from '@/types';
 import {
-    Head,
     Link,
     usePage,
 } from '@inertiajs/react';
+import { Seo } from '@/components/seo';
 import Hero from '@/components/hero';
 import {
     Card,
@@ -40,13 +41,14 @@ export default function StateResources() {
     const page = usePage<{
         states: State[];
         pageTitle?: string;
+        pageSeo: PageSeoOverride;
     }>();
 
     const states = page.props.states;
 
     return (
         <AppLayout>
-            <Head title={page.props.pageTitle} />
+            <Seo {...page.props.pageSeo} />
             {/** 
              * Hero must be in a full-width wrapper.
             */}

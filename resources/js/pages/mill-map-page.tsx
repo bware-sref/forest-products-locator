@@ -11,6 +11,7 @@ import AppLayout from '@/layouts/app-layout';
 import { ClientOnly } from '@/components/client-only';
 import {
     type MillType,
+    type PageSeoOverride,
     type State,
     type WoodSpecies,
 } from '@/types';
@@ -53,6 +54,7 @@ export default function MillMapPage() {
         millTypes?: MillType[];
         woodSpecies?: WoodSpecies[];
         pageTitle?: string;
+        pageSeo: PageSeoOverride;
         millsApiUrl: string;
         csrf_token: string;
     }>();
@@ -130,10 +132,7 @@ export default function MillMapPage() {
 
 
         <AppLayout>
-            <Seo
-                title={page.props.pageTitle || 'Mill Map'}
-                description="Search an interactive map of sawmills, pulp mills, and other forest product processors."
-            />
+            <Seo {...page.props.pageSeo} />
 
             <TitleFilterBar
                 // onClickCapture={}
