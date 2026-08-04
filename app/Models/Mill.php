@@ -23,6 +23,9 @@ use Illuminate\Support\Facades\Log;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
+ * Tag scoping method to prevent false positive syntax errors.
+ * @method static Builder pending()
+ * 
  * TypeScript attribute marks data objects for transformation to TypeScript type for front-end
  *
  * @mixin IdeHelperMill
@@ -290,7 +293,7 @@ class Mill extends Model
      */
     public function recordProcessingFailure(string $message): void
     {
-        $this->import?->increment('failed_rows');
+        $this->import?->increment('failed_rows', 1);
         $this->millRawImport?->update([
             'status' => MillRawImportStatus::Failed,
             'errors' => $message,
@@ -509,12 +512,12 @@ class Mill extends Model
      * Scopes!
      * as indicated by the #[Scope] attribute/decorator
      * Do we need to remove the Global ApprovedScope for pending() to work right?
+     * 
      */
-
     #[Scope]
-    protected function pending(Builder $query): void
+    protected function pending(Builder $query): Builder
     {
-        $query->withoutGlobalScope(ApprovedScope::class)
+        return $query->withoutGlobalScope(ApprovedScope::class)
             ->where('status', PublicationStatus::Pending);
     }
 
@@ -879,10 +882,31 @@ class Mill extends Model
          * Holy mole!
          * After a bunch of BS, going back to using query() first made Intelephense happy.
          */
-        return Mill::query()->pending()
+        return static::query()
+            ->pending()
             ->where('import_id', $importId)
             ->update([
                 'status' => PublicationStatus::Approved,
             ]);
+    }
+
+    #[Scope]
+    protected function byState(Builder $query, int|string $state): Builder
+    {
+        /**
+         * $state might be a numeric string
+         */
+        if (false === filter_var($state, FILTER_VALIDATE_INT)) {
+            return $query->where('physical_state', $state);
+            // return;
+        }
+
+        return $query->where('state_id', $state);
+    }
+
+    #[Scope]
+    protected function byImport(Builder $query, int $importId): Builder
+    {
+        return $query->where('import_id', $importId);
     }
 }
