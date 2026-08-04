@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\PublicationStatus;
 use App\Http\Controllers\Admin\Operations\MillImportOperation;
 use App\Http\Requests\ImportMillRequest;
 use App\Http\Requests\MillRequest;
@@ -512,5 +513,33 @@ class MillCrudController extends CrudController
          * But also at present if we set it, the MapFields view doesn't display.
          */
         $this->setImportHandler(MillsCrudImport::class);
+    }
+
+    protected function setupShowOperation()
+    {
+        $this->autoSetupShowOperation();
+
+        /**
+         * Remove our problematic columns then we'll add them back
+         */
+        CRUD::removeColumns([
+            'mill_id',
+            'extended_attributes',
+            'status',
+        ]);
+
+        CRUD::column([
+            'name' => 'extended_attributes',
+            'label' => 'Extra',
+            'type' => 'json',
+            'toggle' => true,
+        ]);
+        CRUD::column([
+            'name' => 'status',
+            'label' => 'Status',
+            'type' => 'enum',
+            'enum_class' => PublicationStatus::class,
+
+        ]);
     }
 }
