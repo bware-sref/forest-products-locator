@@ -277,6 +277,11 @@ class Mill extends Model
     {
         return $this->belongsTo(MillRawImport::class);
     }
+    
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Record a per-row processing failure against this mill's import and raw
@@ -298,11 +303,6 @@ class Mill extends Model
             'status' => MillRawImportStatus::Failed,
             'errors' => $message,
         ]);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     /**
