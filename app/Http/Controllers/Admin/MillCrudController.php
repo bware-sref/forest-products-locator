@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\PublicationStatus;
 use App\Http\Controllers\Admin\Operations\MillImportOperation;
 use App\Http\Requests\ImportMillRequest;
 use App\Http\Requests\MillRequest;
 use App\Imports\FloridaMills;
 use App\Imports\MillsCrudImport;
+use App\Models\User;
 use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -51,6 +53,9 @@ class MillCrudController extends CrudController
     protected function setupListOperation()
     {
         // CRUD::setFromDb(); // set columns from db columns.
+        /**
+         * @var User
+         */
         $user = backpack_user();
 
         /**
@@ -80,6 +85,13 @@ class MillCrudController extends CrudController
         // }, function ($value) {
         //     $this->crud->addClause('where', 'state_id', $value);
         // });
+
+        /**
+         * Because List and Show can sorta share setup, it might be useful to extract the stuff below into a
+         * separate method that can be used by both.
+         * Except!
+         * Show(Preview) can use tabs and List cannot.
+         */
 
         /**
          * Columns can be defined using the fluent syntax:
@@ -236,8 +248,23 @@ class MillCrudController extends CrudController
 
         // contact info fields
         CRUD::field([
+            'name' => 'contact_name',
+            'label' => 'Contact Name',
+            'type' => 'text',
+        ])->tab('Contact Information');
+        CRUD::field([
+            'name' => 'contact_title',
+            'label' => 'Contact Title',
+            'type' => 'text',
+        ])->tab('Contact Information');
+        CRUD::field([
             'name' => 'telephone',
             'label' => 'Telephone',
+            'type' => 'text',
+        ])->tab('Contact Information');
+        CRUD::field([
+            'name' => 'telephone_2',
+            'label' => 'Telephone 2',
             'type' => 'text',
         ])->tab('Contact Information');
         CRUD::field([
@@ -251,6 +278,11 @@ class MillCrudController extends CrudController
             'type' => 'email',
         ])->tab('Contact Information');
         CRUD::field([
+            'name' => 'email_2',
+            'label' => 'Email 2',
+            'type' => 'email',
+        ])->tab('Contact Information');
+        CRUD::field([
             'name' => 'web_site',
             'label' => 'Website',
             'type' => 'text',
@@ -259,12 +291,13 @@ class MillCrudController extends CrudController
         // relationships
         CRUD::field([
             /**
-             * name = 'type' caused bad method exception
-             * allegedly "name" should match the DB column name
-             * however, mill_type is not a DB column 
-             * further, the relationship method is millTypes (camel case & plural)
+             * name = 'mill_type' caused bad method exception
+             * Per docs, for most field types, allegedly "name" should match the DB column name.
+             * However, for n-to-n relationship fields, 'name' should be this Model's relationship method for
+             * this relationship.
+             * I.e., millTypes
              */
-            'name' => 'mill_type',
+            'name' => 'millTypes',
             'label' => 'Mill Type',
             'type' => 'select_multiple',
             'entity' => 'millTypes',
@@ -276,10 +309,9 @@ class MillCrudController extends CrudController
         CRUD::field([
             /**
              * name = 'wood_species' caused bad method exception
-             * allegedly "name" should match the DB column name
-             * however, woodSpecies is not a DB column
-             * further, the apparent fix for millTypes was to change from "type" to "mill_type"
-             * yet in this case, changing "name" to "woodSpecies" seemed to resolve the issue
+             * Per docs, for most field types, allegedly "name" should match the DB column name.
+             * However, for n-to-n relationship fields, 'name' should be this Model's relationship method for
+             * this relationship.
              */
             'name' => 'woodSpecies',
             'label' => 'Wood Species',
@@ -512,5 +544,50 @@ class MillCrudController extends CrudController
          * But also at present if we set it, the MapFields view doesn't display.
          */
         $this->setImportHandler(MillsCrudImport::class);
+    }
+
+    protected function setupShowOperation()
+    {
+        $this->autoSetupShowOperation();
+
+        /**
+         * Remove our problematic columns then we'll add them back
+         */
+        CRUD::removeColumns([
+            'extended_attributes',
+            'status',
+            // also remove nonsense columns
+            'mill_id',
+            'approve_hash',
+            'reject_hash',
+            'mill_raw_import', // for now
+            'submitter_email',
+            'submitter_ip',
+            'mailing_county',
+            'reviewed_at',
+            'raw_physical_address',
+            'raw_mailing_address',
+            'mailing_state',
+            'needs_review',
+            'year',
+            'size',
+            // unpopulated relationships
+            'mailingCounty',
+            'mailing_county_id',
+        ]);
+
+        CRUD::column([
+            'name' => 'extended_attributes',
+            'label' => 'Extra',
+            'type' => 'json',
+            'toggle' => true,
+        ]);
+        CRUD::column([
+            'name' => 'status',
+            'label' => 'Status',
+            'type' => 'enum',
+            'enum_class' => PublicationStatus::class,
+
+        ]);
     }
 }

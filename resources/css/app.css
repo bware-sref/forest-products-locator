@@ -52,6 +52,7 @@
     --color-zucchini: oklch(0.7107 0.0429 133.87); /* #97a88d; top nav bg */
     --color-sonic: oklch(0.5624 0 0); /* #757575; text search placeholder, mill list item header bottom border */
     --color-lorne: oklch(47.38% 0.022 137.85); /* #565f53; filters background */
+    --color-petroleum: oklch(0.2439 0.0096 53.02); /* #241f1c; state page hero bg */
 
     /** override default bg, fg, et al */
     /** except this apparently is not how to do it */
