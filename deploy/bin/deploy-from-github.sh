@@ -182,9 +182,13 @@ echo "Restarting job queue..."
 sudo supervisorctl restart laravel-worker
 echo "Job queue restarted."
 
-# restart the supervisor program that manages SSR
-echo "Restarting Inertia SSR..."
-sudo supervisorctl restart inertia-ssr
+# Stop Inertia SSR.
+# Supervisor will restart it.
+echo "Stopping Inertia SSR..."
+/usr/bin/php artisan inertia:stop-ssr
+#sudo supervisorctl restart inertia-ssr
+echo "Stopped Inertia SSR. Supervisor should restart it soon..."
+/usr/bin/php artisan inertia:check-ssr
 echo "Inertia SSR restarted."
 
 # return to site directory
