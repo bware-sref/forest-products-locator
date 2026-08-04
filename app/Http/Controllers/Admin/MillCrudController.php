@@ -8,6 +8,7 @@ use App\Http\Requests\ImportMillRequest;
 use App\Http\Requests\MillRequest;
 use App\Imports\FloridaMills;
 use App\Imports\MillsCrudImport;
+use App\Models\User;
 use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -52,6 +53,9 @@ class MillCrudController extends CrudController
     protected function setupListOperation()
     {
         // CRUD::setFromDb(); // set columns from db columns.
+        /**
+         * @var User
+         */
         $user = backpack_user();
 
         /**
