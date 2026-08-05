@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 // use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -107,6 +108,56 @@ class State extends Model
     public function stateResources(): HasMany
     {
         return $this->hasMany(StateResource::class)
+            ->orderBy('sort_weight', 'asc');
+    }
+
+    /**
+     * State page content.
+     * All page-section models below hang directly off state_id (siblings of
+     * StatePage) rather than nesting under StatePage's id, matching the
+     * pattern already established by stateContacts().
+     */
+    public function statePage(): HasOne
+    {
+        return $this->hasOne(StatePage::class);
+    }
+
+    public function stateContacts(): HasMany
+    {
+        return $this->hasMany(StateContact::class)
+            ->orderBy('sort_weight', 'asc');
+    }
+
+    public function stateForestOverview(): HasOne
+    {
+        return $this->hasOne(StateForestOverview::class);
+    }
+
+    public function stateForestTypes(): HasMany
+    {
+        return $this->hasMany(StateForestType::class)
+            ->orderBy('sort_weight', 'asc');
+    }
+
+    public function stateForestProducts(): HasMany
+    {
+        return $this->hasMany(StateForestProduct::class)
+            ->orderBy('sort_weight', 'asc');
+    }
+
+    public function stateEconomicImpact(): HasOne
+    {
+        return $this->hasOne(StateEconomicImpact::class);
+    }
+
+    public function stateForestryAgency(): HasOne
+    {
+        return $this->hasOne(StateForestryAgency::class);
+    }
+
+    public function stateAssistanceCategories(): HasMany
+    {
+        return $this->hasMany(StateAssistanceCategory::class)
             ->orderBy('sort_weight', 'asc');
     }
 

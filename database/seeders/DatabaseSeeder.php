@@ -23,6 +23,18 @@ class DatabaseSeeder extends Seeder
              * FAQs seeded by FaqCategorySeeder
              */
             // FaqSeeder::class,
+            StatePageSeeder::class,
+            StateContactSeeder::class,
+            StateForestOverviewSeeder::class,
+            StateForestTypeSeeder::class,
+            StateForestProductSeeder::class,
+            StateEconomicImpactSeeder::class,
+            StateForestryAgencySeeder::class,
+            StateAssistanceCategorySeeder::class,
+            /**
+             * Assistance links seeded by StateAssistanceCategorySeeder
+             */
+            // StateAssistanceLinkSeeder::class,
         ]);
     }
 }
