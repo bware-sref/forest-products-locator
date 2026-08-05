@@ -156,9 +156,128 @@ export interface State {
     counties?: County[];
     mills?: Mill[];
     state_resources?: StateResource[];
+    /**
+     * State page content. All of these hang directly off state_id
+     * (siblings of state_page), not nested under it -- see App\Models\State.
+     */
+    state_page?: StatePage;
+    state_contacts?: StateContact[];
+    state_forest_overview?: StateForestOverview;
+    state_forest_types?: StateForestType[];
+    state_forest_products?: StateForestProduct[];
+    state_economic_impact?: StateEconomicImpact;
+    state_forestry_agency?: StateForestryAgency;
+    state_assistance_categories?: StateAssistanceCategory[];
     value: string;
     label: string;
     [key: string]: unknown; // This allows for additional properties...
+}
+
+export interface StatePage {
+    id: number;
+    state_id: number;
+    hero_headline?: string;
+    hero_img_dt?: string;
+    hero_img_mobile?: string;
+    hero_copy?: string;
+    contacts_headline?: string;
+    contacts_copy?: string;
+    [key: string]: unknown;
+}
+
+export interface StateContact {
+    id: number;
+    state_id: number;
+    name?: string;
+    title?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+    sort_weight: number;
+    [key: string]: unknown;
+}
+
+export interface StateForestOverview {
+    id: number;
+    state_id: number;
+    headline?: string;
+    body?: string;
+    image?: string;
+    stat_1_label?: string;
+    stat_1_value?: string;
+    stat_2_label?: string;
+    stat_2_value?: string;
+    stat_3_label?: string;
+    stat_3_value?: string;
+    stat_4_label?: string;
+    stat_4_value?: string;
+    [key: string]: unknown;
+}
+
+export interface StateForestType {
+    id: number;
+    state_id: number;
+    title: string;
+    description?: string;
+    icon?: string;
+    sort_weight: number;
+    [key: string]: unknown;
+}
+
+export interface StateForestProduct {
+    id: number;
+    state_id: number;
+    label: string;
+    sort_weight: number;
+    [key: string]: unknown;
+}
+
+export interface StateEconomicImpact {
+    id: number;
+    state_id: number;
+    headline?: string;
+    stat_1_label?: string;
+    stat_1_value?: string;
+    stat_2_label?: string;
+    stat_2_value?: string;
+    stat_3_label?: string;
+    stat_3_value?: string;
+    [key: string]: unknown;
+}
+
+export interface StateForestryAgency {
+    id: number;
+    state_id: number;
+    headline?: string;
+    body?: string;
+    cta_1_label?: string;
+    cta_1_url?: string;
+    cta_2_label?: string;
+    cta_2_url?: string;
+    assistance_headline?: string;
+    assistance_copy?: string;
+    assistance_categories?: StateAssistanceCategory[];
+    [key: string]: unknown;
+}
+
+export interface StateAssistanceCategory {
+    id: number;
+    state_id: number;
+    title: string;
+    description?: string;
+    sort_weight: number;
+    links?: StateAssistanceLink[];
+    [key: string]: unknown;
+}
+
+export interface StateAssistanceLink {
+    id: number;
+    state_assistance_category_id: number;
+    label: string;
+    description?: string;
+    url: string;
+    sort_weight: number;
+    [key: string]: unknown;
 }
 
 export interface County {
