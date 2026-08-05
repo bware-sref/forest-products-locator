@@ -42,17 +42,43 @@
     "sonic silver" #757575;
     oklch(0.5624 0 0)
     specifying colors in oklch allows using tailwind named color scale utility classes, e.g., 
-    */    
+
+    WTF?
+    #2e454d is what coupe comes out as in the browser
+    spozta be #2f454d
+
+    New colors for State pages!
+    
+    Hero
+    petroleum #241f1c; state page hero bg
+    oklch(0.2439 0.0096 53.02)
+
+    Forest Acerage section
+    #6A7666 (nature, already has) - bg
+    ForestTypes/Products subsection 
+    "ebony wood" #2b3527 - bg
+    oklch(0.315 0.0279 136.83)
+    "baize" #495545 - pills
+    oklch(0.434 0.0299 137.89)
+
+    StateAgency section
+    #2c4148 - bg (probably should use coupe instead)
+    aircraft - #34505a - lighter green used for cards
+    oklch(0.4131 0.0375 222.36)
+    */
+    --color-aircraft: oklch(0.4131 0.0375 222.36); /* #34505a */
+    --color-baize: oklch(0.434 0.0299 137.89); /* #495545 */
     --color-beluga: oklch(0.9577 0.0017 247.84); /* #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
     --color-coupe: oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card heading background, arrow buttons, et al */
+    --color-ebony: oklch(0.315 0.0279 136.83); /* #2b3527 State pages */
     --color-nature: oklch(0.5509 0.0282 137.85); /* #6a7666;  footer background */
+    --color-lorne: oklch(47.38% 0.022 137.85); /* #565f53; filters background */
+    --color-petroleum: oklch(0.2439 0.0096 53.02); /* #241f1c; state page hero bg */
+    --color-sonic: oklch(0.5624 0 0); /* #757575; text search placeholder, mill list item header bottom border */
     /* --color-velvet: oklch(0.2481 0.0095 53.04); #25201d; top nav foreground */
     /** different hex to oklch converters yield different values */
     --color-velvet: oklch(24.81% 0.010 53.04); /* #25201d; top nav foreground */
     --color-zucchini: oklch(0.7107 0.0429 133.87); /* #97a88d; top nav bg */
-    --color-sonic: oklch(0.5624 0 0); /* #757575; text search placeholder, mill list item header bottom border */
-    --color-lorne: oklch(47.38% 0.022 137.85); /* #565f53; filters background */
-    --color-petroleum: oklch(0.2439 0.0096 53.02); /* #241f1c; state page hero bg */
 
     /** override default bg, fg, et al */
     /** except this apparently is not how to do it */
