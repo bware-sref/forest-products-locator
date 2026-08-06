@@ -44,6 +44,18 @@ class StateAssistanceCategoryCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        /**
+         * Only apply this ordering if the request doesn't already have an order specified
+         */
+        if (! $this->crud->getRequest()->has('order')) {
+            /**
+             * apply directly to query so we can multisort
+             */
+            $this->crud->query
+                ->orderBy('state_id', 'asc')
+                ->orderBy('sort_weight', 'asc');
+        }
+
         CRUD::column('state_id')
             ->type('select')
             ->entity('state')

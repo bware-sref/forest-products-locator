@@ -44,6 +44,18 @@ class StateContactCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        /**
+         * Only apply order if the request doesn't already specify an order
+         */
+        if (! $this->crud->getRequest()->has('order')) {
+            /**
+             * Let's try to apply directly on the query so we can sort by multiple columns
+             */
+            $this->crud->query
+                ->orderBy('state_id', 'asc')
+                ->orderBy('sort_weight', 'asc');
+        }
+
         CRUD::column('state_id')
             ->type('select')
             ->entity('state')

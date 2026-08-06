@@ -44,6 +44,10 @@ class StateForestryAgencyCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        if (! $this->crud->getRequest()->has('order')) {
+            $this->crud->query->orderBy('state_id', 'asc');
+        }
+        
         CRUD::column('state_id')
             ->type('select')
             ->entity('state')
