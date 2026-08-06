@@ -58,14 +58,6 @@ class StatePageCrudController extends CrudController
             ->model('App\Models\State')
             ->attribute('name')
             ->orderable(true);
-            /**
-             * order logic doesn't work like we want
-             */
-            // ->orderLogic(function ($query, $column, $columnDirection) {
-            //     return $query->leftJoin('states', 'states.id', '=', 'state_pages.state_id')
-            //         ->orderBy('states.name', $columnDirection)
-            //         ->select('state_pages.*'); // prevent column name collisions
-            // });
         CRUD::column('hero_headline')
             ->type('text')
             ->orderable(true);
