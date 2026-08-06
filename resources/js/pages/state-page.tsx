@@ -16,10 +16,12 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import {
+    ArrowRight,
     ArrowUpRight,
     CircleArrowRight,
     Mail,
-    MapPin,
+    // MapPin,
+    MoveRight,
     Phone,
 } from 'lucide-react';
 import heroFallback from '@img/pine-trees_short.jpg';
@@ -101,10 +103,10 @@ export default function StatePage() {
                 <Hero
                     src={heroSrc}
                     alt={state.name}
-                    pictureClassName="col-start-1 row-start-1 h-full w-full max-w-full object-cover opacity-40"
+                    pictureClassName="col-start-1 row-start-1 h-full w-full max-w-full object-cover"
                     sources={heroSources}
                 >
-                    <div className="flex max-w-83.75 flex-col gap-6 text-beluga lg:max-w-3xl">
+                    <div className="flex max-w-83.75 flex-col gap-6 text-white lg:max-w-3xl">
                         <h1 className="mt-8 mb-6 w-full text-3xl leading-10 font-bold lg:text-5xl">
                             {statePage?.hero_headline || `${state.name} Forest Products`}
                         </h1>
@@ -118,36 +120,36 @@ export default function StatePage() {
 
             {/* Contacts -- always present */}
             {contacts.length > 0 && (
-                <section className="w-full bg-background">
+                <section className="w-full bg-white">
                     <div className="mx-auto flex w-full max-w-full flex-col items-center gap-8 px-5 py-10 text-center md:w-6xl lg:w-7xl">
-                        <div className="flex max-w-3xl flex-col gap-2">
-                            <h2 className="text-2xl font-bold lg:text-3xl">
+                        <div className="flex flex-col gap-2">
+                            <h2 className="text-2xl font-bold md:text-[38px]">
                                 {statePage?.contacts_headline
                                     || 'Want more information or a free site suitability analysis?'}
                             </h2>
                             {statePage?.contacts_copy && (
-                                <p className="text-lg">{statePage.contacts_copy}</p>
+                                <p className="text-[23px]">{statePage.contacts_copy}</p>
                             )}
                         </div>
-                        <div className="flex w-full flex-col flex-wrap justify-center gap-6 md:flex-row">
+                        <div className="flex w-full flex-col flex-wrap justify-center gap-5 md:flex-row Xbg-purple-500">
                             {contacts.map(contact => (
-                                <Card key={contact.id} className="w-full max-w-full text-left md:w-80">
-                                    <CardContent className="flex flex-col gap-1">
-                                        {contact.name && <p className="font-semibold">{contact.name}</p>}
+                                <Card key={contact.id} className="w-full max-w-full text-left md:max-w-[609px] border-aircraft border-2 bg-white">
+                                    <CardContent className="flex flex-col gap-1 text-coupe">
+                                        {contact.name && <p className="font-semibold text-[22px]">{contact.name}</p>}
                                         {contact.title && (
-                                            <p className="text-sm text-muted-foreground">{contact.title}</p>
+                                            <p className="text-sm">{contact.title}</p>
                                         )}
-                                        <address className="mt-2 flex flex-col gap-1.5 text-sm not-italic">
+                                        <address className="mt-2 flex flex-col gap-1.5 text-[18px] not-italic">
                                             {contact.address && (
                                                 <span className="flex gap-2">
-                                                    <MapPin className="mt-0.5 size-4 shrink-0" />
+                                                    {/* <MapPin className="mt-0.5 size-4 shrink-0" /> */}
                                                     <span className="whitespace-pre-line">{contact.address}</span>
                                                 </span>
                                             )}
                                             {contact.phone && (
                                                 <a
                                                     href={`tel:${contact.phone}`}
-                                                    className="flex items-center gap-2 hover:underline"
+                                                    className="flex items-center gap-4 hover:underline font-bold"
                                                 >
                                                     <Phone className="size-4 shrink-0" />
                                                     {contact.phone}
@@ -156,7 +158,7 @@ export default function StatePage() {
                                             {contact.email && (
                                                 <a
                                                     href={`mailto:${contact.email}`}
-                                                    className="flex items-center gap-2 hover:underline"
+                                                    className="flex items-center gap-4 underline hover:no-underline font-bold"
                                                 >
                                                     <Mail className="size-4 shrink-0" />
                                                     {contact.email}
@@ -176,17 +178,17 @@ export default function StatePage() {
                 <section className="w-full bg-nature text-beluga">
                     <div className="mx-auto flex w-full max-w-full flex-col gap-8 px-5 py-10 md:w-6xl lg:w-7xl lg:py-16">
                         <div className="flex flex-col items-center gap-8 lg:flex-row">
-                            <div className="flex flex-1 flex-col gap-4">
+                            <div className="flex flex-1 flex-col gap-4 md:pr-16 self-start md:max-w-[650px]">
                                 {overview.headline && (
-                                    <h2 className="text-2xl font-bold lg:text-3xl">{overview.headline}</h2>
+                                    <h2 className="text-2xl font-bold lg:text-[45px]">{overview.headline}</h2>
                                 )}
-                                <SafeHtml html={overview.body} className="text-lg" />
+                                <SafeHtml html={overview.body} className="text-[23px]" />
                                 {overviewStats.length > 0 && (
                                     <div className="mt-2 grid grid-cols-2 gap-3">
                                         {overviewStats.map(([label, value], i) => (
-                                            <div key={i} className="rounded-lg border border-beluga/40 p-3">
-                                                <p className="text-xs tracking-wide uppercase opacity-80">{label}</p>
-                                                <p className="text-2xl font-bold">{value}</p>
+                                            <div key={i} className="rounded-lg border border-beluga p-3">
+                                                <p className="text-xs tracking-wide">{label}</p>
+                                                <p className="text-3xl font-bold">{value}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -196,22 +198,22 @@ export default function StatePage() {
                                 <img
                                     src={overviewImage}
                                     alt={overview.headline || state.name}
-                                    className="max-w-full flex-1 rounded-lg"
+                                    className="max-w-full md:max-w-[527px] flex-1 rounded-lg md:ml-auto"
                                 />
                             )}
                         </div>
 
                         {(forestTypes.length > 0 || forestProducts.length > 0) && (
-                            <div className="grid grid-cols-1 gap-8 rounded-xl bg-ebony p-6 lg:grid-cols-2 lg:p-8">
+                            <div className="grid grid-cols-1 gap-8 rounded-xl bg-ebony p-6 lg:grid-cols-2 lg:p-8 border border-white mt-8">
                                 {forestTypes.length > 0 && (
                                     <div className="flex flex-col gap-4">
-                                        <h3 className="text-xl font-bold">Regional Forest Types</h3>
+                                        <h3 className="text-xl font-bold md:text-[36px]">Regional Forest Types</h3>
                                         <ul className="flex flex-col gap-4">
                                             {forestTypes.map(type => (
-                                                <li key={type.id}>
-                                                    <p className="font-semibold">{type.title}</p>
+                                                <li key={type.id} className="bg-baize border border-white px-3 py-1.5 rounded-md">
+                                                    <p className="text-[20px]">{type.title}</p>
                                                     {type.description && (
-                                                        <p className="text-sm opacity-90">{type.description}</p>
+                                                        <p className="text-sm">{type.description}</p>
                                                     )}
                                                 </li>
                                             ))}
@@ -219,13 +221,13 @@ export default function StatePage() {
                                     </div>
                                 )}
                                 {forestProducts.length > 0 && (
-                                    <div className="flex flex-col gap-4">
-                                        <h3 className="text-xl font-bold">{state.name} Forest Products</h3>
-                                        <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-col gap-4 md:pl-6 border-l-2">
+                                        <h3 className="text-xl font-bold md:text-[36px]">{state.name} Forest Products</h3>
+                                        <div className="flex flex-wrap gap-3">
                                             {forestProducts.map(product => (
                                                 <Badge
                                                     key={product.id}
-                                                    className="border-transparent bg-baize px-3 py-1.5 text-sm text-beluga"
+                                                    className="border-white bg-baize px-4 py-1.5 text-[20px] text-white min-w-[100px]"
                                                 >
                                                     {product.label}
                                                 </Badge>
@@ -241,17 +243,17 @@ export default function StatePage() {
 
             {/* Economic Impact -- optional */}
             {impact && impactStats.length > 0 && (
-                <section className="w-full bg-background">
-                    <div className="mx-auto flex w-full max-w-full flex-col items-center gap-8 px-5 py-10 text-center md:w-6xl lg:w-7xl">
+                <section className="w-full bg-background text-black">
+                    <div className="mx-auto flex w-full max-w-full flex-col items-center gap-8 px-5 py-10 md:w-6xl lg:w-7xl">
                         {impact.headline && (
-                            <h2 className="text-2xl font-bold lg:text-3xl">{impact.headline}</h2>
+                            <h2 className="text-3xl font-bold md:text-[42px]">{impact.headline}</h2>
                         )}
                         <div className="flex w-full flex-col justify-center gap-6 md:flex-row">
                             {impactStats.map(([label, value], i) => (
-                                <Card key={i} className="max-w-full flex-1 items-center py-8 text-center md:max-w-70">
-                                    <CardContent>
-                                        <p className="text-3xl font-bold">{value}</p>
-                                        <p className="mt-2 text-sm text-muted-foreground">{label}</p>
+                                <Card key={i} className="max-w-full flex-1 items-center py-8 md:max-w-[300px] border-coupe border-2">
+                                    <CardContent className="w-full">
+                                        <p className="text-[42px] font-extrabold">{value}</p>
+                                        <p className="mt-2 text-[20px]">{label}</p>
                                     </CardContent>
                                 </Card>
                             ))}
@@ -262,31 +264,34 @@ export default function StatePage() {
 
             {/* Forestry Agency & Available Assistance -- optional */}
             {agency && (
-                <section className="w-full bg-coupe text-beluga">
+                <section className="w-full bg-coupe text-white">
                     <div className="mx-auto flex w-full max-w-full flex-col gap-8 px-5 py-10 md:w-6xl lg:w-7xl lg:py-16">
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4 bg-aircraft rounded-md px-8 pt-8 pb-12 border-white border-1">
                             {agency.headline && (
                                 <h2 className="text-2xl font-bold lg:text-3xl">{agency.headline}</h2>
                             )}
-                            <SafeHtml html={agency.body} className="max-w-3xl text-lg" />
-                            <div className="mt-2 flex flex-wrap gap-4">
+                            <SafeHtml html={agency.body} className="max-w-3xl md:max-w-full md:pr-3 text-lg mb-4" />
+                            <div className="mt-2 flex flex-wrap gap-6">
                                 {agency.cta_1_label && agency.cta_1_url && (
-                                    <Button asChild variant="secondary">
+                                    <Button
+                                        asChild
+                                        className="bg-aircraft border-white border rounded-sm hover:bg-white hover:text-aircraft hover:border-aircraft text-lg p-6"
+                                    >
                                         <a href={agency.cta_1_url} target="_blank" rel="noreferrer">
                                             {agency.cta_1_label}
-                                            <ArrowUpRight />
+                                            <ArrowRight data-icon="inline-end" className="ml-3 size-5" />
                                         </a>
                                     </Button>
                                 )}
                                 {agency.cta_2_label && agency.cta_2_url && (
                                     <Button
                                         asChild
-                                        variant="outline"
-                                        className="border-beluga text-beluga hover:bg-beluga/10 hover:text-beluga"
+                                        
+                                        className="bg-aircraft border-white border rounded-sm hover:bg-white hover:text-aircraft hover:border-aircraft text-lg p-6"
                                     >
                                         <a href={agency.cta_2_url}>
                                             {agency.cta_2_label}
-                                            <CircleArrowRight />
+                                            <ArrowRight data-icon="inline-end" className="ml-3 size-5" />
                                         </a>
                                     </Button>
                                 )}
@@ -294,18 +299,18 @@ export default function StatePage() {
                         </div>
 
                         {categories.length > 0 && (
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-4 text-white">
                                 {agency.assistance_headline && (
-                                    <h3 className="text-xl font-bold">{agency.assistance_headline}</h3>
+                                    <h3 className="text-4xl font-bold">{agency.assistance_headline}</h3>
                                 )}
-                                {agency.assistance_copy && <p>{agency.assistance_copy}</p>}
+                                {agency.assistance_copy && <p className="text-xl">{agency.assistance_copy}</p>}
                                 <div className="mt-2 grid grid-cols-1 gap-6 md:grid-cols-2">
                                     {categories.map(category => (
-                                        <Card key={category.id} className="border-transparent bg-aircraft text-beluga">
+                                        <Card key={category.id} className="border-white bg-aircraft border text-white">
                                             <CardHeader>
-                                                <CardTitle className="text-lg">{category.title}</CardTitle>
+                                                <CardTitle className="font-bold text-3xl">{category.title}</CardTitle>
                                                 {category.description && (
-                                                    <p className="text-sm opacity-90">{category.description}</p>
+                                                    <p className="text-lg text-white/75">{category.description}</p>
                                                 )}
                                             </CardHeader>
                                             {(category.links?.length ?? 0) > 0 && (
@@ -314,17 +319,17 @@ export default function StatePage() {
                                                         <a
                                                             key={link.id}
                                                             href={link.url}
-                                                            className="flex items-center justify-between gap-2 border-t border-beluga/20 pt-3 first:border-t-0 first:pt-0 hover:underline"
+                                                            className="flex items-center justify-between gap-2 border-t border-white/20 hover:underline"
                                                         >
                                                             <span>
                                                                 <span className="block">{link.label}</span>
                                                                 {link.description && (
-                                                                    <span className="block text-xs opacity-80">
+                                                                    <span className="block text-xs text-white/56">
                                                                         {link.description}
                                                                     </span>
                                                                 )}
                                                             </span>
-                                                            <ArrowUpRight className="size-4 shrink-0" />
+                                                            <MoveRight className="size-6 shrink-0" />
                                                         </a>
                                                     ))}
                                                 </CardContent>
