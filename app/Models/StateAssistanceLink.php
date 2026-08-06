@@ -31,4 +31,14 @@ class StateAssistanceLink extends Model
     {
         return $this->belongsTo(StateAssistanceCategory::class, 'state_assistance_category_id');
     }
+
+    /**
+     * Links have no state_id of their own -- only a category, which itself
+     * belongs to a state. Used for the "State" list column so it's obvious
+     * which state a given link belongs to without opening the category.
+     */
+    public function stateName(): ?string
+    {
+        return $this->category?->state?->name;
+    }
 }
