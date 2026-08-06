@@ -85,15 +85,15 @@ class StatePageCrudController extends CrudController
             'name' => 'hero_img_dt',
             'label' => 'Hero Image (Desktop)',
             'type' => 'upload',
-            'upload' => true,
             'disk' => 'public',
+            'withFiles' => true,
         ]);
         CRUD::field([
             'name' => 'hero_img_mobile',
             'label' => 'Hero Image (Mobile)',
             'type' => 'upload',
-            'upload' => true,
             'disk' => 'public',
+            'withFiles' => true,
         ]);
         CRUD::field([
             'name' => 'hero_copy',
@@ -121,5 +121,18 @@ class StatePageCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    /**
+     * In order to have associated files deleted when the underlying record is deleted, we have to set up the DeleteOperation and inform of the files fields to delete.
+     */
+    protected function setupDeleteOperation(): void
+    {
+        CRUD::field('hero_image_dt')
+            ->type('upload')
+            ->withFiles();
+        CRUD::field('hero_image_mobile')
+            ->type('upload')
+            ->withFiles();
     }
 }

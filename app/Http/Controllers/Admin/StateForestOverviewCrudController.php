@@ -87,8 +87,8 @@ class StateForestOverviewCrudController extends CrudController
             'name' => 'image',
             'label' => 'Image',
             'type' => 'upload',
-            'upload' => true,
             'disk' => 'public',
+            'withFiles' => true,
         ]);
 
         foreach (range(1, 4) as $i) {
@@ -116,5 +116,17 @@ class StateForestOverviewCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    /**
+     * To delete files when DB entries are deleted, we can use setupDeleteOperation() to
+     * inform what files to delete.
+     * We could also add a handler for the Delete event to the model.
+     */
+    protected function setupDeleteOperation(): void
+    {
+        CRUD::field('image')
+            ->type('upload')
+            ->withFiles();
     }
 }
