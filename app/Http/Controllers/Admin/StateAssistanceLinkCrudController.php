@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\StateAssistanceCategory;
 use App\Http\Requests\StateAssistanceLinkRequest;
 use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -44,12 +45,36 @@ class StateAssistanceLinkCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        // avoid N+1s from the state_name model_function column below
+        $this->crud->query->with('category.state');
+
+        if (! $this->crud->getRequest()->has('order')) {
+            $this->crud->query
+                ->orderBy(
+                    StateAssistanceCategory::select('state_id')
+                        ->whereColumn('state_assistance_categories.id', 'state_assistance_links.state_assistance_category_id'),
+                    'asc'
+                )
+                ->orderBy(
+                    StateAssistanceCategory::select('sort_weight')
+                        ->whereColumn('state_assistance_categories.id', 'state_assistance_links.state_assistance_category_id'),
+                    'asc'
+                )
+                
+                ->orderBy('sort_weight', 'asc');
+        }
+
+        CRUD::column('state_name')
+            ->label('State')
+            ->type('model_function')
+            ->function_name('stateName')
+            ->orderable(true);
         CRUD::column('state_assistance_category_id')
             ->label('Category')
             ->type('select')
             ->entity('category')
             ->model('App\Models\StateAssistanceCategory')
-            ->attribute('title')
+            ->attribute('select_label')
             ->orderable(true);
         CRUD::column('label')
             ->type('text')
@@ -71,11 +96,14 @@ class StateAssistanceLinkCrudController extends CrudController
 
         CRUD::field([
             'name' => 'state_assistance_category_id',
-            'label' => 'Category',
+            'label' => 'Category (State — Category)',
             'type' => 'select',
             'entity' => 'category',
             'model' => 'App\Models\StateAssistanceCategory',
-            'attribute' => 'title',
+            'attribute' => 'select_label',
+            // groups/orders options by state so the (already state-prefixed) labels
+            // read as contiguous per-state blocks instead of being interleaved
+            'options' => fn ($query) => $query->orderBy('state_id', 'asc')->orderBy('sort_weight', 'asc')->get(),
         ]);
         CRUD::field([
             'name' => 'label',
