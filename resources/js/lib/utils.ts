@@ -36,8 +36,9 @@ export function isExternalUrl(
     try {
         parsedUrl = new URL(rUrl);
         // if parsing the url causes an exception, it's not an absolute URL
-    } catch (e) {
+    } catch {
         // removing console.error output because it's not technically an error
+        // removing the catch parameter altogether because modern JS allows that and lint complains that we defined the exception without using it
         return false;
     }
     const parsedSiteUrl = new URL(resolveUrl(siteUrl));
