@@ -95,8 +95,10 @@ class StateForestTypeCrudController extends CrudController
         CRUD::field([
             'name' => 'icon',
             'label' => 'Icon',
-            'type' => 'text',
-            'hint' => 'Icon name or class to render alongside this forest type.',
+            'type' => 'upload',
+            'disk' => 'public',
+            'withFiles' => true,
+            'hint' => 'SVG icon to render alongside this forest type.',
         ]);
         CRUD::field([
             'name' => 'sort_weight',
@@ -115,5 +117,17 @@ class StateForestTypeCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    /**
+     * To delete files when DB entries are deleted, we can use setupDeleteOperation() to
+     * inform what files to delete.
+     * We could also add a handler for the Delete event to the model.
+     */
+    protected function setupDeleteOperation(): void
+    {
+        CRUD::field('icon')
+            ->type('upload')
+            ->withFiles();
     }
 }

@@ -26,6 +26,7 @@ class StateForestTypeRequest extends FormRequest
         return [
             'state_id' => 'required|exists:states,id',
             'title' => 'required|max:255',
+            'icon' => 'nullable|mimes:svg,png',
         ];
     }
 

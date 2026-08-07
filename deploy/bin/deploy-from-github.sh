@@ -188,6 +188,7 @@ echo "Stopping Inertia SSR..."
 /usr/bin/php artisan inertia:stop-ssr
 #sudo supervisorctl restart inertia-ssr
 echo "Stopped Inertia SSR. Supervisor should restart it soon..."
+# immediately running inertia:check-ssr causes an error because the command exits with an error when ssr is not running
 /usr/bin/php artisan inertia:check-ssr
 echo "Inertia SSR restarted."
 

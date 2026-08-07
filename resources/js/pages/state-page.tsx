@@ -212,11 +212,22 @@ export default function StatePage() {
                                         <h3 className="text-xl font-bold md:text-[36px]">Regional Forest Types</h3>
                                         <ul className="flex flex-col gap-4">
                                             {forestTypes.map(type => (
-                                                <li key={type.id} className="bg-baize border border-white px-3 py-1.5 rounded-md">
-                                                    <p className="text-[20px]">{type.title}</p>
-                                                    {type.description && (
-                                                        <p className="text-sm">{type.description}</p>
+                                                <li key={type.id} className="flex items-start gap-3 bg-baize border border-white px-3 py-1.5 rounded-md">
+                                                    {storageUrl(type.icon) && (
+                                                        <img
+                                                            src={storageUrl(type.icon)}
+                                                            alt=""
+                                                            aria-hidden="true"
+                                                            role="presentation"
+                                                            className="mt-1 size-6 shrink-0"
+                                                        />
                                                     )}
+                                                    <div>
+                                                        <p className="text-[20px]">{type.title}</p>
+                                                        {type.description && (
+                                                            <p className="text-sm">{type.description}</p>
+                                                        )}
+                                                    </div>
                                                 </li>
                                             ))}
                                         </ul>
