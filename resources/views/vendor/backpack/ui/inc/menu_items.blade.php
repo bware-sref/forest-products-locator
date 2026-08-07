@@ -16,6 +16,19 @@
     <x-backpack::menu-dropdown-item title="Counties" icon="la la-hotdog" :link="backpack_url('county')" />
     <x-backpack::menu-dropdown-item title="State Resources" icon="la la-boxes" :link="backpack_url('state-resource')" />
 </x-backpack::menu-dropdown>
+@if(backpack_user()->canAny(['state_pages.see', 'state_pages.edit']))
+<x-backpack::menu-dropdown title="State Pages" icon="la la-file-alt">
+    <x-backpack::menu-dropdown-item title="Hero / Page Content" icon="la la-heading" :link="backpack_url('state-page')" />
+    <x-backpack::menu-dropdown-item title="Contacts" icon="la la-address-card" :link="backpack_url('state-contact')" />
+    <x-backpack::menu-dropdown-item title="Forest Overview" icon="la la-tree" :link="backpack_url('state-forest-overview')" />
+    <x-backpack::menu-dropdown-item title="Regional Forest Types" icon="la la-leaf" :link="backpack_url('state-forest-type')" />
+    <x-backpack::menu-dropdown-item title="Forest Products" icon="la la-boxes" :link="backpack_url('state-forest-product')" />
+    <x-backpack::menu-dropdown-item title="Economic Impact" icon="la la-chart-line" :link="backpack_url('state-economic-impact')" />
+    <x-backpack::menu-dropdown-item title="Forestry Agency" icon="la la-landmark" :link="backpack_url('state-forestry-agency')" />
+    <x-backpack::menu-dropdown-item title="Assistance Categories" icon="la la-th-list" :link="backpack_url('state-assistance-category')" />
+    <x-backpack::menu-dropdown-item title="Assistance Links" icon="la la-link" :link="backpack_url('state-assistance-link')" />
+</x-backpack::menu-dropdown>
+@endif
 @if(backpack_user()->canAny(['faqs.see', 'faqs.edit']))
 <x-backpack::menu-dropdown title="FAQs" icon="la la-question">
     <x-backpack::menu-dropdown-item title="FAQs" icon="la la-question" :link="backpack_url('faq')" />

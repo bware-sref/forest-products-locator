@@ -31,6 +31,15 @@ Route::group([
     Route::get('statistics/additions', 'StatisticsController@additions')->name('page.statistics.additions');
     Route::crud('state-resource', 'StateResourceCrudController');
     Route::crud('page-seo', 'PageSeoCrudController');
+    Route::crud('state-page', 'StatePageCrudController');
+    Route::crud('state-contact', 'StateContactCrudController');
+    Route::crud('state-forest-overview', 'StateForestOverviewCrudController');
+    Route::crud('state-forest-type', 'StateForestTypeCrudController');
+    Route::crud('state-forest-product', 'StateForestProductCrudController');
+    Route::crud('state-economic-impact', 'StateEconomicImpactCrudController');
+    Route::crud('state-forestry-agency', 'StateForestryAgencyCrudController');
+    Route::crud('state-assistance-category', 'StateAssistanceCategoryCrudController');
+    Route::crud('state-assistance-link', 'StateAssistanceLinkCrudController');
 }); // this should be the absolute last line of this file
 
 /**

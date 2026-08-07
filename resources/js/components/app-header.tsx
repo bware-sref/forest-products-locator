@@ -22,9 +22,18 @@ import {
     resolveUrl,
     isChildUrl,
 } from '@/lib/utils';
-import { home, millMap, millList, stateResources, addBusiness, faqs, contact} from '@/routes';
-import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
+import { 
+    home,
+} from '@/routes';
+import {
+    type BreadcrumbItem,
+    type NavItem,
+    type SharedData
+} from '@/types';
+import {
+    Link,
+    usePage,
+} from '@inertiajs/react';
 import { 
     Menu,
     // Search,
@@ -32,40 +41,9 @@ import {
     XIcon,
 } from 'lucide-react';
 import AppLogo from './app-logo';
-
-const mainNavItems: NavItem[] = [
-    // {
-    //     title: 'Dashboard',
-    //     href: dashboard(),
-    //     icon: LayoutGrid,
-    // },
-    {
-        title: 'Mill Map',
-        href: millMap(),
-        // icon: Map,
-    },
-    {
-        title: 'Mill List',
-        href: millList(),
-        // icon: List,
-    },
-    {
-        title: 'State Resources',
-        href: stateResources(),
-    },
-    {
-        title: 'Add Your Business',
-        href: addBusiness(),
-    },
-    {
-        title: 'FAQ',
-        href: faqs(),
-    },
-    {
-        title: 'Contact',
-        href: contact(),
-    },
-];
+import {
+    primaryNavItems,
+} from '@/config/navigation';
 
 const rightNavItems: NavItem[] = [
     // {
@@ -159,7 +137,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <div className="flex h-full flex-1 flex-col space-y-4 p-4">
                                     <div className="flex h-full flex-col justify-between text-sm">
                                         <div className="flex flex-col space-y-7">
-                                            {mainNavItems.map((item) => (
+                                            {primaryNavItems.map((item) => (
                                                 <Link
                                                     key={item.title}
                                                     href={item.href}
@@ -218,7 +196,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     <div className="ml-auto hidden h-full w-auto items-stretch justify-stretch xl:space-x-6 justify-items-end justify-self-end lg:flex">
                         <NavigationMenu className="flex h-full items-stretch justify-stretch justify-self-end">
                             <NavigationMenuList className="flex h-full items-stretch space-x-2 justify-items-end">
-                                {mainNavItems.map((item, index) => (
+                                {primaryNavItems.map((item, index) => (
                                     <NavigationMenuItem
                                         key={index}
                                         className="relative flex h-full items-center"
