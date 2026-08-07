@@ -56,6 +56,42 @@
         "guard_name": "web"
     },
     {
+        "name": "state_pages.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "state_contacts.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "state_forest_overviews.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "state_forest_types.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "state_forest_products.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "state_economic_impacts.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "state_forestry_agencies.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "state_assistance_categories.edit",
+        "guard_name": "web"
+    },
+    {
+        "name": "state_assistance_links.edit",
+        "guard_name": "web"
+    },
+    {
         "name": "statistics.see",
         "guard_name": "web"
     },

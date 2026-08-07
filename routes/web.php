@@ -4,6 +4,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\GeocodingController;
 use App\Http\Controllers\MillController;
+use App\Http\Controllers\StatePageController;
 use App\Http\Controllers\StateResourceController;
 use App\Models\PageSeo;
 // use Laravel\Fortify\Features;
@@ -107,6 +108,18 @@ Route::get('/state-resources/{state:slug}/{stateResource}', [StateResourceContro
     ->name('state-resources.show');
 
 /**
+ * State Pages
+ * The per-state marketing page (hero, contacts, forest overview, economic
+ * impact, forestry agency/assistance) -- distinct from /state-resources,
+ * which lists StateResource records.
+ */
+Route::get('/states', [StatePageController::class, 'index'])
+    ->name('states');
+
+Route::get('/states/{state:slug}', [StatePageController::class, 'show'])
+    ->name('states.show');
+
+/**
  * Contact
  * PagesController?
  * Old URL slug is sec_contact-info
@@ -163,15 +176,6 @@ Route::controller(GeocodingController::class)
         Route::match(['get', 'post'], '/reverse', 'reverseGeocode')
             ->name('reverse');
     });
-
-/**
- * Again, Backpack so standard dashboard not needed.
- */
-// Route::middleware(['auth', 'verified'])->group(function () {
-//     Route::get('dashboard', function () {
-//         return Inertia::render('dashboard');
-//     })->name('dashboard');
-// });
 
 /**
  * We're using Backpack instead of standard user stuff so I don't think we need this.

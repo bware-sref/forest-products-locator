@@ -6,42 +6,21 @@ import {
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { cn, isSameUrl } from '@/lib/utils';
-import { millMap, millList, stateResources, addBusiness, faqs, contact } from '@/routes';
-import { type NavItem, type SharedData } from '@/types';
+// import { millMap, millList, stateResources, addBusiness, faqs, contact } from '@/routes';
+import {
+    // type NavItem,
+    type SharedData
+} from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import sgsfLogo from '@img/southern-group-of-state-foresters_logo_white_horizontal@2x.png';
+import {
+    primaryNavItems,
+    sgsfNav as sGSF,
+} from '@/config/navigation';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Mill Map',
-        href: millMap(),
-    },
-    {
-        title: 'Mill List',
-        href: millList(),
-    },
-    {
-        title: 'State Resources',
-        href: stateResources(),
-    },
-    {
-        title: 'Add Your Business',
-        href: addBusiness(),
-    },
-    {
-        title: 'FAQ',
-        href: faqs(),
-    },
-    {
-        title: 'Contact',
-        href: contact(),
-    },
-];
-
-const sGSF: NavItem = {
-    title: 'Southern Group of State Foresters',
-    href: 'https://southernforests.org',
-};
+/**
+ * Externalized as sgsfNav
+ */
 
 const activeItemStyles =
     'text-velvet-900 dark:bg-velvet-800 dark:text-velvet-100';
@@ -57,7 +36,7 @@ export function AppFooter() {
                     <div className="h-full items-stretch md:items-center space-6 flex flex-col lg:flex-row w-full">
                         <NavigationMenu className="flex flex-col md:flex-row justify-stretch h-full items-stretch lg:-ml-4 w-full md:w-auto max-w-full pb-5 lg:pb-0">
                             <NavigationMenuList className="flex flex-col md:flex-row h-full items-center justify-items-start md:items-stretch md:space-x-2 md:justify-items-end">
-                                {mainNavItems.map((item, index) => (
+                                {primaryNavItems.map((item, index) => (
                                     <NavigationMenuItem
                                         key={index}
                                         className="relative flex h-full items-center"
