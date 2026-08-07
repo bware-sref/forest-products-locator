@@ -7,7 +7,7 @@ import {
 } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Seo } from '@/components/seo';
-import Hero from '@/components/hero';
+import HeroSplit from '@/components/hero-split';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -103,22 +103,21 @@ export default function StatePage() {
 
             {/* Hero -- always present */}
             <div className="w-full bg-petroleum">
-                <Hero
+                <HeroSplit
                     src={heroSrc}
                     alt={state.name}
-                    pictureClassName="col-start-1 row-start-1 h-full w-full max-w-full object-cover"
                     sources={heroSources}
                 >
-                    <div className="flex max-w-83.75 flex-col gap-6 text-white lg:max-w-3xl">
-                        <h1 className="mt-8 mb-6 w-full text-3xl leading-10 font-bold lg:text-5xl">
+                    <div className="flex max-w-83.75 flex-col gap-8 text-white md:max-w-3xl lg:max-w-4xl lg:pt-8">
+                        <h1 className="mb-10 w-full text-3xl leading-10 font-bold md:text-[45px]">
                             {statePage?.hero_headline || `${state.name} Forest Products`}
                         </h1>
                         <SafeHtml
                             html={statePage?.hero_copy}
-                            className="flex flex-col gap-3 text-lg [&_li]:ml-5 [&_ul]:list-disc"
+                            className="flex flex-col gap-3 mt-6 pr-5 text-2xl [&_li]:ml-5 [&_ul]:list-disc"
                         />
                     </div>
-                </Hero>
+                </HeroSplit>
             </div>
 
             {/* Contacts -- always present */}
