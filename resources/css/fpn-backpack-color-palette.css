@@ -9,6 +9,7 @@
      project specific colors
      */
     --color-beluga: oklch(0.9577 0.0017 247.84); /* #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
+    --color-beluga-rgb: 240, 241, 242; /* #f0f1f2 as an r,g,b triplet, for rgba()/Tabler's *-rgb variables */
     --color-coupe: oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card heading background, arrow buttons, et al */
     --color-nature: oklch(0.5509 0.0282 137.85); /* #6a7666;  footer background */
     /* --color-velvet: oklch(0.2481 0.0095 53.04); #25201d; top nav foreground */
@@ -61,7 +62,7 @@
     /* --tblr-tabler: #7c69ef; */
     --tblr-tabler: var(--color-coupe);
     /* --tblr-primary-rgb: 124, 105, 239; */
-    --tblr-primary-rgb: 47, 69, 77;
+    --tblr-primary-rgb: 106, 118, 102; /* matches --tblr-primary/--color-nature (#6a7666); was #2f454d (coupe) instead, which is also --tblr-bg-surface in dark mode -- the focus ring was rendering in nearly the same hue as its own background */
     /* --tblr-secondary-rgb: 102, 98, 108; */
     --tblr-secondary-rgb: 240, 241, 242; /* beluga */
     /* --tblr-secondary-rgb: 37, 32, 29; velvet */
@@ -138,18 +139,29 @@
 }
 
 [data-bs-theme=dark], [data-menu-theme=dark] {
-    --tblr-body-color: var(--tblr-gray-400);
-    --tblr-body-color-rgb: 160, 155, 190;
+    /**
+     text hierarchy in dark mode is one color (beluga, our off-white brand token) at
+     decreasing opacity -- body full strength, secondary .75, tertiary .5 -- rather than
+     three unrelated literals. Previously these were Tabler's stock 160,155,190 (a purple-gray
+     with no relation to this app's palette), and --tblr-body-color-rgb didn't even match the
+     hex in --tblr-body-color right next to it.
+     --tblr-light-text is used throughout color-adjustments.css (placeholders, select2, etc.)
+     but Tabler never actually defines it anywhere -- not in @tabler/core, not in theme-tabler's
+     own CSS. Defining it here fixes every rgba(var(--tblr-light-text), ...) call site.
+    */
+    --tblr-body-color: var(--color-beluga);
+    --tblr-body-color-rgb: var(--color-beluga-rgb);
     --tblr-body-bg: #181818;
     --tblr-body-bg-rgb: 24, 24, 24;
     --tblr-emphasis-color: #fff;
     --tblr-emphasis-color-rgb: 255, 255, 255;
-    --tblr-secondary-color: rgba(160, 155, 190, .75);
-    --tblr-secondary-color-rgb: 160, 155, 190;
+    --tblr-secondary-color: rgba(var(--color-beluga-rgb), .75);
+    --tblr-secondary-color-rgb: var(--color-beluga-rgb);
     --tblr-secondary-bg: #211d3b;
     --tblr-secondary-bg-rgb: 33, 29, 59;
-    --tblr-tertiary-color: rgba(160, 155, 190, .5);
-    --tblr-tertiary-color-rgb: 160, 155, 190;
+    --tblr-tertiary-color: rgba(var(--color-beluga-rgb), .5);
+    --tblr-tertiary-color-rgb: var(--color-beluga-rgb);
+    --tblr-light-text: var(--color-beluga-rgb);
     --tblr-tertiary-bg: #1e1633;
     --tblr-tertiary-bg-rgb: 30, 22, 51;
     --tblr-primary-text-emphasis: #b0a5f5;
