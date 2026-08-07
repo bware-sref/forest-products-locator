@@ -2,6 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import DOMPurify from 'isomorphic-dompurify';
 import {
     type PageSeoOverride,
+    SeoDefaults,
     State,
 } from '@/types';
 import { usePage } from '@inertiajs/react';
@@ -17,16 +18,15 @@ import {
 } from '@/components/ui/card';
 import {
     ArrowRight,
-    ArrowUpRight,
-    CircleArrowRight,
     Mail,
-    // MapPin,
     MoveRight,
     Phone,
 } from 'lucide-react';
 import heroFallback from '@img/pine-trees_short.jpg';
 import mobileHeroFallback from '@img/pine-trees_short-390w.jpg';
 import mobileHeroFallback2x from '@img/pine-trees_short-780w.jpg';
+
+import { isExternalUrl } from '@/lib/utils';
 
 /** Backpack's upload field stores a path relative to the public disk. */
 function storageUrl(path?: string | null): string | undefined {
@@ -50,7 +50,10 @@ export default function StatePage() {
         state: State;
         pageTitle?: string;
         pageSeo: PageSeoOverride;
+        seo: SeoDefaults;
     }>();
+
+    const siteUrl = page.props.seo.siteUrl;
 
     const state = page.props.state;
     const statePage = state.state_page;
@@ -133,7 +136,7 @@ export default function StatePage() {
                         </div>
                         <div className="flex w-full flex-col flex-wrap justify-center gap-5 md:flex-row Xbg-purple-500">
                             {contacts.map(contact => (
-                                <Card key={contact.id} className="w-full max-w-full text-left md:max-w-[609px] border-aircraft border-2 bg-white">
+                                <Card key={contact.id} className="w-full max-w-full text-left md:max-w-152.25 border-aircraft border-2 bg-white">
                                     <CardContent className="flex flex-col gap-1 text-coupe">
                                         {contact.name && <p className="font-semibold text-[22px]">{contact.name}</p>}
                                         {contact.title && (
@@ -178,7 +181,7 @@ export default function StatePage() {
                 <section className="w-full bg-nature text-beluga">
                     <div className="mx-auto flex w-full max-w-full flex-col gap-8 px-5 py-10 md:w-6xl lg:w-7xl lg:py-16">
                         <div className="flex flex-col items-center gap-8 lg:flex-row">
-                            <div className="flex flex-1 flex-col gap-4 md:pr-16 self-start md:max-w-[650px]">
+                            <div className="flex flex-1 flex-col gap-4 md:pr-16 self-start md:max-w-162.5">
                                 {overview.headline && (
                                     <h2 className="text-2xl font-bold lg:text-[45px]">{overview.headline}</h2>
                                 )}
@@ -198,7 +201,7 @@ export default function StatePage() {
                                 <img
                                     src={overviewImage}
                                     alt={overview.headline || state.name}
-                                    className="max-w-full md:max-w-[527px] flex-1 rounded-lg md:ml-auto"
+                                    className="max-w-full md:max-w-131.75 flex-1 rounded-lg md:ml-auto"
                                 />
                             )}
                         </div>
@@ -227,7 +230,7 @@ export default function StatePage() {
                                             {forestProducts.map(product => (
                                                 <Badge
                                                     key={product.id}
-                                                    className="border-white bg-baize px-4 py-1.5 text-[20px] text-white min-w-[100px]"
+                                                    className="border-white bg-baize px-4 py-1.5 text-[20px] text-white min-w-25"
                                                 >
                                                     {product.label}
                                                 </Badge>
@@ -266,7 +269,7 @@ export default function StatePage() {
             {agency && (
                 <section className="w-full bg-coupe text-white">
                     <div className="mx-auto flex w-full max-w-full flex-col gap-8 px-5 py-10 md:w-6xl lg:w-7xl lg:py-16">
-                        <div className="flex flex-col gap-4 bg-aircraft rounded-md px-8 pt-8 pb-12 border-white border-1">
+                        <div className="flex flex-col gap-4 bg-aircraft rounded-md px-8 pt-8 pb-12 border-white border">
                             {agency.headline && (
                                 <h2 className="text-2xl font-bold lg:text-3xl">{agency.headline}</h2>
                             )}
@@ -320,6 +323,7 @@ export default function StatePage() {
                                                             key={link.id}
                                                             href={link.url}
                                                             className="flex items-center justify-between gap-2 border-t border-white/20 hover:underline"
+                                                            target={isExternalUrl(link.url, siteUrl) ? '_blank' : '_self'}
                                                         >
                                                             <span>
                                                                 <span className="block">{link.label}</span>
