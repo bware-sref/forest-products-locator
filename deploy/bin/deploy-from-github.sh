@@ -187,9 +187,20 @@ echo "Job queue restarted."
 echo "Stopping Inertia SSR..."
 /usr/bin/php artisan inertia:stop-ssr
 #sudo supervisorctl restart inertia-ssr
-echo "Stopped Inertia SSR. Supervisor should restart it soon..."
+echo "Stopped Inertia SSR. Waiting for Supervisor to restart it..."
 # immediately running inertia:check-ssr causes an error because the command exits with an error when ssr is not running
-/usr/bin/php artisan inertia:check-ssr
+# but we can use 'until' to handle this because it suppresses errors on the command it executes!
+SSR_TIMEOUT=30
+SSR_ELAPSED=0
+# until checks for exit code 0 (all good (or at least no bad))
+until /usr/bin/php artisan inertia:check-ssr > /dev/null 2>&1; do
+	if [ "$SSR_ELAPSED" -ge "$SSR_TIMEOUT" ]; then
+		echo "Error: Inertia SSR failed to restart within {$SSR_TIMEOUT} seconds." >&2
+		exit 1
+	fi
+	sleep 1
+	SSR_ELAPSED=$((SSR_ELAPSED + 1))
+done
 echo "Inertia SSR restarted."
 
 # return to site directory
