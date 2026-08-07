@@ -37,7 +37,7 @@ export function isExternalUrl(
         parsedUrl = new URL(rUrl);
         // if parsing the url causes an exception, it's not an absolute URL
     } catch (e) {
-        console.error(`exception when parsing URL: '${rUrl}': `, e);
+        // removing console.error output because it's not technically an error
         return false;
     }
     const parsedSiteUrl = new URL(resolveUrl(siteUrl));
