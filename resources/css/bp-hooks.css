@@ -1,3 +1,68 @@
+/**
+ The list-page per-row "Actions" overflow dropdown (rendered by vendor JS in
+ datatable_logic.blade.php as plain btn-outline-primary) is just thin text/border at
+ button-text size -- too subtle. Filling it solid like its own hover state is more reliable
+ than trying to make an outline-only button pop.
+*/
+.actions-buttons-column {
+    background-color: var(--tblr-primary);
+    border-color: var(--tblr-primary);
+    color: var(--color-beluga);
+}
+
+.actions-buttons-column:hover,
+.actions-buttons-column:focus {
+    background-color: var(--color-beluga);
+    border-color: var(--tblr-primary);
+    color: var(--tblr-primary);
+}
+
+/**
+ The delete-confirmation dialog (buttons/delete.blade.php) is the old "sweetalert" library
+ (v2.1.2), not a Bootstrap modal. Its buttons carry a `.swal-button` base class (bundled CSS:
+ color:#fff) alongside our own `className: "bg-secondary"` addition -- there's no `.sweet-alert`
+ wrapper class anywhere in the bundle, so a selector requiring one is dead on arrival.
+ `.swal-button.bg-secondary` (two classes) outranks the library's own single-class rules
+ (`.swal-button`, `.swal-button--cancel`), so it wins regardless of source order.
+ Hardcoded rather than a --tblr-* token: sweetalert's own dialog chrome (including this
+ button's background) isn't theme-aware at all, so a color that flips with dark/light mode
+ would drift out of sync with a background that never does. Confirmed black reads fine
+ against the background in both modes.
+*/
+.swal-button.bg-secondary {
+    color: #000 !important;
+}
+
+/**
+ Stronger focus indicator: theme-tabler's own .form-control:focus rule (a workaround
+ for an upstream Tabler bug, see its style.css comment) uses a 50%-opacity border and a
+ 25%-opacity ring, which -- even now that --tblr-primary-rgb matches --tblr-primary --
+ reads as fairly subtle. Bumping both here.
+*/
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--tblr-primary);
+    box-shadow: 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), .5);
+}
+
+/**
+ Dark mode explicitly zeroes out select2's focus box-shadow (--bp-select2-focus-box-shadow:
+ none in color-adjustments.css) so select2 fields -- used for most relationship fields --
+ get no focus ring at all, just a border color change. Give it the same ring as above.
+*/
+html[data-bs-theme=dark] {
+    --bp-select2-focus-box-shadow: 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), .5);
+}
+
+/**
+ Tabler core only tints selection background at 10% opacity and never sets a
+ foreground color, so selected text barely stands out anywhere, inputs included.
+*/
+::selection {
+    background-color: var(--tblr-primary);
+    color: var(--color-beluga);
+}
+
 [bp-section=crud-operation-list] {
     .bp-datagrid-title {
         color: #fff;
@@ -14,6 +79,31 @@
     form .help-block {
         color: --var(--color-beluga);
     }
+}
+
+/**
+ theme-tabler's color-adjustments.css renders typed input text at 50% opacity in dark
+ mode (rgba(var(--tblr-body-color-rgb), 0.5)) -- fine for placeholders, unreadably dim
+ for what the admin actually typed. Full opacity here, same selectors as the vendor rule.
+*/
+[data-bs-theme=dark] input:not(input[type=hidden]).form-control:not(:disabled),
+[data-bs-theme=dark] textarea.form-control:not(:disabled),
+[data-bs-theme=dark] select.form-control:not(:disabled),
+[data-bs-theme=dark] select.form-select:not(:disabled) {
+    color: rgb(var(--tblr-body-color-rgb));
+}
+
+/**
+ A few color-adjustments.css selectors use --tblr-light-text as a full color value
+ (`color: var(--tblr-light-text)`) rather than wrapping it in rgba(), unlike most of that
+ file's other uses. We define --tblr-light-text as a bare r,g,b triplet (matching the
+ majority pattern), so these specific selectors need the rgb() wrapper added back.
+*/
+[data-bs-theme=dark] .input-group button.popup_selector:hover,
+[data-bs-theme=dark] .input-group button.clear_elfinder_picker:hover,
+[data-bs-theme=dark] span.cke_button_label,
+[data-bs-theme=dark] span.cke_combo_text {
+    color: rgb(var(--tblr-light-text)) !important;
 }
 
 /**

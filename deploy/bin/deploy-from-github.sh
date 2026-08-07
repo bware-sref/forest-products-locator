@@ -173,6 +173,12 @@ echo "Building front-end assets..."
 echo "Dumping and rebuilding caches..."
 /usr/bin/php artisan optimize
 
+# storage/ is a shared symlink across every release (see above), and Backpack's Basset
+# cache lives inside it -- without this, a new release's vendor/CSS changes would keep
+# getting served from whatever a previous release last compiled.
+echo "Rebuilding Backpack Basset cache..."
+/usr/bin/php artisan basset:fresh
+
 # This will cause the queue workers to exit when any running jobs are complete.
 echo "Sending graceful exit signal to queue workers..."
 /usr/bin/php artisan queue:restart
