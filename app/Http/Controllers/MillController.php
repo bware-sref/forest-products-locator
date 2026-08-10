@@ -218,7 +218,7 @@ class MillController extends Controller
         $validated = $request->validated();
         Log::debug('request params for export', ['validated' => $validated]);
         $mills = Mill::apiSearch($validated);
-        Log::debug('exporting mills...', ['count' => count($mills)]);
+        Log::debug('exporting mills...', ['count' => \count($mills)]);
 
         return Excel::download(new MillsExport($mills), 'mills.xlsx');
     }
@@ -253,7 +253,7 @@ class MillController extends Controller
                  */
 
             // easy way to inform the front end of the api url
-            'millsApiUrl' => route('api.v1.mills'),
+            'millsApiUrl' => route('api.v1.mills.index'),
         ];
     }
 }

@@ -122,7 +122,7 @@ export default function StatePage() {
 
             {/* Contacts -- always present */}
             {contacts.length > 0 && (
-                <section className="w-full bg-white">
+                <section className="w-full bg-white" id="contacts">
                     <div className="mx-auto flex w-full max-w-full flex-col items-center gap-8 px-5 py-10 text-center md:w-6xl lg:w-7xl">
                         <div className="flex flex-col gap-2">
                             <h2 className="text-2xl font-bold md:text-[38px]">

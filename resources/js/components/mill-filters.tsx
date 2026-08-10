@@ -23,13 +23,15 @@ import { Button } from '@/components/ui/button';
 import {
     LocateFixed,
     Loader2,
+    MapPinIcon,
     SearchIcon,
     // SlidersHorizontalIcon,
 } from 'lucide-react';
 import {
     ChangeEvent,
     MouseEventHandler,
-    // useState,
+    type SyntheticEvent,
+    useState,
 } from 'react';
 import {
     InputSelect,
@@ -103,9 +105,29 @@ export interface MillFiltersProps {
     className?: ClassValue;
 
     // --- Proximity / geolocation ---
+    /** Status of the browser Geolocation API's own permission/request cycle only. */
     geolocationStatus: GeolocationStatus;
     onRequestLocationClick: MouseEventHandler<HTMLButtonElement>;
     onRadiusSelectChange: (radius: string) => void;
+    /**
+     * Whether a usable location (from either the browser or a custom
+     * address) is currently active. Gates the radius dropdown and the
+     * "location is set" summary — independent of geolocationStatus, since a
+     * custom address never touches the browser's permission state.
+     */
+    isLocationActive: boolean;
+
+    // --- Custom (typed-address) location ---
+    /** Submits the typed address to the geocoding endpoint. */
+    onCustomLocationSubmit: (address: string) => void;
+    /** Clears whichever location (geolocation or custom) is currently active. */
+    onResetLocationClick: MouseEventHandler<HTMLButtonElement>;
+    /** True while a custom location lookup is in flight. */
+    isGeocoding?: boolean;
+    /** Set when the most recent custom location lookup failed. */
+    geocodeError?: string | null;
+    /** Normalized address for the active custom location; null for browser geolocation. */
+    locationLabel?: string | null;
 
     // add a mill count
     millCount?: number;
@@ -155,11 +177,35 @@ export default function MillFilters({
     geolocationStatus = 'idle',
     onRequestLocationClick,
     onRadiusSelectChange,
+    isLocationActive = false,
+    onCustomLocationSubmit,
+    onResetLocationClick,
+    isGeocoding = false,
+    geocodeError = null,
+    locationLabel = null,
     millCount = 0,
     ...props
 }: MillFiltersProps) {
 
     const countiesDisabled: boolean = (counties && counties.length && counties.length > 0) ? false : true;
+
+    /** Whether the custom-location address form is currently displayed in place of the two location buttons. */
+    const [isChoosingLocation, setIsChoosingLocation] = useState(false);
+    /** Controlled value of the custom-location address input. */
+    const [addressInput, setAddressInput] = useState('');
+
+    const handleCustomLocationFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const trimmed = addressInput.trim();
+        if (!trimmed) return;
+        onCustomLocationSubmit(trimmed);
+    };
+
+    const handleResetClick: MouseEventHandler<HTMLButtonElement> = (event) => {
+        setIsChoosingLocation(false);
+        setAddressInput('');
+        onResetLocationClick(event);
+    };
 
     // const [position, setPosition] = useState<GeolocationPosition | null>(null);
 
@@ -182,7 +228,6 @@ export default function MillFilters({
     // });
 
     // geolocation properties
-    const proximityEnabled = geolocationStatus === 'granted';
     const proximityDisabledReason = GEOLOCATION_DISABLED_REASON[geolocationStatus];
 
     console.log('millFilters.searchParams: ', searchParams);
@@ -257,40 +302,115 @@ export default function MillFilters({
                          * are grouped together so they read as a single control.
                          */}
                         <div className="flex flex-col gap-2">
-                            {/* Location request button */}
-                            <Button
-                                type="button"
-                                onClick={onRequestLocationClick}
-                                disabled={
-                                    geolocationStatus === 'requesting' ||
-                                    geolocationStatus === 'granted' ||
-                                    geolocationStatus === 'denied' ||
-                                    geolocationStatus === 'unavailable'
-                                }
-                                className="bg-coupe text-beluga hover:text-beluga w-full justify-start gap-2 font-bold"
-                                hidden={geolocationStatus === 'granted'}
-                            >
-                                {geolocationStatus === 'requesting' ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                    <LocateFixed className="h-4 w-4" />
-                                )}
-                                {geolocationStatus === 'granted'
-                                    ? 'Location granted'
-                                    : geolocationStatus === 'requesting'
-                                    ? 'Requesting location…'
-                                    : 'Use my location'}
-                            </Button>
+                            {/**
+                             * Three mutually exclusive states:
+                             * 1. A location is already active (either source) — show the
+                             *    normalized address (or a generic message for geolocation)
+                             *    plus a link to reset it. isLocationActive is the single
+                             *    source of truth here regardless of which button produced
+                             *    the coordinates — it's independent of geolocationStatus.
+                             * 2. The custom-location form is open — show the address input.
+                             *    Reachable independently of geolocationStatus, since typing
+                             *    an address doesn't touch the browser's location permission.
+                             * 3. Neither of the above — show the two location buttons.
+                             */}
+                            {isLocationActive ? (
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-beluga text-sm">
+                                        {locationLabel ? ( 
+                                            <strong>{locationLabel}</strong> 
 
-                            {/* Radius dropdown — disabled until location is granted */}
+                                        ) : (
+                                            'Using your current location'
+                                        )}
+                                    </p>
+                                    <Button
+                                        type="button"
+                                        onClick={handleResetClick}
+                                        className="font-bold text-beluga border hover:bg-beluga hover:text-velvet text-sm text-left w-fit"
+                                    >
+                                        Reset Location
+                                    </Button>
+                                </div>
+                            ) : isChoosingLocation ? (
+                                <form className="flex flex-col gap-2" onSubmit={handleCustomLocationFormSubmit}>
+                                    <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga has-[[data-slot=input-group-control]:focus-visible]:ring-coupe">
+                                        <InputGroupInput
+                                            id="customLocation"
+                                            className="text-velvet dark:text-velvet"
+                                            placeholder="Enter an address, city, or zip..."
+                                            value={addressInput}
+                                            onChange={(event) => setAddressInput(event.target.value)}
+                                            disabled={isGeocoding}
+                                            autoFocus
+                                        />
+                                        <InputGroupAddon align="inline-end">
+                                            <InputGroupButton
+                                                type="submit"
+                                                aria-label="Look up location"
+                                                title="Look up location"
+                                                size="icon-sm"
+                                                className="bg-coupe text-beluga rounded-full disabled:opacity-100"
+                                                disabled={isGeocoding || !addressInput.trim()}
+                                            >
+                                                {isGeocoding ? (
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                ) : (
+                                                    <SearchIcon />
+                                                )}
+                                            </InputGroupButton>
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                    {geocodeError && (
+                                        <p className="text-sm text-red-400">{geocodeError}</p>
+                                    )}
+                                    <Button
+                                        type="button"
+                                        onClick={() => setIsChoosingLocation(false)}
+                                        className="text-beluga border font-bold hover:bg-beluga hover:text-velvet text-sm text-left w-fit"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </form>
+                            ) : (
+                                <div className="flex flex-col gap-2 md:flex-row">
+                                    <Button
+                                        type="button"
+                                        onClick={onRequestLocationClick}
+                                        disabled={
+                                            geolocationStatus === 'requesting' ||
+                                            geolocationStatus === 'denied' ||
+                                            geolocationStatus === 'unavailable'
+                                        }
+                                        className="bg-coupe text-beluga border hover:text-beluga w-full justify-center gap-2 font-bold md:max-w-1/2 md:flex-1 relative"
+                                    >
+                                        {geolocationStatus === 'requesting' ? (
+                                            <Loader2 className="h-4 w-4 animate-spin absolute left-3" />
+                                        ) : (
+                                            <LocateFixed className="h-4 w-4 absolute left-3" />
+                                        )}
+                                        {geolocationStatus === 'requesting' ? 'Requesting location…' : 'Use my location'}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        onClick={() => setIsChoosingLocation(true)}
+                                        className="bg-beluga text-velvet border hover:bg-velvet hover:text-beluga w-full justify-center gap-2 font-bold md:max-w-1/2 md:flex-1 relative"
+                                    >
+                                        <MapPinIcon className="h-4 w-4 absolute left-3" />
+                                        Choose location
+                                    </Button>
+                                </div>
+                            )}
+
+                            {/* Radius dropdown — disabled until a location (either source) is active */}
                             <div
                                 hidden={
                                     !(
-                                    geolocationStatus === 'granted' ||
+                                    isLocationActive ||
                                     geolocationStatus === 'denied' ||
                                     geolocationStatus === 'unavailable'
                                     )
-                                } 
+                                }
                             >
                                 <TooltipProvider>
                                     <Tooltip>
@@ -301,7 +421,7 @@ export default function MillFilters({
                                          */}
                                         <TooltipTrigger asChild>
                                             <span className="w-full z-100" hidden={
-                                                !(geolocationStatus === 'granted' ||
+                                                !(isLocationActive ||
                                                 geolocationStatus === 'denied' ||
                                                 geolocationStatus === 'unavailable')
                                             }
@@ -313,7 +433,7 @@ export default function MillFilters({
                                                     onValueChange={onRadiusSelectChange}
                                                     placeholder="Select a distance..."
                                                     clearable={true}
-                                                    disabled={!proximityEnabled}
+                                                    disabled={!isLocationActive}
                                                     value={searchParams.radius || ''}
                                                 >
                                                     {(provided) => (
@@ -326,7 +446,7 @@ export default function MillFilters({
                                                 </InputSelect>
                                             </span>
                                         </TooltipTrigger>
-                                        {!proximityEnabled && proximityDisabledReason && (
+                                        {!isLocationActive && proximityDisabledReason && (
                                             <TooltipContent side="right" className="max-w-56 z-101">
                                                 <p>{proximityDisabledReason}</p>
                                             </TooltipContent>

@@ -321,6 +321,37 @@ address dt::after {
 }
 
 /**
+ * Neutralize the browser's native autofill highlight in the mill filters'
+ * text-search and custom-location fields, which otherwise paints its own
+ * background straight onto the (square-cornered) <input>, ignoring our
+ * theme and, without overflow-hidden on InputGroup, visibly poking past
+ * its rounded pill shape. Repainting with our own beluga/velvet colors
+ * keeps the field looking identical to its non-autofilled state.
+ * `font: inherit` is needed too — the same UA stylesheet forces its own
+ * font-family (Arial, observed in Chrome) independent of the color/shadow
+ * override above.
+ * Split into two rules (rather than one comma-joined selector) because a
+ * browser that doesn't understand one of :-webkit-autofill / :autofill
+ * would otherwise drop the whole rule.
+ */
+[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:-webkit-autofill,
+[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:-webkit-autofill:hover,
+[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:-webkit-autofill:focus,
+[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:-webkit-autofill:active {
+  font: inherit;
+  -webkit-text-fill-color: var(--color-velvet);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-beluga) inset;
+  caret-color: var(--color-velvet);
+  transition: background-color 5000s ease-in-out 0s;
+}
+[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:autofill {
+  font: inherit;
+  -webkit-text-fill-color: var(--color-velvet);
+  box-shadow: 0 0 0 1000px var(--color-beluga) inset;
+  caret-color: var(--color-velvet);
+}
+
+/**
  * constrain height of input selects in mill filters
  */
 .input-select-popout {
