@@ -3,7 +3,7 @@ import {
     type Mill,
     type SearchParams,
 } from '@/types';
-import { geocode } from '@/routes/geocoding';
+import { geocode } from '@/routes/api/v1/geocoding';
 
 /**
  * Fetch mills from the API.
