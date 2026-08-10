@@ -115,5 +115,16 @@
         },
         "jsx": "react-jsx"
     },
-    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.tsx"]
+    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.tsx"],
+    /**
+     * Wayfinder generates these from Backpack's own vendor package routes
+     * (server-rendered Blade admin panel, not called from React/Inertia) —
+     * nothing outside these directories imports from them. Excluded rather
+     * than fixed because the underlying bug is in Backpack's own route file
+     * (backpack/crud's base.php registers GET and POST to the identical
+     * '/admin/logout' URI, which collides in Wayfinder's URI-keyed
+     * dictionary) and will keep regenerating on every `wayfinder:generate`
+     * run regardless of anything we do here.
+     */
+    "exclude": ["resources/js/actions/Backpack/**", "resources/js/routes/backpack/**"]
 }
