@@ -336,6 +336,27 @@ export type SearchParams = {
 export type GeolocationStatus = 'idle' | 'requesting' | 'granted' | 'denied' | 'unavailable';
 
 /**
+ * A single result from GeocodingController::geocode, as shaped by
+ * GeocodingService::geocode(). `label` is the full, normalized address
+ * suitable for display.
+ */
+export interface GeocodeResult {
+    label: string | null;
+    longitude: number | null;
+    latitude: number | null;
+    country?: string | null;
+    country_code?: string | null;
+    state?: string | null;
+    state_code?: string | null;
+    county?: string | null;
+    city?: string | null;
+    zip?: string | null;
+    street?: string | null;
+    street_number?: string | null;
+    street_address?: string | null;
+}
+
+/**
  * for mill map and mill list
  * It's the same as MillListProps, so it should probably just be one type for both.
  */
