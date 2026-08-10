@@ -1,4 +1,9 @@
-import { type Mill, type SearchParams } from '@/types';
+import {
+    type GeocodeResult,
+    type Mill,
+    type SearchParams,
+} from '@/types';
+import { geocode } from '@/routes/api/v1/geocoding';
 
 /**
  * Fetch mills from the API.
@@ -32,5 +37,31 @@ export async function fetchMills(
             console.error(`Error fetching mills: ${error.message}`);
         }
         return [];
+    }
+}
+
+/**
+ * Look up coordinates for a free-form address via GeocodingController::geocode.
+ *
+ * @param address - Free-form address, city, or zip typed by the user
+ * @param signal  - Optional AbortSignal so the caller can cancel in-flight requests
+ * @returns       - The best-matching result, or null if none was found or the request failed
+ */
+export async function geocodeAddress(
+    address: string,
+    signal?: AbortSignal,
+): Promise<GeocodeResult | null> {
+    try {
+        const response = await fetch(geocode.url({ query: { address } }), { signal });
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+        const data = await response.json() as { results: GeocodeResult[] | null };
+        return data.results?.[0] ?? null;
+    } catch (error) {
+        if (error instanceof Error && error.name !== 'AbortError') {
+            console.error(`Error geocoding address: ${error.message}`);
+        }
+        return null;
     }
 }

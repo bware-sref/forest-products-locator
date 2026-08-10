@@ -11,6 +11,7 @@ import {
 import { debounce } from 'lodash-es';
 import {
     type County,
+    type GeocodeResult,
     type GeolocationStatus,
     type Mill,
     type MillType,
@@ -18,7 +19,10 @@ import {
     type State,
     type WoodSpecies,
 } from '@/types';
-import { fetchMills } from '@/lib/api';
+import {
+    fetchMills,
+    geocodeAddress,
+} from '@/lib/api';
 
 /**
  * Maps state IDs to their county lists.
@@ -54,6 +58,21 @@ export function normalizeStates(states: State[]): State[] {
         value: state.value ?? String(state.id),
         label: state.label ?? state.name,
     }));
+}
+
+/**
+ * Builds a short display string for a geocode result — street, city, state,
+ * and a 5-digit zip — omitting country and any ZIP+4 suffix. The API's own
+ * `label` is the full normalized address (country included), which is more
+ * detail than MillFilters wants to show once a custom location is active.
+ * Defined outside the hook so it isn't recreated on every render.
+ */
+export function formatLocationLabel(result: GeocodeResult): string {
+    const zip = result.zip?.split('-')[0];
+    const cityStateZip = [result.city, [result.state_code, zip].filter(Boolean).join(' ')]
+        .filter(Boolean)
+        .join(', ');
+    return [result.street_address, cityStateZip].filter(Boolean).join(', ');
 }
 
 async function downloadExport(params: SearchParams, token: string) {
@@ -130,8 +149,10 @@ export interface UseMillsReturn {
 
     // --- Proximity / geolocation ---
     /**
-     * Current status of the browser Geolocation API request.
-     * Drives the enabled/disabled state and tooltip of the proximity controls.
+     * Status of the browser Geolocation API's own permission/request cycle
+     * only — never repurposed to mean "a location is active" (see
+     * isLocationActive for that). Drives the "Use my location" button's
+     * disabled state and the radius dropdown's tooltip explanation.
      */
     geolocationStatus: GeolocationStatus;
     /**
@@ -146,6 +167,39 @@ export interface UseMillsReturn {
     coordinates: {lat: number, lng: number} | null;
 
     radius: string | null;
+
+    /**
+     * Handler for the custom location form's submit in MillFilters. Geocodes
+     * the given address and, on success, sets coordinates and a display
+     * label without touching geolocationStatus.
+     */
+    handleCustomLocationSubmit: (address: string) => void;
+    /**
+     * Whether a usable location (from either source) is currently active.
+     * Drives the radius dropdown and MillFilters' "location is set" summary.
+     */
+    isLocationActive: boolean;
+    /**
+     * True while a custom location lookup is in flight.
+     */
+    isGeocoding: boolean;
+    /**
+     * Set when the most recent custom location lookup failed to resolve to
+     * a usable address. Cleared as soon as another lookup starts.
+     */
+    geocodeError: string | null;
+    /**
+     * The normalized address label for the active custom location, if any.
+     * Null when the active location came from browser geolocation instead.
+     */
+    locationLabel: string | null;
+    /**
+     * Handler for the "reset location" link in MillFilters. Clears
+     * coordinates, radius, and geolocation/custom-location state so the
+     * filters revert to showing the "Use my location" / "Choose location"
+     * buttons.
+     */
+    handleResetLocationClick: MouseEventHandler<HTMLButtonElement>;
 }
 
 /**
@@ -388,8 +442,59 @@ export function useMills({
     // this probably obviates coordinatesRef
     const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
     const [radius, setRadius] = useState<string | null>(null);
-    
+
     const [geolocationStatus, setGeolocationStatus] = useState<GeolocationStatus>('idle');
+
+    /**
+     * On mount, silently check whether the browser already has a stored
+     * decision for this origin's geolocation permission — the Permissions
+     * API lets us read this without triggering a prompt, unlike
+     * getCurrentPosition(). This only ever seeds geolocationStatus (so e.g.
+     * "Use my location" isn't shown disabled) and, if already granted,
+     * fires a throwaway getCurrentPosition() call purely to warm up the
+     * device's location subsystem for a snappier response later.
+     *
+     * This deliberately never sets coordinates/isLocationActive — MillFilters
+     * must always start on its two location buttons, and the user must
+     * always click "Use my location" to actually apply a position, even on
+     * a repeat visit where permission was already granted.
+     */
+    useEffect(() => {
+        if (!navigator.permissions?.query) {
+            return;
+        }
+
+        let cancelled = false;
+
+        navigator.permissions.query({ name: 'geolocation' }).then((status) => {
+            if (cancelled) return;
+
+            if (status.state === 'granted') {
+                setGeolocationStatus('granted');
+                // Result intentionally discarded — see comment above.
+                navigator.geolocation.getCurrentPosition(() => {}, () => {});
+            } else if (status.state === 'denied') {
+                setGeolocationStatus('denied');
+            }
+            // 'prompt' means no decision yet — leave geolocationStatus at 'idle'.
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    /**
+     * Custom (typed-address) location lookup state. geolocationStatus tracks
+     * only the browser Geolocation API's own permission/request outcome, so
+     * a successful custom-address lookup never touches it — whether a
+     * location is active at all (for the radius dropdown and MillFilters'
+     * "location is set" UI) is instead read off `coordinates` directly, via
+     * `isLocationActive` below.
+     */
+    const [isGeocoding, setIsGeocoding] = useState<boolean>(false);
+    const [geocodeError, setGeocodeError] = useState<string | null>(null);
+    const [locationLabel, setLocationLabel] = useState<string | null>(null);
 
     const handleRequestLocationClick: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
         if (! navigator.geolocation) {
@@ -408,6 +513,10 @@ export function useMills({
                 };
                 setCoordinates(coordinatesRef.current);
                 setGeolocationStatus('granted');
+                // No address label for browser geolocation — MillFilters falls
+                // back to a generic "location is set" message when this is null.
+                setLocationLabel(null);
+                setGeocodeError(null);
                 // Don't fire a proximity fetch yet, the user still needs to pick a radius.
                 // Coordinates are ready and waiting in the ref.
             },
@@ -456,6 +565,61 @@ export function useMills({
         });
     }, []);
 
+    /**
+     * Geocodes a free-form address typed into MillFilters' custom location
+     * form. On success this sets coordinates and a display label, the same
+     * inputs a granted browser geolocation request would produce — but
+     * doesn't touch geolocationStatus, since that's specifically about the
+     * browser's own permission state, which this path never interacts with.
+     */
+    const handleCustomLocationSubmit = useCallback((address: string) => {
+        setIsGeocoding(true);
+        setGeocodeError(null);
+
+        geocodeAddress(address).then((result) => {
+            if (!result || result.latitude === null || result.longitude === null) {
+                setGeocodeError("We couldn't find that location. Try a different address.");
+                return;
+            }
+
+            coordinatesRef.current = { lat: result.latitude, lng: result.longitude };
+            setCoordinates(coordinatesRef.current);
+            setLocationLabel(formatLocationLabel(result) || address);
+        }).finally(() => {
+            setIsGeocoding(false);
+        });
+    }, []);
+
+    /**
+     * Clears whichever location source is active (browser geolocation or
+     * custom address) so MillFilters reverts to its two initial buttons and
+     * the map marker/circle disappear. Doesn't touch geolocationStatus —
+     * the browser's actual permission state doesn't change just because
+     * we've cleared our own coordinates.
+     */
+    const handleResetLocationClick: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
+        coordinatesRef.current = null;
+        setCoordinates(null);
+        setRadius(null);
+        setLocationLabel(null);
+        setGeocodeError(null);
+        setSearchParams((prev) => {
+            const next = { ...prev };
+            delete next.lat;
+            delete next.lng;
+            delete next.radius;
+            return next;
+        });
+    }, []);
+
+    /**
+     * Whether a usable location is active, regardless of source. This — not
+     * geolocationStatus — is what gates the radius dropdown and MillFilters'
+     * "location is set" summary, since a custom address can produce
+     * coordinates without ever touching the browser's geolocation API.
+     */
+    const isLocationActive = coordinates !== null;
+
     // ---------------------------------------------------------------------------
 
     return {
@@ -479,5 +643,11 @@ export function useMills({
         handleRadiusSelectChange,
         coordinates,
         radius,
+        handleCustomLocationSubmit,
+        isGeocoding,
+        geocodeError,
+        locationLabel,
+        handleResetLocationClick,
+        isLocationActive,
     };
 }
