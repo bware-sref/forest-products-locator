@@ -162,20 +162,8 @@ Route::get('/accessibility', function () {
 
 /**
  * Geocoding Routes
+ * Have been moved to api.php
  */
-Route::controller(GeocodingController::class)
-    ->prefix('geocoding')
-    ->name('geocoding.')
-    ->group(function () {
-        /**
-         * Allowing get and post makes testing easier
-         */
-        Route::match(['get', 'post'], '/geocode', 'geocode')
-            ->name('geocode');
-
-        Route::match(['get', 'post'], '/reverse', 'reverseGeocode')
-            ->name('reverse');
-    });
 
 /**
  * We're using Backpack instead of standard user stuff so I don't think we need this.
