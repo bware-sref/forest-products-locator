@@ -65,6 +65,12 @@ export default function MillListPage() {
         geolocationStatus,
         handleRequestLocationClick,
         handleRadiusSelectChange,
+        handleCustomLocationSubmit,
+        isGeocoding,
+        geocodeError,
+        locationLabel,
+        handleResetLocationClick,
+        isLocationActive,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
@@ -104,6 +110,12 @@ export default function MillListPage() {
                     geolocationStatus={geolocationStatus}
                     onRequestLocationClick={handleRequestLocationClick}
                     onRadiusSelectChange={handleRadiusSelectChange}
+                    isLocationActive={isLocationActive}
+                    onCustomLocationSubmit={handleCustomLocationSubmit}
+                    onResetLocationClick={handleResetLocationClick}
+                    isGeocoding={isGeocoding}
+                    geocodeError={geocodeError}
+                    locationLabel={locationLabel}
                     millCount={mills.length}
                 />
             </TitleFilterBar>
