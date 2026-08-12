@@ -28,7 +28,6 @@ export function isExternalUrl(
     url: NonNullable<InertiaLinkProps['href']>,
     siteUrl: NonNullable<InertiaLinkProps['href']>,
 ) {
-    console.log('unresolved url: ', url);
     const rUrl = resolveUrl(url);
     let parsedUrl;
     // We can identify relative links by trying to instantiate a new URL() with the URL we want to test.
