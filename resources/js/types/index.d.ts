@@ -376,6 +376,11 @@ export interface IMillListItemProps {
     [key: string]: unknown;
 }
 
+export interface IMillListSkeletonProps {
+    children?: ReactNode;
+    [key: string]: unknown;
+}
+
 export interface IFaq {
     id: number;
     question: string;
