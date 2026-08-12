@@ -41,6 +41,7 @@ export default function ComingSoon({
                             <CardSkeleton />
                         </li>
                     </ul>
+                    {children}
                 </div>
             </div>
         </div>

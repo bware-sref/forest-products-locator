@@ -1,6 +1,6 @@
 import { 
     aboutUs,
-    accessibility,
+    // accessibility,
     addBusiness,
     contact,
     faqs,
@@ -8,7 +8,7 @@ import {
     millMap,
     states,
     // stateResources,
-    sitemap,
+    // sitemap,
 } from '@/routes';
 import { 
     type NavItem 
