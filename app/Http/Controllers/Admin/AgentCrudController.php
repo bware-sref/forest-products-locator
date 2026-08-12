@@ -1,8 +1,12 @@
 <?php
-
+/**
+ * I don't know if this even used anywhere/more.
+ */
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\AgentRequest;
+use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -19,6 +23,9 @@ class AgentCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
+    use CrudPermissionTrait;
+    use FiltersByState;
+
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      * 
@@ -29,6 +36,8 @@ class AgentCrudController extends CrudController
         CRUD::setModel(\App\Models\Agent::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/agent');
         CRUD::setEntityNameStrings('agent', 'agents');
+
+        $this->setAccessUsingPermissions();
     }
 
     /**
@@ -40,6 +49,8 @@ class AgentCrudController extends CrudController
     protected function setupListOperation()
     {
         // CRUD::setFromDb(); // set columns from db columns.
+
+        $this->doFilterByState();
 
         /**
          * Columns can be defined using the fluent syntax:

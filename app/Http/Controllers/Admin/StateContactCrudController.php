@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\StateContactRequest;
 use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class StateContactCrudController
@@ -21,6 +23,7 @@ class StateContactCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     use CrudPermissionTrait;
+    use FiltersByState;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -55,6 +58,11 @@ class StateContactCrudController extends CrudController
                 ->orderBy('state_id', 'asc')
                 ->orderBy('sort_weight', 'asc');
         }
+
+        /**
+         * self-contained magic
+         */
+        $this->doFilterByState();
 
         CRUD::column('state_id')
             ->type('select')

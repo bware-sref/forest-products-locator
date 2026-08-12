@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\State;
 use App\Models\StateAssistanceCategory;
 use App\Http\Requests\StateAssistanceLinkRequest;
 use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Backpack\CRUD\app\Library\Widget;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class StateAssistanceLinkCrudController
@@ -22,6 +26,7 @@ class StateAssistanceLinkCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     use CrudPermissionTrait;
+    use FiltersByState;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -32,7 +37,7 @@ class StateAssistanceLinkCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\StateAssistanceLink::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/state-assistance-link');
-        CRUD::setEntityNameStrings('assistance link', 'assistance links');
+        CRUD::setEntityNameStrings('state assistance link', 'state assistance links');
 
         $this->setAccessUsingPermissions();
     }
@@ -63,6 +68,13 @@ class StateAssistanceLinkCrudController extends CrudController
                 
                 ->orderBy('sort_weight', 'asc');
         }
+
+        /**
+         * Use FiltersByState trait to apply our filter and insert the widget!
+         * The trait applies the filter using either its own applyStateFilterQuery()
+         * or the composing class's overriding applyStateFilterQuery() method.
+         */
+        $this->doFilterByState();
 
         CRUD::column('state_name')
             ->label('State')
@@ -138,4 +150,22 @@ class StateAssistanceLinkCrudController extends CrudController
     {
         $this->setupCreateOperation();
     }
+
+    /**
+     * Adds a subquery to allow filtering by state_id on the related StateAssistanceCategory model.
+     * Overrides the trait method from FiltersByState.
+     * 
+     * @param Builder $query
+     * @return Builder
+     */
+    public function applyStateFilterQuery(Builder $query): Builder
+    {
+        return $this->crud->addClause('whereHas', 'category', function ($query) {
+            /**
+             * I didn't think we could reliably use $this inside "this" Closure, but apparently we can!
+             */
+            $query->where('state_id', $this->getStateFilterValue());
+        });
+    }
+
 }

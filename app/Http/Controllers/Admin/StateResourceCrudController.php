@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\PublicationStatus;
 use App\Http\Requests\StateResourceRequest;
 use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -22,6 +23,7 @@ class StateResourceCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     use CrudPermissionTrait;
+    use FiltersByState;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -51,6 +53,16 @@ class StateResourceCrudController extends CrudController
     protected function setupListOperation()
     {
         // CRUD::setFromDb(); // set columns from db columns.
+        if (! $this->crud->getRequest()->has('order')) {
+            $this->crud->query
+                ->orderBy('state_id', 'asc')
+                ->orderBy('sort_weight', 'asc');
+        }
+        
+        /**
+         * DIY filter
+         */
+        $this->doFilterByState();
 
         /**
          * Columns can be defined using the fluent syntax:
