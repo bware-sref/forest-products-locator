@@ -2,6 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type PageSeoOverride } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Seo } from '@/components/seo';
+import ComingSoon from '@/components/coming-soon';
 
 export default function Sitemap() {
     const { pageSeo } = usePage<{ pageSeo: PageSeoOverride }>().props;
@@ -9,20 +10,7 @@ export default function Sitemap() {
     return (
         <AppLayout>
             <Seo {...pageSeo} />
-            <div className="flex min-h-screen flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature">
-                <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                        <ul>
-                            <li>
-                                <h2>State Your Name</h2>
-                                <p>State Your Address</p>
-                                <p>Map This Location</p>
-                                <p><strong>Species:</strong> Hardwood &amp; Softwood</p>
-                                <p><strong>Mill Type:</strong> Sawmill</p>
-                            </li>
-                        </ul>
-                </div>
-                <div className="hidden h-14.5 lg:block"></div>
-            </div>
+            <ComingSoon pageTitle={pageSeo.title} />
         </AppLayout>
     );
 }
