@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\StateForestOverviewRequest;
 use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -21,6 +22,7 @@ class StateForestOverviewCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     use CrudPermissionTrait;
+    use FiltersByState;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -31,7 +33,7 @@ class StateForestOverviewCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\StateForestOverview::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/state-forest-overview');
-        CRUD::setEntityNameStrings('forest overview section', 'forest overview sections');
+        CRUD::setEntityNameStrings('state forest overview', 'state forest overviews');
 
         $this->setAccessUsingPermissions();
     }
@@ -47,6 +49,11 @@ class StateForestOverviewCrudController extends CrudController
         if (! $this->crud->getRequest()->has('order')) {
             $this->crud->orderBy('state_id', 'asc');
         }
+
+        /**
+         * Add our DIY filter, even though it's not super useful here.
+         */
+        $this->doFilterByState();
 
         CRUD::column('state_id')
             ->type('select')

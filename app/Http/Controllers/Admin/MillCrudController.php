@@ -10,6 +10,7 @@ use App\Imports\FloridaMills;
 use App\Imports\MillsCrudImport;
 use App\Models\User;
 use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +30,7 @@ class MillCrudController extends CrudController
     use CrudPermissionTrait;
     // use \RedSquirrelStudio\LaravelBackpackImportOperation\ImportOperation;
     use MillImportOperation;
+    use FiltersByState;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -59,8 +61,16 @@ class MillCrudController extends CrudController
         $user = backpack_user();
 
         /**
+         * DIY filter
+         * This might end up conflicting with the state agent filter.
+         */
+        $this->doFilterByState();
+
+        /**
          * Filter by state if $user has a state_id and isStateAgent()
-         * if the request doesn't already have a filter for state_id, that is
+         * if the request doesn't already have a filter for state_id, that is.
+         * 
+         * NOTE: this may conflict with the state filter unless we apply it first
          */
         if (!request()->has('state_id') && !empty($user->state_id) && $user->isStateAgent()) {
             // default to only show Mills from the StateAgent's state
