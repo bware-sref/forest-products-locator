@@ -41,19 +41,27 @@ export const primaryNavItems: NavItem[] = [
     },
 ];
 
+/**
+ * I don't know if we need Accessibility and Sitemap.
+ * However, if we don't have those, we need at least one more link.
+ */
 export const secondaryNavItems: NavItem[] = [
     {
         title: 'About Us',
         href: aboutUs(),
     },
+    // {
+    //     title: 'Accessibility',
+    //     href: accessibility(),
+    // },
+    // {
+    //     title: 'Sitemap',
+    //     href: sitemap(),
+    // },
     {
-        title: 'Accessibility',
-        href: accessibility(),
-    },
-    {
-        title: 'Sitemap',
-        href: sitemap(),
-    },
+        title: 'Privacy Policy',
+        href: 'https://policy.uga.edu/policies#/programs/rk-6awCBp?bc=true&bcCurrent=Privacy%20Policy%20and%20EU%20GDPR%20Privacy%20Notice&bcGroup=Information%20Technology%20&bcItemType=programs',
+    }
 ];
 
 /**
