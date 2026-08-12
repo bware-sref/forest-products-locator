@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\CountyRequest;
+use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -19,6 +21,9 @@ class CountyCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
+    use CrudPermissionTrait;
+    use FiltersByState;
+
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      * 
@@ -29,6 +34,8 @@ class CountyCrudController extends CrudController
         CRUD::setModel(\App\Models\County::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/county');
         CRUD::setEntityNameStrings('county', 'counties');
+
+        // $this->setAccessUsingPermissions();
     }
 
     /**
@@ -41,16 +48,28 @@ class CountyCrudController extends CrudController
     {
         // CRUD::setFromDb(); // set columns from db columns.
 
+        if (! $this->crud->getRequest()->has('order')) {
+            $this->crud
+                ->orderBy('state_id', 'asc')
+                ->orderBy('name', 'asc');
+        }
+
+
+        /**
+         * DIY filter
+         */
+        $this->doFilterByState();
+
         /**
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');
          */
-        CRUD::column('name')->type('text');
         CRUD::column('state_id')
             ->type('select')
             ->entity('state')
             ->model('App\Models\State')
             ->attribute('name');
+        CRUD::column('name')->type('text');
         CRUD::column('type')->type('text');
         CRUD::column('full_name')->type('text');
 

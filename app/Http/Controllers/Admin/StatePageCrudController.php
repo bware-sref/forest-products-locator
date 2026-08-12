@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\StatePageRequest;
 use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -21,6 +22,7 @@ class StatePageCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     use CrudPermissionTrait;
+    use FiltersByState;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -51,6 +53,11 @@ class StatePageCrudController extends CrudController
         if (! $this->crud->getRequest()->has('order')) {
             $this->crud->orderBy('state_id', 'asc');
         }
+
+        /**
+         * DIY filter
+         */
+        $this->doFilterByState();
 
         CRUD::column('state_id')
             ->type('select')

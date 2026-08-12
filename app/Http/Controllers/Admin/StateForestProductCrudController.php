@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\StateForestProductRequest;
 use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -21,6 +22,7 @@ class StateForestProductCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     use CrudPermissionTrait;
+    use FiltersByState;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -31,7 +33,7 @@ class StateForestProductCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\StateForestProduct::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/state-forest-product');
-        CRUD::setEntityNameStrings('forest product', 'forest products');
+        CRUD::setEntityNameStrings('state forest product', 'state forest products');
 
         $this->setAccessUsingPermissions();
     }
@@ -49,7 +51,12 @@ class StateForestProductCrudController extends CrudController
                 ->orderBy('state_id', 'asc')
                 ->orderBy('sort_weight', 'asc');
         }
-        
+
+        /**
+         * DIY filter
+         */
+        $this->doFilterByState();
+
         CRUD::column('state_id')
             ->type('select')
             ->entity('state')

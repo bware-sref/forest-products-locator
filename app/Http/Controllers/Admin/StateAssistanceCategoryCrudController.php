@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\StateAssistanceCategoryRequest;
 use App\Traits\CrudPermissionTrait;
+use App\Traits\FiltersByState;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Database\Eloquent\Builder;
+
 
 /**
  * Class StateAssistanceCategoryCrudController
@@ -21,6 +24,7 @@ class StateAssistanceCategoryCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     use CrudPermissionTrait;
+    use FiltersByState;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -31,7 +35,7 @@ class StateAssistanceCategoryCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\StateAssistanceCategory::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/state-assistance-category');
-        CRUD::setEntityNameStrings('assistance category', 'assistance categories');
+        CRUD::setEntityNameStrings('state assistance category', 'state assistance categories');
 
         $this->setAccessUsingPermissions();
     }
@@ -55,6 +59,9 @@ class StateAssistanceCategoryCrudController extends CrudController
                 ->orderBy('state_id', 'asc')
                 ->orderBy('sort_weight', 'asc');
         }
+
+        // State filter, yo!
+        $this->doFilterByState();
 
         CRUD::column('state_id')
             ->type('select')
