@@ -83,7 +83,8 @@ export default function MillSingleMap({mills, children}: MillListProps) {
                                     })}
                                 </p>                                                    
                                 <p>
-                                    <Link 
+                                    <Link
+                                        viewTransition
                                         href={show(mill.match_id)}
                                         className="underline hover:no-underline"
                                         target="_blank"

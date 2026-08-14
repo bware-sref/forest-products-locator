@@ -1,3 +1,6 @@
+/**
+ * @unused
+ */
 import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -24,7 +27,10 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                             )}
                             tooltip={{ children: item.title }}
                         >
-                            <Link href={item.href} prefetch>
+                            <Link 
+                                viewTransition
+                                href={item.href} prefetch
+                            >
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>
                             </Link>

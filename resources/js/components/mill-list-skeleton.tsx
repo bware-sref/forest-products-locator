@@ -34,7 +34,8 @@ export default function MillListSkeleton ({children, ...props}: IMillListSkeleto
             {...props}
         >
             {/** wrap entire header in Link to make entire header a link...whodathunk? */}
-            <Link 
+            <Link
+                viewTransition
                 href="#"
                 className="hover:underline"
             >
