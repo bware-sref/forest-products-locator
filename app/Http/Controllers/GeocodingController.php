@@ -15,7 +15,13 @@ class GeocodingController extends Controller
 
     public function geocode(Request $request): JsonResponse
     {
-        $request->validate(['address' => 'required|string|max:500']);
+        /**
+         * We might add user's location for BiasPosition
+         * params that are only required if both are present
+         */
+        $request->validate([
+            'address' => 'required|string|max:500'
+        ]);
 
         $results = $this->geocoding->geocode($request->input('address'));
 
