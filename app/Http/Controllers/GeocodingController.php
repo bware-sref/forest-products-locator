@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AwsLocationIntendedUse;
 use App\Services\GeocodingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,10 @@ class GeocodingController extends Controller
             'address' => 'required|string|max:500'
         ]);
 
-        $results = $this->geocoding->geocode($request->input('address'));
+        $results = $this->geocoding->geocode(
+            queryText: $request->input('address'),
+            intendedUse: AwsLocationIntendedUse::SingleUse,
+        );
 
         return response()->json(['results' => $results]);
     }
@@ -42,8 +46,9 @@ class GeocodingController extends Controller
          * handle casting them to floats so we don't have to do it everywhere
          */
         $result = $this->geocoding->reverse(
-            $request->input('longitude'),
-            $request->input('latitude')
+            longitude: $request->input('longitude'),
+            latitude: $request->input('latitude'),
+            intendedUse: AwsLocationIntendedUse::SingleUse,
         );
 
         return response()->json(['result' => $result]);
