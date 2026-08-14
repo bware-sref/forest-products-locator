@@ -15,7 +15,12 @@ import { ArrowRightIcon, CircleArrowRight } from 'lucide-react';
 import heroFallback from '@img/lumber-flipped.jpg';
 import mobileHero from '@img/lumber-flipped-390w.jpg';
 import mobileHero2x from '@img/lumber-flipped-780w.jpg';
-import { millMap, millList, stateResources, addBusiness } from '@/routes';
+import {
+    millMap,
+    millList,
+    states,
+    addBusiness
+} from '@/routes';
 
 const heroSources = [
     {
@@ -39,7 +44,7 @@ export default function Welcome() {
         },
         {
             title: 'State Resources',
-            href: stateResources(),
+            href: states(),
             content: 'Many additional resources are available to buyers. Browse these resources by state and region.',
             key: 'stateResources',
         },

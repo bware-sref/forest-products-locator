@@ -64,7 +64,8 @@ export default function MillMapMarker({
                         })}
                     </p>                                                    
                     <p>
-                        <Link 
+                        <Link
+                            viewTransition
                             href={show(mill.match_id)}
                             className="underline hover:no-underline"
                             target="_blank"
