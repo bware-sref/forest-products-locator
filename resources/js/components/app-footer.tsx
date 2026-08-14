@@ -48,6 +48,7 @@ export function AppFooter() {
                                         className="relative flex h-full items-center"
                                     >
                                         <Link
+                                            viewTransition
                                             href={item.href}
                                             className={cn(
                                                 navigationMenuTriggerStyle(),
@@ -76,9 +77,12 @@ export function AppFooter() {
                         </NavigationMenu>
                         {/**
                          * SGSF logo & link
+                         * 
+                         * Actually, I'm not sure if we can use Link for this because it's an external URL.
                          */}
                         <div className="mx-auto md:ml-auto flex max-w-42 justify-self-end mt-6 md:mt-0">
                             <Link
+                                viewTransition                                
                                 href={sGSF.href}
                                 className=""
                                 target="_blank"
@@ -104,6 +108,7 @@ export function AppFooter() {
                                     >                                        
                                         {! isExternalUrl(item.href, page.props.seo.siteUrl) ? (
                                             <Link
+                                                viewTransition
                                                 href={item.href}
                                                 className={cn(
                                                     navigationMenuTriggerStyle(),

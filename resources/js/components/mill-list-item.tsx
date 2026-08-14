@@ -39,7 +39,8 @@ export default function MillListItem ({mill, children, ...props}: IMillListItemP
             {...props}
         >
             {/** wrap entire header in Link to make entire header a link...whodathunk? */}
-            <Link 
+            <Link
+                viewTransition
                 href={show(mill.match_id)}
                 className="hover:underline"
             >

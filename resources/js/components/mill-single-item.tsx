@@ -129,7 +129,8 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                                 <>
                                     <dt className="font-bold">Web Site</dt>
                                     <dd className="col-span-2">
-                                        <Link 
+                                        <Link
+                                            viewTransition
                                             className="underline hover:no-underline"
                                             href={mill.web_site}
                                             target="_blank"

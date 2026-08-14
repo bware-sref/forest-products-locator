@@ -83,6 +83,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
                     {/* Logo + home link */}
                     <Link
+                        viewTransition
                         href={home()}
                         prefetch
                         className="flex items-center space-x-2"
@@ -120,18 +121,6 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <SheetDescription className="sr-only">
                                     Main Navigation Menu.
                                 </SheetDescription>
-                                {/**
-                                 * This header just repeats the logo.
-                                <SheetHeader className="flex justify-start text-left">
-                                    <Link
-                                        href={home()}
-                                        prefetch
-                                        className="flex items-center space-x-2"
-                                    >
-                                        <AppLogo />
-                                    </Link>
-                                </SheetHeader>
-                                */}
 
                                 {/** Actual mobile nav */}
                                 <div className="flex h-full flex-1 flex-col space-y-4 p-4">
@@ -139,6 +128,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         <div className="flex flex-col space-y-7">
                                             {primaryNavItems.map((item) => (
                                                 <Link
+                                                    viewTransition
                                                     key={item.title}
                                                     href={item.href}
                                                     className={cn(
@@ -202,6 +192,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         className="relative flex h-full items-center"
                                     >
                                         <Link
+                                            viewTransition
                                             href={item.href}
                                             className={cn(
                                                 navigationMenuTriggerStyle(),

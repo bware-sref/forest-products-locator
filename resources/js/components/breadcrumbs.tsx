@@ -1,3 +1,6 @@
+/**
+ * @unused
+ */
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -31,7 +34,9 @@ export function Breadcrumbs({
                                             </BreadcrumbPage>
                                         ) : (
                                             <BreadcrumbLink asChild>
-                                                <Link href={item.href}>
+                                                <Link 
+                                                    viewTransition
+                                                    href={item.href}>
                                                     {item.title}
                                                 </Link>
                                             </BreadcrumbLink>
