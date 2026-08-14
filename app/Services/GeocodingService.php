@@ -73,6 +73,8 @@ class GeocodingService
         ];
 
         /**
+         * Good grief.
+         * After all this, I'm not sure we even want to use BiasPosition by default because it makes Mississippi results 
          * @var bool|array
          */
         $biasPosition = self::resolveBiasPosition($biasPosition);
