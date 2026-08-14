@@ -58,4 +58,21 @@ return [
         'x' => env('GEOCODING_BIAS_POSITION_X', -91.0),
         'y' => env('GEOCODING_BIAS_POSITION_Y', 32.0),
     ],
+
+    /**
+     * Filter
+     *
+     * We can restrict results to specific countries as well as by place type using IncludeCountries and IncludePlaceTypes filters.
+     * https://docs.aws.amazon.com/location/latest/APIReference/API_geoplaces_GeocodeFilter.html#API_geoplaces_GeocodeFilter_Contents
+     *
+     * Specify countries with ISO-3166-1 alpha-2 (two-letter) or alpha-3 (guess) codes.
+     * https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes#Current_ISO_3166_country_codes
+     * 
+     * Valid PlaceType values are in Amazon docs.
+     * This application is probably only interested in PointAddress, PointOfInterest, and InterpolatedAddress, in that order.
+     */
+    'filter' => [
+        'countries' => explode(',', env('GEOCODING_FILTER_COUNTRIES', ['USA'])),
+        'place_types' => explode(',', env('GEOCODING_FILTER_PLACE_TYPES', ['PointAddress,PointOfInterest,InterpolatedAddress'])),
+    ],
 ];
