@@ -46,3 +46,5 @@ _ide_helper_pest.php
 /assets
 # ignore Basset cache file
 .basset
+# ignore Pest's test browser screenshots
+tests/Browser/Screenshots
