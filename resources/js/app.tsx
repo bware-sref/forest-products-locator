@@ -18,7 +18,7 @@ createInertiaApp({
     },
     // enable view transitions globally
     defaults: {
-        visitOptions: (href, options) => {
+        visitOptions: () => {
             return { viewTransition: true };
         }
     },
