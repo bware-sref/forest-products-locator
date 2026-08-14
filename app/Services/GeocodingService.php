@@ -69,6 +69,7 @@ class GeocodingService
             'QueryText' => $queryText,
             'MaxResults' => $maxResults,
             'IntendedUse' => $intendedUse,
+            'Filter' => static::geocodeFilter(),
         ];
 
         /**
@@ -147,6 +148,7 @@ class GeocodingService
             ],
             'MaxResults' => $maxResults,
             'IntendedUse' => $intendedUse,
+            'Filter' => static::geocodeFilter(),
         ]);
 
         if (empty($results)) {
@@ -296,5 +298,29 @@ class GeocodingService
          * If we made it this far, cast the values that were passed to float and return them.
          */
         return array_map('floatval', $bp);
+    }
+
+    /**
+     * Filter for Geocode and ReverseGeocode lookups.
+     * For our application, we're only interested in US locations (at present).
+     * The furthest abroad we'd go would probably go would be Canada, Mexico, and maybe Carribean nations.
+     *
+     * Trying to decide if I want to extract these to configs.
+     *
+     * @return array{IncludeCountries: string[], IncludePlaceTypes: string[]}
+     */
+    public static function geocodeFilter(): array
+    {
+        return [
+            'IncludeCountries' => config('geocoding.filter.countries', ['USA']),
+            'IncludePlaceTypes' => config(
+                'geocoding.filter.place_types', 
+                [
+                    'PointAddress',
+                    'PointOfInterest',
+                    'InterpolatedAddress',
+                ]
+            ),
+        ];
     }
 }
