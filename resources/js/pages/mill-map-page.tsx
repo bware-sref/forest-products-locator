@@ -185,7 +185,7 @@ export default function MillMapPage() {
             */}
             <div
                 data-thing="map-page-wrap" 
-                className="flex flex-col w-full h-[calc(100vh-4rem)] items-center text-velvet lg:justify-center">
+                className="flex flex-col w-full h-full items-center text-velvet lg:justify-center">
                 {/* content column: max-width 1280px */}
                 <div
                     data-thing="map-wrap" 
