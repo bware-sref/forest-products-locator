@@ -263,7 +263,7 @@ export default function StatePage() {
                         )}
                         <div className="flex w-full flex-col justify-center gap-6 md:flex-row">
                             {impactStats.map(([label, value], i) => (
-                                <Card key={i} className="max-w-full flex-1 items-center py-8 md:max-w-[300px] border-coupe border-2">
+                                <Card key={i} className="max-w-full flex-1 items-center py-8 md:max-w-75 border-coupe border-2">
                                     <CardContent className="w-full">
                                         <p className="text-[42px] font-extrabold">{value}</p>
                                         <p className="mt-2 text-[20px]">{label}</p>
