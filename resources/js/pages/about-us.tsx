@@ -10,7 +10,7 @@ export default function AboutUs() {
     return (
         <AppLayout>
             <Seo {...pageSeo} />
-            <div className="flex min-h-screen lg:min-h-72 flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature max-w-full lg:max-w-7xl mx-auto">
+            <div className="flex min-h-screen lg:min-h-72 flex-col items-center bg-nature p-6 text-white lg:justify-center lg:p-8 dark:bg-nature max-w-full lg:max-w-7xl mx-auto">
                 <div className="flex flex-col w-full items-start justify-start opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 px-6">
                     <h1 className="text-3xl mb-6">{pageTitle}</h1>
                     <div className="text-xl flex flex-col space-y-6 lg:max-w-5xl">
