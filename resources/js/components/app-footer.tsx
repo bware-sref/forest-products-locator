@@ -56,7 +56,7 @@ export function AppFooter() {
                                                     page.url,
                                                     item.href,
                                                 ) && activeItemStyles,
-                                                'h-9 cursor-pointer px-3 bg-none font-bold text-xl md:text-lg lg:text-xl',
+                                                'h-9 cursor-pointer px-3 bg-none font-bold text-xl md:text-lg lg:text-xl text-white',
                                             )}
                                             {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
                                         >
@@ -69,7 +69,7 @@ export function AppFooter() {
                                             {item.title}
                                         </Link>
                                         {isSameUrl(page.url, item.href) && (
-                                            <div className="absolute bottom-0.5 left-0 h-0.5 w-full translate-y-px bg-beluga dark:bg-beluga"></div>
+                                            <div className="absolute bottom-0.5 left-0 h-0.5 w-full translate-y-px bg-white dark:bg-white"></div>
                                         )}
                                     </NavigationMenuItem>
                                 ))}
@@ -99,58 +99,65 @@ export function AppFooter() {
                 </div>
                 {/* Secondary Nav */}
                 <div className="mt-4 mx-auto px-5 md:max-w-6xl lg:max-w-7xl h-full items-center md:justify-end space-6 flex flex-row w-full">
-                    <NavigationMenu className="flex flex-col md:flex-row h-full items-stretch w-full md:w-auto max-w-full py-2  justify-end md:-mr-4">
-                            <NavigationMenuList className="flex flex-col md:flex-row h-full items-center justify-items-end md:items-stretch md:space-x-2 md:justify-items-end">
-                                {secondaryNavItems.map((item, index) => (
-                                    <NavigationMenuItem
-                                        key={index}
-                                        className="relative flex h-full items-center"
-                                    >                                        
-                                        {! isExternalUrl(item.href, page.props.seo.siteUrl) ? (
-                                            <Link
-                                                viewTransition
-                                                href={item.href}
-                                                className={cn(
-                                                    navigationMenuTriggerStyle(),
-                                                    isSameUrl(
-                                                        page.url,
-                                                        item.href,
-                                                    ) && secondaryActiveItemStyles,
-                                                    'h-9 cursor-pointer px-3 bg-none font-bold text-md',
-                                                )}
-                                                {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
-                                            >
-                                                {item.icon && (
-                                                    <Icon
-                                                        iconNode={item.icon}
-                                                        className="mr-2 h-4 w-4"
-                                                    />
-                                                )}
-                                                {item.title}
-                                            </Link>
-                                        ) : (
-                                            <a 
-                                                href={item.href as string}
-                                                target="_blank"
-                                                className={cn(
-                                                    navigationMenuTriggerStyle(),
-                                                    isSameUrl(
-                                                        page.url,
-                                                        item.href,
-                                                    ) && secondaryActiveItemStyles,
-                                                    'h-9 cursor-pointer px-3 bg-none font-bold text-md',
-                                                )}
-                                                rel="nofollow noreferrer noopener"
-                                            >
-                                                {item.title}
-                                            </a>
-                                        )}
-                                        {isSameUrl(page.url, item.href) && (
-                                            <div className="absolute bottom-0.5 left-0 h-0.5 w-full translate-y-px bg-beluga dark:bg-beluga"></div>
-                                        )}
-                                    </NavigationMenuItem>
-                                ))}                                
-                            </NavigationMenuList>
+                    <NavigationMenu
+                        aria-label="Secondary"
+                        className="flex flex-col md:flex-row h-full items-stretch w-full md:w-auto max-w-full py-2  justify-end md:-mr-4"
+                    >
+                        <NavigationMenuList className="flex flex-col md:flex-row h-full items-center justify-items-end md:items-stretch md:space-x-2 md:justify-items-end">
+                            {/* 
+                            FFS, Beluga has insufficient contrast with Nature when font-size < 20px!!!
+                            Fix: use white instead of Beluga!
+                            */}
+                            {secondaryNavItems.map((item, index) => (
+                                <NavigationMenuItem
+                                    key={index}
+                                    className="relative flex h-full items-center"
+                                >                                        
+                                    {! isExternalUrl(item.href, page.props.seo.siteUrl) ? (
+                                        <Link
+                                            viewTransition
+                                            href={item.href}
+                                            className={cn(
+                                                navigationMenuTriggerStyle(),
+                                                isSameUrl(
+                                                    page.url,
+                                                    item.href,
+                                                ) && secondaryActiveItemStyles,
+                                                'h-9 cursor-pointer px-3 bg-none font-bold text-md text-white',
+                                            )}
+                                            {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
+                                        >
+                                            {item.icon && (
+                                                <Icon
+                                                    iconNode={item.icon}
+                                                    className="mr-2 h-4 w-4"
+                                                />
+                                            )}
+                                            {item.title}
+                                        </Link>
+                                    ) : (
+                                        <a 
+                                            href={item.href as string}
+                                            target="_blank"
+                                            className={cn(
+                                                navigationMenuTriggerStyle(),
+                                                isSameUrl(
+                                                    page.url,
+                                                    item.href,
+                                                ) && secondaryActiveItemStyles,
+                                                'h-9 cursor-pointer px-3 bg-none font-bold text-md text-white',
+                                            )}
+                                            rel="nofollow noreferrer noopener"
+                                        >
+                                            {item.title}
+                                        </a>
+                                    )}
+                                    {isSameUrl(page.url, item.href) && (
+                                        <div className="absolute bottom-0.5 left-0 h-0.5 w-full translate-y-px bg-white dark:bg-white"></div>
+                                    )}
+                                </NavigationMenuItem>
+                            ))}                                
+                        </NavigationMenuList>
                     </NavigationMenu>
                 </div>
 
