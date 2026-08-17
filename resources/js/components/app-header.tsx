@@ -92,10 +92,16 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </Link>
 
                     {/* Mobile Menu */}
-                    <div className="lg:hidden ml-auto z-100 relative">
-                        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                    <div                        
+                        className="lg:hidden ml-auto z-100 relative"
+                    >
+                        <Sheet 
+                            open={isOpen} 
+                            onOpenChange={setIsOpen}
+                        >
                             <SheetTrigger asChild>
                                 <Button
+                                    id="mobile-menu-trigger"
                                     variant="ghost"
                                     size="lg"
                                     className="mr-2 h-8.5 w-8.5 [&_svg:not([class*='size-'])]:size-14 ml-auto"
@@ -125,7 +131,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 </SheetDescription>
 
                                 {/** Actual mobile nav */}
-                                <div className="flex h-full flex-1 flex-col space-y-4 p-4">
+                                <div id="actual-ish-mobile-nav" className="flex h-full flex-1 flex-col space-y-4 p-4">
                                     <div className="flex h-full flex-col justify-between text-sm">
                                         <div className="flex flex-col space-y-7">
                                             {primaryNavItems.map((item) => (
