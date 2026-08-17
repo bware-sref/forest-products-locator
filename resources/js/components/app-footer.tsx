@@ -32,8 +32,9 @@ import {
 
 const activeItemStyles =
     'text-velvet-900 dark:bg-velvet-800 dark:text-velvet-100';
-
-const secondaryActiveItemStyles = 'text-beluga';
+const primaryNavLinkStyles = 'h-9 cursor-pointer px-3 bg-none font-bold text-xl md:text-lg lg:text-xl text-white';
+const secondaryNavLinkStyles = 'h-9 cursor-pointer px-3 bg-none font-bold text-md text-white';
+const secondaryActiveItemStyles = 'text-white';
 
 export function AppFooter() {
     const page = usePage<SharedData>();
@@ -43,7 +44,7 @@ export function AppFooter() {
 
     return (
         <>
-            <div className="bg-nature text-beluga my-8 w-full md:border-t-beluga md:border-t-4 md:mt-0 md:pt-8">
+            <div className="bg-nature text-white py-8 w-full border-t-beluga border-t-4 md:mt-0 md:pt-8">
                 <div className="mx-auto flex flex-col px-5 md:flex-row lg:h-20 items-center md:max-w-6xl lg:max-w-7xl ">
                     {/* Main Navigation + SGSF link */}
                     <div className="h-full items-stretch md:items-center space-6 flex flex-col lg:flex-row w-full">
@@ -69,7 +70,7 @@ export function AppFooter() {
                                                     page.url,
                                                     item.href,
                                                 ) && activeItemStyles,
-                                                'h-9 cursor-pointer px-3 bg-none font-bold text-xl md:text-lg lg:text-xl text-white',
+                                                primaryNavLinkStyles,
                                             )}
                                             {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
                                         >
@@ -115,7 +116,7 @@ export function AppFooter() {
                     <NavigationMenu
                         aria-label="Secondary"
                         data-orientation={isMobile ? 'vertical' : 'horizontal'}
-                        className="flex flex-col md:flex-row h-full items-stretch w-full md:w-auto max-w-full py-2  justify-end md:-mr-4"
+                        className="flex flex-col md:flex-row h-full items-stretch w-full md:w-auto max-w-full py-2 justify-end md:-mr-4"
                     >
                         <NavigationMenuList
                             data-orientation={isMobile ? 'vertical' : 'horizonta'}
@@ -140,7 +141,7 @@ export function AppFooter() {
                                                     page.url,
                                                     item.href,
                                                 ) && secondaryActiveItemStyles,
-                                                'h-9 cursor-pointer px-3 bg-none font-bold text-md text-white',
+                                                secondaryNavLinkStyles,
                                             )}
                                             {...(isSameUrl(page.url, item.href) && {"aria-current": "page"})}
                                         >
@@ -162,7 +163,7 @@ export function AppFooter() {
                                                     page.url,
                                                     item.href,
                                                 ) && secondaryActiveItemStyles,
-                                                'h-9 cursor-pointer px-3 bg-none font-bold text-md text-white',
+                                                secondaryNavLinkStyles,
                                             )}
                                             rel="nofollow noreferrer noopener"
                                         >
