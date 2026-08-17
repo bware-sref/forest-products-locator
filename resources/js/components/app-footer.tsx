@@ -21,6 +21,10 @@ import {
     sgsfNav as sGSF,
     secondaryNavItems,
 } from '@/config/navigation';
+import {
+    useIsMobile
+} from '@/hooks/use-mobile';
+
 
 /**
  * Externalized as sgsfNav
@@ -34,14 +38,23 @@ const secondaryActiveItemStyles = 'text-beluga';
 export function AppFooter() {
     const page = usePage<SharedData>();
 
+    // so we can juggle values for the data-orientation property on nav elements
+    const isMobile = useIsMobile();    
+
     return (
         <>
             <div className="bg-nature text-beluga my-8 w-full md:border-t-beluga md:border-t-4 md:mt-0 md:pt-8">
                 <div className="mx-auto flex flex-col px-5 md:flex-row lg:h-20 items-center md:max-w-6xl lg:max-w-7xl ">
                     {/* Main Navigation + SGSF link */}
                     <div className="h-full items-stretch md:items-center space-6 flex flex-col lg:flex-row w-full">
-                        <NavigationMenu className="flex flex-col md:flex-row justify-stretch h-full items-stretch lg:-ml-4 w-full md:w-auto max-w-full pb-5 lg:pb-0">
-                            <NavigationMenuList className="flex flex-col md:flex-row h-full items-center justify-items-start md:items-stretch md:space-x-2 md:justify-items-end">
+                        <NavigationMenu 
+                            data-orientation={isMobile ? 'vertical' : 'horizontal'}
+                            className="flex flex-col md:flex-row justify-stretch h-full items-stretch lg:-ml-4 w-full md:w-auto max-w-full pb-5 lg:pb-0"
+                        >
+                            <NavigationMenuList
+                                data-orientation={isMobile ? 'vertical' : 'horizontal'}
+                                className="flex flex-col md:flex-row h-full items-center justify-items-start md:items-stretch md:space-x-2 md:justify-items-end"
+                            >
                                 {primaryNavItems.map((item, index) => (
                                     <NavigationMenuItem
                                         key={index}
@@ -101,9 +114,13 @@ export function AppFooter() {
                 <div className="mt-4 mx-auto px-5 md:max-w-6xl lg:max-w-7xl h-full items-center md:justify-end space-6 flex flex-row w-full">
                     <NavigationMenu
                         aria-label="Secondary"
+                        data-orientation={isMobile ? 'vertical' : 'horizontal'}
                         className="flex flex-col md:flex-row h-full items-stretch w-full md:w-auto max-w-full py-2  justify-end md:-mr-4"
                     >
-                        <NavigationMenuList className="flex flex-col md:flex-row h-full items-center justify-items-end md:items-stretch md:space-x-2 md:justify-items-end">
+                        <NavigationMenuList
+                            data-orientation={isMobile ? 'vertical' : 'horizonta'}
+                            className="flex flex-col md:flex-row h-full items-center justify-items-end md:items-stretch md:space-x-2 md:justify-items-end"
+                        >
                             {/* 
                             FFS, Beluga has insufficient contrast with Nature when font-size < 20px!!!
                             Fix: use white instead of Beluga!
