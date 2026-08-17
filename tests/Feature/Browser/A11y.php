@@ -38,3 +38,14 @@ test('it has no a11y issues on mobile', function () use($siteUrls) {
             ->assertNoAccessibilityIssues();
     }    
 });
+
+test('it can open the mobile nav menu', function () {
+    $page = visit('/')
+        ->on()
+        ->mobile();
+
+    $page->wait(1)
+        ->click('#mobile-menu-trigger')
+        ->wait(1)
+        ->assertSeeAnythingIn('#actual-ish-mobile-nav');
+});
