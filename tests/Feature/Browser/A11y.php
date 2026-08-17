@@ -22,7 +22,7 @@ test('it has no a11y issues on desktop', function () use($siteUrls) {
         $page->wait(2)
             ->assertNoAccessibilityIssues();
     }    
-});
+})->group('ally', 'desktop');
 
 test('it has no a11y issues on mobile', function () use($siteUrls) {
     $pages = visit($siteUrls)
@@ -37,7 +37,7 @@ test('it has no a11y issues on mobile', function () use($siteUrls) {
         $page->wait(2)
             ->assertNoAccessibilityIssues();
     }    
-});
+})->group('a11y', 'mobile');
 
 test('it can open the mobile nav menu', function () {
     $page = visit('/')
@@ -47,5 +47,5 @@ test('it can open the mobile nav menu', function () {
     $page->wait(1)
         ->click('#mobile-menu-trigger')
         ->wait(1)
-        ->assertSeeAnythingIn('#actual-ish-mobile-nav');
-});
+        ->assertVisible('#actual-ish-mobile-nav');
+})->group('a11y', 'mobile');
