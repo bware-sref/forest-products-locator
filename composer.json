@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.4",
         "aws/aws-sdk-php-laravel": "^3.11",
         "backpack/ckeditor-field": "^1.0",
         "backpack/crud": "^7.0",
