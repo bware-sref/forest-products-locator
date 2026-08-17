@@ -105,6 +105,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     ) : (
                                         <Menu className="h-5 w-5" />
                                     )}
+                                    {/* a11y */}
+                                    <span className="sr-only">Toggle Navigation Menu</span>
                                 </Button>
                             </SheetTrigger>
                             <SheetContent
