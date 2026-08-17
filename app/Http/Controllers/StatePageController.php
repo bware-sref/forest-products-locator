@@ -19,9 +19,9 @@ class StatePageController extends Controller
             ->get();
 
         return Inertia::render('states', [
-            'pageTitle' => 'State Pages',
+            'pageTitle' => 'State Resources',
             'pageSeo' => [
-                'title' => 'State Pages',
+                'title' => 'State Resources',
                 'description' => 'Forest industry information, contacts, and resources organized by state.',
             ],
             'states' => $states,
