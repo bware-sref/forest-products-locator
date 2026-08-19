@@ -192,6 +192,9 @@ export interface StateContact {
     title?: string;
     address?: string;
     phone?: string;
+    phone_label?: string;
+    phone_2?: string;
+    phone_2_label?: string;
     email?: string;
     sort_weight: number;
     [key: string]: unknown;

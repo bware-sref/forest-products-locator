@@ -120,6 +120,21 @@ class StateContactCrudController extends CrudController
             'type' => 'text',
         ]);
         CRUD::field([
+            'name' => 'phone_label',
+            'label' => 'Phone Label',
+            'type' => 'text',
+        ]);
+        CRUD::field([
+            'name' => 'phone_2',
+            'label' => 'Phone 2',
+            'type' => 'text',
+        ]);
+        CRUD::field([
+            'name' => 'phone_2_label',
+            'label' => 'Phone 2 Label',
+            'type' => 'text',
+        ]);
+        CRUD::field([
             'name' => 'email',
             'label' => 'Email',
             'type' => 'email',

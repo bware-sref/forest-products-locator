@@ -25,6 +25,9 @@ class StateContact extends Model
         'title',
         'address',
         'phone',
+        'phone_label',
+        'phone_2',
+        'phone_2_label',
         'email',
         'sort_weight',
     ];
