@@ -53,6 +53,15 @@ class StateCrudController extends CrudController
         }
 
         /**
+         * only show states that have mills!
+         */
+        if (! $this->crud->getRequest()->has('all')) {
+            $this->crud->addClause('whereHas', 'mills');
+        }
+
+        CRUD::addButtonFromView('top', 'only-mill-states', 'only-mill-states');
+
+        /**
          * Add counting the mills to the query
          */
         $this->crud->query->withCount('mills');
