@@ -45,6 +45,25 @@ function SafeHtml({ html, className }: { html?: string; className?: string }) {
     );
 }
 
+// helper to make displaying phone number with label simpler
+function ContactPhone({phone, label}: { phone?: string; label?: string;}) {
+    if (!phone) return null;
+    return (
+        <div className="flex flex-row space-x-6">
+            <a
+                href={`tel:${phone}`}
+                className="flex items-center gap-4 hover:underline font-bold"
+            >
+                <Phone className="size-4 shrink-0" />
+                {phone}
+            </a>
+            {label && (
+                <span className="">{label}</span>
+            )}
+        </div>
+    );
+}
+
 export default function StatePage() {
     const page = usePage<{
         state: State;
@@ -149,13 +168,16 @@ export default function StatePage() {
                                                 </span>
                                             )}
                                             {contact.phone && (
-                                                <a
-                                                    href={`tel:${contact.phone}`}
-                                                    className="flex items-center gap-4 hover:underline font-bold"
-                                                >
-                                                    <Phone className="size-4 shrink-0" />
-                                                    {contact.phone}
-                                                </a>
+                                                <ContactPhone 
+                                                    phone={contact.phone}
+                                                    label={contact.phone_label}
+                                                />
+                                            )}
+                                            {contact.phone_2 && (
+                                                <ContactPhone 
+                                                    phone={contact.phone_2}
+                                                    label={contact.phone_2_label}
+                                                />
                                             )}
                                             {contact.email && (
                                                 <a

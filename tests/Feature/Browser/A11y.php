@@ -49,3 +49,10 @@ test('it can open the mobile nav menu', function () {
         ->wait(1)
         ->assertVisible('#actual-ish-mobile-nav');
 })->group('a11y', 'mobile');
+
+test('it cannot find a11y issues on Alabama state page', function () {
+    $page = visit('/states/alabama');
+
+    $page->wait(1)
+        ->assertNoAccessibilityIssues();
+})->group('a11y', 'states');
