@@ -21,7 +21,7 @@ export default function HeroSplit({
     src,
     alt,
     pictureClassName = '',
-    imageClassName = 'w-full h-full object-cover',
+    imageClassName = 'w-full h-full object-cover lg:max-w-175',
     sources = [],
     children = '',
 }: HeroSplitProps) {
@@ -30,9 +30,9 @@ export default function HeroSplit({
     ));
 
     return (
-        <div className="hero-split flex w-full max-w-full flex-col mx-auto md:w-6xl lg:w-7xl lg:flex-row lg:items-stretch py-5">
+        <div className="hero-split flex w-full max-w-full flex-col mx-auto py-5 md:w-6xl lg:w-7xl lg:flex-row lg:items-stretch lg:overflow-x-clip xl:overflow-visible">
             <picture
-                className={`order-1 md:-mr-20 md:min-w-200 md:min-h-125 lg:order-2 lg:aspect-auto lg:flex-1 ${pictureClassName}`}
+                className={`order-1 md:-mr-20 md:min-w-200 md:min-h-125 lg:order-2 lg:aspect-auto lg:flex-1 lg:overflow-x-clip lg:max-w-175 ${pictureClassName}`}
             >
                 {sourceList}
                 <img src={src} alt={alt} className={imageClassName} />
