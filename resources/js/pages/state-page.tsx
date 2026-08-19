@@ -152,9 +152,9 @@ export default function StatePage() {
                                 <p className="text-[23px]">{statePage.contacts_copy}</p>
                             )}
                         </div>
-                        <div className="flex w-full flex-col flex-wrap justify-center gap-5 md:flex-row Xbg-purple-500">
+                        <div className="flex w-full flex-col flex-wrap justify-center gap-5 md:flex-row">
                             {contacts.map(contact => (
-                                <Card key={contact.id} className="w-full max-w-full text-left md:max-w-152.25 border-aircraft border-2 bg-white">
+                                <Card key={contact.id} className="border-aircraft border-2 bg-white w-full max-w-full text-left md:max-w-152.25 lg:max-w-140 xl:max-w-152.25">
                                     <CardContent className="flex flex-col gap-1 text-coupe">
                                         {contact.name && <p className="font-semibold text-[22px]">{contact.name}</p>}
                                         {contact.title && (
