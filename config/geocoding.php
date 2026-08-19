@@ -72,7 +72,7 @@ return [
      * This application is probably only interested in PointAddress, PointOfInterest, and InterpolatedAddress, in that order.
      */
     'filter' => [
-        'countries' => explode(',', env('GEOCODING_FILTER_COUNTRIES', ['USA'])),
-        'place_types' => explode(',', env('GEOCODING_FILTER_PLACE_TYPES', ['PointAddress,PointOfInterest,InterpolatedAddress'])),
+        'countries' => explode(',', env('GEOCODING_FILTER_COUNTRIES', 'USA')),
+        'place_types' => explode(',', env('GEOCODING_FILTER_PLACE_TYPES', 'PointAddress,PointOfInterest,InterpolatedAddress')),
     ],
 ];
