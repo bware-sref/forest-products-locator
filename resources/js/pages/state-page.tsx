@@ -158,7 +158,7 @@ export default function StatePage() {
                                     <CardContent className="flex flex-col gap-1 text-coupe">
                                         {contact.name && <p className="font-semibold text-[22px]">{contact.name}</p>}
                                         {contact.title && (
-                                            <p className="text-sm">{contact.title}</p>
+                                            <p className="text-sm whitespace-pre-line">{contact.title}</p>
                                         )}
                                         <address className="mt-2 flex flex-col gap-1.5 text-[18px] not-italic">
                                             {contact.address && (
