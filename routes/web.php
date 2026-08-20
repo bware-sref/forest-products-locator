@@ -86,8 +86,8 @@ Route::get('/about-us', function () {
 //     return Inertia::render('state-resources', []);
 // })->name('state-resources');
 
-Route::get('/state-resources', [StateResourceController::class, 'index'])
-    ->name('state-resources');
+// Route::get('/state-resources', [StateResourceController::class, 'index'])
+//     ->name('state-resources');
 
 /**
  * Do we want to use state abbreviation or name?
@@ -97,15 +97,15 @@ Route::get('/state-resources', [StateResourceController::class, 'index'])
  * Oh right.
  * State doesn't have a slug column.
  */
-Route::get('/state-resources/{state:slug}', [StateResourceController::class, 'byState'])
-    ->name('state-resources.by-state');
+// Route::get('/state-resources/{state:slug}', [StateResourceController::class, 'byState'])
+//     ->name('state-resources.by-state');
 
 /**
  * How do we want to show individual state resources?
  * /state-resources/{state.abbreviation}/{id or slug?}
  */
-Route::get('/state-resources/{state:slug}/{stateResource}', [StateResourceController::class, 'show'])
-    ->name('state-resources.show');
+// Route::get('/state-resources/{state:slug}/{stateResource}', [StateResourceController::class, 'show'])
+//     ->name('state-resources.show');
 
 /**
  * State Pages
