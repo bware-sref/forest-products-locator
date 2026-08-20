@@ -128,12 +128,12 @@ export default function StatePage() {
                     sources={heroSources}
                 >
                     <div className="flex max-w-83.75 flex-col gap-8 text-white md:max-w-3xl lg:max-w-4xl lg:pt-8">
-                        <h1 className="mb-10 w-full text-3xl leading-10 font-bold md:text-[45px]">
+                        <h1 className="mb-10 w-full text-3xl leading-11 font-bold md:text-[45px]">
                             {statePage?.hero_headline || `${state.name} Forest Products`}
                         </h1>
                         <SafeHtml
                             html={statePage?.hero_copy}
-                            className="flex flex-col gap-3 mt-6 pr-5 text-2xl [&_li]:ml-5 [&_ul]:list-disc"
+                            className="flex flex-col gap-3 mt-5 pr-5 text-2xl [&_li]:ml-5 [&_ul]:list-disc"
                         />
                     </div>
                 </HeroSplit>
@@ -219,11 +219,13 @@ export default function StatePage() {
                                 )}
                             </div>
                             {overviewImage && (
-                                <img
-                                    src={overviewImage}
-                                    alt={overview.headline || state.name}
-                                    className="max-w-full md:max-w-131.75 flex-1 rounded-lg md:ml-auto"
-                                />
+                                <div className="w-full max-w-full flex-1 rounded-lg aspect-527/451 overflow-hidden md:max-w-131.75 md:ml-auto">
+                                    <img
+                                        src={overviewImage}
+                                        alt={overview.headline || state.name + " Forest"}
+                                        className="w-full h-full Xmax-w-full Xmd:max-w-131.75 Xflex-1 Xrounded-lg Xmd:ml-auto"
+                                    />
+                                </div>
                             )}
                         </div>
 
