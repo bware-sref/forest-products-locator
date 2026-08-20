@@ -34,7 +34,10 @@ export default function AddBusiness() {
                         woodSpecies={page.props.woodSpecies}
                     />
                 </div>
-                {/** I keep forgetting to wonder about the element below */}
+                {/** 
+                 * I keep forgetting to wonder about the element below 
+                 * I think it's just something to force a minimum page height on large screens.
+                 * */}
                 <div className="hidden h-14.5 lg:block"></div>
             </div>
         </AppLayout>
