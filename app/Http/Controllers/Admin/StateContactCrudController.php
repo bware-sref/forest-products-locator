@@ -107,7 +107,7 @@ class StateContactCrudController extends CrudController
         CRUD::field([
             'name' => 'title',
             'label' => 'Title',
-            'type' => 'text',
+            'type' => 'textarea',
         ]);
         CRUD::field([
             'name' => 'address',
