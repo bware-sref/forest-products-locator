@@ -219,11 +219,11 @@ export default function StatePage() {
                                 )}
                             </div>
                             {overviewImage && (
-                                <div className="w-full max-w-full flex-1 rounded-lg aspect-527/451 overflow-hidden md:max-w-131.75 md:ml-auto">
+                                <div className="self-start mt-2 w-full max-w-full flex-1 rounded-lg aspect-527/451 overflow-hidden md:max-w-131.75 md:ml-auto">
                                     <img
                                         src={overviewImage}
                                         alt={overview.headline || state.name + " Forest"}
-                                        className="w-full h-full Xmax-w-full Xmd:max-w-131.75 Xflex-1 Xrounded-lg Xmd:ml-auto"
+                                        className="w-full h-full object-cover"
                                     />
                                 </div>
                             )}
