@@ -11,7 +11,10 @@ use Inertia\Inertia;
 
 class ContactController extends Controller
 {
-    //
+    /**
+     * This action should more properly be named "create" rather than "index".
+     * @return \Inertia\Response
+     */
     public function index()
     {
         return Inertia::render('contact', [
@@ -32,7 +35,7 @@ class ContactController extends Controller
 
         $contact = Contact::create($data);
 
-        $msg = sprintf('Contact form submission %d stored!', $contact->id);
+        $msg = \sprintf('Contact form submission %d stored!', $contact->id);
         Log::debug($msg);
 
         // try to send the email here?
@@ -45,6 +48,6 @@ class ContactController extends Controller
             'message' => 'Thank you for submitting a contact request.',
         ]);
 
-        return to_route('contact');
+        return to_route('contacts.create');
     }
 }

@@ -75,7 +75,7 @@ class MillController extends Controller
             'pageTitle' => $mill->mill_name.' | Details',
             'pageSeo' => [
                 'title' => $mill->mill_name.' | Details',
-                'description' => trim(sprintf(
+                'description' => trim(\sprintf(
                     '%s%s. Contact information, products, and location details.',
                     $mill->mill_name,
                     $location ? " is a forest products company in {$location}" : ' is a forest products company'
@@ -158,7 +158,7 @@ class MillController extends Controller
                     $newMill->woodSpecies()->attach($woodSpeciesIds);
                 }
 
-                $msg = sprintf('Successfully submitted "%s" (Mill #%d!)', $newMill->mill_name, $newMill->id);
+                $msg = \sprintf('Successfully submitted "%s" (Mill #%d!)', $newMill->mill_name, $newMill->id);
                 Log::debug($msg, ['millData' => $newMill->toArray()]);
                 Inertia::flash([
                     'type' => 'success',
@@ -174,7 +174,7 @@ class MillController extends Controller
         }
 
         // Inertia::flash($flash);
-        return to_route('add-business');
+        return to_route('mills.create');
     }
 
     /**
