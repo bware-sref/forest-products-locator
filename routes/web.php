@@ -33,36 +33,47 @@ Route::get('/', function () {
 
 // Consider changing the name of the controller action.
 Route::get('/mill-map', [MillController::class, 'map'])
-    ->name('mill-map');
+    ->name('mills.map');
 
 // Route mill-list to MillController::index()
 Route::get('/mill-list', [MillController::class, 'index'])
-    ->name('mill-list');
+    ->name('mills.index');
 
 /**
  * Add a Business
  * MillController?
  */
 Route::get('/add-business', [MillController::class, 'create'])
-    ->name('add-business');
-Route::post('/mill', [MillController::class, 'store'])
-    ->name('store-mill');
+    ->name('mills.create');
+Route::post('/mills', [MillController::class, 'store'])
+    ->name('mills.store');
+/**
+ * Edit a Mill
+ */
+Route::get('/mills/{mill:match_id}/edit', [MillController::class, 'edit'])
+    ->name('mills.edit');
+/**
+ * Patch seems more appropriate for this because it's spozta be a partial update.
+ */
+Route::match(['patch', 'put'], '/mills/{mill:match_id}', [MillController::class, 'update'])
+    ->name('mills.update');
 
 /**
  * Show details of Mill specified by mill.match_id
+ * This URL pattern was chosen because it mirrors the URL pattern on the old version.
  */
 Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
-    ->name('mill-list-item');
+    ->name('mills.show');
 
 Route::match(['get', 'post'], '/mills/export/', [MillController::class, 'export'])
-    ->name('mill-export');
+    ->name('mills.export');
 
 /**
  * FAQ
  * PagesController
  */
 Route::get('/faqs', [FaqController::class, 'index'])
-    ->name('faqs');
+    ->name('faqs.index');
 
 /**
  * About Us
@@ -79,42 +90,13 @@ Route::get('/about-us', function () {
 })->name('about-us');
 
 /**
- * State Resources
- * will probably get its own controller
- */
-// Route::get('/state-resources', function () {
-//     return Inertia::render('state-resources', []);
-// })->name('state-resources');
-
-// Route::get('/state-resources', [StateResourceController::class, 'index'])
-//     ->name('state-resources');
-
-/**
- * Do we want to use state abbreviation or name?
- * Let's go with abbreviation for now because we don't have to make a slug out of it
- * Slugs are no big deal, yo!
- * The state abbreviations look weirder, IMO.
- * Oh right.
- * State doesn't have a slug column.
- */
-// Route::get('/state-resources/{state:slug}', [StateResourceController::class, 'byState'])
-//     ->name('state-resources.by-state');
-
-/**
- * How do we want to show individual state resources?
- * /state-resources/{state.abbreviation}/{id or slug?}
- */
-// Route::get('/state-resources/{state:slug}/{stateResource}', [StateResourceController::class, 'show'])
-//     ->name('state-resources.show');
-
-/**
  * State Pages
  * The per-state marketing page (hero, contacts, forest overview, economic
  * impact, forestry agency/assistance) -- distinct from /state-resources,
  * which lists StateResource records.
  */
 Route::get('/states', [StatePageController::class, 'index'])
-    ->name('states');
+    ->name('states.index');
 
 Route::get('/states/{state:slug}', [StatePageController::class, 'show'])
     ->name('states.show');
@@ -127,49 +109,21 @@ Route::get('/states/{state:slug}', [StatePageController::class, 'show'])
  * And we probably need a controller for handling these.
  * And we may as well store submissions in the DB.
  */
-Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::get('/contact', [ContactController::class, 'index'])
+    ->name('contacts.create');
 
 Route::post('/contact', [ContactController::class, 'store'])
-    ->name('store-contact');
+    ->name('contacts.store');
 
 /**
- * Site Map
- * use a generator of some sort?
+ * Redirect the route to map the contact page URL from the old site to the new one
  */
-Route::get('/sitemap', function () {
-    return Inertia::render('sitemap', [
-        'pageSeo' => PageSeo::resolve(
-            'sitemap',
-            'Sitemap',
-            'A full listing of pages on this site.'
-        ),
-    ]);
-})->name('sitemap');
-
-/**
- * Accessibility
- * PagesController
- */
-Route::get('/accessibility', function () {
-    return Inertia::render('accessibility', [
-        'pageSeo' => PageSeo::resolve(
-            'accessibility',
-            'Accessibility',
-            'Our commitment to digital accessibility.'
-        ),
-    ]);
-})->name('accessibility');
+Route::permanentRedirect('/sec_contact-info', '/contact');
 
 /**
  * Geocoding Routes
  * Have been moved to api.php
  */
-
-/**
- * We're using Backpack instead of standard user stuff so I don't think we need this.
- * I guess we'll see though.
- */
-// require __DIR__.'/settings.php';
 
 /**
  * Prevent noise exceptions caused by Chrome dev tools running against localhost
