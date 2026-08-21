@@ -29,7 +29,7 @@ class TennesseeMillMapper extends AbstractMillMapper
      * TN's 15 species boolean columns and their display names.
      * Stored as extended_attributes.species_flags JSON object.
      */
-    private const SPECIES_FLAGS = [
+    private const array SPECIES_FLAGS = [
         'Cypress', 'Cedar', 'Pine', 'Hemlock',
         'SoftMaple', 'HardMaple', 'Tupelo', 'Beech',
         'RedOak', 'WhiteOak', 'Hickory', 'Walnut',
@@ -40,7 +40,7 @@ class TennesseeMillMapper extends AbstractMillMapper
      * TN's 11 product boolean columns.
      * Stored as extended_attributes.product_flags JSON object.
      */
-    private const PRODUCT_FLAGS = [
+    private const array PRODUCT_FLAGS = [
         'RoundLogs', 'SawnDimLumber', 'Pallet', 'Crosstie', 'Cant',
         'HandlesHandleBlanks', 'BarrelStave', 'Posts', 'Chips', 'Sawdust', 'Mulch',
     ];

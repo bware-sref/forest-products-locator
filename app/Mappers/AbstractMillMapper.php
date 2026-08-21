@@ -269,7 +269,7 @@ abstract class AbstractMillMapper implements MillMapperInterface
             fn ($v) => $v !== null && $v !== '',
         )));
 
-        return count($filtered) > 0 ? implode('|', $filtered) : null;
+        return \count($filtered) > 0 ? implode('|', $filtered) : null;
     }
 
     /**

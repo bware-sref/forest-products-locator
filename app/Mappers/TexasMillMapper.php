@@ -93,7 +93,7 @@ class TexasMillMapper extends AbstractMillMapper
             return $this->pipeJoin(['Veneer / Plywood / Panels', 'OSB']);
         }
 
-        if (array_key_exists($cleaned, $crosswalk)) {
+        if (\array_key_exists($cleaned, $crosswalk)) {
             $canonical = $crosswalk[$cleaned];
             return $canonical !== null ? $this->titleCase($canonical) : null;
         }
