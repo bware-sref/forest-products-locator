@@ -1,15 +1,16 @@
 import { 
     aboutUs,
-    // accessibility,
-    addBusiness,
-    contact,
-    faqs,
-    millList,
-    millMap,
-    states,
-    // stateResources,
-    // sitemap,
 } from '@/routes';
+import * as mills from '@/routes/mills';
+import {
+    create as contact,
+} from '@/routes/contacts';
+import {
+    index as faqs,
+} from '@/routes/faqs';
+import {
+    index as states,
+} from '@/routes/states';
 import { 
     type NavItem 
 } from '@/types';
@@ -17,11 +18,11 @@ import {
 export const primaryNavItems: NavItem[] = [
     {
         title: 'Mill Map',
-        href: millMap(),
+        href: mills.map(),
     },
     {
         title: 'Mill List',
-        href: millList(),
+        href: mills.index(),
     },
     {
         title: 'State Resources',
@@ -29,7 +30,7 @@ export const primaryNavItems: NavItem[] = [
     },
     {
         title: 'Add Your Business',
-        href: addBusiness(),
+        href: mills.create(),
     },
     {
         title: 'FAQ',
@@ -42,22 +43,13 @@ export const primaryNavItems: NavItem[] = [
 ];
 
 /**
- * I don't know if we need Accessibility and Sitemap.
- * However, if we don't have those, we need at least one more link.
+ * Footer/Secondary navigation
  */
 export const secondaryNavItems: NavItem[] = [
     {
         title: 'About Us',
         href: aboutUs(),
     },
-    // {
-    //     title: 'Accessibility',
-    //     href: accessibility(),
-    // },
-    // {
-    //     title: 'Sitemap',
-    //     href: sitemap(),
-    // },
     {
         title: 'Privacy Policy',
         href: 'https://policy.uga.edu/policies#/programs/rk-6awCBp?bc=true&bcCurrent=Privacy%20Policy%20and%20EU%20GDPR%20Privacy%20Notice&bcGroup=Information%20Technology%20&bcItemType=programs',

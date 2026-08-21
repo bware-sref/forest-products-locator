@@ -11,16 +11,13 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { ArrowRightIcon, CircleArrowRight } from 'lucide-react';
-// import heroImage from '@img/lumber-flipped@2x.jpg';
 import heroFallback from '@img/lumber-flipped.jpg';
 import mobileHero from '@img/lumber-flipped-390w.jpg';
 import mobileHero2x from '@img/lumber-flipped-780w.jpg';
+import * as mills from '@/routes/mills';
 import {
-    millMap,
-    millList,
-    states,
-    addBusiness
-} from '@/routes';
+    index as states,
+} from '@/routes/states';
 
 const heroSources = [
     {
@@ -38,7 +35,7 @@ export default function Welcome() {
     const cards = [
         {
             title: 'Mill List',
-            href: millList(),
+            href: mills.index(),
             content: 'View and search our directory of lumber mills providing primary forest products.',
             key: 'millList',
         },
@@ -50,7 +47,7 @@ export default function Welcome() {
         },
         {
             title: 'Add Your Business',
-            href: addBusiness(),
+            href: mills.create(),
             content: 'Reach a global audience of potential customers by adding your lumber business to our directory.',
             key: 'addBusiness',
         },
@@ -68,7 +65,7 @@ export default function Welcome() {
                 pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
                 sources={heroSources}
             >
-                <div className="flex flex-col gap-12 lg:gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white Xbg-red-500/30">
+                <div className="flex flex-col gap-12 lg:gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white">
                     <h1 className="text-3xl lg:text-5xl leading-10 font-bold my-11 lg:my-6">
                         Welcome to the Primary Forest Products Locator
                     </h1>
@@ -81,7 +78,7 @@ export default function Welcome() {
                         className="grow-0 place-self-center lg:place-self-start bg-coupe border-white border-2 text-xl lg:text-2xl py-10"
                     >
                         <Link
-                            href={millMap()}
+                            href={mills.map()}
                             className="grow-0"
                         >
                             View Mill Map
@@ -98,7 +95,7 @@ export default function Welcome() {
             {/**
              * Cards!
              */}
-            <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col md:flex-row w-full md:w-6xl lg:w-7xl max-w-full xl:max-w-7xl items-stretch justify-between gap-8 lg:gap-6 Xbg-pink-400">
+            <div className="cards mx-auto mt-4 py-6 px-5 flex flex-col md:flex-row w-full md:w-6xl lg:w-7xl max-w-full xl:max-w-7xl items-stretch justify-between gap-8 lg:gap-6">
                 {cards.map( card =>
                 <Card key={card.key} className="w-full md:w-55 lg:w-70 lg:max-w-70 xl:w-87.5 xl:max-w-95 pt-0 border-0 rounded-2xl">
                     <CardHeader className="bg-coupe py-4 xl:py-6 rounded-t-2xl">
