@@ -22,6 +22,9 @@ import { ClientOnly } from '@/components/client-only';
 import {
     ArrowRightIcon,
 } from 'lucide-react';
+import {
+    edit as editMill
+} from '@/routes/mills';
 
 // MillSingleMap pulls in react-leaflet/leaflet, which touch window/document
 // at import time and crash SSR. Lazy-loading it (and gating rendering with
@@ -159,6 +162,18 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                         </Suspense>
                     </ClientOnly>
                 )}
+
+                {/**
+                 * Update link!
+                 */}
+                <div className="flex flex-row">
+                    <Link 
+                        href={editMill(mill.match_id)}
+                        className="ml-auto mt-3 text-md underline hover:no-underline self-end"
+                    >
+                        Update this mill's information
+                    </Link>
+                </div>
 
                 { children }
             </CardContent>
