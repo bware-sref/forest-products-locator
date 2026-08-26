@@ -8,6 +8,7 @@ use App\Enums\PublicationStatus;
 use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
 use App\Models\State;
+use Closure;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -68,6 +69,7 @@ class Mill extends Model
         'web_site',
         'size',
         'modification_date',
+
         // foreign keys
         'state_id',
         'county_id',
@@ -105,7 +107,6 @@ class Mill extends Model
         'email_2',
         'needs_review',
         'extended_attributes',
-
     ];
 
     /**
@@ -115,7 +116,7 @@ class Mill extends Model
      * Also, we nixed match_id and mill_id because they're only meaningful in our system.
      * And lastly, I think county => county_name is the only deviation from actual DB field names.
      */
-    public const IMPORT_COLUMNS = [
+    public const array IMPORT_COLUMNS = [
         /**
          * match_id and mill_id have been removed from import configs
          */
@@ -153,6 +154,27 @@ class Mill extends Model
         /**
          * Raw address fields should be used above instead of the actual fields.
          */
+    ];
+
+    /**
+     * Physical and mailing addresses are both composed of the following parts, each prefixed with 'physical_' or 'mailing_'
+     * accordingly.
+     * @var array
+     */
+    public const array ADDRESS_PARTS = [
+        'address',
+        'city',
+        'state',
+        'zip',
+    ];
+
+    /**
+     * Addresses are one of these two types.
+     * @var array
+     */
+    public const array ADDRESS_TYPES = [
+        'physical',
+        'mailing',
     ];
 
     /**
@@ -200,7 +222,7 @@ class Mill extends Model
     {
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => 
-                self::buildAddress(
+                self::buildAddressTwo(
                     $attributes['physical_city'] ?? '',
                     // hopefully averting an undefined array key error
                     $attributes['physical_state'] ?? '',
@@ -213,7 +235,7 @@ class Mill extends Model
     {
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => 
-                self::buildAddress(
+                self::buildAddressTwo(
                     $attributes['mailing_city'] ?? '',
                     $attributes['mailing_state'] ?? '',
                     $attributes['mailing_zip'] ?? ''
@@ -307,20 +329,51 @@ class Mill extends Model
 
     /**
      * helper to jam together the second line of addresses
+     * Probably should have been named buildAddressLine2() or something more accurate.
+     * jamTogetherSecondAddressLine()
+     * cityStateZipOrBust()
      */
-    protected static function buildAddress(string $city = '', string $state = '', string $zip = ''): string
+    protected static function buildAddressTwo(string $city = '', string $state = '', string $zip = ''): string
     {
-        $address = \sprintf(
-            '%s, %s  %s',
-            $city,
-            $state,
-            $zip
+        /**
+         * @var array
+         */
+        // $parts = array_map(fn ($item) => trim($item, " \n\r\t\v\0,"), compact('city', 'state', 'zip'));
+        $parts = array_map(
+            // fn ($item) => mb_trim(mb_trim($item), ","),
+            fn ($item) => trimp($item, ","),
+            // instead of compact, we could just do [$var1, $varN]
+            // compact('city', 'state', 'zip')
+            [$city, $state, $zip]
         );
+        // undo compact
+        // extract($parts);
+        [$city, $state, $zip] = $parts;
+
+        /**
+         * Should probably use string interpolation instead of sprintf.
+         * Also, I'm tempted to trim each value before mashing them together.
+         * Also also, this method would probably be helpful with comparing addresses, no?
+         * 
+         * @var string
+         */
+        $address = "{$city}, {$state}  {$zip}";
+
+        // $address = \sprintf(
+        //     '%s, %s  %s',
+        //     $city,
+        //     $state,
+        //     $zip
+        // );
 
         // note the comma among the trimmed characters
         // it handles the case of empty city values
-        return trim($address, " \n\r\t\v\0,");
+        // if we just trim twice then we don't have to specify the defaults
+        // return trim($address, " \n\r\t\v\0,");
+        // return mb_trim(mb_trim($address), ",");
+        return trimp($address, ",");
     }
+
 
     /**
      * creates and executes a query based on the pre-validated API parameters
@@ -551,6 +604,8 @@ class Mill extends Model
 
     /**
      * Should I have just made scopes for these instead?
+     * Yeah, probably scopes would make more sense.
+     * Then we could apply to other Models as well.
      */
     public static function createdSince(Carbon $since): int
     {
@@ -689,7 +744,7 @@ class Mill extends Model
      */
     public function getRawAddress(?string $type = 'physical'): string
     {
-        $type = ('mailing' === $type ? $type : 'physical');
+        $type = static::validAddressType($type);
 
         if (!empty($this->{"raw_{$type}_address"})) {
             return $this->{"raw_{$type}_address"};
@@ -908,5 +963,72 @@ class Mill extends Model
     protected function byImport(Builder $query, int $importId): Builder
     {
         return $query->where('import_id', $importId);
+    }
+
+    /**
+     * 
+     */
+    public function addressToString(?string $type = 'physical', string $glue = ' '): string
+    {
+        $fieldNames = static::getAddressTypePartNames($type);
+
+        // filter fieldNames so we don't try to join emptys
+        // we also need to return now if the whole thing is empty
+        // we can also double trim instead of specifying the defaults + ,
+        $addy = array_map(
+            fn ($item) => trimp($item, ','),
+            array_filter($this->only($fieldNames))
+        );
+        // instead of empty check we could just return the result of array_reduce()
+        if (empty($addy)) {
+            return '';
+        }
+
+        return join($glue, $addy);
+    }
+
+    public static function getAddressTypePartNames(?string $type = 'physical'): array
+    {
+        $type = static::validAddressType($type);
+        return array_map(
+            fn ($item) => "{$type}_{$item}",
+            self::ADDRESS_PARTS
+        );
+    }
+
+    public static function validAddressType(?string $type): string
+    {
+        return \in_array($type, self::ADDRESS_TYPES) ? $type : array_first(self::ADDRESS_TYPES);        
+    }
+
+    /**
+     * Returns true if physical and mailing addresses are equal.
+     * Trims and converts fields to lowercase before comparison.
+     * 
+     * We might consider one or more additional cases as equivalent or not, depending.
+     * 1. When only one address is included, they are effectively the same for practical purposes.
+     * 
+     * @return bool
+     */
+    public function doAddressesMatch(): bool
+    {
+        /**
+         * @var Closure
+         * make a callable to use with array_map
+         */
+        $fn = fn ($item) => Str::lower(self::addressToString($item));
+        $addresses = array_map(
+            // fn ($item) => self::addressToString($item),
+            // modern callable syntax?!?
+            // Hint: Convert to callable syntax
+            // self::addressToString(...),
+            $fn(...),
+            self::ADDRESS_TYPES
+        );
+
+        // destructuring is what it meant
+        [$phys, $mail] = $addresses;
+
+        return $phys === $mail;
     }
 }
