@@ -108,8 +108,34 @@ export const millFormSchema = z.object({
         .optional()
         .or(z.literal('')),
 
+    // Additional fields from state data        
+    contact_name: z
+        .string()
+        .min(2, 'Contact Name must be at least 2 characters.')
+        .max(255, 'Contact Name may be at most 255 characters.')
+        .optional()
+        .or(z.literal('')),
+
+    contact_title: z
+        .string()
+        .min(2, 'Contact Title must be at least 2 characters.')
+        .max(255, 'Contact Title may be at most 255 characters.')
+        .optional()
+        .or(z.literal('')),
+
     // we may want to define (or duh, find) a regex for phone numbers
     telephone: z
+        .string()
+        // eslint complains that escaping - and . in the character class is unnecessary.
+        // but that's only because - is first, and I guess also because escaping . in a character class is unnecessary?
+        .regex(
+            /^\+?1?(\s*[-.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[-.]\s*|\s+)?[0-9]{3}(\s*[-.]\s*|\s+)?[0-9]{4}$/,
+            'Telephone must be a valid US phone number.',
+        )
+        .optional()
+        .or(z.literal('')),
+
+    telephone_2: z
         .string()
         // eslint complains that escaping - and . in the character class is unnecessary.
         // but that's only because - is first, and I guess also because escaping . in a character class is unnecessary?
@@ -130,6 +156,8 @@ export const millFormSchema = z.object({
         .or(z.literal('')),
 
     email: z.email().optional().or(z.literal('')),
+
+    email_2: z.email().optional().or(z.literal('')),
 
     web_site: z
         .url({
