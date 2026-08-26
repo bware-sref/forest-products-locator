@@ -1,5 +1,6 @@
 import {
     type County,
+    type Mill,
     type MillType,
     type PageSeoOverride,
     type State,
@@ -19,6 +20,8 @@ export default function AddBusiness() {
         millTypes: MillType[];
         woodSpecies: WoodSpecies[];
         // we may need to add something standard in order to catch errors
+        // or to handle edits!
+        mill?: Mill;
     }>();
     const pageTitle = page.props.pageTitle || 'Add Your Business';
 
@@ -32,6 +35,7 @@ export default function AddBusiness() {
                         states={page.props.states}
                         millTypes={page.props.millTypes}
                         woodSpecies={page.props.woodSpecies}
+                        mill={page.props.mill}
                     />
                 </div>
                 {/** 
