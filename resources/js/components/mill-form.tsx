@@ -8,18 +8,20 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
-import { storeMill } from "@/routes";
+import {
+  store as storeMill,
+  update as updateMill,
+} from "@/routes/mills";
 import { router } from '@inertiajs/react';
 
 import {
     type State,
     type County,
+    type Mill,
     type MillType,
     type WoodSpecies,
 } from '@/types';
 import {
-    // type CountiesByState,
-    // buildCountiesByState,
     normalizeStates,
 } from '@/hooks/use-mills';
 import { Button } from "@/components/ui/button"
@@ -69,13 +71,20 @@ export interface MillFormProps {
     // how are validation errors pushed back to the view?
     // Inertia sends errors in page.errors
     formData?: object;
+    mill?: Mill;
+    initialData?: MillFormData;
 }
 
 export function MillForm({
   headline = '',
   description = 'Help us improve by submitting mills that are not in our system.',
+  mill,
+  initialData,
   ...props
 }: MillFormProps) {
+    // is we have a Mill, we're editing and thus we need to post to updateMill
+    const isEditing = !!mill; // initialData;
+
     // don't extract states from props so we can use the name here
     const states = React.useMemo(() => normalizeStates(props.states), [props.states]);
 
@@ -84,25 +93,31 @@ export function MillForm({
         mode: 'onBlur',
         defaultValues: {
             // I'd love to extract defaultValues into the zod-schemas file as well
-            mill_name: "",      
-            physical_address: "",
-            physical_city: "",
-            state_id: '',
-            physical_zip: '',
+            mill_name: mill?.mill_name || '',      
+            physical_address: mill?.physical_address || '',
+            physical_city: mill?.physical_city || '',
+            state_id: (typeof mill?.state_id === 'object' ? mill.state_id.id : mill?.state_id) ?? '',
+            physical_zip: mill?.physical_zip || '',
+            // I need to figure out how to tack this on
+            // maybe an "appends" attribute?
             mailing_address_same_as_physical: true,
-            mailing_address: "",
-            mailing_city: "",
-            mailing_state_id: '',
-            mailing_zip: '',
-            telephone: '',
-            fax: '',
-            email: '',
-            web_site: '',
-            size: '',
-            year: '',
+            mailing_address: mill?.mailing_address || "",
+            mailing_city: mill?.mailing_city || "",
+            mailing_state_id: (typeof mill?.mailing_state_id === 'object' ? mill.mailing_state_id.id : mill?.mailing_state_id) ??'',
+            mailing_zip: mill?.mailing_zip || '',
+            contact_name: mill?.contact_name || '',
+            contact_title: mill?.contact_title ||'',            
+            telephone: mill?.telephone || '',
+            telephone_2: mill?.telephone_2 || '',
+            fax: mill?.fax || '',
+            email: mill?.email || '',
+            email_2: mill?.email_2 || '',
+            web_site: mill?.web_site || '',
+            size: mill?.size || '',
+            year: mill?.year || '',
             mill_types: [],
             wood_species: [],
-            submitter_email: '',
+            submitter_email: mill?.submitter_email || '',
         },
     });
 
@@ -116,24 +131,11 @@ export function MillForm({
          * toast will silently fail if the page does not also include a Toaster component somewhere.
          * To wit, I have added Toaster to the bottom of app-layout.
          */
-        // toast("You submitted the following values:", {
-        //     closeButton: true,
-        //     duration: Infinity,
-        //     description: (
-        //         <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-        //         <code>{JSON.stringify(data, null, 2)}</code>
-        //         </pre>
-        //     ),
-        //     position: "bottom-right",
-        //     classNames: {
-        //         content: "flex flex-col gap-2",
-        //     },
-        //     style: {
-        //         "--border-radius": "calc(var(--radius)  + 4px)",
-        //     } as React.CSSProperties,
-        // })
 
-        router.post(storeMill(), data, {
+        /**
+         * Umm...we need to be able to use either storeMill or patchMill, depending on the current page.
+         */
+        router.post(isEditing ? updateMill(mill.match_id) : storeMill(), data, {
           /**
            * for the love of God, I finally found the type for flash! (ah ah)
            * PageFlashData defined(-ish) in inertiajs/core
@@ -199,13 +201,13 @@ export function MillForm({
             {/** Physical Address */}
             <FieldSet id="physical_address_wrap">
               <FieldLegend>Physical Address</FieldLegend>
-                <ControlledInput
-                  control={form.control}
-                  name="physical_address"
-                  label="Street Address"
-                  placeholder=""
-                  required={doesZodRequire(millFormSchema, 'physical_address')}
-                />
+              <ControlledInput
+                control={form.control}
+                name="physical_address"
+                label="Street Address"
+                placeholder=""
+                required={doesZodRequire(millFormSchema, 'physical_address')}
+              />
 
               <div className="grid grid-cols-3 gap-4 mt-3">
 
@@ -298,10 +300,34 @@ export function MillForm({
 
             <ControlledInput 
               control={form.control}
+              name="contact_name"
+              label="Contact Name"
+              placeholder=""
+              required={doesZodRequire(millFormSchema, 'contact_name')}
+            />
+            <ControlledInput 
+              control={form.control}
+              name="contact_title"
+              label="Contact Title"
+              placeholder=""
+              required={doesZodRequire(millFormSchema, 'contact_title')}
+            />
+
+
+            <ControlledInput 
+              control={form.control}
               name="telephone"
               label="Telephone"
               placeholder=""
               required={doesZodRequire(millFormSchema, 'telephone')}
+            />
+
+            <ControlledInput 
+              control={form.control}
+              name="telephone_2"
+              label="Telephone 2"
+              placeholder=""
+              required={doesZodRequire(millFormSchema, 'telephone_2')}
             />
 
             <ControlledInput
@@ -318,6 +344,14 @@ export function MillForm({
               label="Email"
               placeholder=""
               required={doesZodRequire(millFormSchema, 'email')}
+            />
+
+            <ControlledInput
+              control={form.control}
+              name="email_2"
+              label="Email 2"
+              placeholder=""
+              required={doesZodRequire(millFormSchema, 'email_2')}
             />
 
             <ControlledInput
