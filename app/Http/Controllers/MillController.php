@@ -195,7 +195,14 @@ class MillController extends Controller
      */
     public function update(UpdateMillRequest $request, Mill $mill)
     {
-        //
+        /**
+         * Get the data without attempting validation...yet!
+         */
+        $data = $request->all();
+        Log::debug(
+            "In MillController::update(), attemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
+            $data
+        );
     }
 
     /**
