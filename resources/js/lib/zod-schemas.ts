@@ -47,7 +47,9 @@ export const millFormSchema = z.object({
         .optional()
         .or(z.literal('')),
 
-    state_id: z.string(),
+    // Added number but, FFS, TypeScript is still balking at the possibility of State
+    // when I try to add the value to the form
+    state_id: z.string().or(z.number()),
 
     // probably should add a regex for
     physical_zip: z
@@ -96,7 +98,7 @@ export const millFormSchema = z.object({
         .optional()
         .or(z.literal('')),
 
-    mailing_state_id: z.string().optional().or(z.literal('')),
+    mailing_state_id: z.string().or(z.number()).optional().or(z.literal('')),
 
     // probably should add a regex for
     mailing_zip: z
