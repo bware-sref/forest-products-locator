@@ -98,6 +98,8 @@ export interface Mill {
     physical_state?: string;
     state_id?: State|number;
     physical_zip?: string;
+    // need to add mailing_address_same_as_physical boolean
+    // but I need to add it to the model first
     mailing_address?: string;
     mailing_city?: string;
     // mailing_state may become a State|string
@@ -108,11 +110,15 @@ export interface Mill {
     mailing_county?: County|string|number;
     mailing_county_id?: County|number;
     mailing_zip?: string;
+    contact_name?: string;
+    contact_title?: string;
     telephone?: string;
+    telephone_2?: string;
     fax?: string;
     type?: string;
     species?: string;
     email?: string;
+    email_2?: string;
     web_site?: string;
     size?: string;
     modification_date?: string;
@@ -123,6 +129,7 @@ export interface Mill {
     county?: County|string;
     mill_types?: MillType[];
     wood_species?: WoodSpecies[];
+    submitter_email?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
 
