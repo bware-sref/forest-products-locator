@@ -243,6 +243,26 @@ class Mill extends Model
         );
     }
 
+    /**
+     * Attribute indicating whether the mailing and physical addresses of this Mill are the same.
+     * Added to simplify working with the Mill add/edit form schema which contains a pseudo-dummy field
+     * with the same name, but in snake_case.
+     * @return Attribute
+     */
+    protected function mailingAddressSameAsPhysical(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) =>
+                self::doAddressesMatch()
+        );
+    }
+
+    /*****************************************
+     * 
+     * Relationships
+     * 
+     *****************************************/
+
     // belongsTo State
     public function state(): BelongsTo
     {
@@ -750,14 +770,18 @@ class Mill extends Model
             return $this->{"raw_{$type}_address"};
         }
 
-        $fields = [
-            $this->{"{$type}_address"} ?? '',
-            $this->{"{$type}_city"} ?? '',
-            $this->{"{$type}_state"} ?? '',
-            $this->{"{$type}_zip"} ?? '',
-        ];
+        /**
+         * We should just use addressToString() instead of repeating it here.
+         */
+        return $this->addressToString($type, ' ');
+        // $fields = [
+        //     $this->{"{$type}_address"} ?? '',
+        //     $this->{"{$type}_city"} ?? '',
+        //     $this->{"{$type}_state"} ?? '',
+        //     $this->{"{$type}_zip"} ?? '',
+        // ];
 
-        return join(' ', $fields);
+        // return join(' ', $fields);
     }
 
     public function hasAddress(?string $type = 'physical'): bool
@@ -802,10 +826,17 @@ class Mill extends Model
         // return ! empty($this->getRawAddress($type));
     }
 
+    /**
+     * Returns true if this Mill has valid, non-empty values for both latitude and longitude, false otherwise.
+     * Valid latitude values are between -90 and 90, inclusive.
+     * Valid longitude values are between -180 and 180 inclusive.
+     * @return bool
+     */
     public function hasLatLng(): bool
     {
         /**
-         * do we actually need to do the value
+         * do we actually need to do the value?
+         * we could take absolute value of both and only compare against positive limits.
          */
         $lat = (float) $this->latitude ?? null;
         $lng = (float) $this->longitude ?? null;
@@ -913,6 +944,14 @@ class Mill extends Model
         return [$value];
     }
 
+    /**
+     * Delete Mills from the specified State which belong to an Import other than the one specified by $importId.
+     * Mills in the given State which do not belong to any import should not be deleted.
+     *
+     * @param int $importId
+     * @param int $stateId
+     * @return bool|int|mixed|null
+     */
     public static function deleteOldImports(int $importId, int $stateId): int
     {
         /**
@@ -931,6 +970,13 @@ class Mill extends Model
             ->delete();
     }
 
+    /**
+     * Update status of all mills with mill.import_id === $importId to 'Approved'.
+     * Yes, the nomenclature is inconsistent.
+     *
+     * @param int $importId
+     * @return bool|int
+     */
     public static function publishFromImport(int $importId): bool
     {
         /**
@@ -945,6 +991,13 @@ class Mill extends Model
             ]);
     }
 
+    /**
+     * Scopes a Mill query to limit results to the specified $state.
+     *
+     * @param Builder $query
+     * @param int|string $state
+     * @return Builder
+     */
     #[Scope]
     protected function byState(Builder $query, int|string $state): Builder
     {
@@ -959,6 +1012,13 @@ class Mill extends Model
         return $query->where('state_id', $state);
     }
 
+    /**
+     * Scopes a Mill query to limit results to the specified $importId.
+     *
+     * @param Builder $query
+     * @param int $importId
+     * @return Builder
+     */
     #[Scope]
     protected function byImport(Builder $query, int $importId): Builder
     {
@@ -966,7 +1026,12 @@ class Mill extends Model
     }
 
     /**
-     * 
+     * Returns address fields of the kind specified by $type as a single string.
+     * Similar to getRawAddress() 
+     *
+     * @param mixed $type
+     * @param string $glue
+     * @return string
      */
     public function addressToString(?string $type = 'physical', string $glue = ' '): string
     {
@@ -987,6 +1052,13 @@ class Mill extends Model
         return join($glue, $addy);
     }
 
+    /**
+     * Returns an array containing all field names which compose the specified address type.
+     * E.g., $type = 'physical', yields ['physical_street', 'physical_city', ...].
+     *
+     * @param mixed $type
+     * @return string[]
+     */
     public static function getAddressTypePartNames(?string $type = 'physical'): array
     {
         $type = static::validAddressType($type);
@@ -996,6 +1068,13 @@ class Mill extends Model
         );
     }
 
+    /**
+     * Validates $type as being one of those specified in Mill::ADDRESS_TYPE.
+     * If $type is not a specified address type, returns the first element of Mill::ADDRESS_TYPE.
+     *
+     * @param mixed $type
+     * @return mixed|string|null
+     */
     public static function validAddressType(?string $type): string
     {
         return \in_array($type, self::ADDRESS_TYPES) ? $type : array_first(self::ADDRESS_TYPES);        
