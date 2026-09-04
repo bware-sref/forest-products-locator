@@ -130,6 +130,8 @@ export interface Mill {
     mill_types?: MillType[];
     wood_species?: WoodSpecies[];
     submitter_email?: string;
+    // accessor for quickly informing the add/edit form that physical and mailing addresses are the same
+    mailing_address_same_as_physical?: bool;
     [key: string]: unknown; // This allows for additional properties...
 }
 
