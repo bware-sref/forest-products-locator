@@ -13,6 +13,7 @@ import {
   update as updateMill,
 } from "@/routes/mills";
 import { router } from '@inertiajs/react';
+import type { VisitHelperOptions } from '@inertiajs/core';
 
 import {
     type State,
@@ -131,16 +132,12 @@ export function MillForm({
          * toast will silently fail if the page does not also include a Toaster component somewhere.
          * To wit, I have added Toaster to the bottom of app-layout.
          */
-
         /**
-         * Umm...we need to be able to use either storeMill or patchMill, depending on the current page.
+         * for the love of God, I finally found the type for flash! (ah ah)
+         * PageFlashData defined(-ish) in inertiajs/core
+         * @param flash PageFlashData
          */
-        router.post(isEditing ? updateMill(mill.match_id) : storeMill(), data, {
-          /**
-           * for the love of God, I finally found the type for flash! (ah ah)
-           * PageFlashData defined(-ish) in inertiajs/core
-           * @param flash PageFlashData
-           */
+        const options: VisitHelperOptions<MillFormData> = {
             onFlash: (flash) => {
               // console.log('flash: ', flash);
               if (flash.message) {
@@ -164,7 +161,13 @@ export function MillForm({
                     })
                 })
             }
-        })
+        };
+
+        if (isEditing) {
+            router.patch(updateMill(mill.match_id), data, options);
+        } else {
+            router.post(storeMill(), data, options);
+        }
     }
 
   // use useEffect to reset the form after successful submission
