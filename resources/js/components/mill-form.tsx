@@ -96,14 +96,14 @@ export function MillForm({
             mill_name: mill?.mill_name || '',      
             physical_address: mill?.physical_address || '',
             physical_city: mill?.physical_city || '',
-            state_id: (typeof mill?.state_id === 'object' ? mill.state_id.id : mill?.state_id) ?? '',
+            state_id: String((typeof mill?.state_id === 'object' ? mill?.state_id?.id : mill?.state_id) ?? ''),
             physical_zip: mill?.physical_zip || '',
             // I need to figure out how to tack this on
             // maybe an "appends" attribute?
             mailing_address_same_as_physical: mill?.mailing_address_same_as_physical || true,
             mailing_address: mill?.mailing_address || "",
             mailing_city: mill?.mailing_city || "",
-            mailing_state_id: (typeof mill?.mailing_state_id === 'object' ? mill?.mailing_state_id.id : mill?.mailing_state_id) ??'',
+            mailing_state_id: String((typeof mill?.mailing_state_id === 'object' ? mill?.mailing_state_id?.id : mill?.mailing_state_id) ?? ''),
             mailing_zip: mill?.mailing_zip || '',
             contact_name: mill?.contact_name || '',
             contact_title: mill?.contact_title ||'',            
