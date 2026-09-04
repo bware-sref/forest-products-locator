@@ -177,6 +177,30 @@ class Mill extends Model
         'mailing',
     ];
 
+    public const array FORM_FIELDS = [
+        'mill_name',
+        'physical_address',
+        'physical_city',
+        'state_id',
+        'physical_zip',
+        'mailing_address',
+        'mailing_city',
+        'mailing_state_id',
+        'mailing_zip',
+        'contact_name',
+        'contact_title',
+        'telephone',
+        'telephone_2',
+        'fax',
+        'email',
+        'email_2',
+        'web_site',
+        'size',
+        'year',
+        'millTypes',
+        'woodSpecies',
+    ];
+
     /**
      * List of accessors to append to the model's array/JSON form.
      * Accessors with the same name as the underlying attribute do not need to be appended.
@@ -1109,5 +1133,12 @@ class Mill extends Model
         [$phys, $mail] = $addresses;
 
         return $phys === $mail;
+    }
+
+    public function onlyFormFields(): array
+    {
+        return collect($this->toArray())
+            ->only(self::FORM_FIELDS)
+            ->toArray();
     }
 }
