@@ -100,7 +100,7 @@ export function MillForm({
             physical_zip: mill?.physical_zip || '',
             // I need to figure out how to tack this on
             // maybe an "appends" attribute?
-            mailing_address_same_as_physical: true,
+            mailing_address_same_as_physical: mill?.mailing_address_same_as_physical || true,
             mailing_address: mill?.mailing_address || "",
             mailing_city: mill?.mailing_city || "",
             mailing_state_id: (typeof mill?.mailing_state_id === 'object' ? mill?.mailing_state_id.id : mill?.mailing_state_id) ??'',
