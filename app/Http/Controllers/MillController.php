@@ -183,6 +183,10 @@ class MillController extends Controller
      */
     public function edit(Mill $mill)
     {
+        /**
+         * Load related models so they can populate in the form
+         */
+        $mill->load(['millTypes', 'woodSpecies']);
         return Inertia::render('add-business', [
             'pageTitle' => 'Edit Mill',
             'mill' => $mill,
