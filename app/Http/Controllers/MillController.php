@@ -211,6 +211,12 @@ class MillController extends Controller
     public function update(UpdateMillRequest $request, Mill $mill)
     {
         /**
+         * WTF?
+         * loading related models causes an exception?!?
+         */
+        // $mill->load(['millTypes', 'woodSpecies']);
+
+        /**
          * Get the data without attempting validation...yet!
          */
         $data = $request->all();
@@ -224,13 +230,20 @@ class MillController extends Controller
              * I can already tell that we need to filter the raw Mill data to be able to get a meaningful diff
              * against the form submissions.
              */
+            /**
+             * Loaded related models here breaks the shit as well...
+             */
+            // $mill->load(['millTypes', 'woodSpecies']);
+
             $ma = $mill->toArray();            
             $diff = array_diff_assoc($ma, $data);
 
             Log::debug("MillController::update()...", ['diff' => $diff, 'mill' => $ma]);
 
+            $onlyForm = $mill->onlyFormFields();
+
             return Inertia::render('debug-dump', [
-                'original' => $mill,
+                'original' => $onlyForm,
                 'submitted' => $data,
                 'diff' => $diff,
             ]);
@@ -269,7 +282,7 @@ class MillController extends Controller
             ]);
         }
 
-        return to_route('mills.edit');
+        return to_route('mills.edit', ['mill' => $mill]);
     }
 
     /**
