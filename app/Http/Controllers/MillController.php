@@ -108,6 +108,9 @@ class MillController extends Controller
     /**
      * Store a newly created resource in storage.
      * Accepts POST from create (mill form)
+     * 
+     * We might need to modify this to store submitted data in the mill_edits table instead of mills.
+     * That can happen after we figure out how to handle mill edits.
      */
     public function store(StoreMillRequest $request)
     {
@@ -148,6 +151,9 @@ class MillController extends Controller
 
                 Log::debug('Creating mill with data', $data);
 
+                /**
+                 * As such, we don't need to create a new mill here.
+                 */
                 $newMill = Mill::create($data);
 
                 // attach mill types and wood species
@@ -189,6 +195,11 @@ class MillController extends Controller
         $mill->load(['millTypes', 'woodSpecies']);
         return Inertia::render('add-business', [
             'pageTitle' => 'Edit Mill',
+            'pageSeo' => PageSeo::resolve(
+                'mills.edit',
+                "Edit Mill {$mill->mill_name}",
+                'Submit updates for a sawmill, pulp mill, or forest product processing business in our directory.'
+            ),
             'mill' => $mill,
             ...$this->getData(),
         ]);
@@ -207,6 +218,52 @@ class MillController extends Controller
             "In MillController::update(), attemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
             $data
         );
+
+        try {
+            /**
+             * I can already tell that we need to filter the raw Mill data to be able to get a meaningful diff
+             * against the form submissions.
+             */
+            $ma = $mill->toArray();            
+            $diff = array_diff_assoc($ma, $data);
+
+            Log::debug("MillController::update()...", ['diff' => $diff, 'mill' => $ma]);
+
+            /**
+             * Naynaw, dawg!
+             * the second argument means query string parameters
+             */
+            return to_route('mills.edit', [
+                'mill' => $mill,
+                'diff' => $diff,
+                'data' => $data,
+            ]);
+
+        // return Inertia::render('add-business', [
+        //     'pageTitle' => 'Edit Mill',
+        //     'pageSeo' => PageSeo::resolve(
+        //         'mills.edit',
+        //         // "mills/{$mill->match_id}/edit",
+        //         "Edit Mill {$mill->mill_name}",
+        //         'Submit updates for a sawmill, pulp mill, or forest product processing business in our directory.'
+        //     ),
+        //     'mill' => $mill,
+        //     'diff' => $diff,
+        //     'data' => $data,
+        //     'millArray' => $ma,
+        //     ...$this->getData(),
+        // ]);
+
+
+        } catch (\Exception $e) {
+            Log::error("Error editing Mill #{$mill->id}.", ['error' => $e->getMessage()]);
+            Inertia::flash([
+                'type' => 'error',
+                'message' => "Error when attempting to store edits to Mill #{$mill->id}.",
+            ]);
+        }
+
+        return to_route('mills.edit');
     }
 
     /**
