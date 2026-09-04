@@ -229,15 +229,21 @@ class MillController extends Controller
 
             Log::debug("MillController::update()...", ['diff' => $diff, 'mill' => $ma]);
 
+            return Inertia::render('debug-dump', [
+                'original' => $mill,
+                'submitted' => $data,
+                'diff' => $diff,
+            ]);
+
             /**
              * Naynaw, dawg!
              * the second argument means query string parameters
              */
-            return to_route('mills.edit', [
-                'mill' => $mill,
-                'diff' => $diff,
-                'data' => $data,
-            ]);
+            // return to_route('mills.edit', [
+            //     'mill' => $mill,
+            //     'diff' => $diff,
+            //     'data' => $data,
+            // ]);
 
         // return Inertia::render('add-business', [
         //     'pageTitle' => 'Edit Mill',
