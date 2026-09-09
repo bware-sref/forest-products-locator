@@ -8,11 +8,13 @@ use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
 use App\Models\County;
 use App\Models\Mill;
+use App\Models\MillEdit;
 use App\Models\PageSeo;
 use App\Models\State;
 use App\Models\WoodSpecies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -211,19 +213,21 @@ class MillController extends Controller
     public function update(UpdateMillRequest $request, Mill $mill)
     {
         /**
-         * WTF?
-         * loading related models causes an exception?!?
-         */
-        // $mill->load(['millTypes', 'woodSpecies']);
-
-        /**
          * Get the data without attempting validation...yet!
+         * also, make empty strings null so comparing empty to empty doesn't incorrectly flag changes.
          */
-        $data = $request->all();
+        $data = emptyToNull($request->all());
+        $onlyForm = emptyToNull($mill->onlyFormFields(true));
+
         Log::debug(
             "In MillController::update(), attemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
             $data
         );
+
+        Log::debug('Submitted mill_types: ', ['mill_types' => $data['mill_types'] ?? 'WTF? twas null?!?']);
+
+        Log::debug('Submitted wood_species: ', ['wood_species' => $data['wood_species'] ?? 'WTF? twas null?!?']);
+
 
         try {
             /**
@@ -231,48 +235,71 @@ class MillController extends Controller
              * against the form submissions.
              */
             /**
-             * Loaded related models here breaks the shit as well...
+             * Loading related models with load() breaks so we have to just grab them off the model?
              */
-            // $mill->load(['millTypes', 'woodSpecies']);
-
-            $ma = $mill->toArray();            
-            $diff = array_diff_assoc($ma, $data);
-
-            Log::debug("MillController::update()...", ['diff' => $diff, 'mill' => $ma]);
-
-            $onlyForm = $mill->onlyFormFields();
-
-            return Inertia::render('debug-dump', [
-                'original' => $onlyForm,
-                'submitted' => $data,
-                'diff' => $diff,
-            ]);
+            $millTypes = $mill->millTypes->pluck('id')->map(fn ($item) => (int) $item)->toArray();
+            $woodSpecies = $mill->woodSpecies->pluck('id')->map(fn ($item) => (int) $item)->toArray();
 
             /**
-             * Naynaw, dawg!
-             * the second argument means query string parameters
+             * Diff should probably be a Mill method.
              */
-            // return to_route('mills.edit', [
-            //     'mill' => $mill,
-            //     'diff' => $diff,
-            //     'data' => $data,
+            $diff = $mill->diff($data);
+
+            Log::debug('MillController::update(): diff mill update', ['diff' => $diff]);
+
+            // declare $edit so we can check below
+            $edit = null;
+
+            /**
+             * Here's where we check $diff to see if we need to store an update.
+             * If we don't, just thank the user and pretend nothing happened.
+             * Actually, perhaps we just check !empty($diff) instead because the mess below happens either way.
+             */
+            if (! empty($diff)) {
+                $edit = MillEdit::create([
+                    'mill_id' => $mill->id,
+                    'submitter_email' => $data['submitter_email'],
+                    'submitter_ip' => $data['submitter_ip'],
+                    'proposed_changes' => json_encode($diff, JSON_PRETTY_PRINT),
+                ]);
+
+            }
+
+            /**
+             * How important is the diff at this stage?
+             * A little important.
+             * We need to make sure that the user actually submitted sufficiently different information to merit review
+             * by a state forestry official.
+             * We can use model events to add approve_hash and reject_hash.
+             */
+            // return Inertia::render('dump-trunk', [
+            //     'original' => $onlyForm, // $mill->onlyFormFields(true), // $onlyForm,
+            //     'submitted' => $data,
+            //     'etAl' => [
+            //         'diff' => $diff,
+            //         'late dirty' => $dirty,
+            //         'original' => $original,
+            //         // 'onlyForm' => $onlyForm,
+            //         // 'og:millTypes' => $millTypes,
+            //         // 'og:woodSpecies' => $woodSpecies,
+            //         // 'prefill' => $prefill,
+            //         'fill' => $mill->toArray(),
+            //     ],
             // ]);
 
-        // return Inertia::render('add-business', [
-        //     'pageTitle' => 'Edit Mill',
-        //     'pageSeo' => PageSeo::resolve(
-        //         'mills.edit',
-        //         // "mills/{$mill->match_id}/edit",
-        //         "Edit Mill {$mill->mill_name}",
-        //         'Submit updates for a sawmill, pulp mill, or forest product processing business in our directory.'
-        //     ),
-        //     'mill' => $mill,
-        //     'diff' => $diff,
-        //     'data' => $data,
-        //     'millArray' => $ma,
-        //     ...$this->getData(),
-        // ]);
-
+            $msg = "Successfully submitted updates for '{$mill->mill_name}' Mill #{$mill->id}!";
+            if (!empty($edit)) {
+                $msg .= " (Edit #{$edit->id})";
+            }
+            Log::debug($msg, [
+                'diff' => $diff,
+                'millData' => $mill->toArray()
+            ]);
+            Inertia::flash([
+                'type' => 'success',
+                'message' => $msg,
+            ]);
+            return to_route('mills.show', $mill);
 
         } catch (\Exception $e) {
             Log::error("Error editing Mill #{$mill->id}.", ['error' => $e->getMessage()]);
