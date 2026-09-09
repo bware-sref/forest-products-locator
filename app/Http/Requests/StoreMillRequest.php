@@ -86,6 +86,20 @@ class StoreMillRequest extends FormRequest
                 'max:10',
             ],
 
+            // contact_name
+            'contact_name' => [
+                'string',
+                'nullable',
+                'max:255',
+            ],
+
+            // contact_title
+            'contact_title' => [
+                'string',
+                'nullable',
+                'max:255',
+            ],
+
             // +1 (123) 456-7890 <- 17 characters            
             'telephone' => [
                 'string',
@@ -93,6 +107,16 @@ class StoreMillRequest extends FormRequest
                 'regex:/^\+?1?(\s*[\-\.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[\-\.]\s*|\s+)?[0-9]{3}(\s*[\-\.]\s*|\s+)?[0-9]{4}$/',
                 'max:17',
             ],
+
+            // telephone_2
+            // +1 (123) 456-7890 <- 17 characters            
+            'telephone_2' => [
+                'string',
+                'nullable',
+                'regex:/^\+?1?(\s*[\-\.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[\-\.]\s*|\s+)?[0-9]{3}(\s*[\-\.]\s*|\s+)?[0-9]{4}$/',
+                'max:17',
+            ],
+
             'fax' => [
                 'string',
                 'nullable',
@@ -109,6 +133,18 @@ class StoreMillRequest extends FormRequest
                     // validateMxRecord() requires PHP intl extension
                     // we may only want to do this for capturing submitter's email
             ],
+
+            // email_2
+            'email_2' => [
+                'nullable',
+                Rule::email()
+                    ->rfcCompliant(strict: true) // check for strict RFC c
+                    // preventSpoofing() requires PHP intl extension, which we may not have
+                    ->preventSpoofing() // prevent sneaky, lookalike Unicode characters
+                    // validateMxRecord() requires PHP intl extension
+                    // we may only want to do this for capturing submitter's email
+            ],
+
 
             /**
              * only allow URLs with http or https protocol
@@ -163,9 +199,20 @@ class StoreMillRequest extends FormRequest
             // 'mailing_address_same_as_physical' => $this->boolean('mailing_address_same_as_physical'),
             'submitter_ip' => $this->ip(),
             'status' => PublicationStatus::Pending->value,
-            // if and when approved, we can consider changing the match_id to a cleaner slug, but for now, let's just ensure uniqueness by appending a suffix based on the number of existing mills with the same base slug.
-            'match_id' => Str::slug($this->mill_name) . '-' . Carbon::now(),
         ]);
+
+        // we should probably handle match_id separately since we don't want to generate a new match_id on every update
+        // Actually, we should omit match_id altogether because new Mill submissions
+        // The condition here could also simply be the instance's classname, or even the URL of the request.
+        if (! $this->input('_method') || ! \in_array($this->input('_method'), ['PUT', 'PATCH'])) {
+            $this->merge([
+                /**
+                 * If we insert into mill_edits instead of mills, this issue goes away.
+                 */
+                // if and when approved, we can consider changing the match_id to a cleaner slug, but for now, let's just ensure uniqueness by appending a suffix based on the number of existing mills with the same base slug.
+                'match_id' => Str::slug($this->mill_name) . '-' . Carbon::now()->timestamp,
+            ]);
+        }
 
         // if mailing and physical addresses are the same, copy physical address fields to mailing address fields
         if ($this->input('mailing_address_same_as_physical') && 
@@ -185,6 +232,10 @@ class StoreMillRequest extends FormRequest
         }
 
         // also, we need to add approve and reject hashes to the data so that we can include them in the email to the admin for approving or rejecting the mill submission without having to log in to the admin panel and find the mill record.
+        /**
+         * Fair enough, but how do you plan to show the differences to the admin without logging them in?
+         * A third hash for viewing the differences/new mill submission!
+         */
 
         Log::debug('Data after merging additional fields in prepareForValidation(): ', $this->all());
     }

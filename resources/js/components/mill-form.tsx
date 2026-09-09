@@ -93,6 +93,9 @@ export function MillForm({
         resolver: zodResolver(millFormSchema),
         mode: 'onBlur',
         defaultValues: {
+            // we might need to spoof the method because PATCH has patchy support
+            _method: isEditing ? 'PATCH' : 'POST',
+            // we might need to add match_id
             // I'd love to extract defaultValues into the zod-schemas file as well
             mill_name: mill?.mill_name || '',      
             physical_address: mill?.physical_address || '',
@@ -191,6 +194,11 @@ export function MillForm({
       </CardHeader>
       <CardContent>
         <form id="form-submit-mill" onSubmit={form.handleSubmit(onSubmit)}>
+          {/* 
+          Do we need to jam a hidden input in here to inform the method for PUT and PATCH requests?
+          Nope!
+          React Hook Form state adds hidden inputs for items in form schema which lack an explicit form element.
+           */}
           <FieldGroup>
 
             <ControlledInput

@@ -24,6 +24,8 @@ export const contactFormSchema = z.object({
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 
 export const millFormSchema = z.object({
+    // add a hidden input to inform the method for put and patch requests
+    _method: z.literal(['POST', 'PATCH', 'PUT']),
     mill_name: z
         .string()
         .min(2, 'Mill Name must be at least 2 characters.')
