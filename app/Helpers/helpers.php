@@ -21,3 +21,28 @@ if (! function_exists('trimp')) {
         return $trim($trim($subject), $characters);
     }
 }
+
+if (! function_exists('emptyToNull')) {
+
+    /**
+     * Converts empty string to null.
+     * Operates on either a single, scalar string or an array of strings.
+     *
+     * @param null|string|array $subject
+     * @return array|bool|mixed|string|null
+     */
+    function emptyToNull(null|string|array $subject): string|array|null
+    {
+        $unwrap = ! is_array($subject);
+        if ($unwrap) {
+            $subject = [$subject];            
+        }
+        foreach ($subject as $k => $v) {
+            $subject[$k] = empty($v) ? null : $v;
+        }
+        if ($unwrap) {
+            $subject = reset($subject);
+        }
+        return $subject;
+    }
+}
