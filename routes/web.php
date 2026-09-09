@@ -4,6 +4,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\GeocodingController;
 use App\Http\Controllers\MillController;
+use App\Http\Controllers\MillEditController;
 use App\Http\Controllers\StatePageController;
 use App\Http\Controllers\StateResourceController;
 use App\Models\PageSeo;
@@ -67,6 +68,13 @@ Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
 
 Route::match(['get', 'post'], '/mills/export/', [MillController::class, 'export'])
     ->name('mills.export');
+
+/**
+ * Show MillEdits!
+ */
+Route::get('/mill-edits/{mill_edit:id}', [MillEditController::class, 'show'])
+    ->name('mill-edits.show');
+
 
 /**
  * FAQ
