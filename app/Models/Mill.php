@@ -199,6 +199,8 @@ class Mill extends Model
         'year',
         'millTypes',
         'woodSpecies',
+        'mill_types',
+        'wood_species',
     ];
 
     /**
@@ -1135,10 +1137,155 @@ class Mill extends Model
         return $phys === $mail;
     }
 
-    public function onlyFormFields(): array
+    public function onlyFormFields(bool $withRelations = false): array
     {
-        return collect($this->toArray())
+        /**
+         * Do we need to slap on millTypes and woodSpecies?
+         */
+        $mill = collect($this->toArray())
             ->only(self::FORM_FIELDS)
             ->toArray();
+        
+        /**
+         * Should we flatten these to only be lists of ids?
+         */
+        if ($withRelations) {
+            $mill['mill_types'] = $this->millTypes->pluck('id')->map(fn ($item) => (int) $item)->toArray();
+            $mill['wood_species'] = $this->woodSpecies->pluck('id')->map(fn ($item) => (int) $item)->toArray();
+        }
+        return $mill;
+    }
+
+    public static function filterFormFields(Mill|array $data): array
+    {
+        $data = \is_array($data) ? $data : $data->toArray();
+        return collect($data)
+            ->filter(fn ($value, $key) => \in_array($key, self::FORM_FIELDS))
+            ->toArray();
+    }
+
+
+    public function diff(Mill|array $otherMill): array
+    {
+        /**
+         * or we could do ! is_array()
+         * Yeah, we maybe shouldn't allow passing a Mill...
+         * If we do though, we need to make sure to slap millTypes and woodSpecies back on it.
+         */
+        $otherMill = ($otherMill instanceof Mill) ? $otherMill->onlyFormFields(true) : $otherMill;
+
+        // $me = collect($this->onlyFormFields(true));
+
+        // $repeat = $this->replicate();
+        // $this->original
+        $this->fill($otherMill);
+        $dirty = $this->getDirty();
+        $dirty['mill_types'] = $otherMill['mill_types'] ?? [];
+        $dirty['wood_species'] = $otherMill['wood_species'] ?? [];
+
+        $original = Mill::filterFormFields($this->original);
+        $original['mill_types'] = $this->millTypes->pluck('id')->map(fn($item) => (string) $item)->toArray();
+        $original['wood_species'] = $this->woodSpecies->pluck('id')->map(fn($item) => (string) $item)->toArray();
+
+        Log::debug('Mill::diff(): otherMill', $otherMill);
+
+        Log::debug('Mill::diff(): dirty', $dirty);
+        Log::debug('Mill::diff(): original', $original);
+
+        $diff = [];
+
+        /**
+         * Do our own comparison because Collection::diffAssocUsing() uses that weird array comparison that you only supply
+         * a closure to compare keys and uses basic comparison for the values.
+         */
+        foreach ($dirty as $k => $v) {
+            /**
+             * Skip anything not in FORM_FIELDS
+             */
+            if (! \in_array($k, self::FORM_FIELDS)) {
+                unset($dirty[$k]);
+                continue;
+            }
+
+            /**
+             * What are we looking for?
+             * False differences between null and empty strings.
+             * What else?
+             */
+            /**
+             * If both are empty, we don't care if one is null and the other is "".
+             */
+            if (empty($v) && empty($original[$k])) {
+                // Log::debug("Mill::diff(): unsetting dirty[{$k}] because both values are empty.", [
+                //     "dirty[{$k}]" => $dirty[$k],
+                //     "original[{$k}]" => $original[$k],
+                // ]);
+                unset($dirty[$k]);
+                continue;
+            }
+
+            if ($v == $original[$k]) {
+                Log::debug("Allegedly, the values for {$k} are equivalent: ", [
+                    "dirty[$k]" => $v,
+                    "original[$k]" => $original[$k],
+                ]);
+                unset($dirty[$k]);
+                continue;
+            }
+
+            
+            /**
+             * If we made it this far, we have a diff!
+             */
+            $from = $original[$k] ?: '';
+            $to = $otherMill[$k] ?: '';
+            if ($from != $to) {
+                $diff[$k] = [
+                    'from' => $from,
+                    'to' => $to,
+                ];
+            }
+
+        }
+
+        /**
+         * So what are we doing here?
+         * We check dirty, maybe remove some elements, then don't use it again?
+         */
+
+        Log::debug('Mill::diff(): after dirty...', $dirty);
+        Log::debug('Mill::diff(): and the diff?', ['diff' => $diff]);
+
+        return $diff;
+        // if (empty($dirty)) {
+        //     return $dirty;
+        // }
+
+        /**
+         * We can use Model::getDirty() for some of this.
+         * However, getDirty() does not consider null and '' to be equivalent, so we will still need to check those.
+         * Additionally, meta values like 'status', 'submitter_email', and 'submitter_ip' also get swept up in getDirty(),
+         * and getDirty() doesn't compare the related models.
+         */
+
+        foreach ($original as $k => $v) {
+            /**
+             * What are the cases we need to handle?
+             * - not set at all?
+             *  - could only be in the other because we're looping over this mill's fields
+             * - empty string and null are equal
+             */
+            $from = $original[$k] ?: '';
+            $to = $otherMill[$k] ?: '';
+            if ($from != $to) {
+                $diff[$k] = [
+                    'from' => $from,
+                    'to' => $to,
+                ];
+            }
+        }
+
+
+        return $diff;
     }
 }
