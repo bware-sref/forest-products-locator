@@ -420,3 +420,16 @@ export interface StateResource {
     sort_weight: number;
     [key: string]: unknown;
 }
+
+export interface MillEdit {
+    id: number;
+    mill_id: number;
+    submitter_email: string;
+    submitter_ip: string;
+    approve_hash?: string;
+    reject_hash?: string;
+    url: string;
+    proposed_changes: string;
+    status: string;
+    [key: string]: unknown;
+}
