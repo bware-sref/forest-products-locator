@@ -145,7 +145,7 @@ export const millFormSchema = z.object({
         // but that's only because - is first, and I guess also because escaping . in a character class is unnecessary?
         .regex(
             /^\+?1?(\s*[-.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[-.]\s*|\s+)?[0-9]{3}(\s*[-.]\s*|\s+)?[0-9]{4}$/,
-            'Telephone must be a valid US phone number.',
+            'Telephone 2 must be a valid US phone number.',
         )
         .optional()
         .or(z.literal('')),
