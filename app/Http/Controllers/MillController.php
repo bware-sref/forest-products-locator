@@ -217,7 +217,7 @@ class MillController extends Controller
          * also, make empty strings null so comparing empty to empty doesn't incorrectly flag changes.
          */
         $data = emptyToNull($request->all());
-        $onlyForm = emptyToNull($mill->onlyFormFields(true));
+        // $onlyForm = emptyToNull($mill->onlyFormFields(true));
 
         Log::debug(
             "In MillController::update(), attemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
@@ -237,8 +237,8 @@ class MillController extends Controller
             /**
              * Loading related models with load() breaks so we have to just grab them off the model?
              */
-            $millTypes = $mill->millTypes->pluck('id')->map(fn ($item) => (int) $item)->toArray();
-            $woodSpecies = $mill->woodSpecies->pluck('id')->map(fn ($item) => (int) $item)->toArray();
+            // $millTypes = $mill->millTypes->pluck('id')->map(fn ($item) => (int) $item)->toArray();
+            // $woodSpecies = $mill->woodSpecies->pluck('id')->map(fn ($item) => (int) $item)->toArray();
 
             /**
              * Diff should probably be a Mill method.
@@ -255,12 +255,12 @@ class MillController extends Controller
              * If we don't, just thank the user and pretend nothing happened.
              * Actually, perhaps we just check !empty($diff) instead because the mess below happens either way.
              */
-            if (! empty($diff)) {
+            if (! empty($diff['changes'])) {
                 $edit = MillEdit::create([
                     'mill_id' => $mill->id,
                     'submitter_email' => $data['submitter_email'],
                     'submitter_ip' => $data['submitter_ip'],
-                    'proposed_changes' => json_encode($diff, JSON_PRETTY_PRINT),
+                    'proposed_changes' => json_encode($diff),
                 ]);
 
             }
