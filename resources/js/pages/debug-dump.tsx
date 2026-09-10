@@ -2,8 +2,8 @@
 
 // Define strict types for the component props
 interface DebugDumpProps {
-    original: Record<string, any>;
-    submitted: Record<string, any>;
+    original: Record<string, unknown>;
+    submitted: Record<string, unknown>;
 }
 
 export default function DebugDump({ original, submitted }: DebugDumpProps) {
@@ -14,7 +14,7 @@ export default function DebugDump({ original, submitted }: DebugDumpProps) {
     };
 
     // Helper to safely display nested structures or primitives as strings
-    const renderValue = (value: any): string => {
+    const renderValue = (value: unknown): string => {
         if (value === null || value === undefined) return '(Not set)';
         if (typeof value === 'object') return JSON.stringify(value);
         return String(value);

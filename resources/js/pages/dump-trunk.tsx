@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Flexible types for our payload parameters
-type PrimitiveOrNested = string | number | boolean | null | undefined | any[] | Record<string, any>;
+type PrimitiveOrNested = string | number | boolean | null | undefined | unknown[] | Record<string, unknown>;
 
 interface DumpTrunkProps {
     original: Record<string, PrimitiveOrNested>;
@@ -12,35 +12,39 @@ interface DumpTrunkProps {
 
 export default function DumpTrunk({ original, submitted, etAl }: DumpTrunkProps) {
     
+    const original2 = structuredClone(original);
+    const submitted2 = structuredClone(submitted);
+
     // Type-safe comparison check
     const isChanged = (key: string): boolean => {
         // changing to non-strict equivalence to allow string/number equivalence
         // const helf = {
-        //     oog: original[key],
-        //     og: JSON.stringify(original[key]),
-        //     nbcbs: JSON.stringify(submitted[key]),
-        //     onbcbs: submitted[key],
+        //     oog: original2[key],
+        //     og: JSON.stringify(original2[key]),
+        //     nbcbs: JSON.stringify(submitted2[key]),
+        //     onbcbs: submitted2[key],
         // };
         // console.log(`helf.${key}`, helf);
-        // if original[key] is NOT not a number
-        if (typeof original[key] === 'number' && typeof submitted[key] !== 'number') {
-            console.log(`typeof original[${key}]: ${typeof original[key]} : (${original[key]})`);
-            console.log(`typeof submitted[${key}]: ${typeof submitted[key]} : (${submitted[key]})`);
-            console.log(`converting submitted[${key}] to number: (original) ${submitted[key]}`);
-
-            submitted[key] = Number(submitted[key]);
+        // if original2[key] is NOT not a number
+        if (typeof original2[key] === 'number' && typeof submitted2[key] !== 'number') {
+            console.log(`typeof original2[${key}]: ${typeof original2[key]} : (${original2[key]})`);
+            console.log(`typeof submitted2[${key}]: ${typeof submitted2[key]} : (${submitted2[key]})`);
+            console.log(`converting submitted2[${key}] to number: (original2) ${submitted2[key]}`);
+            // modifying component props or hook arguments is a TypeScript no-no.
+            // the rec is to use a local variable instead...
+            submitted2[key] = Number(submitted2[key]);
         // } else {
-        //     console.log(`original[${key}] is not a number: typeof ${original[key]} : ${typeof original[key]}`);
-            // console.log(`original[${key}] is NaN? ${Number(original[key]) + ' vs ' + original[key]}`);
+        //     console.log(`original2[${key}] is not a number: typeof ${original2[key]} : ${typeof original2[key]}`);
+            // console.log(`original2[${key}] is NaN? ${Number(original2[key]) + ' vs ' + original2[key]}`);
         }
-        // console.log(`original[${key}] vs. submitted[${key}]: ${original[key]} ?== ${submitted[key]}`);
-        // console.log(`JSON.stringify(original[${key}]) vs. JSON.stringify(submitted[${key}]): ${JSON.stringify(original[key])} ?== ${JSON.stringify(submitted[key])}`);
+        // console.log(`original2[${key}] vs. submitted2[${key}]: ${original2[key]} ?== ${submitted2[key]}`);
+        // console.log(`JSON.stringify(original2[${key}]) vs. JSON.stringify(submitted2[${key}]): ${JSON.stringify(original2[key])} ?== ${JSON.stringify(submitted2[key])}`);
         // when would we actually need stringify?
-        return JSON.stringify(original[key]) != JSON.stringify(submitted[key]);
+        return JSON.stringify(original2[key]) != JSON.stringify(submitted2[key]);
     };
 
     // Helper to format values cleanly, rendering relationships & pivots readably
-    const renderValue = (value: any): React.ReactNode => {
+    const renderValue = (value: unknown): React.ReactNode => {
         if (value === null || value === undefined) {
             return <span className="text-slate-500 italic">(Not set)</span>;
         }
