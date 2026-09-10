@@ -1174,23 +1174,55 @@ class Mill extends Model
          */
         $otherMill = ($otherMill instanceof Mill) ? $otherMill->onlyFormFields(true) : $otherMill;
 
-        // $me = collect($this->onlyFormFields(true));
-
-        // $repeat = $this->replicate();
-        // $this->original
+        /**
+         * Use $otherMill to fill the current Mill.
+         * Then we can then use getDirty() and original (or getOriginal()) to examine most of the differences.
+         */
         $this->fill($otherMill);
+
+        /**
+         * getDirty() doesn't include relationships that don't have a foreignKey on the current model.
+         * I.e., it doesn't include millTypes or woodSpecies.
+         */
         $dirty = $this->getDirty();
+
+        /**
+         * Okay.
+         * After much hemming and hawing, I've decided to convert the string ids from the form
+         * submission into integer values.
+         * We could probably do that in the Request, but mutating the submitted data directly seems like the
+         * wrong approach because we might have to push that data back to the form.
+         * 
+         * Holy mother of Pony!
+         * squishing to int does nothing because they still end up being strings when converted to JSON.
+         * Also, not using JSON_PRETTYPRINT cause damn thing to not fetch right from the DB.
+         * PHP ends up thinking it's a string instead of casting to an array.
+         */
+        // $dirty['mill_types'] = collect($otherMill['mill_types'] ?? [])->map('intval')->toArray();
+        // $dirty['wood_species'] = collect($otherMill['wood_species'] ?? [])->map('intval')->toArray();
         $dirty['mill_types'] = $otherMill['mill_types'] ?? [];
         $dirty['wood_species'] = $otherMill['wood_species'] ?? [];
 
+        /**
+         * Should we just convert mill_types and wood_species to integers here?
+         */
+
+        /**
+         * Pass the original Mill data through filterFormFields() to strip away values that are not in the form.
+         */
         $original = Mill::filterFormFields($this->original);
+        /**
+         * Instead of casting otherMill's strings to int, we cast the original ints to string.
+         */
         $original['mill_types'] = $this->millTypes->pluck('id')->map(fn($item) => (string) $item)->toArray();
         $original['wood_species'] = $this->woodSpecies->pluck('id')->map(fn($item) => (string) $item)->toArray();
+        // $original['mill_types'] = $this->millTypes->pluck('id')->toArray();
+        // $original['wood_species'] = $this->woodSpecies->pluck('id')->toArray();
 
-        Log::debug('Mill::diff(): otherMill', $otherMill);
+        // Log::debug('Mill::diff(): otherMill', $otherMill);
 
-        Log::debug('Mill::diff(): dirty', $dirty);
-        Log::debug('Mill::diff(): original', $original);
+        // Log::debug('Mill::diff(): dirty', $dirty);
+        // Log::debug('Mill::diff(): original', $original);
 
         $diff = [];
 
