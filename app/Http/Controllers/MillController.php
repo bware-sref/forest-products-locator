@@ -6,6 +6,7 @@ use App\Exports\MillsExport;
 use App\Http\Requests\MillResourceRequest;
 use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
+use App\Jobs\SendMillEditNotification;
 use App\Models\County;
 use App\Models\Mill;
 use App\Models\MillEdit;
@@ -89,6 +90,8 @@ class MillController extends Controller
 
     /**
      * Display the Mill form
+     * 
+     * @TODO move this to MillEditController
      */
     public function create()
     {
@@ -113,6 +116,8 @@ class MillController extends Controller
      * 
      * We might need to modify this to store submitted data in the mill_edits table instead of mills.
      * That can happen after we figure out how to handle mill edits.
+     * 
+     * @TODO move this to MillEditController
      */
     public function store(StoreMillRequest $request)
     {
@@ -188,6 +193,8 @@ class MillController extends Controller
     /**
      * We need edit(Mill $mill) if we allow submitting corrections to Mill data
      * It might be useful to make edit-business a separate page component...
+     * 
+     * @TODO move this to MillEditController
      */
     public function edit(Mill $mill)
     {
@@ -209,6 +216,8 @@ class MillController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * 
+     * @TODO move this to MillEditController
      */
     public function update(UpdateMillRequest $request, Mill $mill)
     {
@@ -217,17 +226,15 @@ class MillController extends Controller
          * also, make empty strings null so comparing empty to empty doesn't incorrectly flag changes.
          */
         $data = emptyToNull($request->all());
-        // $onlyForm = emptyToNull($mill->onlyFormFields(true));
 
-        Log::debug(
-            "In MillController::update(), attemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
-            $data
-        );
+        // Log::debug(
+        //     "In MillController::update(), attemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
+        //     $data
+        // );
 
-        Log::debug('Submitted mill_types: ', ['mill_types' => $data['mill_types'] ?? 'WTF? twas null?!?']);
+        // Log::debug('Submitted mill_types: ', ['mill_types' => $data['mill_types'] ?? 'WTF? twas null?!?']);
 
-        Log::debug('Submitted wood_species: ', ['wood_species' => $data['wood_species'] ?? 'WTF? twas null?!?']);
-
+        // Log::debug('Submitted wood_species: ', ['wood_species' => $data['wood_species'] ?? 'WTF? twas null?!?']);
 
         try {
             /**
@@ -241,7 +248,7 @@ class MillController extends Controller
             // $woodSpecies = $mill->woodSpecies->pluck('id')->map(fn ($item) => (int) $item)->toArray();
 
             /**
-             * Diff should probably be a Mill method.
+             * Diff should is now a Mill method.
              */
             $diff = $mill->diff($data);
 
@@ -260,7 +267,12 @@ class MillController extends Controller
                     'mill_id' => $mill->id,
                     'submitter_email' => $data['submitter_email'],
                     'submitter_ip' => $data['submitter_ip'],
-                    'proposed_changes' => json_encode($diff),
+                    /**
+                     * Interesting...
+                     * Without JSON_PRETTYPRINT, fucker thinks it's a string instead of casting to an array.
+                     * Also, I think the following is the poor man's way to cast the strings to ints.
+                     */
+                    'proposed_changes' => json_encode($diff, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK),
                 ]);
             }
 
@@ -273,8 +285,11 @@ class MillController extends Controller
                 /**
                  * Tack on value for our edification.
                  * Probably should remove later.
+                 * Also, this should trigger an email to be sent to administrators and/or state officials.
                  */
                 $msg .= " (Edit #{$edit->id})";
+
+                SendMillEditNotification::dispatch($edit);
             }
             Log::debug($msg, [
                 'diff' => $diff,
