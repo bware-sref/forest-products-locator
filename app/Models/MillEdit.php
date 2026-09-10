@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\PublicationStatus;
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,6 +33,8 @@ class MillEdit extends Model
         'approve_hash',
         'reject_hash',
         'proposed_changes',
+        'sent',
+        'sent_to',
         'status',
         'reviewed_at',
         'created_at',
@@ -47,7 +49,7 @@ class MillEdit extends Model
     protected static function booted(): void
     {
             
-        static::creating(function (MillEdit $me) {
+        // static::creating(function (MillEdit $me) {
             // if (empty($me->approve_hash)) {
                 // $me->approve_hash = Hash::make("approve:{$me->proposed_changes}");
                 // URL::temporarySignedRoute(
@@ -66,18 +68,19 @@ class MillEdit extends Model
                 // );
             // }
 
-            if (empty($me->url)) {
+            // if (empty($me->url)) {
                 /**
                  * need to add something because null isn't allowed.
                  * should probably update to allow null?
                  * :shrugs:
+                 * we now allow null.
                  */
-                $me->url = self::DEFAULT_URL;
-            }
-        });
+                // $me->url = self::DEFAULT_URL;
+            // }
+        // });
 
         static::saved(function (MillEdit $me) {
-            if ($me->url === self::DEFAULT_URL) {
+            if (empty($me->url)) {
                 /**
                  * use the method $request->hasValidSignature() to verify the signature!
                  */
@@ -148,7 +151,15 @@ class MillEdit extends Model
 
     public function getDiff(): array
     {
-        return $this->proposed_changes['diff'] ?? $this->proposed_changes ?? [];
+        /**
+         * This hopefully won't be necessary in the future.
+         * I think it was fluke that it was ever needed.
+         */
+        $diff = $this->proposed_changes['diff'] ?? $this->proposed_changes;
+        if (! \is_array($diff)) {
+            $diff = ['diff' => $diff];
+        }
+        return  $diff;
     }
 
     public function originalMill(): array
