@@ -262,7 +262,6 @@ class MillController extends Controller
                     'submitter_ip' => $data['submitter_ip'],
                     'proposed_changes' => json_encode($diff),
                 ]);
-
             }
 
             /**

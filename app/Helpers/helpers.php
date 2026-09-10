@@ -23,7 +23,6 @@ if (! function_exists('trimp')) {
 }
 
 if (! function_exists('emptyToNull')) {
-
     /**
      * Converts empty string to null.
      * Operates on either a single, scalar string or an array of strings.
