@@ -23,6 +23,11 @@ class MillEditController extends Controller
     }
 
     /**
+     * Perhaps we should pull Mill::create(), store(), edit(), update() into this controller?
+     * I say that because those methods actually act on (or soon will) MillEdit models instead of Mills.
+     */
+
+    /**
      * Actually, I dont' think we need show().
      * Instead, approve and reject should show the differences and include an "Are you sure?" button...
      * Actually, taking that approach, we don't even need separate hashes for approve and reject.
