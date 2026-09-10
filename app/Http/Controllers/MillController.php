@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PublicationStatus;
 use App\Exports\MillsExport;
 use App\Http\Requests\MillResourceRequest;
 use App\Http\Requests\StoreMillRequest;
@@ -271,8 +272,14 @@ class MillController extends Controller
                      * Interesting...
                      * Without JSON_PRETTYPRINT, fucker thinks it's a string instead of casting to an array.
                      * Also, I think the following is the poor man's way to cast the strings to ints.
+                     * Something else stupid is happening.
+                     * Maybe it's the combination of JSON_PRETTY_PRINT and JSON_NUMERIC_CHECK?
                      */
-                    'proposed_changes' => json_encode($diff, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK),
+                    // 'proposed_changes' => json_encode($diff, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK),
+                    // 'proposed_changes' => json_encode($diff, JSON_PRETTY_PRINT),
+                    // do we even need to manually encode as json?
+                    'proposed_changes' => $diff,
+                    'status' => PublicationStatus::Pending,
                 ]);
             }
 

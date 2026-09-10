@@ -22,8 +22,6 @@ class MillEdit extends Model
     /** @use HasFactory<\Database\Factories\MillEditsFactory> */
     use HasFactory;
 
-    public const string DEFAULT_URL = '#';
-
     protected $fillable = [
         'mill_id',
         // there's an argument for adding a state_id column to these, even though it can be derived from mill_id
@@ -80,7 +78,13 @@ class MillEdit extends Model
         // });
 
         static::saved(function (MillEdit $me) {
-            if (empty($me->url)) {
+            // Log::debug(self::class."::saved(): status?", [
+            //     'status' => $me->status,
+            //     'pending?' => PublicationStatus::Pending,
+            //     'me?' => $me,
+            // ]);
+            
+            if (empty($me->url) && $me->status == PublicationStatus::Pending) {
                 /**
                  * use the method $request->hasValidSignature() to verify the signature!
                  */
