@@ -76,12 +76,6 @@ Route::get('/mill-edits/{mill_edit:id}', [MillEditController::class, 'show'])
     ->name('mill-edits.show');
 
 /**
- * Probably need to protect this route somehow...
- */
-Route::get('/mill-edits/preview/{mill_edit:id}', [MillEditController::class, 'previewNotification'])
-    ->name('mill-edits.preview');
-
-/**
  * FAQ
  * PagesController
  */
@@ -139,9 +133,25 @@ Route::permanentRedirect('/sec_contact-info', '/contact');
  */
 
 /**
- * Prevent noise exceptions caused by Chrome dev tools running against localhost
+ * Only add the following routes in the local environment!
  */
 if (app()->environment('local')) {
+
+    /**
+     * Preview MillEdit notifications by id
+     */
+    Route::get('/mill-edits/{mill_edit:id}/preview/', [MillEditController::class, 'previewNotification'])
+        ->name('mill-edits.preview');
+
+    /**
+     * Preview Contact emails by id
+     */
+    Route::get('/contacts/{contact}/preview/', [ContactController::class, 'preview'])
+        ->name('contacts.preview');
+
+    /**
+     * Prevent noise exceptions caused by Chrome dev tools running against localhost
+     */
     Route::get('/.well-known/appspecific/com.chrome.devtools.json', function () {
         return response()->json([
             'workspace' => [

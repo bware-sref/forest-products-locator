@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContactRequest;
 use App\Jobs\SendContactEmail;
+use App\Mail\ContactEmail;
 use App\Models\Contact;
 use App\Models\PageSeo;
 use Illuminate\Support\Facades\Log;
@@ -49,5 +50,10 @@ class ContactController extends Controller
         ]);
 
         return to_route('contacts.create');
+    }
+
+    public function preview(Contact $contact)
+    {
+        return new ContactEmail($contact);
     }
 }
