@@ -34,7 +34,7 @@ class SendContactEmail implements ShouldQueue
 
         // if we didn't send it, release the job to try again later
         if (! $sent) {
-            Log::debug(sprintf('Failed to send email for Contact %d. Releasing job to attempt resending later.', $this->contact->id));
+            Log::debug(\sprintf('Failed to send email for Contact %d. Releasing job to attempt resending later.', $this->contact->id));
             $this->release(10);
             return;
         }
