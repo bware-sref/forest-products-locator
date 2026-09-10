@@ -12,11 +12,12 @@ interface MillDiffProps {
     submitted: Record<string, PrimitiveOrNested>;
     mill?: Mill;
     millEdit?: MillEdit;
+    [key: string]: unknown;
 }
 
-export default function MillEditShow({ original, submitted }: MillDiffProps) {
+export default function MillEditShow({ original, submitted, ...props }: MillDiffProps) {
     
-    console.log('WTF: ', {original, submitted});
+    console.log('WTF: ', {original, submitted, props});
 
     const original2 = structuredClone(original);
     const submitted2 = structuredClone(submitted);
