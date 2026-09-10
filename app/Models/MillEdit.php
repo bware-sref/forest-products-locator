@@ -135,7 +135,6 @@ class MillEdit extends Model
          * submitted instead of submission
          * only need to store things if we want to log.
          */
-
         return [
             'original' => $this->originalMill(),
             'submitted' => $this->prepareSubmitted(),
@@ -161,7 +160,7 @@ class MillEdit extends Model
     {
         $submitted = $this->mill->replicate();
         // store changes so we can possibly loop over it later without an existence check
-        $changes = $this->proposed_changes['changes'] ?? [];
+        $changes = $this->getChanges();
         $submitted->fill($changes);
         /**
          * We also need to filter form fields.
