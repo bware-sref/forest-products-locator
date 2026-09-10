@@ -266,29 +266,15 @@ class MillController extends Controller
             }
 
             /**
-             * How important is the diff at this stage?
-             * A little important.
-             * We need to make sure that the user actually submitted sufficiently different information to merit review
-             * by a state forestry official.
-             * We can use model events to add approve_hash and reject_hash.
+             * Remember, if there are not sufficient differences, we still claim it was successful,
+             * we just don't bother the state agent.
              */
-            // return Inertia::render('dump-trunk', [
-            //     'original' => $onlyForm, // $mill->onlyFormFields(true), // $onlyForm,
-            //     'submitted' => $data,
-            //     'etAl' => [
-            //         'diff' => $diff,
-            //         'late dirty' => $dirty,
-            //         'original' => $original,
-            //         // 'onlyForm' => $onlyForm,
-            //         // 'og:millTypes' => $millTypes,
-            //         // 'og:woodSpecies' => $woodSpecies,
-            //         // 'prefill' => $prefill,
-            //         'fill' => $mill->toArray(),
-            //     ],
-            // ]);
-
             $msg = "Successfully submitted updates for '{$mill->mill_name}' Mill #{$mill->id}!";
             if (!empty($edit)) {
+                /**
+                 * Tack on value for our edification.
+                 * Probably should remove later.
+                 */
                 $msg .= " (Edit #{$edit->id})";
             }
             Log::debug($msg, [

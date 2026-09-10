@@ -163,7 +163,8 @@ export function MillForm({
                         message: errors[key],
                     })
                 })
-            }
+            },
+            preserveState: true,
         };
 
         if (isEditing) {
