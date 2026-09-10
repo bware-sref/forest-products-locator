@@ -75,6 +75,11 @@ Route::match(['get', 'post'], '/mills/export/', [MillController::class, 'export'
 Route::get('/mill-edits/{mill_edit:id}', [MillEditController::class, 'show'])
     ->name('mill-edits.show');
 
+/**
+ * Probably need to protect this route somehow...
+ */
+Route::get('/mill-edits/preview/{mill_edit:id}', [MillEditController::class, 'previewNotification'])
+    ->name('mill-edits.preview');
 
 /**
  * FAQ
