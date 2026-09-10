@@ -1236,6 +1236,7 @@ class Mill extends Model
             
             /**
              * If we made it this far, we have a diff!
+             * Except...this style of diff cannot be used with Model::fill().
              */
             $from = $original[$k] ?: '';
             $to = $otherMill[$k] ?: '';
@@ -1256,7 +1257,10 @@ class Mill extends Model
         Log::debug('Mill::diff(): after dirty...', $dirty);
         Log::debug('Mill::diff(): and the diff?', ['diff' => $diff]);
 
-        return $diff;
+        return [
+            'diff' => $diff,
+            'changes' => $dirty,
+        ];
         // if (empty($dirty)) {
         //     return $dirty;
         // }
