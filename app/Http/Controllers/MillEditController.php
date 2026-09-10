@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\MillEditNotification;
 use App\Models\Mill;
 use App\Models\MillEdit;
 use Illuminate\Http\Request;
@@ -86,4 +87,11 @@ class MillEditController extends Controller
             'diff' => $diff,
         ]);
     }
+
+
+    public function previewNotification(MillEdit $millEdit)
+    {
+        return new MillEditNotification($millEdit);
+    }
+
 }
