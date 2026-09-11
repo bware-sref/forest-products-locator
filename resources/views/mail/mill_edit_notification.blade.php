@@ -5,14 +5,21 @@
 **Mill Name:**<br />
 {{ $mill_name }}
 
-<x-mail::button :url="'#'" color="success">
-    Approve
+<x-mail::button :url="$url" color="success">
+Approve
 </x-mail::button>
 
-<x-mail::button :url="''" color="error">
-    Reject
+<x-mail::button :url="$url" color="error">
+Reject
 </x-mail::button>
 
-Thanks,<br>
+**Submitted By:** {{ $email }}
+
+**Submitted From:** {{ $ip }}
+
+**Submitted At:** {{ $created_at }}
+
+**Now:** {{ $now }}
+
 {{ config('app.name') }}
 </x-mail::message>

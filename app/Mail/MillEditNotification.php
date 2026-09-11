@@ -34,7 +34,7 @@ class MillEditNotification extends Mailable
         $addy = new Address(config('mail.from.address'), config('mail.from.name'));
         return new Envelope(
             from: $addy,
-            subject: 'New Mill Edit Submitted',
+            subject: "New Mill Edit Submitted (#{$this->millEdit->id})",
             replyTo: [
                 $addy,
             ]
@@ -55,8 +55,11 @@ class MillEditNotification extends Mailable
                 'mill_name' => $this->millEdit->mill->mill_name,
                 'original' => $this->millEdit->originalMill(),
                 'submission' => $this->millEdit->prepareSubmitted(),
+                'created_at' => $this->millEdit->created_at,
+                'url' => $this->millEdit->url ?? '',
                 'email' => $this->millEdit->submitter_email,
                 'ip' => $this->millEdit->submitter_ip,
+                'now' => now(),
             ]
         );
     }

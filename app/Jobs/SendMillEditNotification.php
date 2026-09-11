@@ -65,11 +65,17 @@ class SendMillEditNotification implements ShouldQueue
     protected function resolveToWhom(): array
     {
         $supers = User::role(UserRoles::SUPER)
-            ->select(['email as address', 'name'])
+        /**
+         * FFS!
+         * Turns out that under the hood, Mail::to() is looking for objects or arrays with props named...
+         * ...wait for it...
+         * 'email' and 'name'
+         */
+            ->select(['email', 'name'])
             ->get()
             ->toArray();
         $stateContacts = $this->millEdit->mill->state->stateContacts()
-            ->select(['email as address', 'name'])
+            ->select(['email', 'name'])
             ->get()
             ->toArray();
 
