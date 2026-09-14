@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 /**
  * @mixin IdeHelperMillEdit
@@ -21,6 +22,17 @@ class MillEdit extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\MillEditsFactory> */
     use HasFactory;
+
+    /**
+     * Should this go on Mill instead?
+     * @var array
+     */
+    public const array OMIT_FROM_DIFF_DISPLAY = [
+        'millTypes',
+        'woodSpecies',
+        'mailing_state_id',
+        'state_id',
+    ];
 
     protected $fillable = [
         'mill_id',
@@ -150,11 +162,18 @@ class MillEdit extends Model
 
     public function originalMill(string $relationFormat = 'id'): array
     {
-        return $this->mill->onlyFormFields($relationFormat);
+        // Log::debug("\n".self::class."::originalMill():\nBEFORE bookending onlyFormFields():\n");
+        $og = $this->mill->onlyFormFields($relationFormat, except: self::OMIT_FROM_DIFF_DISPLAY);
+        // Log::debug("\n".self::class."::originalMill():\nAFTER bookending onlyFormFields():\n");
+        return $og;
     }
 
     public function prepareSubmitted(string $relationFormat = 'id'): array
     {
+        /**
+         * We need to replace state ids with names!
+         * @var Mill
+         */
         $submitted = $this->mill->replicate();
         // store changes so we can possibly loop over it later without an existence check
         $changes = $this->getChanges();
@@ -173,6 +192,28 @@ class MillEdit extends Model
         $submitted = Mill::filterFormFields($submitted, $relationFormat);
 
         // Log::debug("\n\n".self::class."::prepareSubmitted():\nsubmitted after filtering: ", [
+        //     'submitted' => $submitted
+        // ]);
+
+        /**
+         * Regardless of changes, we need to get the state and mailing state names
+         */
+        foreach (Mill::STATE_FIELDS as $key) {
+            /**
+             * We might need isset() instead of empty()
+             */
+            if (!empty($submitted[$key])) {
+                $attr = Str::camel(Str::remove('_id', $key));
+                $submitted[$attr] = State::find($submitted[$key])?->name ?? '';
+                // Log::debug("\n".self::class."::prepareSubmitted():\n", [
+                //     'attr' => $attr,
+                //     'key' => $key,
+                //     'submitted[attr]' => $submitted[$attr],
+                // ]);
+            }
+        }
+
+        // Log::debug("\n".self::class."::prepareSubmitted():\nsubmitted after state fields: ", [
         //     'submitted' => $submitted
         // ]);
 
