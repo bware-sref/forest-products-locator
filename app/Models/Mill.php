@@ -1187,7 +1187,7 @@ class Mill extends Model
      * @param string $relationFormat
      * @return array
      */
-    public function onlyFormFields(string $relationFormat = 'id'): array
+    public function onlyFormFields(string $relationFormat = 'id', ?array $except = []): array
     {
         /**
          * toArray() does not include relationships (except unless the current model has foreignKeys).
@@ -1248,7 +1248,7 @@ class Mill extends Model
         // Log::debug("\n".self::class."::onlyFormFields():\nafter adding relations: \n", [
         //     'mill' => $mill,
         // ]);
-        return static::filterFormFields($mill, $relationFormat);
+        return static::filterFormFields($mill, $relationFormat, $except);
         // return $mill;
     }
 
@@ -1260,7 +1260,7 @@ class Mill extends Model
      * @param Mill|array $data
      * @return array
      */
-    public static function filterFormFields(Mill|array $data, ?string $relationFormat = 'id'): array
+    public static function filterFormFields(Mill|array $data, ?string $relationFormat = 'id', array $except = []): array
     {
         $data = \is_array($data) ? $data : $data->toArray();
 
@@ -1314,6 +1314,7 @@ class Mill extends Model
 
         $filtered = collect($data)
             ->only(self::FORM_FIELDS)
+            ->except($except)
             ->toArray();
 
         // Log::debug("\n".self::class."::filterFormFields():\nafter filtering:", ['mill' => $filtered]);
