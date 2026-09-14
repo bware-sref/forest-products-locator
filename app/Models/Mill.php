@@ -177,6 +177,13 @@ class Mill extends Model
         'mailing',
     ];
 
+    /**
+     * These are the fields present in the add/edit form.
+     * They all correspond to model attributes except for millTypes/mill_types and
+     * woodSpecies/wood_species, which correspond to n-to-n relationships.
+     *
+     * @var array
+     */
     public const array FORM_FIELDS = [
         'mill_name',
         'physical_address',
@@ -201,6 +208,18 @@ class Mill extends Model
         'woodSpecies',
         'mill_types',
         'wood_species',
+    ];
+
+    /**
+     * Mill's n-to-n relationships.
+     * They're referenced in so many places (often as an array), it seems silly to always use literals.
+     * Added class names as keys to simplify getting them since WoodSpecies doesn't properly transform
+     * when run through Str::singular()
+     * @var array
+     */
+    public const array N_TO_N = [
+        'MillType' => 'mill_types',
+        'WoodSpecies' => 'wood_species',
     ];
 
     /**
@@ -1137,33 +1156,137 @@ class Mill extends Model
         return $phys === $mail;
     }
 
-    public function onlyFormFields(bool $withRelations = false): array
+    /**
+     * This method is used only twice and both invocations pass $withRelations = true.
+     * Ergo, we don't need that parameter.
+     * However, we do need something to inform how those relations are formatted.
+     * Or else we do that after returning from this method?
+     * Hmmm...
+     * $relationFormat = 'raw' | 'only_id' | 'id_name'
+     * We don't have an immediate use for 'raw'
+     * 'only_id' is for simple comparison and for use with sync()
+     * 'id_name' is for review
+     * In fact, id isn't even needed for 'id_name' (i.e., only name is needed).
+     * The two we currently use/need are only_id and id_name
+     * id => pluck('id')
+     * id:name => pluck('name', 'id')
+     *
+     * @param string $relationFormat
+     * @return array
+     */
+    public function onlyFormFields(string $relationFormat = 'id'): array
     {
         /**
-         * Do we need to slap on millTypes and woodSpecies?
+         * toArray() does not include relationships (except unless the current model has foreignKeys).
+         * So we need to slap on millTypes and woodSpecies.
+         * No, we need to slap on mill_types and wood_species instead.
          */
-        $mill = collect($this->toArray())
-            ->only(self::FORM_FIELDS)
-            ->toArray();
-        
+        $mill = $this->toArray();
+        // Log::debug("\n".self::class."::onlyFormFields(): after toArray(): \n", [
+        //     'mill' => $mill,
+        // ]);
+
         /**
          * Should we flatten these to only be lists of ids?
+         * Maybe?
+         * For the purpose of comparison (and updating relationships), ids work better.
+         * For the purpose of review, labels work better.
+         *
+         * We could add another argument that controls how the relationship values are formatted?
+         * Maybe...
+         * If we're going to make this a pass-through, we should probably not format the relationship arrays here.
+         * But then we have to pass through two parameters, which is fine, but that still doesn't answer how we 
+         * should handle the formatting argument.
+         * Probably we only want two options for formatting relationships.
          */
-        if ($withRelations) {
-            $mill['mill_types'] = $this->millTypes->pluck('id')->map(fn ($item) => (int) $item)->toArray();
-            $mill['wood_species'] = $this->woodSpecies->pluck('id')->map(fn ($item) => (int) $item)->toArray();
+        // if ($withRelations) {
+        //     foreach (self::N_TO_N as $key) {
+        //         $camel = Str::camel($key);
+        //         $mill[$key] = $this->$camel
+        //             // ->pluck('id')
+        //             // ->map(fn ($item) => \intval($item))->toArray();
+        //             // ->map('intval')
+        //             ->toArray();
+        //     }
+        //     // $mill['mill_types'] = $this->millTypes->pluck('id')->map(fn ($item) => (int) $item)->toArray();
+        //     // $mill['wood_species'] = $this->woodSpecies->pluck('id')->map(fn ($item) => (int) $item)->toArray();
+        // }
+
+        foreach (self::N_TO_N as $key) {
+            $camel = Str::camel($key);
+            $mill[$key] = $this->$camel
+                ->toArray();
         }
-        return $mill;
+
+        Log::debug("\n".self::class."::onlyFormFields(): after adding relations: \n", [
+            'mill' => $mill,
+        ]);
+        return static::filterFormFields($mill, $relationFormat);
+        // return $mill;
     }
 
-    public static function filterFormFields(Mill|array $data): array
+    /**
+     * Why don't we need $withRelations on this one?
+     * And really, the other method should probably actually just invoke this one.
+     * Except that the other method handles relationships differently because it has an actual Mill object to work
+     * with.
+     * @param Mill|array $data
+     * @return array
+     */
+    public static function filterFormFields(Mill|array $data, ?string $relationFormat = 'id'): array
     {
         $data = \is_array($data) ? $data : $data->toArray();
+
+        /**
+         * relationFormat?
+         * $format = explode(':')
+         * if (1 < count($format))
+         *  $keyBy = $format[0]
+         *  $fields = $format[1]
+         * else
+         *  $fields = $format[0]
+         *$fields = explode(',', $fields)
+         *  if (1 < count($fields))
+         *      use only
+         *  else
+         *      use pluck
+         */
+
+        /**
+         * Balls.
+         * We might need to massage the relationships to make them lists of integers.
+         * Also, when showing the diff, it seems better to show the labels instead of the ids.
+         * How can we did?
+         * Add another parameter to govern how the n-to-n relationships are formatted?
+         */
+        foreach (self::N_TO_N as $key) {
+            if (empty($data[$key])) {
+                continue;    
+            }
+            /**
+             * just jam it in the middle there
+             */
+            if ('id:name' === $relationFormat) {
+                $data[$key] = collect($data[$key])->pluck('name', 'id')->toArray();
+                continue;
+            } else if ('name' === $relationFormat) {
+                $data[$key] = collect($data[$key])->pluck('name')->toArray();
+                continue;
+            } else if ('id' === $relationFormat) {
+                $data[$key] = collect($data[$key])->pluck('id')->toArray();
+                continue;
+            }
+            $data[$key] = collect($data[$key])->toArray();
+        }
+
+        /**
+         * just use only()
+         */
         return collect($data)
-            ->filter(fn ($value, $key) => \in_array($key, self::FORM_FIELDS))
+            // ->filter(fn ($value, $key) => \in_array($key, self::FORM_FIELDS))
+            ->only(self::FORM_FIELDS)
             ->toArray();
     }
-
 
     public function diff(Mill|array $otherMill): array
     {
@@ -1172,7 +1295,7 @@ class Mill extends Model
          * Yeah, we maybe shouldn't allow passing a Mill...
          * If we do though, we need to make sure to slap millTypes and woodSpecies back on it.
          */
-        $otherMill = ($otherMill instanceof Mill) ? $otherMill->onlyFormFields(true) : $otherMill;
+        $otherMill = ($otherMill instanceof Mill) ? $otherMill->onlyFormFields('id') : $otherMill;
 
         /**
          * Use $otherMill to fill the current Mill.
@@ -1185,6 +1308,25 @@ class Mill extends Model
          * I.e., it doesn't include millTypes or woodSpecies.
          */
         $dirty = $this->getDirty();
+
+        /**
+         * @var array
+         */
+        $original = $this->original;
+
+        foreach (static::N_TO_N as $key) {
+            $camel = Str::camel($key);
+            $dirty[$key] = $otherMill[$key] ?? [];
+            $original[$key] = $this->$camel->toArray();
+        }
+
+        /**
+         * Now we can let filterFormFields() handle formatting mill_types and wood_species.
+         *
+         * @var array
+         */
+        $original = Mill::filterFormFields($original);
+
 
         /**
          * Okay.
@@ -1200,8 +1342,8 @@ class Mill extends Model
          */
         // $dirty['mill_types'] = collect($otherMill['mill_types'] ?? [])->map('intval')->toArray();
         // $dirty['wood_species'] = collect($otherMill['wood_species'] ?? [])->map('intval')->toArray();
-        $dirty['mill_types'] = $otherMill['mill_types'] ?? [];
-        $dirty['wood_species'] = $otherMill['wood_species'] ?? [];
+        // $dirty['mill_types'] = $otherMill['mill_types'] ?? [];
+        // $dirty['wood_species'] = $otherMill['wood_species'] ?? [];
 
         /**
          * Should we just convert mill_types and wood_species to integers here?
@@ -1210,12 +1352,18 @@ class Mill extends Model
         /**
          * Pass the original Mill data through filterFormFields() to strip away values that are not in the form.
          */
-        $original = Mill::filterFormFields($this->original);
+        // $original = Mill::filterFormFields($this->original);
+
         /**
          * Instead of casting otherMill's strings to int, we cast the original ints to string.
+         * 
+         * MFs!
+         * Here we are again doing the same old mess...
+         * Actually, if we add these fuckers to $original before sending to filterFormFields(),
+         * it would handle the formatting...
          */
-        $original['mill_types'] = $this->millTypes->pluck('id')->map(fn($item) => (string) $item)->toArray();
-        $original['wood_species'] = $this->woodSpecies->pluck('id')->map(fn($item) => (string) $item)->toArray();
+        // $original['mill_types'] = $this->millTypes->pluck('id')->map(fn($item) => (string) $item)->toArray();
+        // $original['wood_species'] = $this->woodSpecies->pluck('id')->map(fn($item) => (string) $item)->toArray();
         // $original['mill_types'] = $this->millTypes->pluck('id')->toArray();
         // $original['wood_species'] = $this->woodSpecies->pluck('id')->toArray();
 
@@ -1257,7 +1405,7 @@ class Mill extends Model
             }
 
             if ($v == $original[$k]) {
-                Log::debug("Allegedly, the values for {$k} are equivalent: ", [
+                Log::debug(self::class."::diff():\nAllegedly, the values for {$k} are equivalent: ", [
                     "dirty[$k]" => $v,
                     "original[$k]" => $original[$k],
                 ]);
@@ -1304,24 +1452,24 @@ class Mill extends Model
          * and getDirty() doesn't compare the related models.
          */
 
-        foreach ($original as $k => $v) {
-            /**
-             * What are the cases we need to handle?
-             * - not set at all?
-             *  - could only be in the other because we're looping over this mill's fields
-             * - empty string and null are equal
-             */
-            $from = $original[$k] ?: '';
-            $to = $otherMill[$k] ?: '';
-            if ($from != $to) {
-                $diff[$k] = [
-                    'from' => $from,
-                    'to' => $to,
-                ];
-            }
-        }
+        // foreach ($original as $k => $v) {
+        //     /**
+        //      * What are the cases we need to handle?
+        //      * - not set at all?
+        //      *  - could only be in the other because we're looping over this mill's fields
+        //      * - empty string and null are equal
+        //      */
+        //     $from = $original[$k] ?: '';
+        //     $to = $otherMill[$k] ?: '';
+        //     if ($from != $to) {
+        //         $diff[$k] = [
+        //             'from' => $from,
+        //             'to' => $to,
+        //         ];
+        //     }
+        // }
 
 
-        return $diff;
+        // return $diff;
     }
 }
