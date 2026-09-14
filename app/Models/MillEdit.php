@@ -130,24 +130,6 @@ class MillEdit extends Model
         $query->where('status', PublicationStatus::Rejected);
     }
 
-    /**
-     * This method is only needed because the methods it wraps are protected.
-     * We could just make those methods public and ditch this one.
-     * @return array{original: array, submitted: array}
-     */
-    public function forReview(): array
-    {
-        /**
-         * Use the same nomenclature as the view
-         * submitted instead of submission
-         * only need to store things if we want to log.
-         */
-        return [
-            'original' => $this->originalMill(),
-            'submitted' => $this->prepareSubmitted(),
-        ];
-    }
-
     public function getChanges(): array
     {
         return $this->proposed_changes['changes'] ?? [];
