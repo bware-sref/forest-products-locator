@@ -177,10 +177,16 @@ class Mill extends Model
         'mailing',
     ];
 
+    public const array STATE_FIELDS = [
+        'state_id',
+        'mailing_state_id',
+    ];
+
     /**
      * These are the fields present in the add/edit form.
      * They all correspond to model attributes except for millTypes/mill_types and
      * woodSpecies/wood_species, which correspond to n-to-n relationships.
+     * Also, we need to add state and mailingState to "cleanly?" handle getting the State names.
      *
      * @var array
      */
@@ -188,10 +194,12 @@ class Mill extends Model
         'mill_name',
         'physical_address',
         'physical_city',
+        'state',            // see above
         'state_id',
         'physical_zip',
         'mailing_address',
         'mailing_city',
+        'mailingState',    // see above - also note the lack of underscore!
         'mailing_state_id',
         'mailing_zip',
         'contact_name',
@@ -204,8 +212,8 @@ class Mill extends Model
         'web_site',
         'size',
         'year',
-        'millTypes',
-        'woodSpecies',
+        // 'millTypes',        // see above
+        // 'woodSpecies',      // see above
         'mill_types',
         'wood_species',
     ];
@@ -308,13 +316,18 @@ class Mill extends Model
      * 
      *****************************************/
 
-    // belongsTo State
+    /**
+     * belongsTo State
+     */
     public function state(): BelongsTo
     {
         return $this->belongsTo(State::class);
     }
 
-    // belongsTo County
+    /**
+     * belongsTo County
+     * @return BelongsTo
+     */
     public function county(): BelongsTo
     {
         return $this->belongsTo(County::class);
@@ -1218,9 +1231,23 @@ class Mill extends Model
                 ->toArray();
         }
 
-        Log::debug("\n".self::class."::onlyFormFields(): after adding relations: \n", [
-            'mill' => $mill,
-        ]);
+        /**
+         * Make sure the state fields have strings instead of numeric ids!
+         */
+        foreach (self::STATE_FIELDS as $key) {
+            $attr = Str::camel(Str::remove('_id', $key));
+            $mill[$attr] = State::find($mill[$key])?->name ?? '';
+
+            // Log::debug("\n".self::class."::onlyFormFields():\n state fields:\n", [
+            //     'attr' => $attr,
+            //     'key' => $key,
+            //     'mill[attr]' => $mill[$attr],
+            // ]);
+        }
+
+        // Log::debug("\n".self::class."::onlyFormFields():\nafter adding relations: \n", [
+        //     'mill' => $mill,
+        // ]);
         return static::filterFormFields($mill, $relationFormat);
         // return $mill;
     }
@@ -1236,6 +1263,8 @@ class Mill extends Model
     public static function filterFormFields(Mill|array $data, ?string $relationFormat = 'id'): array
     {
         $data = \is_array($data) ? $data : $data->toArray();
+
+        // Log::debug("\n".self::class."::filterFormFields():\nBEFORE filtering:", ['DATA' => $data]);
 
         /**
          * relationFormat?
@@ -1282,10 +1311,14 @@ class Mill extends Model
         /**
          * just use only()
          */
-        return collect($data)
-            // ->filter(fn ($value, $key) => \in_array($key, self::FORM_FIELDS))
+
+        $filtered = collect($data)
             ->only(self::FORM_FIELDS)
             ->toArray();
+
+        // Log::debug("\n".self::class."::filterFormFields():\nafter filtering:", ['mill' => $filtered]);
+
+        return reorderKeys($filtered, self::FORM_FIELDS);
     }
 
     public function diff(Mill|array $otherMill): array
