@@ -53,14 +53,15 @@ if (! function_exists('reorderKeys')) {
      *
      * @param array $subject
      * @param array $newOrder
-     * @param mixed $fill
      * @return array
      */
-    function reorderKeys(array $subject, array $newOrder, mixed $fill = null): array
+    function reorderKeys(array $subject, array $newOrder): array
     {
         $empire = [];
         foreach ($newOrder as $key) {
-            $empire[$key] = $subject[$key] ?? $fill;
+            if (isset($subject[$key])) {
+                $empire[$key] = $subject[$key];
+            }
         }
         return $empire;
     }
