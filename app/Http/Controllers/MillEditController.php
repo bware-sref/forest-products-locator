@@ -57,24 +57,24 @@ class MillEditController extends Controller
          * We could/should probably extract the mess below into a MillEdit model method.
          * 
          */
-        $original = $millEdit->originalMill();
-        $submitted = $millEdit->prepareSubmitted();
+        $original = $millEdit->originalMill('name');
+        $submitted = $millEdit->prepareSubmitted('name');
         $changes = $millEdit->getChanges();
         $diff = $millEdit->getDiff();
 
-        Log::debug(self::class."::show(), changes?", ['changes' => $changes]);
+        // Log::debug(self::class."::show(), changes?", ['changes' => $changes]);
 
-        Log::debug(self::class."::show(), diff?", ['diff' => $diff]);
+        // Log::debug(self::class."::show(), diff?", ['diff' => $diff]);
 
-        Log::debug(self::class."::show(): original:", [
-            'original' => $original,
-        ]);
-        Log::debug(self::class."::show(): submitted: ", [
-            'submitted' => $submitted,
-        ]);
-        Log::debug(self::class."::show(): millEdit: ", [
-            'millEdit' => $millEdit->except(['mill']),
-        ]);
+        // Log::debug(self::class."::show(): original:", [
+        //     'original' => $original,
+        // ]);
+        // Log::debug(self::class."::show(): submitted: ", [
+        //     'submitted' => $submitted,
+        // ]);
+        // Log::debug(self::class."::show(): millEdit: ", [
+        //     'millEdit' => $millEdit->except(['mill']),
+        // ]);
         // Log::debug(self::class."::show(): mill: ", [
         //     'mill' => $millEdit->mill->toArray(),
         // ]);
