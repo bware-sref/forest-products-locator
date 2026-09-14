@@ -91,10 +91,10 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                 <header className="mb-8">
                     <div className="flex items-center gap-3">
                         <span className="text-3xl">🔄</span>
-                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Form Submission Diff Tool</h1>
+                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Mill Edit Submission Diff Tool</h1>
                     </div>
                     <p className="mt-2 text-sm md:text-base text-slate-400">
-                        Intercepted request pipeline. Comparing raw incoming request payloads against current database attributes.
+                        Compare the Mill's current information to user-submitted changes.
                     </p>
                 </header>
 
