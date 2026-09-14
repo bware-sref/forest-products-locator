@@ -45,3 +45,23 @@ if (! function_exists('emptyToNull')) {
         return $subject;
     }
 }
+
+if (! function_exists('reorderKeys')) {
+    /**
+     * Given an array, creates a new array with keys and order specified by $newOrder.
+     * If the values in $newOrder don't intersect with the keys of $subject, an empty array will be returned.
+     *
+     * @param array $subject
+     * @param array $newOrder
+     * @param mixed $fill
+     * @return array
+     */
+    function reorderKeys(array $subject, array $newOrder, mixed $fill = null): array
+    {
+        $empire = [];
+        foreach ($newOrder as $key) {
+            $empire[$key] = $subject[$key] ?? $fill;
+        }
+        return $empire;
+    }
+}
