@@ -166,34 +166,79 @@ class MillEdit extends Model
         return  $diff;
     }
 
-    public function originalMill(): array
+    public function originalMill(string $relationFormat = 'id'): array
     {
-        return $this->mill->onlyFormFields(withRelations: true);
+        return $this->mill->onlyFormFields($relationFormat);
     }
 
-    public function prepareSubmitted(): array
+    public function prepareSubmitted(string $relationFormat = 'id'): array
     {
         $submitted = $this->mill->replicate();
         // store changes so we can possibly loop over it later without an existence check
         $changes = $this->getChanges();
         $submitted->fill($changes);
+
+        // Log::debug("\n".self::class."::prepareSubmitted():\nchanges:\n", ['changes' => $changes]);
+
+        // Log::debug("\n\n".self::class."::prepareSubmitted():\nsubmitted before filtering: ", [
+        //     'submitted' => $submitted->toArray()
+        // ]);
+
         /**
          * We also need to filter form fields.
+         * filterFormFields() overwrites the relationship values from changes!
          */
-        $submitted = Mill::filterFormFields($submitted);
+        $submitted = Mill::filterFormFields($submitted, $relationFormat);
+
+        // Log::debug("\n\n".self::class."::prepareSubmitted():\nsubmitted after filtering: ", [
+        //     'submitted' => $submitted
+        // ]);
 
         /**
          * Lastly, double check that relations are added to submitted.
          */
         foreach ($changes as $k => $v) {
+            /**
+             * I forgot why I added the || !=
+             * I remembered why I added the || !=: because of relationships.
+             * Submitted might still have the old relationship data.
+             * In fact, we should probably check that this still does what we want when the relationships are modified.
+             * It does not!
+             * And more annoying still, it doesn't pick up the text names for MillTypes or WoodSpecies.
+             * Would it perhaps if we moved filterFormFields() below this block?
+             */
             if (!isset($submitted[$k]) || $submitted[$k] != $v) {
-                Log::debug(self::class."::prepareSubmitted(): adding missing member '{$k}' to submitted.", [
-                    $k => $v,
-                ]);
+                // Log::debug(self::class."::prepareSubmitted(): adding missing or differing member '{$k}' to submitted.", [
+                //     $k => $v,
+                // ]);
+
+                /**
+                 * If this is mill_types or wood_species, we need to pull the records and pluck the names...
+                 * actually, we might need to rely on relationFormat to determine what form they should take
+                 * if $relationFormat is 'id', just assign the values
+                 * if 'name', pluck name
+                 * if 'id:name', pluck name, key by id
+                 */
+                // if (\in_array($k, Mill::N_TO_N) && 'id' !== $relationFormat) {
+                if (($model = array_search($k, Mill::N_TO_N)) && 'id' !== $relationFormat) {
+                    /**
+                     * singular() malforms wood_species
+                     * instead, append the namespace to the model and let's party
+                     */
+                    $model = 'App\\Models\\'.$model;
+                    if ('name' === $relationFormat) {
+                        $v = $model::findMany($v)->pluck('name')->toArray();
+                    } else if ('id:name' === $relationFormat) {
+                        $v = $model::findMany($v)->pluck('name', 'id')->toArray();
+                    }
+                }
+               
                 $submitted[$k] = $v;
             }
         }
         
+        Log::debug("\n".self::class."::prepareSubmitted(): submitted after all the massaging:\n", ['submitted' => $submitted]);
+
         return $submitted;
     }
 }
