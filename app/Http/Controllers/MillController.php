@@ -229,9 +229,13 @@ class MillController extends Controller
         $data = emptyToNull($request->all());
 
         // Log::debug(
-        //     "In MillController::update(), attemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
-        //     $data
+        //     self::class."::update()\n\nattemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
+        //     ['submitted' => $data]
         // );
+
+        // Log::debug(self::class."::update()\n\nMill that we received:\n", [
+        //     'mill' => $mill,
+        // ]);
 
         // Log::debug('Submitted mill_types: ', ['mill_types' => $data['mill_types'] ?? 'WTF? twas null?!?']);
 
@@ -253,7 +257,7 @@ class MillController extends Controller
              */
             $diff = $mill->diff($data);
 
-            Log::debug('MillController::update(): diff mill update', ['diff' => $diff]);
+            // Log::debug(self::class."::update():\n\ndiff mill update", ['diff' => $diff]);
 
             // declare $edit so we can check below
             $edit = null;
@@ -298,10 +302,10 @@ class MillController extends Controller
 
                 SendMillEditNotification::dispatch($edit);
             }
-            Log::debug($msg, [
-                'diff' => $diff,
-                'millData' => $mill->toArray()
-            ]);
+            // Log::debug(self::class."::update():\n".$msg, [
+            //     'diff' => $diff,
+            //     'millData' => $mill->toArray()
+            // ]);
             Inertia::flash([
                 'type' => 'success',
                 'message' => $msg,
