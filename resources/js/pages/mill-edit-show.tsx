@@ -1,5 +1,6 @@
 import React from 'react';
 import AppLayout from '@/layouts/app-layout';
+import { Button } from '@/components/ui/button';
 import {
     Mill,
     MillEdit,
@@ -51,7 +52,8 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
     };
 
     // Helper to format values cleanly, rendering relationships & pivots readably
-    const renderValue = (value: unknown): React.ReactNode => {
+    // renderValue seems like it should be privy to the value of change for the value in question
+    const renderValue = (value: unknown, changed : boolean = false): React.ReactNode => {
         if (value === null || value === undefined) {
             return <span className="text-slate-500 italic">(Not set)</span>;
         }
@@ -62,7 +64,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
             return (
                 <div className="flex flex-wrap gap-1.5">
                     {value.map((item, idx) => (
-                        <span key={idx} className="inline-flex items-center rounded-md bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-300 ring-1 ring-slate-700/50">
+                        <span key={idx} className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 ${changed ? 'font-bold text-emerald-400 ring-1 ring-emerald-400/20' : 'bg-slate-800 font-medium text-slate-300 ring-slate-700/50'}`}>
                             {typeof item === 'object' ? JSON.stringify(item) : String(item)}
                         </span>
                     ))}
@@ -141,7 +143,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                                                 {/* Incoming Form Submission */}
                                                 <td className={`p-4 font-mono ${changed ? 'text-emerald-400 font-bold' : 'text-slate-300'}`}>
                                                     {/* I see, it uses 'value', which comes from whichever version we loop over. */}
-                                                    {renderValue(submitted[key])}
+                                                    {renderValue(submitted[key], changed)}
                                                     {/* {renderValue(value)} */}
                                                 </td>
                                             </tr>
@@ -151,6 +153,23 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                             </table>
                         </div>
                     </section>
+
+                    {/**
+                     * @TODO
+                     * add Approve and Reject buttons!
+                     */}
+                    <section>
+                        <h2 className="text-lg">What do you want to do?</h2>
+                        <div className="flex flex-row w-full space-x-8">
+                            <Button
+                                className="bg-red-600 text-white font-bold"
+                            >Reject</Button>
+                            <Button
+                                className="bg-green-600 text-white font-bold"
+                            >Approve</Button>
+                        </div>
+                    </section>
+
 
                     {/* Optional etAl Debug Properties Block */}
                     {/* {etAl !== undefined && (
