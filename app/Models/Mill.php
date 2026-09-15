@@ -1195,8 +1195,10 @@ class Mill extends Model
          * No, we need to slap on mill_types and wood_species instead.
          */
         $mill = $this->toArray();
+
         // Log::debug("\n".self::class."::onlyFormFields(): after toArray(): \n", [
-        //     'mill' => $mill,
+        //     "\nmill\n" => $mill,
+        //     "\nexcept\n" => $except,
         // ]);
 
         /**
@@ -1212,18 +1214,6 @@ class Mill extends Model
          * should handle the formatting argument.
          * Probably we only want two options for formatting relationships.
          */
-        // if ($withRelations) {
-        //     foreach (self::N_TO_N as $key) {
-        //         $camel = Str::camel($key);
-        //         $mill[$key] = $this->$camel
-        //             // ->pluck('id')
-        //             // ->map(fn ($item) => \intval($item))->toArray();
-        //             // ->map('intval')
-        //             ->toArray();
-        //     }
-        //     // $mill['mill_types'] = $this->millTypes->pluck('id')->map(fn ($item) => (int) $item)->toArray();
-        //     // $mill['wood_species'] = $this->woodSpecies->pluck('id')->map(fn ($item) => (int) $item)->toArray();
-        // }
 
         foreach (self::N_TO_N as $key) {
             $camel = Str::camel($key);
@@ -1260,7 +1250,7 @@ class Mill extends Model
      * @param Mill|array $data
      * @return array
      */
-    public static function filterFormFields(Mill|array $data, ?string $relationFormat = 'id', array $except = []): array
+    public static function filterFormFields(Mill|array $data, ?string $relationFormat = 'id', ?array $except = []): array
     {
         $data = \is_array($data) ? $data : $data->toArray();
 
@@ -1310,16 +1300,36 @@ class Mill extends Model
 
         /**
          * just use only()
+         * trying to use except here is a lost cause because reorderKeys() adds them back
          */
-
         $filtered = collect($data)
             ->only(self::FORM_FIELDS)
-            ->except($except)
             ->toArray();
 
         // Log::debug("\n".self::class."::filterFormFields():\nafter filtering:", ['mill' => $filtered]);
 
-        return reorderKeys($filtered, self::FORM_FIELDS);
+        /**
+         * reorderKeys will repopulate anything we've already removed that's part of FORM_FIELDS so we need to
+         * prefilter that fucker.
+         * But we need to use array_diff() instead of collection->except() because FORM_FIELDS is not an 
+         * associative array!!!
+         */
+        $newOrder = array_diff(self::FORM_FIELDS, $except);
+
+        // Log::debug("\n".self::class."::filterFormFields():\nbefore reordering\n", [
+        //     "\nmill\n" => $filtered,
+        //     "\nnewOrder\n" => $newOrder,
+        //     "\nexcept\n" => $except,
+        // ]);
+
+        $darth = reorderKeys($filtered, $newOrder);
+
+        // Log::debug("\n".self::class."::filterFormFields():\nafter reordering\n", [
+        //     "\nmill\n" => $darth,
+        //     "\nnewOrder\n" => $newOrder,
+        // ]);
+        
+        return $darth;
     }
 
     public function diff(Mill|array $otherMill): array
