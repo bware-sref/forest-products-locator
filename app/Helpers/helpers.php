@@ -65,3 +65,26 @@ if (! function_exists('reorderKeys')) {
         return $empire;
     }
 }
+
+if (! function_exists('callerId')) {
+    function callerId(?string $returnType = 'array'): array|string|null
+    {
+        $returnType = in_array($returnType, ['array', 'string']) ? $returnType : 'array';
+
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        if (empty($trace[1])) {
+            return null;
+        }
+
+        $caller = $trace[1];
+        if ('array' === $returnType) {
+            return $caller;
+        }
+
+        $class = $caller['class'] ?? '';
+        $type = $caller['type'] ?? '';
+        $function = $caller['function'];
+
+        return "{$class}{$type}{$function}";
+    }
+}
