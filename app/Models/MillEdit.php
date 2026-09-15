@@ -160,15 +160,17 @@ class MillEdit extends Model
         return  $diff;
     }
 
-    public function originalMill(string $relationFormat = 'id'): array
+    public function originalMill(string $relationFormat = 'id', ?array $except = []): array
     {
         // Log::debug("\n".self::class."::originalMill():\nBEFORE bookending onlyFormFields():\n");
-        $og = $this->mill->onlyFormFields($relationFormat, except: self::OMIT_FROM_DIFF_DISPLAY);
-        // Log::debug("\n".self::class."::originalMill():\nAFTER bookending onlyFormFields():\n");
+        $og = $this->mill->onlyFormFields($relationFormat, $except);
+        // Log::debug("\n".self::class."::originalMill():\nAFTER bookending onlyFormFields():\n", [
+        //     'mill' => $og,
+        // ]);
         return $og;
     }
 
-    public function prepareSubmitted(string $relationFormat = 'id'): array
+    public function prepareSubmitted(string $relationFormat = 'id', ?array $except = []): array
     {
         /**
          * We need to replace state ids with names!
@@ -186,10 +188,20 @@ class MillEdit extends Model
         // ]);
 
         /**
+         * @IMPORTANT
+         * if state_id or mailing_state_id are present in $except, we will not have the necessary data to populate
+         * state and mailingState because they will be removed before the step where we add them.
+         */
+        $overlap = array_intersect($except, Mill::STATE_FIELDS);
+        if (!empty($overlap)) {
+            $except = array_diff($except, Mill::STATE_FIELDS);
+        }
+
+        /**
          * We also need to filter form fields.
          * filterFormFields() overwrites the relationship values from changes!
          */
-        $submitted = Mill::filterFormFields($submitted, $relationFormat);
+        $submitted = Mill::filterFormFields($submitted, $relationFormat, $except);
 
         // Log::debug("\n\n".self::class."::prepareSubmitted():\nsubmitted after filtering: ", [
         //     'submitted' => $submitted
@@ -259,8 +271,19 @@ class MillEdit extends Model
                 $submitted[$k] = $v;
             }
         }
-        
-        Log::debug("\n".self::class."::prepareSubmitted(): submitted after all the massaging:\n", ['submitted' => $submitted]);
+
+        // Log::debug("\n".self::class."::prepareSubmitted():\nsubmitted after all the massaging but before removing overlap:\n", [
+        //     'submitted' => $submitted,
+        //     'overlap' => $overlap ?? [],
+        // ]);
+
+
+        /**
+         * Even more lastly, if there was overlap between except and state fields, we need to remove the overlap.
+         */
+        $submitted = collect($submitted)->except($overlap)->toArray();
+
+        // Log::debug("\n".self::class."::prepareSubmitted(): submitted after all the massaging and removing overlap:\n", ['submitted' => $submitted]);
 
         return $submitted;
     }
