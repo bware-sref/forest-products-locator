@@ -238,6 +238,7 @@ class Mill extends Model
      */
     protected $appends = [
         'physical_address_two',
+        'mailing_address_same_as_physical',
     ];
 
     protected $casts = [

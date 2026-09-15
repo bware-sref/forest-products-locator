@@ -104,7 +104,9 @@ export function MillForm({
             physical_zip: mill?.physical_zip || '',
             // I need to figure out how to tack this on
             // maybe an "appends" attribute?
-            mailing_address_same_as_physical: mill?.mailing_address_same_as_physical || true,
+            // yes, but we have to remember to add it to appends :-)
+            // and we need to remember it's a boolean so we have to check against undefined instead of using || 
+            mailing_address_same_as_physical: mill?.mailing_address_same_as_physical !== undefined ? mill.mailing_address_same_as_physical : true,
             mailing_address: mill?.mailing_address || "",
             mailing_city: mill?.mailing_city || "",
             mailing_state_id: String((typeof mill?.mailing_state_id === 'object' ? mill?.mailing_state_id?.id : mill?.mailing_state_id) ?? ''),
@@ -409,7 +411,7 @@ export function MillForm({
               items={props.woodSpecies}
               itemToValue={(woodSpecies) => String(woodSpecies.id)}
               itemToLabel={(woodSpecies) => woodSpecies.label || woodSpecies.name}
-              multiple              
+              multiple
             />
 
             <ControlledInput
