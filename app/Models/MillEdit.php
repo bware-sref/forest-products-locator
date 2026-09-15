@@ -9,9 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 /**
@@ -77,21 +76,6 @@ class MillEdit extends Model
                 $me->review_hash = Str::ulid(); // Hash::make("review:{$potatoes}");
             }
         });
-
-        static::saved(function (MillEdit $me) {
-            if (empty($me->url) && $me->status == PublicationStatus::Pending) {
-                /**
-                 * use the method $request->hasValidSignature() to verify the signature!
-                 * We're going to replace this mess with review hash because we can't expire the signed URL.
-                 */
-                $me->url = URL::temporarySignedRoute(
-                    'mill-edits.show',
-                    now()->addDays(90),
-                    ['mill_edit' => $me]
-                );
-                $me->save();
-            }
-        });
     }
 
 
@@ -144,7 +128,20 @@ class MillEdit extends Model
         return  $diff;
     }
 
-    public function originalMill(string $relationFormat = 'id', ?array $except = []): array
+    /**
+     * Prepares original Mill data for display.
+     *
+     * Both invocations of this method use the same arguments: 'name' & OMIT_FROM_DIFF_DISPLAY.
+     * That suggests they should be the default arguments.
+     *
+     * FTR, since the above was written, another invocation has been added that
+     * uses different arguments.
+     *
+     * @param string $relationFormat
+     * @param mixed $except
+     * @return array
+     */
+    public function originalMill(string $relationFormat = 'name', ?array $except = self::OMIT_FROM_DIFF_DISPLAY): array
     {
         // Log::debug("\n".self::class."::originalMill():\nBEFORE bookending onlyFormFields():\n");
         $og = $this->mill->onlyFormFields($relationFormat, $except);
@@ -154,7 +151,20 @@ class MillEdit extends Model
         return $og;
     }
 
-    public function prepareSubmitted(string $relationFormat = 'id', ?array $except = []): array
+    /**
+     * Prepares submitted MillEdit data for display.
+     *
+     * Both invocations of this method use the same arguments: 'name' & OMIT_FROM_DIFF_DISPLAY.
+     * That suggests they should be the default arguments.
+     *
+     * FTR, since the above was written, another invocation has been added that
+     * uses different arguments.
+     *
+     * @param string $relationFormat
+     * @param mixed $except
+     * @return array
+     */
+    public function prepareSubmitted(string $relationFormat = 'name', ?array $except = self::OMIT_FROM_DIFF_DISPLAY): array
     {
         /**
          * We need to replace state ids with names!
@@ -270,5 +280,58 @@ class MillEdit extends Model
         // Log::debug("\n".self::class."::prepareSubmitted(): submitted after all the massaging and removing overlap:\n", ['submitted' => $submitted]);
 
         return $submitted;
+    }
+
+    public function approve(): bool
+    {
+        DB::transaction(function() {
+            $edits = $this->prepareSubmitted('id', []);
+
+            $fill = $this->mill;
+            $fill->fill($edits);
+
+            // save mill changes
+            if (! $fill->save() ) {
+                $msg = "Failed to save changes to Mill #{$fill->id}!";
+                Log::error("\n".self::class."::approve():\n{$msg}", [
+                    "\nfilled\n" => $fill->toArray(),
+                ]);
+                throw new \Exception($msg);
+            }
+
+            // sync relations
+            foreach (Mill::N_TO_N as $key) {
+                $relation = Str::camel($key);
+                if (! $fill->$relation()->sync($edits[$key])) {
+                    $msg = "Failed to sync {$relation} for Mill #{$fill->id}!";
+                    Log::error("\n".self::class."::approve():\n{$msg}", [
+                        "\nedits[$key]\n" => $edits[$key],
+                    ]);
+                    throw new \Exception($msg);
+                }
+            }
+
+            // update MillEdits record
+            $this->status = PublicationStatus::Approved;
+            $this->save();
+        });
+
+        // Log::debug("\n".self::class."::approve():\n");
+
+        /**
+         * If we made it this far, we can probably return true.
+         */
+        return true;
+    }
+
+    public function reject(): bool
+    {
+        $this->status = PublicationStatus::Rejected;
+        return $this->save();
+    }
+
+    protected function handleApprove(): bool
+    {
+        return true;
     }
 }
