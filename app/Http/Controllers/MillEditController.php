@@ -15,10 +15,12 @@ class MillEditController extends Controller
      * How do we check and/or inject the hash?
      * @return void
      */
-    public function approve()
-    {}
+    public function approve(MillEdit $millEdit)
+    {
 
-    public function reject()
+    }
+
+    public function reject(MillEdit $millEdit)
     {
 
     }
@@ -29,19 +31,16 @@ class MillEditController extends Controller
      */
 
     /**
-     * Actually, I dont' think we need show().
-     * Instead, approve and reject should show the differences and include an "Are you sure?" button...
-     * Actually, taking that approach, we don't even need separate hashes for approve and reject.
-     * Instead, show() shows the differences along with approve and reject buttons.
+     * show() shows the differences along with approve and reject buttons.
      * @param MillEdit $millEdit
      * @return \Inertia\Response
      */
     public function show(Request $request, MillEdit $millEdit)
     {
         /**
-         * signature isn't as useful as I'd hoped.
+         * signature doesn't work exactly as I'd hoped.
+         * It can be checked and verified, but it can't be expired early.
          */
-        // $signature = $request->input('signature', null);
         if (! $request->hasValidSignature()) {
             Log::error(self::class."::show(): invalid signature!");
             /**
@@ -55,10 +54,9 @@ class MillEditController extends Controller
         
         /**
          * We could/should probably extract the mess below into a MillEdit model method.
-         * 
          */
-        $original = $millEdit->originalMill('name');
-        $submitted = $millEdit->prepareSubmitted('name');
+        $original = $millEdit->originalMill('name', except: MillEdit::OMIT_FROM_DIFF_DISPLAY);
+        $submitted = $millEdit->prepareSubmitted('name', except: MillEdit::OMIT_FROM_DIFF_DISPLAY);
         $changes = $millEdit->getChanges();
         $diff = $millEdit->getDiff();
 
@@ -89,6 +87,13 @@ class MillEditController extends Controller
     }
 
 
+    /**
+     * Preview a MillEdit notification email.
+     * Note: this route is only defined when the environment is 'local'.
+     *
+     * @param MillEdit $millEdit
+     * @return MillEditNotification
+     */
     public function previewNotification(MillEdit $millEdit)
     {
         return new MillEditNotification($millEdit);
