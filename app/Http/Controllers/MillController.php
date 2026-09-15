@@ -203,6 +203,11 @@ class MillController extends Controller
          * Load related models so they can populate in the form
          */
         $mill->load(['millTypes', 'woodSpecies']);
+
+        // Log::debug("\n".self::class."::edit():\nmill? where are extra attributes?!?", [
+        //     "\nmill:\n" => $mill->toArray(),
+        // ]);
+
         return Inertia::render('add-business', [
             'pageTitle' => 'Edit Mill',
             'pageSeo' => PageSeo::resolve(
@@ -229,8 +234,10 @@ class MillController extends Controller
         $data = emptyToNull($request->all());
 
         // Log::debug(
-        //     self::class."::update()\n\nattemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
-        //     ['submitted' => $data]
+        //     "\n".self::class."::update()\n\nattemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
+        //     [
+        //         "\nsubmitted\n" => $data
+        //     ]
         // );
 
         // Log::debug(self::class."::update()\n\nMill that we received:\n", [
@@ -246,14 +253,9 @@ class MillController extends Controller
              * I can already tell that we need to filter the raw Mill data to be able to get a meaningful diff
              * against the form submissions.
              */
-            /**
-             * Loading related models with load() breaks so we have to just grab them off the model?
-             */
-            // $millTypes = $mill->millTypes->pluck('id')->map(fn ($item) => (int) $item)->toArray();
-            // $woodSpecies = $mill->woodSpecies->pluck('id')->map(fn ($item) => (int) $item)->toArray();
 
             /**
-             * Diff should is now a Mill method.
+             * Diff is now a Mill method.
              */
             $diff = $mill->diff($data);
 
@@ -272,18 +274,14 @@ class MillController extends Controller
                     'mill_id' => $mill->id,
                     'submitter_email' => $data['submitter_email'],
                     'submitter_ip' => $data['submitter_ip'],
-                    /**
-                     * Interesting...
-                     * Without JSON_PRETTYPRINT, fucker thinks it's a string instead of casting to an array.
-                     * Also, I think the following is the poor man's way to cast the strings to ints.
-                     * Something else stupid is happening.
-                     * Maybe it's the combination of JSON_PRETTY_PRINT and JSON_NUMERIC_CHECK?
-                     */
-                    // 'proposed_changes' => json_encode($diff, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK),
-                    // 'proposed_changes' => json_encode($diff, JSON_PRETTY_PRINT),
                     // do we even need to manually encode as json?
+                    // No, we do not need to manually encode as json.
                     'proposed_changes' => $diff,
                     'status' => PublicationStatus::Pending,
+                    /**
+                     * Add hashes!
+                     * Hashes are added during the 'creating' model event.
+                     */
                 ]);
             }
 
@@ -313,7 +311,11 @@ class MillController extends Controller
             return to_route('mills.show', $mill);
 
         } catch (\Exception $e) {
-            Log::error("Error editing Mill #{$mill->id}.", ['error' => $e->getMessage()]);
+            Log::error("Error editing Mill #{$mill->id}.\n", [
+                "\nerror\n" => $e->getMessage(),
+                "\nfile:line\n" => $e->getFile().":".$e->getLine(),
+                "\ntrace\n" => $e->getTraceAsString(),
+            ]);
             Inertia::flash([
                 'type' => 'error',
                 'message' => "Error when attempting to store edits to Mill #{$mill->id}.",
