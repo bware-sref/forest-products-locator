@@ -5,12 +5,8 @@
 **Mill Name:**<br />
 {{ $mill_name }}
 
-<x-mail::button :url="$url" color="success">
-Approve
-</x-mail::button>
-
-<x-mail::button :url="$url" color="error">
-Reject
+<x-mail::button :url="$newUrl" color="success">
+Review Edits
 </x-mail::button>
 
 **Submitted By:** {{ $email }}

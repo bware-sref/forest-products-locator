@@ -56,10 +56,11 @@ class MillEditNotification extends Mailable
                 'original' => $this->millEdit->originalMill(),
                 'submission' => $this->millEdit->prepareSubmitted(),
                 'created_at' => $this->millEdit->created_at,
-                'url' => $this->millEdit->url ?? '',
+                'url' => $this->millEdit->url ?? '',                
                 'email' => $this->millEdit->submitter_email,
                 'ip' => $this->millEdit->submitter_ip,
                 'now' => now(),
+                'newUrl' => route('mill-edits.show', ['mill_edit' => $this->millEdit]),
             ]
         );
     }

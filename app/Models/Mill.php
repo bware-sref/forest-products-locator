@@ -1449,6 +1449,10 @@ class Mill extends Model
                 continue;
             }
 
+            /**
+             * @todo 
+             * This is what strips the mill_types and wood_species when there are no changes.
+             */
             if ($v == $original[$k]) {
                 Log::debug(self::class."::diff():\nAllegedly, the values for {$k} are equivalent: ", [
                     "dirty[$k]" => $v,
@@ -1489,32 +1493,5 @@ class Mill extends Model
         // if (empty($dirty)) {
         //     return $dirty;
         // }
-
-        /**
-         * We can use Model::getDirty() for some of this.
-         * However, getDirty() does not consider null and '' to be equivalent, so we will still need to check those.
-         * Additionally, meta values like 'status', 'submitter_email', and 'submitter_ip' also get swept up in getDirty(),
-         * and getDirty() doesn't compare the related models.
-         */
-
-        // foreach ($original as $k => $v) {
-        //     /**
-        //      * What are the cases we need to handle?
-        //      * - not set at all?
-        //      *  - could only be in the other because we're looping over this mill's fields
-        //      * - empty string and null are equal
-        //      */
-        //     $from = $original[$k] ?: '';
-        //     $to = $otherMill[$k] ?: '';
-        //     if ($from != $to) {
-        //         $diff[$k] = [
-        //             'from' => $from,
-        //             'to' => $to,
-        //         ];
-        //     }
-        // }
-
-
-        // return $diff;
     }
 }

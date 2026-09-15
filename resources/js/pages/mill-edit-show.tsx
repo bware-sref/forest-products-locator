@@ -2,9 +2,25 @@ import React from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import {
+    Link,
+    router,
+} from "@inertiajs/react";
+import {
+    toast,
+    type ExternalToast
+} from "sonner";
+import {
+    ThumbsDown,
+    ThumbsUp,
+} from "lucide-react";
+import {
     Mill,
     MillEdit,
 } from '@/types';
+import {
+    approve,
+    reject,
+} from "@/routes/mill-edits";
 
 type PrimitiveOrNested = string | number | boolean | null | undefined | unknown[] | Record<string, unknown>;
 
@@ -18,10 +34,42 @@ interface MillDiffProps {
 
 export default function MillEditShow({ original, submitted, ...props }: MillDiffProps) {
     
-    console.log('WTF: ', {original, submitted, props});
+    // console.log('WTF: ', {original, submitted, props});
 
     const original2 = structuredClone(original);
     const submitted2 = structuredClone(submitted);
+
+    const rejectHash = props.millEdit?.reject_hash ?? '';
+    const approveHash = props.millEdit?.approve_hash ?? '';
+
+    const showRaw = false;
+
+    React.useEffect(() => {
+        return router.on("flash", (event) => {
+            console.log('flash event: ', event);
+            if (event.detail.flash) {
+                const flash = event.detail.flash;
+                const message = flash.message ?? '';
+                const options : ExternalToast = {
+                  closeButton: true,
+                  position: "top-center",
+                  description: (
+                    <p className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
+                      {String(message)}
+                    </p>
+                  ),
+                };
+                
+                if ('success' === flash.type) {
+                    toast.success('Success!', options);
+                } else if ('error' === flash.type) {
+                    toast.error('An error occurred...', options);
+                } else {
+                    toast.info("A thing happened...", options);
+                }
+            }
+        })
+    })
 
     // Type-safe comparison check
     const isChanged = (key: string): boolean => {
@@ -102,6 +150,8 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
 
                 {/* Visual Diff Table */}
                 <main className="space-y-10">
+
+                    {/* Diff */}                    
                     <section>
                         <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 shadow-xl">
                             <table className="w-full border-collapse text-left text-sm">
@@ -155,18 +205,50 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                     </section>
 
                     {/**
-                     * @TODO
-                     * add Approve and Reject buttons!
+                     * Approve and Reject buttons!
                      */}
                     <section>
-                        <h2 className="text-lg">What do you want to do?</h2>
+                        <h2
+                            className="text-2xl mb-5"
+                        >What do you want to do?</h2>
                         <div className="flex flex-row w-full space-x-8">
                             <Button
-                                className="bg-red-600 text-white font-bold"
-                            >Reject</Button>
+                                className="bg-red-600 text-white font-bold text-xl px-6 py-8 hover:text-red-500"
+                                asChild
+                            >
+                                <Link
+                                    href={reject(rejectHash)}
+                                    className=""
+                                    method="post"
+                                    as="button"
+                                >
+                                    Reject Changes
+                                    <ThumbsDown 
+                                        data-icon="inline-end"
+                                        size={40}
+                                        className="w-8 h-8 size-8 ml-2"
+                                    />
+                                </Link>                                
+                            </Button>
+
                             <Button
-                                className="bg-green-600 text-white font-bold"
-                            >Approve</Button>
+                                className="bg-green-600 text-white font-bold text-xl px-6 py-8 hover:text-green-500"
+                                asChild
+                            >
+                                <Link
+                                    href={approve(approveHash)}
+                                    className=""
+                                    method="post"
+                                    as="button"
+                                >
+                                    Approve Updates
+                                    <ThumbsUp 
+                                        data-icon="inline-end"
+                                        size={40}
+                                        className="w-8 h-8 size-8 ml-2"
+                                    />
+                                </Link>                                
+                            </Button>
                         </div>
                     </section>
 
@@ -184,6 +266,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                     )} */}
 
                     {/* Split Deep Diagnostics Codeblocks */}
+                    {showRaw &&
                     <section>
                         <h2 className="text-lg font-semibold text-slate-400 mb-4">Raw Structural JSON Payloads</h2>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -201,6 +284,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                             </div>
                         </div>
                     </section>
+                    }
                 </main>
             </div>
         </AppLayout>
