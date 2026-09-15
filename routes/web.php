@@ -72,8 +72,17 @@ Route::match(['get', 'post'], '/mills/export/', [MillController::class, 'export'
 /**
  * Show MillEdits!
  */
-Route::get('/mill-edits/{mill_edit:id}', [MillEditController::class, 'show'])
+Route::get('/mill-edits/{mill_edit:review_hash}', [MillEditController::class, 'show'])
     ->name('mill-edits.show');
+/**
+ * MillEdits Approve and Reject routes!
+ */
+Route::post('/mill-edits/{mill_edit:approve_hash}/approve', [MillEditController::class, 'approve'])
+    ->name('mill-edits.approve');
+Route::post('/mill-edits/{mill_edit:reject_hash}/reject', [MillEditController::class, 'reject'])
+    ->name('mill-edits.reject');
+
+
 
 /**
  * FAQ
