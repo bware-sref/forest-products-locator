@@ -39,6 +39,7 @@ class MillEdit extends Model
         // there's an argument for adding a state_id column to these, even though it can be derived from mill_id
         'submitter_email',
         'submitter_ip',
+        'review_hash',
         'url',
         'approve_hash',
         'reject_hash',
@@ -57,48 +58,31 @@ class MillEdit extends Model
     ];
 
     protected static function booted(): void
-    {
-            
-        // static::creating(function (MillEdit $me) {
-            // if (empty($me->approve_hash)) {
-                // $me->approve_hash = Hash::make("approve:{$me->proposed_changes}");
-                // URL::temporarySignedRoute(
-                //     'mill-edits.show',
-                //     now()->addDays(30),
-                //     ['mill_edit' => $me->id],
-                // );
-            // }
+    {            
+        static::creating(function (MillEdit $me) {
+            // We can't use proposed_changes without converting to string first.
+            // We don't have mill_name because we're a MillEdit...
+            // So what should we use for potatoes to make hash?
+            // We should maybe use something else like Str::ulid() or some such because hashes contain special characters.
+            // $potatoes = $me->mill_id.now();
+            if (empty($me->approve_hash)) {
+                $me->approve_hash = Str::ulid(); // Hash::make("approve:{$potatoes}");
+            }
 
-            // if (empty($me->reject_hash)) {
-                // $me->reject_hash = Hash::make("reject:{$me->proposed_changes}");
-                // URL::temporarySignedRoute(
-                //     'mill-edits.show',
-                //     now()->addDays(30),
-                //     ['mill_edit' => $me->id],
-                // );
-            // }
+            if (empty($me->reject_hash)) {
+                $me->reject_hash = Str::ulid(); // Hash::make("reject:{$potatoes}");
+            }
 
-            // if (empty($me->url)) {
-                /**
-                 * need to add something because null isn't allowed.
-                 * should probably update to allow null?
-                 * :shrugs:
-                 * we now allow null.
-                 */
-                // $me->url = self::DEFAULT_URL;
-            // }
-        // });
+            if (empty($me->review_hash)) {
+                $me->review_hash = Str::ulid(); // Hash::make("review:{$potatoes}");
+            }
+        });
 
         static::saved(function (MillEdit $me) {
-            // Log::debug(self::class."::saved(): status?", [
-            //     'status' => $me->status,
-            //     'pending?' => PublicationStatus::Pending,
-            //     'me?' => $me,
-            // ]);
-            
             if (empty($me->url) && $me->status == PublicationStatus::Pending) {
                 /**
                  * use the method $request->hasValidSignature() to verify the signature!
+                 * We're going to replace this mess with review hash because we can't expire the signed URL.
                  */
                 $me->url = URL::temporarySignedRoute(
                     'mill-edits.show',
