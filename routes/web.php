@@ -48,6 +48,13 @@ Route::get('/add-business', [MillController::class, 'create'])
     ->name('mills.create');
 Route::post('/mills', [MillController::class, 'store'])
     ->name('mills.store');
+
+/**
+ * Show new mill for review + approve + reject
+ * 
+ * Show, Approve, and Reject aren't needed for new Mills because we piggyback the existing controller actions.
+ */
+
 /**
  * Edit a Mill
  */
