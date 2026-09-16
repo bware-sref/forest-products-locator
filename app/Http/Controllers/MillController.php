@@ -7,6 +7,7 @@ use App\Exports\MillsExport;
 use App\Http\Requests\MillResourceRequest;
 use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
+use App\Jobs\SendMillAddNotification;
 use App\Jobs\SendMillEditNotification;
 use App\Models\County;
 use App\Models\Mill;
@@ -16,7 +17,6 @@ use App\Models\State;
 use App\Models\WoodSpecies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -132,7 +132,7 @@ class MillController extends Controller
          */
         // $data = $request->validated();
         $data = $request->all();
-        Log::debug('Mills::store() request->all() data', $data);
+        Log::debug("\n".self::class."::store():\nrequest->all() data\n", $data);
 
         /**
          * @todo convert this store a MillEdit instead of creating a new mill and relations
@@ -143,53 +143,74 @@ class MillController extends Controller
          */
         try {
 
+            $newMill = MillEdit::addBusiness($data);
+            /**
+             * @todo make this send a notification to admins and state officials; crib from how MillEdits do it.
+             */
+            $msg = "Successfully submitted new Mill \"{$data['mill_name']}\"!";
+            Log::debug("\n".self::class."::store():\n{$msg}", [
+                "\nmillData:\n" => $newMill->toArray(),
+            ]);
+
+            /**
+             * Send email notification
+             */
+            SendMillAddNotification::dispatch($newMill);
+
+            Inertia::flash([
+                'type' => 'success',
+                'message' => $msg,
+            ]);
+
             /**
              * Let's use a transaction here because we need to ensure that the mill record is created before we can attach the mill types and wood species, and we don't want to end up with orphaned records if something goes wrong.
              */
-            DB::transaction(function () use ($data) {
-                /**
-                 * we need to handle the mill types and wood species separately because they are many-to-many relationships and require the mill record to be created first so we can get its ID for the pivot tables.
-                 */
-                /**
-                 * peel off mill_types and wood_species from the data and handle them separately after the mill record is created.
-                 */
-                $millTypeIds = $data['mill_types'] ?? [];
-                $woodSpeciesIds = $data['wood_species'] ?? [];
-                unset(
-                    $data['mill_types'],
-                    $data['wood_species'],
-                    $data['mailing_address_same_as_physical'], // this is only used for mutating the data and doesn't need to be stored
-                );
+            // DB::transaction(function () use ($data) {
+            //     /**
+            //      * we need to handle the mill types and wood species separately because they are many-to-many relationships and require the mill record to be created first so we can get its ID for the pivot tables.
+            //      */
+            //     /**
+            //      * peel off mill_types and wood_species from the data and handle them separately after the mill record is created.
+            //      */
+            //     $millTypeIds = $data['mill_types'] ?? [];
+            //     $woodSpeciesIds = $data['wood_species'] ?? [];
+            //     unset(
+            //         $data['mill_types'],
+            //         $data['wood_species'],
+            //         $data['mailing_address_same_as_physical'], // this is only used for mutating the data and doesn't need to be stored
+            //     );
 
-                Log::debug('Creating mill with data', $data);
+            //     Log::debug('Creating mill with data', $data);
 
-                /**
-                 * As such, we don't need to create a new mill here.
-                 * @todo use make() instead so it doesn't persist the Mill. then we can use toArray() to prepare for proposed_changes
-                 * 
-                 */
-                $newMill = Mill::create($data);
+            //     /**
+            //      * As such, we don't need to create a new mill here.
+            //      * @todo use make() instead so it doesn't persist the Mill. then we can use toArray() to prepare for proposed_changes
+            //      * 
+            //      */
+            //     $newMill = Mill::create($data);
 
-                // attach mill types and wood species
-                if (! empty($millTypeIds)) {
-                    $newMill->millTypes()->attach($millTypeIds);
-                }
-                if (! empty($woodSpeciesIds)) {
-                    $newMill->woodSpecies()->attach($woodSpeciesIds);
-                }
+            //     // attach mill types and wood species
+            //     if (! empty($millTypeIds)) {
+            //         $newMill->millTypes()->attach($millTypeIds);
+            //     }
+            //     if (! empty($woodSpeciesIds)) {
+            //         $newMill->woodSpecies()->attach($woodSpeciesIds);
+            //     }
 
-                /**
-                 * @todo make this send a notification to admins and state officials; crib from how MillEdits do it.
-                 */
-                $msg = \sprintf('Successfully submitted "%s" (Mill #%d!)', $newMill->mill_name, $newMill->id);
-                Log::debug($msg, ['millData' => $newMill->toArray()]);
-                Inertia::flash([
-                    'type' => 'success',
-                    'message' => $msg,
-                ]);
-            }, attempts: 3);
+            //     /**
+            //      * @todo make this send a notification to admins and state officials; crib from how MillEdits do it.
+            //      */
+            //     $msg = \sprintf('Successfully submitted "%s" (Mill #%d!)', $newMill->mill_name, $newMill->id);
+            //     Log::debug($msg, ['millData' => $newMill->toArray()]);
+            //     Inertia::flash([
+            //         'type' => 'success',
+            //         'message' => $msg,
+            //     ]);
+            // }, attempts: 3);
         } catch (\Exception $e) {
-            Log::error('Error creating mill', ['error' => $e->getMessage()]);
+            Log::error("\n".self::class."::store():\nError creating mill\n", [
+                "\nerror\n" => $e->getMessage(),
+            ]);
             Inertia::flash([
                 'type' => 'error',
                 'message' => 'An error occurred while submitting your Mill. Please try again.',
@@ -241,21 +262,6 @@ class MillController extends Controller
          */
         $data = emptyToNull($request->all());
 
-        // Log::debug(
-        //     "\n".self::class."::update()\n\nattemtpting to update Mill #{$mill->id} ({$mill->mill_name})...",
-        //     [
-        //         "\nsubmitted\n" => $data
-        //     ]
-        // );
-
-        // Log::debug(self::class."::update()\n\nMill that we received:\n", [
-        //     'mill' => $mill,
-        // ]);
-
-        // Log::debug('Submitted mill_types: ', ['mill_types' => $data['mill_types'] ?? 'WTF? twas null?!?']);
-
-        // Log::debug('Submitted wood_species: ', ['wood_species' => $data['wood_species'] ?? 'WTF? twas null?!?']);
-
         try {
             /**
              * I can already tell that we need to filter the raw Mill data to be able to get a meaningful diff
@@ -266,8 +272,6 @@ class MillController extends Controller
              * Diff is now a Mill method.
              */
             $diff = $mill->diff($data);
-
-            // Log::debug(self::class."::update():\n\ndiff mill update", ['diff' => $diff]);
 
             // declare $edit so we can check below
             $edit = null;
