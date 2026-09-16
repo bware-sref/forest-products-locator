@@ -1458,7 +1458,12 @@ class Mill extends Model
                     "dirty[$k]" => $v,
                     "original[$k]" => $original[$k],
                 ]);
-                unset($dirty[$k]);
+                /**
+                 * Keep the n-to-n relationship fields or else they'll get removed during the save process.
+                 */
+                if (! \in_array($k, self::N_TO_N)) {
+                    unset($dirty[$k]);
+                }
                 continue;
             }
 
