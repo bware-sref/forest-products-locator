@@ -113,11 +113,11 @@ class MillEditController extends Controller
 
         // Log::debug(self::class."::show(), diff?", ['diff' => $diff]);
 
-        // Log::debug(self::class."::show(): original:", [
-        //     'original' => $original,
+        // Log::debug("\n".self::class."::show():\noriginal:", [
+        //     "original\n" => $original,
         // ]);
-        // Log::debug(self::class."::show(): submitted: ", [
-        //     'submitted' => $submitted,
+        // Log::debug("\n".self::class."::show():\nsubmitted: ", [
+        //     "submitted\n" => $submitted,
         // ]);
         // Log::debug(self::class."::show(): millEdit: ", [
         //     'millEdit' => $millEdit->except(['mill']),

@@ -228,13 +228,7 @@ class MillEdit extends Model
          */
         foreach ($changes as $k => $v) {
             /**
-             * I forgot why I added the || !=
-             * I remembered why I added the || !=: because of relationships.
-             * Submitted might still have the old relationship data.
-             * In fact, we should probably check that this still does what we want when the relationships are modified.
-             * It does not!
-             * And more annoying still, it doesn't pick up the text names for MillTypes or WoodSpecies.
-             * Would it perhaps if we moved filterFormFields() below this block?
+             * If submitted doesn't contain an element for $k or its value differs from the value in changes...
              */
             if (!isset($submitted[$k]) || $submitted[$k] != $v) {
                 // Log::debug(self::class."::prepareSubmitted(): adding missing or differing member '{$k}' to submitted.", [
@@ -248,13 +242,12 @@ class MillEdit extends Model
                  * if 'name', pluck name
                  * if 'id:name', pluck name, key by id
                  */
-                // if (\in_array($k, Mill::N_TO_N) && 'id' !== $relationFormat) {
                 if (($model = array_search($k, Mill::N_TO_N)) && 'id' !== $relationFormat) {
                     /**
                      * singular() malforms wood_species
                      * instead, append the namespace to the model and let's party
                      */
-                    $model = 'App\\Models\\'.$model;
+                    $model = "App\\Models\\{$model}";
                     if ('name' === $relationFormat) {
                         $v = $model::findMany($v)->pluck('name')->toArray();
                     } else if ('id:name' === $relationFormat) {
@@ -270,7 +263,6 @@ class MillEdit extends Model
         //     'submitted' => $submitted,
         //     'overlap' => $overlap ?? [],
         // ]);
-
 
         /**
          * Even more lastly, if there was overlap between except and state fields, we need to remove the overlap.

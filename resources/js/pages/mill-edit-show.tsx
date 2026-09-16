@@ -44,9 +44,12 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
 
     const showRaw = false;
 
+    // IMPORTANT: 
+    // InertiaJS docs recommend attaching event handlers within a useEffect() method so that the event handlers will 
+    // get cleaned up when the component to which they're attached is unmounted instead of accumulating in memory.
     React.useEffect(() => {
         return router.on("flash", (event) => {
-            console.log('flash event: ', event);
+            // console.log('flash event: ', event);
             if (event.detail.flash) {
                 const flash = event.detail.flash;
                 const message = flash.message ?? '';

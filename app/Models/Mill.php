@@ -1293,10 +1293,17 @@ class Mill extends Model
                 $data[$key] = collect($data[$key])->pluck('name')->toArray();
                 continue;
             } else if ('id' === $relationFormat) {
-                $data[$key] = collect($data[$key])->pluck('id')->toArray();
+                /**
+                 * Keep this usage of sort() because the default sort is by name so this one sorts ids.
+                 * Capisce?
+                 */
+                $data[$key] = collect($data[$key])->pluck('id')->sort()->toArray();
                 continue;
             }
-            $data[$key] = collect($data[$key])->toArray();
+            /**
+             * Keep this usage of sort() as well because :shrugs:
+             */
+            $data[$key] = collect($data[$key])->sort()->toArray();
         }
 
         /**
