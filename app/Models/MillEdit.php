@@ -143,12 +143,14 @@ class MillEdit extends Model
      */
     public function originalMill(string $relationFormat = 'name', ?array $except = self::OMIT_FROM_DIFF_DISPLAY): array
     {
-        // Log::debug("\n".self::class."::originalMill():\nBEFORE bookending onlyFormFields():\n");
-        $og = $this->mill->onlyFormFields($relationFormat, $except);
-        // Log::debug("\n".self::class."::originalMill():\nAFTER bookending onlyFormFields():\n", [
-        //     'mill' => $og,
-        // ]);
-        return $og;
+        /**
+         * If this MillEdit corresponds to a new mill submission, return an empty array instead!
+         */
+        if ($this->isNewMill()) {
+            return [];
+        }
+
+        return $this->mill->onlyFormFields($relationFormat, $except);
     }
 
     /**
@@ -167,10 +169,11 @@ class MillEdit extends Model
     public function prepareSubmitted(string $relationFormat = 'name', ?array $except = self::OMIT_FROM_DIFF_DISPLAY): array
     {
         /**
-         * We need to replace state ids with names!
+         * We need to do something else if we don't have a Mill...
+         * replicate() if we have one make() if we don't.
          * @var Mill
          */
-        $submitted = $this->mill->replicate();
+        $submitted = ! $this->isNewMill() ? $this->mill?->replicate() : Mill::make($this->getChanges());
         // store changes so we can possibly loop over it later without an existence check
         $changes = $this->getChanges();
         $submitted->fill($changes);
@@ -274,27 +277,32 @@ class MillEdit extends Model
         return $submitted;
     }
 
+    /**
+     * Perhaps we should rename this method to approveEdits()?
+     * Or should the new method be approveNewMill()
+     * @throws \Exception
+     * @return bool
+     */
     public function approve(): bool
     {
         DB::transaction(function() {
             $edits = $this->prepareSubmitted('id', []);
 
-            // Log::debug("\n".self::class."::approve():\n", [
-            //     "\nedits\n" => $edits,
-            // ]);
-            // Log::debug("\n".self::class."::approve():\n", [
-            //     "\noriginal?\n" => $this->originalMill('id', []),
-            // ]);
-            // Log::debug("\n".self::class."::approve():\n", [
-            //     "\nthis->mill\n" => $this->mill->toArray(),
-            // ]);
-
-            $fill = $this->mill;
+            /**
+             * If we don't have a mill, make an empty one.
+             */
+            $fill = $this->mill ?? Mill::make();
             $fill->fill($edits);
 
             // save mill changes
             if (! $fill->save() ) {
-                $msg = "Failed to save changes to Mill #{$fill->id}!";
+                /**
+                 * $fill won't have an id if it failed to save
+                 */
+                $msg = $this->isNewMill() ? 
+                    "Failed to create new Mill from MillEdit #{$this->id}!"
+                    : 
+                    "Failed to save changes to Mill #{$fill->id}!";
                 Log::error("\n".self::class."::approve():\n{$msg}", [
                     "\nfilled\n" => $fill->toArray(),
                 ]);
@@ -337,16 +345,10 @@ class MillEdit extends Model
         /**
          * we don't need to remove relationships here because everything will go in proposed_changes
          */
-        // $millTypeIds = $data['mill_types'] ?? [];
-        // $woodSpeciesIds = $data['wood_species'] ?? [];
-        unset(
-            // $data['mill_types'],
-            // $data['wood_species'],
-            $data['mailing_address_same_as_physical'], // this is only used for mutating the data and doesn't need to be stored
-        );
+        $formData = collect($data)->only(Mill::FORM_FIELDS)->toArray();
 
         Log::debug("\n".self::class."::addBusiness():\nattempting to create MillEdit with data:\n", [
-            "\nformData:\n" => $data
+            "\nformData:\n" => $formData
         ]);
 
         /**
@@ -363,7 +365,7 @@ class MillEdit extends Model
             'submitter_ip' => $data['submitter_ip'],
             // do we even need to manually encode as json?
             // No, we do not need to manually encode as json.
-            'proposed_changes' => ['diff' => [], 'changes' => $data],
+            'proposed_changes' => ['diff' => [], 'changes' => $formData],
             'status' => PublicationStatus::Pending,
             /**
              * Add hashes!
@@ -378,16 +380,10 @@ class MillEdit extends Model
         }
 
         return $edit;
-        /**
-         * We don't need to attach here because we're saving to mill_edits
-         */
-        // attach mill types and wood species
-        // if (! empty($millTypeIds)) {
-        //     $newMill->millTypes()->attach($millTypeIds);
-        // }
-        // if (! empty($woodSpeciesIds)) {
-        //     $newMill->woodSpecies()->attach($woodSpeciesIds);
-        // }
+    }
 
+    public function isNewMill(): bool
+    {
+        return empty($this->mill);
     }
 }
