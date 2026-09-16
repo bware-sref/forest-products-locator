@@ -2,12 +2,7 @@
 
 # New Mill Update submitted
 
-**Mill Name:**<br />
-{{ $mill_name }}
-
-<x-mail::button :url="$newUrl" color="success">
-Review Edits
-</x-mail::button>
+**Mill Name:** {{ $mill_name }}
 
 **Submitted By:** {{ $email }}
 
@@ -15,7 +10,9 @@ Review Edits
 
 **Submitted At:** {{ $created_at }}
 
-**Now:** {{ $now }}
+<x-mail::button :url="$newUrl" color="primary">
+Review Edits
+</x-mail::button>
 
 {{ config('app.name') }}
 </x-mail::message>
