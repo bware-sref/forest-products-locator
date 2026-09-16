@@ -20,15 +20,15 @@ class MillEditController extends Controller
     {
         self::pendingOrDie($millEdit);
 
-        Log::debug("\n".self::class."::approve():\n", [
-            "\nedits\n" => $millEdit->prepareSubmitted('id', []),
-        ]);
-        Log::debug("\n".self::class."::approve():\n", [
-            "\noriginalMill?\n" => $millEdit->originalMill('id', []),
-        ]);
-        Log::debug("\n".self::class."::approve():\n", [
-            "\nmillEdit->mill\n" => $millEdit->mill->toArray(),
-        ]);
+        // Log::debug("\n".self::class."::approve():\n", [
+        //     "\nedits\n" => $millEdit->prepareSubmitted('id', []),
+        // ]);
+        // Log::debug("\n".self::class."::approve():\n", [
+        //     "\noriginalMill?\n" => $millEdit->originalMill('id', []),
+        // ]);
+        // Log::debug("\n".self::class."::approve():\n", [
+        //     "\nmillEdit->mill\n" => $millEdit->mill->toArray(),
+        // ]);
 
         /**
          * I think it might be as simple as using fill(), then looping over the N_to_N relations.

@@ -287,17 +287,15 @@ class MillEdit extends Model
         DB::transaction(function() {
             $edits = $this->prepareSubmitted('id', []);
 
-            Log::debug("\n".self::class."::approve():\n", [
-                "\nedits\n" => $edits,
-            ]);
-            Log::debug("\n".self::class."::approve():\n", [
-                "\noriginal?\n" => $this->originalMill('id', []),
-            ]);
-            Log::debug("\n".self::class."::approve():\n", [
-                "\nthis->mill\n" => $this->mill->toArray(),
-            ]);
-
-
+            // Log::debug("\n".self::class."::approve():\n", [
+            //     "\nedits\n" => $edits,
+            // ]);
+            // Log::debug("\n".self::class."::approve():\n", [
+            //     "\noriginal?\n" => $this->originalMill('id', []),
+            // ]);
+            // Log::debug("\n".self::class."::approve():\n", [
+            //     "\nthis->mill\n" => $this->mill->toArray(),
+            // ]);
 
             $fill = $this->mill;
             $fill->fill($edits);

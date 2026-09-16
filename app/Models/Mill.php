@@ -1450,14 +1450,13 @@ class Mill extends Model
             }
 
             /**
-             * @todo 
-             * This is what strips the mill_types and wood_species when there are no changes.
+             * This is what was strippping the mill_types and wood_species when there were no changes.
              */
             if ($v == $original[$k]) {
-                Log::debug(self::class."::diff():\nAllegedly, the values for {$k} are equivalent: ", [
-                    "dirty[$k]" => $v,
-                    "original[$k]" => $original[$k],
-                ]);
+                // Log::debug(self::class."::diff():\nAllegedly, the values for {$k} are equivalent: ", [
+                //     "dirty[$k]" => $v,
+                //     "original[$k]" => $original[$k],
+                // ]);
                 /**
                  * Keep the n-to-n relationship fields or else they'll get removed during the save process.
                  */
@@ -1488,8 +1487,8 @@ class Mill extends Model
          * We check dirty, maybe remove some elements, then don't use it again?
          */
 
-        Log::debug('Mill::diff(): after dirty...', $dirty);
-        Log::debug('Mill::diff(): and the diff?', ['diff' => $diff]);
+        // Log::debug('Mill::diff(): after dirty...', $dirty);
+        // Log::debug('Mill::diff(): and the diff?', ['diff' => $diff]);
 
         return [
             'diff' => $diff,
