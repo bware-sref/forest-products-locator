@@ -46,15 +46,26 @@ class MillEditNotification extends Mailable
      */
     public function content(): Content
     {
-        $submitted = $this->millEdit->mill->replicate();
-        $submitted->fill($this->millEdit->getChanges());
+        /**
+         * These are not used...
+         */
+        // $submitted = $this->millEdit->mill->replicate();
+        // $submitted->fill($this->millEdit->getChanges());
+
+        /**
+         * Showing the diff in a Markdown email might be tricky...
+         * My initial attempt to loop over data in the Blade caused fatal exceptions, so another approach is needed.
+         * We could try to build a string for a Markdown table and pass it to the email
+         */
+        $original = $this->millEdit->originalMill();
+        $submission = $this->millEdit->prepareSubmitted();
 
         return new Content(
             markdown: 'mail.mill_edit_notification',
             with: [
                 'mill_name' => $this->millEdit->mill->mill_name,
-                'original' => $this->millEdit->originalMill(),
-                'submission' => $this->millEdit->prepareSubmitted(),
+                'original' => $original, // $this->millEdit->originalMill(),
+                'submission' => $submission, // $this->millEdit->prepareSubmitted(),
                 'created_at' => $this->millEdit->created_at,
                 'url' => $this->millEdit->url ?? '',                
                 'email' => $this->millEdit->submitter_email,

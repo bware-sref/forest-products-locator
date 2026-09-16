@@ -1,6 +1,5 @@
 <x-mail::message>
-
-# New Mill Update submitted
+# Mill Update submitted
 
 **Mill Name:** {{ $mill_name }}
 
@@ -14,5 +13,4 @@
 Review Edits
 </x-mail::button>
 
-{{ config('app.name') }}
 </x-mail::message>
