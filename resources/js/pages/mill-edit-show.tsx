@@ -106,7 +106,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
     // renderValue seems like it should be privy to the value of change for the value in question
     const renderValue = (value: unknown, changed : boolean = false): React.ReactNode => {
         if (value === null || value === undefined) {
-            return <span className="text-slate-500 italic">(Not set)</span>;
+            return <span className="Xtext-slate-500 text-beluga/60 italic">(Not set)</span>;
         }
 
         // If it's an array (like a list of pivot relationship IDs)
@@ -115,7 +115,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
             return (
                 <div className="flex flex-wrap gap-1.5">
                     {value.map((item, idx) => (
-                        <span key={idx} className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 ${changed ? 'font-bold text-emerald-400 ring-1 ring-emerald-400/20' : 'bg-slate-800 font-medium text-slate-300 ring-slate-700/50'}`}>
+                        <span key={idx} className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 ${changed ? 'font-bold text-emerald-400 ring-1 ring-emerald-400/20' : 'Xbg-slate-800 bg-velvet font-medium Xtext-slate-300 text-beluga ring-slate-700/50'}`}>
                             {typeof item === 'object' ? JSON.stringify(item) : String(item)}
                         </span>
                     ))}
@@ -139,14 +139,14 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10 font-sans selection:bg-emerald-500/30">
+            <div className="min-h-screen bg-nature Xslate-950 text-slate-100 p-6 md:p-10 font-sans selection:bg-emerald-500/30">
                 {/* Header section */}
                 <header className="mb-8">
                     <div className="flex items-center gap-3">
-                        <span className="text-3xl">🔄</span>
-                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Mill Edit Submission Diff Tool</h1>
+                        <span className="text-3xl hidden">🔄</span>
+                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Mill Edit Submission Differences</h1>
                     </div>
-                    <p className="mt-2 text-sm md:text-base text-slate-400">
+                    <p className="mt-2 text-sm md:text-base Xtext-slate-400 text-white">
                         Compare the Mill's current information to user-submitted changes.
                     </p>
                 </header>
@@ -156,10 +156,10 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
 
                     {/* Diff */}                    
                     <section>
-                        <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 shadow-xl">
+                        <div className="overflow-x-auto rounded-xl border Xborder-slate-800 Xbg-slate-900 shadow-xl bg-velvet border-velvet">
                             <table className="w-full border-collapse text-left text-sm">
                                 <thead>
-                                    <tr className="border-b border-slate-800 bg-slate-900/50 text-slate-400 font-semibold">
+                                    <tr className="border-b Xborder-slate-800 Xbg-slate-900 Xtext-slate-400 border-aircraft bg-velvet text-beluga font-semibold">
                                         <th className="p-4 w-1/4">Field / Property Key</th>
                                         <th className="p-4 w-3/8">Original Value (DB)</th>
                                         <th className="p-4 w-3/8">Submitted Value (Form)</th>
@@ -173,13 +173,13 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                                         return (
                                             <tr 
                                                 key={key} 
-                                                className={`transition-colors duration-150 ${
-                                                    changed ? 'bg-emerald-950/20 hover:bg-emerald-950/30' : 'hover:bg-slate-800/40'
+                                                className={`transition-colors duration-150 odd:bg-aircraft even:bg-coupe ${
+                                                    changed ? 'bg-emerald-950/20 hover:bg-emerald-950/30' : 'hover:bg-slate-800/40 opacity-60'
                                                 }`}
                                             >
                                                 {/* Field Name */}
-                                                <td className="p-4 font-semibold text-slate-300 antialiased flex items-center gap-2">
-                                                    <span className="font-mono text-slate-400">{key}</span>
+                                                <td className="p-4 font-semibold Xtext-slate-300 antialiased flex items-center gap-2">
+                                                    <span className="font-mono Xtext-slate-400 text-beluga">{key}</span>
                                                     {changed && (
                                                         <span className="inline-flex items-center rounded-full bg-emerald-400/10 px-1.5 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-400/20" title="Data Changed">
                                                             Modified
@@ -188,13 +188,13 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                                                 </td>
 
                                                 {/* Original DB State */}
-                                                <td className={`p-4 font-mono text-slate-300 ${changed ? 'opacity-60' : ''}`}>
+                                                <td className={`p-4 font-mono Xtext-slate-300 text-beluga ${changed ? 'opacity-60' : ''}`}>
                                                     {renderValue(value)}
                                                     {/* {renderValue(original[key])} */}
                                                 </td>
 
                                                 {/* Incoming Form Submission */}
-                                                <td className={`p-4 font-mono ${changed ? 'text-emerald-400 font-bold' : 'text-slate-300'}`}>
+                                                <td className={`p-4 font-mono ${changed ? 'text-emerald-400 font-bold' : 'Xtext-slate-300'}`}>
                                                     {/* I see, it uses 'value', which comes from whichever version we loop over. */}
                                                     {renderValue(submitted[key], changed)}
                                                     {/* {renderValue(value)} */}
@@ -212,9 +212,9 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                      */}
                     <section>
                         <h2
-                            className="text-2xl mb-5"
+                            className="text-2xl mb-5 hidden"
                         >What do you want to do?</h2>
-                        <div className="flex flex-row w-full space-x-8">
+                        <div className="flex flex-row w-full space-x-8 justify-center items-center px-10">
                             <Button
                                 className="bg-red-600 text-white font-bold text-xl px-6 py-8 hover:text-red-500"
                                 asChild
