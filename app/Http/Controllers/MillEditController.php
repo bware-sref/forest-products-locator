@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PublicationStatus;
+use App\Jobs\ProcessMill;
+use App\Mail\MillAddNotification;
 use App\Mail\MillEditNotification;
 use App\Models\Mill;
 use App\Models\MillEdit;
@@ -14,26 +16,18 @@ use Throwable;
 class MillEditController extends Controller
 {
     /**
-     * How do we check and/or inject the hash?
+     * Approve a MillEdit
      */
     public function approve(MillEdit $millEdit)
     {
         self::pendingOrDie($millEdit);
 
-        // Log::debug("\n".self::class."::approve():\n", [
-        //     "\nedits\n" => $millEdit->prepareSubmitted('id', []),
-        // ]);
-        // Log::debug("\n".self::class."::approve():\n", [
-        //     "\noriginalMill?\n" => $millEdit->originalMill('id', []),
-        // ]);
-        // Log::debug("\n".self::class."::approve():\n", [
-        //     "\nmillEdit->mill\n" => $millEdit->mill->toArray(),
-        // ]);
-
         /**
          * I think it might be as simple as using fill(), then looping over the N_to_N relations.
          * In any case, that stuff should go in a model method.
          * I suppose we should wrap this in try{}
+         * 
+         * Hmm...we need to send this to ProcessMill if the address changed, or if it's a new Mill.
          */
 
         try {
@@ -50,6 +44,12 @@ class MillEditController extends Controller
             ]);
             return to_route('mill-edits.show', $millEdit);
         }
+
+        /**
+         * Dispatch a ProcessMill job to make sure coordinates, et al, are filled in.
+         * @todo test it
+         */
+        ProcessMill::dispatch($millEdit->mill);
 
         $msg = "Approved MillEdit #{$millEdit->id} for Mill #{$millEdit->mill->id}.";
         Log::debug("\n".self::class."::approve():\n{$msg}");
@@ -84,6 +84,14 @@ class MillEditController extends Controller
             'type' => 'success',
             'message' => $msg,
         ]);
+
+        /**
+         * The only thing that changes when we reject a new mill is where we redirect to
+         */
+        if ($millEdit->isNewMill()) {
+            return to_route('home');
+        }
+
         return to_route('mills.show', $millEdit->mill);
     }
 
@@ -97,42 +105,35 @@ class MillEditController extends Controller
      * @param MillEdit $millEdit
      * @return \Inertia\Response
      */
-    public function show(Request $request, MillEdit $millEdit)
+    public function show(MillEdit $millEdit)
     {
         self::pendingOrDie($millEdit);
-        
+
         /**
-         * We could/should probably extract the mess below into a MillEdit model method.
+         * we need this for all paths
+         */
+        $submitted = $millEdit->prepareSubmitted();
+
+        /**
+         * If there's no mill, this is a new mill submission
+         */
+        if ($millEdit->isNewMill()) {
+            return Inertia::render('review-new-mill', [
+                'submitted' => $submitted,
+                'millEdit' => $millEdit,
+            ]);
+        }
+
+        /**
+         * We extracted the mess below into a MillEdit model method.
          */
         $original = $millEdit->originalMill();
-        $submitted = $millEdit->prepareSubmitted();
-        $changes = $millEdit->getChanges();
-        $diff = $millEdit->getDiff();
-
-        // Log::debug(self::class."::show(), changes?", ['changes' => $changes]);
-
-        // Log::debug(self::class."::show(), diff?", ['diff' => $diff]);
-
-        // Log::debug("\n".self::class."::show():\noriginal:", [
-        //     "original\n" => $original,
-        // ]);
-        // Log::debug("\n".self::class."::show():\nsubmitted: ", [
-        //     "submitted\n" => $submitted,
-        // ]);
-        // Log::debug(self::class."::show(): millEdit: ", [
-        //     'millEdit' => $millEdit->except(['mill']),
-        // ]);
-        // Log::debug(self::class."::show(): mill: ", [
-        //     'mill' => $millEdit->mill->toArray(),
-        // ]);
 
         return Inertia::render('mill-edit-show', [
             'original' => $original,
             'submitted' => $submitted,
             'millEdit' => $millEdit,
             // I don't think we need changes or diff in the view
-            'changes' => $changes,
-            'diff' => $diff,
         ]);
     }
 
@@ -141,10 +142,13 @@ class MillEditController extends Controller
      * Note: this route is only defined when the environment is 'local'.
      *
      * @param MillEdit $millEdit
-     * @return MillEditNotification
+     * @return MillAddNotification | MillEditNotification
      */
     public function previewNotification(MillEdit $millEdit)
     {
+        if ($millEdit->isNewMill()) {
+            return new MillAddNotification($millEdit);
+        }
         return new MillEditNotification($millEdit);
     }
 
