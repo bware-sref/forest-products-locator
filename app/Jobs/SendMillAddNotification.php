@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\UserRoles;
-use App\Mail\MillEditNotification;
+use App\Mail\MillAddNotification;
 use App\Models\Mill;
 use App\Models\MillEdit;
 use App\Models\State;
@@ -15,7 +15,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class SendMillEditNotification implements ShouldQueue
+class SendMillAddNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -45,10 +45,10 @@ class SendMillEditNotification implements ShouldQueue
         // store toWhom so we can update the record accordingly
         $toWhom = $this->resolveToWhom();
         $sent = Mail::to($toWhom)
-            ->send(new MillEditNotification($this->millEdit));
+            ->send(new MillAddNotification($this->millEdit));
 
         if (! $sent) {
-            Log::debug("\n".self::class.":\nFailed to send MillEditNotification for MillEdit #{$this->millEdit->id}. Releasing job to attempt resending later.");
+            Log::debug("\n".self::class.":\nFailed to send MillAddNotification for MillEdit #{$this->millEdit->id}. Releasing job to attempt resending later.");
             $this->release(10);
             return;
         }
@@ -65,16 +65,16 @@ class SendMillEditNotification implements ShouldQueue
     protected function resolveToWhom(): array
     {
         $supers = User::role(UserRoles::SUPER)
-        /**
-         * FFS!
-         * Turns out that under the hood, Mail::to() is looking for objects or arrays with props named...
-         * ...wait for it...
-         * 'email' and 'name'
-         */
             ->select(['email', 'name'])
             ->get()
             ->toArray();
-        $stateContacts = $this->millEdit->mill->state->stateContacts()
+
+        /**
+         * We have to fetch the state first because we don't have a Mill yet.
+         */
+        $changes = $this->millEdit->getChanges();
+        $state = State::find($changes['state_id']);
+        $stateContacts = $state->stateContacts()
             ->select(['email', 'name'])
             ->get()
             ->toArray();

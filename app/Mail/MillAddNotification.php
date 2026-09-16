@@ -12,7 +12,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class MillEditNotification extends Mailable
+class MillAddNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -34,7 +34,7 @@ class MillEditNotification extends Mailable
         $addy = new Address(config('mail.from.address'), config('mail.from.name'));
         return new Envelope(
             from: $addy,
-            subject: "Mill Edit Submitted (#{$this->millEdit->id})",
+            subject: "New Mill Submitted (#{$this->millEdit->id})",
             replyTo: [
                 $addy,
             ]
@@ -47,27 +47,19 @@ class MillEditNotification extends Mailable
     public function content(): Content
     {
         /**
-         * These are not used...
+         * I don't know if we need to use prepareSubmitted().
+         * I actually expect to choke and die if we invoke it on a MillEdit without a Mill...
          */
-        // $submitted = $this->millEdit->mill->replicate();
-        // $submitted->fill($this->millEdit->getChanges());
-
-        /**
-         * Showing the diff in a Markdown email might be tricky...
-         * My initial attempt to loop over data in the Blade caused fatal exceptions, so another approach is needed.
-         * We could try to build a string for a Markdown table and pass it to the email
-         */
-        $original = $this->millEdit->originalMill();
         $submission = $this->millEdit->prepareSubmitted();
+
+        $changes = $this->millEdit->getChanges();
 
         return new Content(
             markdown: 'mail.mill_edit_notification',
             with: [
-                'mill_name' => $this->millEdit->mill->mill_name,
-                'original' => $original, // $this->millEdit->originalMill(),
-                'submission' => $submission, // $this->millEdit->prepareSubmitted(),
+                'mill_name' => $changes['mill_name'] ?? 'unknown?!?',
+                'submission' => $submission,
                 'created_at' => $this->millEdit->created_at,
-                'url' => $this->millEdit->url ?? '',                
                 'email' => $this->millEdit->submitter_email,
                 'ip' => $this->millEdit->submitter_ip,
                 'now' => now(),
