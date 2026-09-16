@@ -332,8 +332,62 @@ class MillEdit extends Model
         return $this->save();
     }
 
-    protected function handleApprove(): bool
+    public static function addBusiness(array $data)
     {
-        return true;
+        /**
+         * we don't need to remove relationships here because everything will go in proposed_changes
+         */
+        // $millTypeIds = $data['mill_types'] ?? [];
+        // $woodSpeciesIds = $data['wood_species'] ?? [];
+        unset(
+            // $data['mill_types'],
+            // $data['wood_species'],
+            $data['mailing_address_same_as_physical'], // this is only used for mutating the data and doesn't need to be stored
+        );
+
+        Log::debug("\n".self::class."::addBusiness():\nattempting to create MillEdit with data:\n", [
+            "\nformData:\n" => $data
+        ]);
+
+        /**
+         * As such, we don't need to create a new mill here.
+         * @todo use make() instead so it doesn't persist the Mill. then we can use toArray() to prepare for proposed_changes
+         * Do we even need to use make()?
+         * I wonder what would happen if we used Mill::make() then ran Mill::diff()...
+         */
+        // $newMill = Mill::make($data)->toArray();
+
+        $edit = MillEdit::create([
+            'mill_id' => null, // $mill->id,
+            'submitter_email' => $data['submitter_email'],
+            'submitter_ip' => $data['submitter_ip'],
+            // do we even need to manually encode as json?
+            // No, we do not need to manually encode as json.
+            'proposed_changes' => ['diff' => [], 'changes' => $data],
+            'status' => PublicationStatus::Pending,
+            /**
+             * Add hashes!
+             * Hashes are added during the 'creating' model event.
+             */
+        ]);
+
+        if (empty($edit) || false === $edit) {
+            Log::error("\n".self::class."::addBusiness():\nFailed to create a MillEdit for Add Business submission.", [
+                "\ndata:\n" => $data,
+            ]);
+        }
+
+        return $edit;
+        /**
+         * We don't need to attach here because we're saving to mill_edits
+         */
+        // attach mill types and wood species
+        // if (! empty($millTypeIds)) {
+        //     $newMill->millTypes()->attach($millTypeIds);
+        // }
+        // if (! empty($woodSpeciesIds)) {
+        //     $newMill->woodSpecies()->attach($woodSpeciesIds);
+        // }
+
     }
 }
