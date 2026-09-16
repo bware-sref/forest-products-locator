@@ -135,6 +135,10 @@ class MillController extends Controller
         Log::debug('Mills::store() request->all() data', $data);
 
         /**
+         * @todo convert this store a MillEdit instead of creating a new mill and relations
+         */
+
+        /**
          * I don't think we need to wrap all this in a conditional because if the validation fails, it will automatically redirect back with errors and old input, so we won't even get to this point if the data is invalid.
          */
         try {
@@ -161,6 +165,8 @@ class MillController extends Controller
 
                 /**
                  * As such, we don't need to create a new mill here.
+                 * @todo use make() instead so it doesn't persist the Mill. then we can use toArray() to prepare for proposed_changes
+                 * 
                  */
                 $newMill = Mill::create($data);
 
@@ -172,6 +178,9 @@ class MillController extends Controller
                     $newMill->woodSpecies()->attach($woodSpeciesIds);
                 }
 
+                /**
+                 * @todo make this send a notification to admins and state officials; crib from how MillEdits do it.
+                 */
                 $msg = \sprintf('Successfully submitted "%s" (Mill #%d!)', $newMill->mill_name, $newMill->id);
                 Log::debug($msg, ['millData' => $newMill->toArray()]);
                 Inertia::flash([
@@ -187,7 +196,6 @@ class MillController extends Controller
             ]);
         }
 
-        // Inertia::flash($flash);
         return to_route('mills.create');
     }
 
