@@ -49,8 +49,10 @@ class MillAddNotification extends Mailable
         /**
          * I don't know if we need to use prepareSubmitted().
          * I actually expect to choke and die if we invoke it on a MillEdit without a Mill...
+         * Yep, that's exactly what happened.
+         * It's since been made to work without a mill.
          */
-        $submission = $this->millEdit->prepareSubmitted();
+        // $submission = $this->millEdit->prepareSubmitted();
 
         $changes = $this->millEdit->getChanges();
 
@@ -58,12 +60,11 @@ class MillAddNotification extends Mailable
             markdown: 'mail.mill_edit_notification',
             with: [
                 'mill_name' => $changes['mill_name'] ?? 'unknown?!?',
-                'submission' => $submission,
                 'created_at' => $this->millEdit->created_at,
                 'email' => $this->millEdit->submitter_email,
                 'ip' => $this->millEdit->submitter_ip,
                 'now' => now(),
-                'newUrl' => route('mill-edits.show', ['mill_edit' => $this->millEdit]),
+                'url' => route('mill-edits.show', ['mill_edit' => $this->millEdit]),
             ]
         );
     }
