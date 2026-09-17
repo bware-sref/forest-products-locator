@@ -900,7 +900,7 @@ class Mill extends Model
         $lat = (float) $this->latitude ?? null;
         $lng = (float) $this->longitude ?? null;
         if (empty($lat) || $lat > 90 || $lat < -90 ||
-            empty($lng) || $lng > 180 || $lat < -180
+            empty($lng) || $lng > 180 || $lng < -180
         ) {
             return false;
         }
