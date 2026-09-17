@@ -321,9 +321,15 @@ class MillEdit extends Model
                 }
             }
 
-            // update MillEdits record
-            $this->status = PublicationStatus::Approved;
-            $this->save();
+            /**
+             * update MillEdits record
+             * save the mill id and update the status.
+             */
+            $this->update([
+                'status' => PublicationStatus::Approved,
+                'mill_id' => $fill->id,
+                'reviewed_at' => now(),
+            ]);
         });
 
         // Log::debug("\n".self::class."::approve():\n");
@@ -336,8 +342,10 @@ class MillEdit extends Model
 
     public function reject(): bool
     {
-        $this->status = PublicationStatus::Rejected;
-        return $this->save();
+        return $this->update([
+            'status' => PublicationStatus::Rejected,
+            'reviewed_at' => now(),
+        ]);
     }
 
     public static function addBusiness(array $data)
