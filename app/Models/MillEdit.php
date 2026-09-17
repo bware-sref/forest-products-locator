@@ -128,6 +128,14 @@ class MillEdit extends Model
         return  $diff;
     }
 
+    public function didAddressChange(): bool
+    {
+        $pAddressParts = Mill::getAddressTypePartNames();
+        $addressFields = [...$pAddressParts, ...Mill::STATE_FIELDS];
+        $keys = array_keys($this->getChanges());
+        return ! empty(array_intersect($addressFields, $keys));
+    }
+
     /**
      * Prepares original Mill data for display.
      *
