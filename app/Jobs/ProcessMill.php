@@ -61,12 +61,25 @@ class ProcessMill implements ShouldQueue
      */
     public static function jobChain(Mill $mill, bool $allowFailures = false): array
     {
-        return [
+        /**
+         * Jaha!
+         * This mess needs to be able to work for mills that aren't part of an import.
+         * As such, we need to conditionally add the UpdateImportProcessedRows job to the chain
+         * because it aborts if the mill has no import_id value.
+         * 
+         * Additionally, we may need an alternative "closer" to finalize un-imported mills.
+         */
+        $gang = [
             new GeocodeMill($mill, $allowFailures),
             new ProcessMillState($mill, $allowFailures),
             new ProcessMillMillTypes($mill, $allowFailures),
             new ProcessMillWoodSpecies($mill, $allowFailures),
-            new UpdateImportProcessedRows($mill, $allowFailures),
         ];
+
+        if (! empty($mill->import_id)) {
+            $gang[] = new UpdateImportProcessedRows($mill, $allowFailures);
+        }
+
+        return $gang;
     }
 }
