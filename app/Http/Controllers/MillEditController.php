@@ -44,11 +44,13 @@ class MillEditController extends Controller
             ]);
             return to_route('mill-edits.show', $millEdit);
         }
-
+        
         /**
          * Dispatch a ProcessMill job to make sure coordinates, et al, are filled in.
          * @todo test it
+         * Yeah, I think we need to refresh the $millEdit before dispatching.
          */
+        $millEdit->refresh();
         ProcessMill::dispatch($millEdit->mill);
 
         $msg = "Approved MillEdit #{$millEdit->id} for Mill #{$millEdit->mill->id}.";
