@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\OrderByName;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 /**
  * @mixin IdeHelperWoodSpecies
  */
+#[ScopedBy([OrderByName::class])]
 class WoodSpecies extends Model
 {
     use CrudTrait;

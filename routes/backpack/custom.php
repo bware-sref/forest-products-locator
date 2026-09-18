@@ -15,6 +15,7 @@ Route::group([
         (array) config('backpack.base.middleware_key', 'admin')
     ),
     'namespace' => 'App\Http\Controllers\Admin',
+    'as' => config('backpack.base.route_prefix', 'admin').'.',
 ], function () { // custom admin routes
     Route::crud('user', 'UserCrudController');
     // Route::crud('agent', 'AgentCrudController');

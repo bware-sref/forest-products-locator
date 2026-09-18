@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
-use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\PublicationStatus;
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * @mixin IdeHelperMillEdit
@@ -19,14 +22,29 @@ class MillEdit extends Model
     /** @use HasFactory<\Database\Factories\MillEditsFactory> */
     use HasFactory;
 
+    /**
+     * Should this go on Mill instead?
+     * @var array
+     */
+    public const array OMIT_FROM_DIFF_DISPLAY = [
+        'millTypes',
+        'woodSpecies',
+        'mailing_state_id',
+        'state_id',
+    ];
+
     protected $fillable = [
         'mill_id',
         // there's an argument for adding a state_id column to these, even though it can be derived from mill_id
         'submitter_email',
         'submitter_ip',
+        'review_hash',
+        'url',
         'approve_hash',
         'reject_hash',
         'proposed_changes',
+        'sent',
+        'sent_to',
         'status',
         'reviewed_at',
         'created_at',
@@ -35,7 +53,31 @@ class MillEdit extends Model
 
     protected $casts = [
         'status' => PublicationStatus::class,
+        'proposed_changes' => 'array',
     ];
+
+    protected static function booted(): void
+    {            
+        static::creating(function (MillEdit $me) {
+            // We can't use proposed_changes without converting to string first.
+            // We don't have mill_name because we're a MillEdit...
+            // So what should we use for potatoes to make hash?
+            // We should maybe use something else like Str::ulid() or some such because hashes contain special characters.
+            // $potatoes = $me->mill_id.now();
+            if (empty($me->approve_hash)) {
+                $me->approve_hash = Str::ulid(); // Hash::make("approve:{$potatoes}");
+            }
+
+            if (empty($me->reject_hash)) {
+                $me->reject_hash = Str::ulid(); // Hash::make("reject:{$potatoes}");
+            }
+
+            if (empty($me->review_hash)) {
+                $me->review_hash = Str::ulid(); // Hash::make("review:{$potatoes}");
+            }
+        });
+    }
+
 
     /**
      * The glue.
@@ -45,10 +87,10 @@ class MillEdit extends Model
         return $this->belongsTo(Mill::class);
     }
 
-    /**
+    /*******************************************************************************
      * Scopes!
      * as indicated by the #[Scope] attribute/decorator
-     */   
+     *******************************************************************************/
 
     #[Scope]
     protected function approved(Builder $query): void
@@ -66,5 +108,293 @@ class MillEdit extends Model
     protected function rejected(Builder $query): void
     {
         $query->where('status', PublicationStatus::Rejected);
+    }
+
+    public function getChanges(): array
+    {
+        return $this->proposed_changes['changes'] ?? [];
+    }
+
+    public function getDiff(): array
+    {
+        /**
+         * This hopefully won't be necessary in the future.
+         * I think it was fluke that it was ever needed.
+         */
+        $diff = $this->proposed_changes['diff'] ?? $this->proposed_changes;
+        if (! \is_array($diff)) {
+            $diff = ['diff' => $diff];
+        }
+        return  $diff;
+    }
+
+    public function didAddressChange(): bool
+    {
+        $pAddressParts = Mill::getAddressTypePartNames();
+        $addressFields = [...$pAddressParts, ...Mill::STATE_FIELDS];
+        $keys = array_keys($this->getChanges());
+        return ! empty(array_intersect($addressFields, $keys));
+    }
+
+    /**
+     * Prepares original Mill data for display.
+     *
+     * Both invocations of this method use the same arguments: 'name' & OMIT_FROM_DIFF_DISPLAY.
+     * That suggests they should be the default arguments.
+     *
+     * FTR, since the above was written, another invocation has been added that
+     * uses different arguments.
+     *
+     * @param string $relationFormat
+     * @param mixed $except
+     * @return array
+     */
+    public function originalMill(string $relationFormat = 'name', ?array $except = self::OMIT_FROM_DIFF_DISPLAY): array
+    {
+        /**
+         * If this MillEdit corresponds to a new mill submission, return an empty array instead!
+         */
+        if ($this->isNewMill()) {
+            return [];
+        }
+
+        return $this->mill->onlyFormFields($relationFormat, $except);
+    }
+
+    /**
+     * Prepares submitted MillEdit data for display.
+     *
+     * Both invocations of this method use the same arguments: 'name' & OMIT_FROM_DIFF_DISPLAY.
+     * That suggests they should be the default arguments.
+     *
+     * FTR, since the above was written, another invocation has been added that
+     * uses different arguments.
+     *
+     * @param string $relationFormat
+     * @param mixed $except
+     * @return array
+     */
+    public function prepareSubmitted(string $relationFormat = 'name', ?array $except = self::OMIT_FROM_DIFF_DISPLAY): array
+    {
+        /**
+         * We need to do something else if we don't have a Mill...
+         * replicate() if we have one make() if we don't.
+         * @var Mill
+         */
+        $submitted = ! $this->isNewMill() ? $this->mill?->replicate() : Mill::make($this->getChanges());
+        // store changes so we can possibly loop over it later without an existence check
+        $changes = $this->getChanges();
+        $submitted->fill($changes);
+
+        // Log::debug("\n".self::class."::prepareSubmitted():\nchanges:\n", ['changes' => $changes]);
+
+        // Log::debug("\n\n".self::class."::prepareSubmitted():\nsubmitted before filtering: ", [
+        //     'submitted' => $submitted->toArray()
+        // ]);
+
+        /**
+         * @IMPORTANT
+         * if state_id or mailing_state_id are present in $except, we will not have the necessary data to populate
+         * state and mailingState because they will be removed before the step where we add them.
+         */
+        $overlap = array_intersect($except, Mill::STATE_FIELDS);
+        if (!empty($overlap)) {
+            $except = array_diff($except, Mill::STATE_FIELDS);
+        }
+
+        /**
+         * We also need to filter form fields.
+         * filterFormFields() overwrites the relationship values from changes!
+         */
+        $submitted = Mill::filterFormFields($submitted, $relationFormat, $except);
+
+        // Log::debug("\n\n".self::class."::prepareSubmitted():\nsubmitted after filtering: ", [
+        //     'submitted' => $submitted
+        // ]);
+
+        /**
+         * Regardless of changes, we need to get the state and mailing state names
+         */
+        foreach (Mill::STATE_FIELDS as $key) {
+            /**
+             * We might need isset() instead of empty()
+             */
+            if (!empty($submitted[$key])) {
+                $attr = Str::camel(Str::remove('_id', $key));
+                $submitted[$attr] = State::find($submitted[$key])?->name ?? '';
+                // Log::debug("\n".self::class."::prepareSubmitted():\n", [
+                //     'attr' => $attr,
+                //     'key' => $key,
+                //     'submitted[attr]' => $submitted[$attr],
+                // ]);
+            }
+        }
+
+        // Log::debug("\n".self::class."::prepareSubmitted():\nsubmitted after state fields: ", [
+        //     'submitted' => $submitted
+        // ]);
+
+        /**
+         * Lastly, double check that relations are added to submitted.
+         */
+        foreach ($changes as $k => $v) {
+            /**
+             * If submitted doesn't contain an element for $k or its value differs from the value in changes...
+             */
+            if (!isset($submitted[$k]) || $submitted[$k] != $v) {
+                // Log::debug(self::class."::prepareSubmitted(): adding missing or differing member '{$k}' to submitted.", [
+                //     $k => $v,
+                // ]);
+
+                /**
+                 * If this is mill_types or wood_species, we need to pull the records and pluck the names...
+                 * actually, we might need to rely on relationFormat to determine what form they should take
+                 * if $relationFormat is 'id', just assign the values
+                 * if 'name', pluck name
+                 * if 'id:name', pluck name, key by id
+                 */
+                if (($model = array_search($k, Mill::N_TO_N)) && 'id' !== $relationFormat) {
+                    /**
+                     * singular() malforms wood_species
+                     * instead, append the namespace to the model and let's party
+                     */
+                    $model = "App\\Models\\{$model}";
+                    if ('name' === $relationFormat) {
+                        $v = $model::findMany($v)->pluck('name')->toArray();
+                    } else if ('id:name' === $relationFormat) {
+                        $v = $model::findMany($v)->pluck('name', 'id')->toArray();
+                    }
+                }
+               
+                $submitted[$k] = $v;
+            }
+        }
+
+        // Log::debug("\n".self::class."::prepareSubmitted():\nsubmitted after all the massaging but before removing overlap:\n", [
+        //     'submitted' => $submitted,
+        //     'overlap' => $overlap ?? [],
+        // ]);
+
+        /**
+         * Even more lastly, if there was overlap between except and state fields, we need to remove the overlap.
+         */
+        $submitted = collect($submitted)->except($overlap)->toArray();
+
+        // Log::debug("\n".self::class."::prepareSubmitted(): submitted after all the massaging and removing overlap:\n", ['submitted' => $submitted]);
+
+        return $submitted;
+    }
+
+    /**
+     * Perhaps we should rename this method to approveEdits()?
+     * Or should the new method be approveNewMill()
+     * @throws \Exception
+     * @return bool
+     */
+    public function approve(): bool
+    {
+        DB::transaction(function() {
+            $edits = $this->prepareSubmitted('id', []);
+
+            /**
+             * If we don't have a mill, make an empty one.
+             */
+            $fill = $this->mill ?? Mill::make();
+            $fill->fill($edits);
+
+            // save mill changes
+            if (! $fill->save() ) {
+                /**
+                 * $fill won't have an id if it failed to save
+                 */
+                $msg = $this->isNewMill() ? 
+                    "Failed to create new Mill from MillEdit #{$this->id}!"
+                    : 
+                    "Failed to save changes to Mill #{$fill->id}!";
+                Log::error("\n".self::class."::approve():\n{$msg}", [
+                    "\nfilled\n" => $fill->toArray(),
+                ]);
+                throw new \Exception($msg);
+            }
+
+            // sync relations
+            foreach (Mill::N_TO_N as $key) {
+                $relation = Str::camel($key);
+                if (! $fill->$relation()->sync($edits[$key])) {
+                    $msg = "Failed to sync {$relation} for Mill #{$fill->id}!";
+                    Log::error("\n".self::class."::approve():\n{$msg}", [
+                        "\nedits[$key]\n" => $edits[$key],
+                    ]);
+                    throw new \Exception($msg);
+                }
+            }
+
+            /**
+             * update MillEdits record
+             * save the mill id and update the status.
+             */
+            $this->update([
+                'status' => PublicationStatus::Approved,
+                'mill_id' => $fill->id,
+                'reviewed_at' => now(),
+            ]);
+        });
+
+        // Log::debug("\n".self::class."::approve():\n");
+
+        /**
+         * If we made it this far, we can probably return true.
+         */
+        return true;
+    }
+
+    public function reject(): bool
+    {
+        return $this->update([
+            'status' => PublicationStatus::Rejected,
+            'reviewed_at' => now(),
+        ]);
+    }
+
+    public static function addBusiness(array $data)
+    {
+        /**
+         * we don't need to remove relationships here because everything will go in proposed_changes
+         */
+        $formData = collect($data)->only(Mill::FORM_FIELDS)->toArray();
+
+        Log::debug("\n".self::class."::addBusiness():\nattempting to create MillEdit with data:\n", [
+            "\nformData:\n" => $formData
+        ]);
+
+        /**
+         * Create a new MillEdit
+         */
+        $edit = MillEdit::create([
+            'mill_id' => null, // $mill->id,
+            'submitter_email' => $data['submitter_email'],
+            'submitter_ip' => $data['submitter_ip'],
+            // do we even need to manually encode as json?
+            // No, we do not need to manually encode as json.
+            'proposed_changes' => ['diff' => [], 'changes' => $formData],
+            'status' => PublicationStatus::Pending,
+            /**
+             * Add hashes!
+             * Hashes are added during the 'creating' model event.
+             */
+        ]);
+
+        if (empty($edit) || false === $edit) {
+            Log::error("\n".self::class."::addBusiness():\nFailed to create a MillEdit for Add Business submission.", [
+                "\ndata:\n" => $data,
+            ]);
+        }
+
+        return $edit;
+    }
+
+    public function isNewMill(): bool
+    {
+        return empty($this->mill_id);
     }
 }

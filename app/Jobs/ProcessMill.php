@@ -61,6 +61,16 @@ class ProcessMill implements ShouldQueue
      */
     public static function jobChain(Mill $mill, bool $allowFailures = false): array
     {
+        /**
+         * Jaha!
+         * This mess needs to be able to work for mills that aren't part of an import.
+         * As such, we need to conditionally add the UpdateImportProcessedRows job to the chain
+         * because it aborts if the mill has no import_id value.
+         * 
+         * Additionally, we may need an alternative "closer" to finalize un-imported mills.
+         * 
+         * Also, we may not want to geocode Mills from ArcGIS imports unless they don't have an address.
+         */
         return [
             new GeocodeMill($mill, $allowFailures),
             new ProcessMillState($mill, $allowFailures),

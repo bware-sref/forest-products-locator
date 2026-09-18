@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PublicationStatus;
 use App\Exports\MillsExport;
 use App\Http\Requests\MillResourceRequest;
 use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
+use App\Jobs\SendMillAddNotification;
+use App\Jobs\SendMillEditNotification;
 use App\Models\County;
 use App\Models\Mill;
+use App\Models\MillEdit;
 use App\Models\PageSeo;
 use App\Models\State;
 use App\Models\WoodSpecies;
@@ -75,7 +79,7 @@ class MillController extends Controller
             'pageTitle' => $mill->mill_name.' | Details',
             'pageSeo' => [
                 'title' => $mill->mill_name.' | Details',
-                'description' => trim(sprintf(
+                'description' => trim(\sprintf(
                     '%s%s. Contact information, products, and location details.',
                     $mill->mill_name,
                     $location ? " is a forest products company in {$location}" : ' is a forest products company'
@@ -87,6 +91,8 @@ class MillController extends Controller
 
     /**
      * Display the Mill form
+     * 
+     * @TODO move this to MillEditController
      */
     public function create()
     {
@@ -108,6 +114,11 @@ class MillController extends Controller
     /**
      * Store a newly created resource in storage.
      * Accepts POST from create (mill form)
+     * 
+     * We might need to modify this to store submitted data in the mill_edits table instead of mills.
+     * That can happen after we figure out how to handle mill edits.
+     * 
+     * @TODO move this to MillEditController
      */
     public function store(StoreMillRequest $request)
     {
@@ -121,70 +132,118 @@ class MillController extends Controller
          */
         // $data = $request->validated();
         $data = $request->all();
-        Log::debug('Mills::store() request->all() data', $data);
+        Log::debug("\n".self::class."::store():\nrequest->all() data\n", $data);
+
+        /**
+         * @todo convert this store a MillEdit instead of creating a new mill and relations
+         */
 
         /**
          * I don't think we need to wrap all this in a conditional because if the validation fails, it will automatically redirect back with errors and old input, so we won't even get to this point if the data is invalid.
          */
         try {
 
+            $newMill = MillEdit::addBusiness($data);
+            /**
+             * @todo make this send a notification to admins and state officials; crib from how MillEdits do it.
+             */
+            $msg = "Successfully submitted new Mill \"{$data['mill_name']}\"!";
+            Log::debug("\n".self::class."::store():\n{$msg}", [
+                "\nmillData:\n" => $newMill->toArray(),
+            ]);
+
+            /**
+             * Send email notification
+             */
+            SendMillAddNotification::dispatch($newMill);
+
+            Inertia::flash([
+                'type' => 'success',
+                'message' => $msg,
+            ]);
+
             /**
              * Let's use a transaction here because we need to ensure that the mill record is created before we can attach the mill types and wood species, and we don't want to end up with orphaned records if something goes wrong.
              */
-            DB::transaction(function () use ($data) {
-                /**
-                 * we need to handle the mill types and wood species separately because they are many-to-many relationships and require the mill record to be created first so we can get its ID for the pivot tables.
-                 */
-                /**
-                 * peel off mill_types and wood_species from the data and handle them separately after the mill record is created.
-                 */
-                $millTypeIds = $data['mill_types'] ?? [];
-                $woodSpeciesIds = $data['wood_species'] ?? [];
-                unset(
-                    $data['mill_types'],
-                    $data['wood_species'],
-                    $data['mailing_address_same_as_physical'], // this is only used for mutating the data and doesn't need to be stored
-                );
+            // DB::transaction(function () use ($data) {
+            //     /**
+            //      * we need to handle the mill types and wood species separately because they are many-to-many relationships and require the mill record to be created first so we can get its ID for the pivot tables.
+            //      */
+            //     /**
+            //      * peel off mill_types and wood_species from the data and handle them separately after the mill record is created.
+            //      */
+            //     $millTypeIds = $data['mill_types'] ?? [];
+            //     $woodSpeciesIds = $data['wood_species'] ?? [];
+            //     unset(
+            //         $data['mill_types'],
+            //         $data['wood_species'],
+            //         $data['mailing_address_same_as_physical'], // this is only used for mutating the data and doesn't need to be stored
+            //     );
 
-                Log::debug('Creating mill with data', $data);
+            //     Log::debug('Creating mill with data', $data);
 
-                $newMill = Mill::create($data);
+            //     /**
+            //      * As such, we don't need to create a new mill here.
+            //      * @todo use make() instead so it doesn't persist the Mill. then we can use toArray() to prepare for proposed_changes
+            //      * 
+            //      */
+            //     $newMill = Mill::create($data);
 
-                // attach mill types and wood species
-                if (! empty($millTypeIds)) {
-                    $newMill->millTypes()->attach($millTypeIds);
-                }
-                if (! empty($woodSpeciesIds)) {
-                    $newMill->woodSpecies()->attach($woodSpeciesIds);
-                }
+            //     // attach mill types and wood species
+            //     if (! empty($millTypeIds)) {
+            //         $newMill->millTypes()->attach($millTypeIds);
+            //     }
+            //     if (! empty($woodSpeciesIds)) {
+            //         $newMill->woodSpecies()->attach($woodSpeciesIds);
+            //     }
 
-                $msg = sprintf('Successfully submitted "%s" (Mill #%d!)', $newMill->mill_name, $newMill->id);
-                Log::debug($msg, ['millData' => $newMill->toArray()]);
-                Inertia::flash([
-                    'type' => 'success',
-                    'message' => $msg,
-                ]);
-            }, attempts: 3);
+            //     /**
+            //      * @todo make this send a notification to admins and state officials; crib from how MillEdits do it.
+            //      */
+            //     $msg = \sprintf('Successfully submitted "%s" (Mill #%d!)', $newMill->mill_name, $newMill->id);
+            //     Log::debug($msg, ['millData' => $newMill->toArray()]);
+            //     Inertia::flash([
+            //         'type' => 'success',
+            //         'message' => $msg,
+            //     ]);
+            // }, attempts: 3);
         } catch (\Exception $e) {
-            Log::error('Error creating mill', ['error' => $e->getMessage()]);
+            Log::error("\n".self::class."::store():\nError creating mill\n", [
+                "\nerror\n" => $e->getMessage(),
+            ]);
             Inertia::flash([
                 'type' => 'error',
                 'message' => 'An error occurred while submitting your Mill. Please try again.',
             ]);
         }
 
-        // Inertia::flash($flash);
-        return to_route('add-business');
+        return to_route('mills.create');
     }
 
     /**
      * We need edit(Mill $mill) if we allow submitting corrections to Mill data
      * It might be useful to make edit-business a separate page component...
+     * 
+     * @TODO move this to MillEditController
      */
     public function edit(Mill $mill)
     {
+        /**
+         * Load related models so they can populate in the form
+         */
+        $mill->load(['millTypes', 'woodSpecies']);
+
+        // Log::debug("\n".self::class."::edit():\nmill? where are extra attributes?!?", [
+        //     "\nmill:\n" => $mill->toArray(),
+        // ]);
+
         return Inertia::render('add-business', [
             'pageTitle' => 'Edit Mill',
+            'pageSeo' => PageSeo::resolve(
+                'mills.edit',
+                "Edit Mill {$mill->mill_name}",
+                'Submit updates for a sawmill, pulp mill, or forest product processing business in our directory.'
+            ),
             'mill' => $mill,
             ...$this->getData(),
         ]);
@@ -192,10 +251,90 @@ class MillController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * 
+     * @TODO move this to MillEditController
      */
     public function update(UpdateMillRequest $request, Mill $mill)
     {
-        //
+        /**
+         * Get the data without attempting validation...yet!
+         * also, make empty strings null so comparing empty to empty doesn't incorrectly flag changes.
+         */
+        $data = emptyToNull($request->all());
+
+        try {
+            /**
+             * I can already tell that we need to filter the raw Mill data to be able to get a meaningful diff
+             * against the form submissions.
+             */
+
+            /**
+             * Diff is now a Mill method.
+             */
+            $diff = $mill->diff($data);
+
+            // declare $edit so we can check below
+            $edit = null;
+
+            /**
+             * Here's where we check $diff to see if we need to store an update.
+             * If we don't, just thank the user and pretend nothing happened.
+             * Actually, perhaps we just check !empty($diff) instead because the mess below happens either way.
+             */
+            if (! empty($diff['changes'])) {
+                $edit = MillEdit::create([
+                    'mill_id' => $mill->id,
+                    'submitter_email' => $data['submitter_email'],
+                    'submitter_ip' => $data['submitter_ip'],
+                    // do we even need to manually encode as json?
+                    // No, we do not need to manually encode as json.
+                    'proposed_changes' => $diff,
+                    'status' => PublicationStatus::Pending,
+                    /**
+                     * Add hashes!
+                     * Hashes are added during the 'creating' model event.
+                     */
+                ]);
+            }
+
+            /**
+             * Remember, if there are not sufficient differences, we still claim it was successful,
+             * we just don't bother the state agent.
+             */
+            $msg = "Successfully submitted updates for '{$mill->mill_name}' Mill #{$mill->id}!";
+            if (!empty($edit)) {
+                /**
+                 * Tack on value for our edification.
+                 * Probably should remove later.
+                 * Also, this should trigger an email to be sent to administrators and/or state officials.
+                 */
+                $msg .= " (Edit #{$edit->id})";
+
+                SendMillEditNotification::dispatch($edit);
+            }
+            // Log::debug(self::class."::update():\n".$msg, [
+            //     'diff' => $diff,
+            //     'millData' => $mill->toArray()
+            // ]);
+            Inertia::flash([
+                'type' => 'success',
+                'message' => $msg,
+            ]);
+            return to_route('mills.show', $mill);
+
+        } catch (\Exception $e) {
+            Log::error("Error editing Mill #{$mill->id}.\n", [
+                "\nerror\n" => $e->getMessage(),
+                "\nfile:line\n" => $e->getFile().":".$e->getLine(),
+                "\ntrace\n" => $e->getTraceAsString(),
+            ]);
+            Inertia::flash([
+                'type' => 'error',
+                'message' => "Error when attempting to store edits to Mill #{$mill->id}.",
+            ]);
+        }
+
+        return to_route('mills.edit', ['mill' => $mill]);
     }
 
     /**

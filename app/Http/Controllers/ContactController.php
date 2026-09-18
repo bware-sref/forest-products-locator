@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContactRequest;
 use App\Jobs\SendContactEmail;
+use App\Mail\ContactEmail;
 use App\Models\Contact;
 use App\Models\PageSeo;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +12,10 @@ use Inertia\Inertia;
 
 class ContactController extends Controller
 {
-    //
+    /**
+     * This action should more properly be named "create" rather than "index".
+     * @return \Inertia\Response
+     */
     public function index()
     {
         return Inertia::render('contact', [
@@ -32,7 +36,7 @@ class ContactController extends Controller
 
         $contact = Contact::create($data);
 
-        $msg = sprintf('Contact form submission %d stored!', $contact->id);
+        $msg = \sprintf('Contact form submission %d stored!', $contact->id);
         Log::debug($msg);
 
         // try to send the email here?
@@ -45,6 +49,11 @@ class ContactController extends Controller
             'message' => 'Thank you for submitting a contact request.',
         ]);
 
-        return to_route('contact');
+        return to_route('contacts.create');
+    }
+
+    public function preview(Contact $contact)
+    {
+        return new ContactEmail($contact);
     }
 }

@@ -8,18 +8,21 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
-import { storeMill } from "@/routes";
+import {
+  store as storeMill,
+  update as updateMill,
+} from "@/routes/mills";
 import { router } from '@inertiajs/react';
+import type { VisitHelperOptions } from '@inertiajs/core';
 
 import {
     type State,
     type County,
+    type Mill,
     type MillType,
     type WoodSpecies,
 } from '@/types';
 import {
-    // type CountiesByState,
-    // buildCountiesByState,
     normalizeStates,
 } from '@/hooks/use-mills';
 import { Button } from "@/components/ui/button"
@@ -69,13 +72,20 @@ export interface MillFormProps {
     // how are validation errors pushed back to the view?
     // Inertia sends errors in page.errors
     formData?: object;
+    mill?: Mill;
+    initialData?: MillFormData;
 }
 
 export function MillForm({
   headline = '',
   description = 'Help us improve by submitting mills that are not in our system.',
+  mill,
+  // initialData,
   ...props
 }: MillFormProps) {
+    // is we have a Mill, we're editing and thus we need to post to updateMill
+    const isEditing = !!mill; // initialData;
+
     // don't extract states from props so we can use the name here
     const states = React.useMemo(() => normalizeStates(props.states), [props.states]);
 
@@ -83,26 +93,37 @@ export function MillForm({
         resolver: zodResolver(millFormSchema),
         mode: 'onBlur',
         defaultValues: {
+            // we might need to spoof the method because PATCH has patchy support
+            _method: isEditing ? 'PATCH' : 'POST',
+            // we might need to add match_id
             // I'd love to extract defaultValues into the zod-schemas file as well
-            mill_name: "",      
-            physical_address: "",
-            physical_city: "",
-            state_id: '',
-            physical_zip: '',
-            mailing_address_same_as_physical: true,
-            mailing_address: "",
-            mailing_city: "",
-            mailing_state_id: '',
-            mailing_zip: '',
-            telephone: '',
-            fax: '',
-            email: '',
-            web_site: '',
-            size: '',
-            year: '',
-            mill_types: [],
-            wood_species: [],
-            submitter_email: '',
+            mill_name: mill?.mill_name || '',      
+            physical_address: mill?.physical_address || '',
+            physical_city: mill?.physical_city || '',
+            state_id: String((typeof mill?.state_id === 'object' ? mill?.state_id?.id : mill?.state_id) ?? ''),
+            physical_zip: mill?.physical_zip || '',
+            // I need to figure out how to tack this on
+            // maybe an "appends" attribute?
+            // yes, but we have to remember to add it to appends :-)
+            // and we need to remember it's a boolean so we have to check against undefined instead of using || 
+            mailing_address_same_as_physical: mill?.mailing_address_same_as_physical !== undefined ? mill.mailing_address_same_as_physical : true,
+            mailing_address: mill?.mailing_address || "",
+            mailing_city: mill?.mailing_city || "",
+            mailing_state_id: String((typeof mill?.mailing_state_id === 'object' ? mill?.mailing_state_id?.id : mill?.mailing_state_id) ?? ''),
+            mailing_zip: mill?.mailing_zip || '',
+            contact_name: mill?.contact_name || '',
+            contact_title: mill?.contact_title ||'',            
+            telephone: mill?.telephone || '',
+            telephone_2: mill?.telephone_2 || '',
+            fax: mill?.fax || '',
+            email: mill?.email || '',
+            email_2: mill?.email_2 || '',
+            web_site: mill?.web_site || '',
+            size: mill?.size || '',
+            year: mill?.year || '',
+            mill_types: mill?.mill_types?.map((millType) => String(millType.id)) || [],
+            wood_species: mill?.wood_species?.map((woodSpecies) => String(woodSpecies.id)) || [],
+            submitter_email: mill?.submitter_email || '',
         },
     });
 
@@ -116,29 +137,12 @@ export function MillForm({
          * toast will silently fail if the page does not also include a Toaster component somewhere.
          * To wit, I have added Toaster to the bottom of app-layout.
          */
-        // toast("You submitted the following values:", {
-        //     closeButton: true,
-        //     duration: Infinity,
-        //     description: (
-        //         <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-        //         <code>{JSON.stringify(data, null, 2)}</code>
-        //         </pre>
-        //     ),
-        //     position: "bottom-right",
-        //     classNames: {
-        //         content: "flex flex-col gap-2",
-        //     },
-        //     style: {
-        //         "--border-radius": "calc(var(--radius)  + 4px)",
-        //     } as React.CSSProperties,
-        // })
-
-        router.post(storeMill(), data, {
-          /**
-           * for the love of God, I finally found the type for flash! (ah ah)
-           * PageFlashData defined(-ish) in inertiajs/core
-           * @param flash PageFlashData
-           */
+        /**
+         * for the love of God, I finally found the type for flash! (ah ah)
+         * PageFlashData defined(-ish) in inertiajs/core
+         * @param flash PageFlashData
+         */
+        const options: VisitHelperOptions<MillFormData> = {
             onFlash: (flash) => {
               // console.log('flash: ', flash);
               if (flash.message) {
@@ -161,17 +165,19 @@ export function MillForm({
                         message: errors[key],
                     })
                 })
-            }
-        })
+            },
+            onSuccess: () => {
+              form.reset();
+            },
+            preserveState: isEditing,
+        };
+
+        if (isEditing) {
+            router.patch(updateMill(mill.match_id), data, options);
+        } else {
+            router.post(storeMill(), data, options);
+        }
     }
-
-  // use useEffect to reset the form after successful submission
-  React.useEffect(() => {
-      if (form.formState.isSubmitSuccessful) {
-          form.reset();
-      }
-  }, [form]);
-
 
   return (
     <Card className="w-full sm:max-w-md mx-auto">
@@ -186,6 +192,11 @@ export function MillForm({
       </CardHeader>
       <CardContent>
         <form id="form-submit-mill" onSubmit={form.handleSubmit(onSubmit)}>
+          {/* 
+          Do we need to jam a hidden input in here to inform the method for PUT and PATCH requests?
+          Nope!
+          React Hook Form state adds hidden inputs for items in form schema which lack an explicit form element.
+           */}
           <FieldGroup>
 
             <ControlledInput
@@ -199,13 +210,13 @@ export function MillForm({
             {/** Physical Address */}
             <FieldSet id="physical_address_wrap">
               <FieldLegend>Physical Address</FieldLegend>
-                <ControlledInput
-                  control={form.control}
-                  name="physical_address"
-                  label="Street Address"
-                  placeholder=""
-                  required={doesZodRequire(millFormSchema, 'physical_address')}
-                />
+              <ControlledInput
+                control={form.control}
+                name="physical_address"
+                label="Street Address"
+                placeholder=""
+                required={doesZodRequire(millFormSchema, 'physical_address')}
+              />
 
               <div className="grid grid-cols-3 gap-4 mt-3">
 
@@ -298,10 +309,34 @@ export function MillForm({
 
             <ControlledInput 
               control={form.control}
+              name="contact_name"
+              label="Contact Name"
+              placeholder=""
+              required={doesZodRequire(millFormSchema, 'contact_name')}
+            />
+            <ControlledInput 
+              control={form.control}
+              name="contact_title"
+              label="Contact Title"
+              placeholder=""
+              required={doesZodRequire(millFormSchema, 'contact_title')}
+            />
+
+
+            <ControlledInput 
+              control={form.control}
               name="telephone"
               label="Telephone"
               placeholder=""
               required={doesZodRequire(millFormSchema, 'telephone')}
+            />
+
+            <ControlledInput 
+              control={form.control}
+              name="telephone_2"
+              label="Telephone 2"
+              placeholder=""
+              required={doesZodRequire(millFormSchema, 'telephone_2')}
             />
 
             <ControlledInput
@@ -318,6 +353,14 @@ export function MillForm({
               label="Email"
               placeholder=""
               required={doesZodRequire(millFormSchema, 'email')}
+            />
+
+            <ControlledInput
+              control={form.control}
+              name="email_2"
+              label="Email 2"
+              placeholder=""
+              required={doesZodRequire(millFormSchema, 'email_2')}
             />
 
             <ControlledInput
@@ -363,7 +406,7 @@ export function MillForm({
               items={props.woodSpecies}
               itemToValue={(woodSpecies) => String(woodSpecies.id)}
               itemToLabel={(woodSpecies) => woodSpecies.label || woodSpecies.name}
-              multiple              
+              multiple
             />
 
             <ControlledInput
