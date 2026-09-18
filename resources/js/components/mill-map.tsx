@@ -51,6 +51,9 @@ function MapReadyBridge({ onMapReady }: { onMapReady: (map: LeafletMap) => void 
 // centering the map in northern Mississippi should get most mills in frame initially.
 const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
 
+const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const tileLayerUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+
 
 /**
  * Currently, the only children we expect would be the mill-filters component.
@@ -80,6 +83,8 @@ export default function MillMap({
             <MapGestureHandler data-thing="map-gesture-handler" />
             <MapTileLayer
                 data-thing="map-tile-layer"
+                attribution={attribution}
+                url={tileLayerUrl}
             />
 {/*
 Disable the POC WMS layer until esri.sref.info certificate is fixed.            
