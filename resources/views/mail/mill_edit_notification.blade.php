@@ -9,7 +9,7 @@
 
 **Submitted At:** {{ $created_at }}
 
-<x-mail::button :url="$newUrl" color="primary">
+<x-mail::button :url="$url" color="primary">
 Review Edits
 </x-mail::button>
 

@@ -57,7 +57,7 @@ class MillAddNotification extends Mailable
         $changes = $this->millEdit->getChanges();
 
         return new Content(
-            markdown: 'mail.mill_edit_notification',
+            markdown: 'mail.mill_add_notification',
             with: [
                 'mill_name' => $changes['mill_name'] ?? 'unknown?!?',
                 'created_at' => $this->millEdit->created_at,
