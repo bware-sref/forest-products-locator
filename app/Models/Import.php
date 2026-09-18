@@ -6,6 +6,7 @@ use App\Enums\ImportStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use RedSquirrelStudio\LaravelBackpackImportOperation\Models\ImportLog;
 
 /**
@@ -119,5 +120,35 @@ class Import extends ImportLog
     public function mills(): HasMany
     {
         return $this->hasMany(Mill::class);
+    }
+
+    /**
+     * Is this import still open?
+     * Or has it failed or completed?
+     * @return bool
+     */
+    public function isOpen(): bool
+    {
+        return \in_array($this->status, [
+            ImportStatus::Pending,
+            ImportStatus::Processing,
+        ]);
+    }
+
+    public function isClosed(): bool
+    {
+        return ! $this->isOpen();
+    }
+
+    public function isArcGis(): bool
+    {
+        return !empty($this->api_url) && empty($this->original_file_name);
+    }
+
+    public function isSpreadsheet(): bool
+    {
+        return Str::of($this->original_file_name ?? '')
+            ->lower()
+            ->endsWith(['xls', 'xlsx', 'csv', 'tsv']);
     }
 }
