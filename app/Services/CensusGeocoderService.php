@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 /**
@@ -54,6 +55,7 @@ class CensusGeocoderService
     public function oneLineAddress(
         string $address,
         ?string $benchmark = null,
+        ?bool $rawOutput = false,
     ): ?array
     {
         $result = $this->request('locations/onelineaddress', [
@@ -61,7 +63,13 @@ class CensusGeocoderService
             'benchmark' => $benchmark ?? $this->benchmark(),
         ]);
 
-        return $this->nullIfEmpty($result, 'addressMatches');
+        $result = $this->nullIfEmpty($result, 'addressMatches');
+
+        if (true === $rawOutput) {
+            return $result;
+        }
+
+        return $this->formatGeocodeResult($result);
     }
 
     /**
@@ -352,5 +360,39 @@ class CensusGeocoderService
     protected function endpointPath(string $key): string
     {
         return (string) (config("census-geocoder.endpoints.{$key}") ?? $key);
+    }
+
+    protected function formatGeocodeResult(?array $result): array
+    {
+        if (empty($result)) {
+            return [];
+        }
+
+        $matches = collect($result['addressMatches'][0] ?? [])
+            ->except('tigerLine')
+            ->toArray();
+
+        $bits = $matches['addressComponents'] ?? [];
+        $xy = $matches['coordinates'] ?? [];
+        
+        $city = $bits['city'] ?? '';
+        $state = $bits['state'] ?? '';
+        $zip = $bits['zip'] ?? '';
+
+        return [
+            'query' => $result['input']['address']['address'] ?? '',
+            'latitude' => $xy['y'] ?? '',
+            'longitude' => $xy['x'] ?? '',
+            'state' => $state,
+            'city' => Str::title($city),
+            'zip' => $zip,
+            'street_address' => Str::of($matches['matchedAddress'] ?? '')
+                ->replace([$city, $state, $zip], '')
+                ->trim()
+                ->trim(', ')
+                ->title()
+                ->toString(),
+            'addressComponents' => $bits,
+        ];
     }
 }
