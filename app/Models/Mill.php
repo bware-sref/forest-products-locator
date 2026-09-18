@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\MillRawImportStatus;
+use App\Enums\ImportSourceType;
 use App\Enums\PublicationStatus;
 use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
 use App\Models\State;
+use Closure;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -68,6 +70,7 @@ class Mill extends Model
         'web_site',
         'size',
         'modification_date',
+
         // foreign keys
         'state_id',
         'county_id',
@@ -105,7 +108,6 @@ class Mill extends Model
         'email_2',
         'needs_review',
         'extended_attributes',
-
     ];
 
     /**
@@ -115,7 +117,7 @@ class Mill extends Model
      * Also, we nixed match_id and mill_id because they're only meaningful in our system.
      * And lastly, I think county => county_name is the only deviation from actual DB field names.
      */
-    public const IMPORT_COLUMNS = [
+    public const array IMPORT_COLUMNS = [
         /**
          * match_id and mill_id have been removed from import configs
          */
@@ -156,6 +158,80 @@ class Mill extends Model
     ];
 
     /**
+     * Physical and mailing addresses are both composed of the following parts, each prefixed with 'physical_' or 'mailing_'
+     * accordingly.
+     * @var array
+     */
+    public const array ADDRESS_PARTS = [
+        'address',
+        'city',
+        'state',
+        'zip',
+    ];
+
+    /**
+     * Addresses are one of these two types.
+     * @var array
+     */
+    public const array ADDRESS_TYPES = [
+        'physical',
+        'mailing',
+    ];
+
+    public const array STATE_FIELDS = [
+        'state_id',
+        'mailing_state_id',
+    ];
+
+    /**
+     * These are the fields present in the add/edit form.
+     * They all correspond to model attributes except for millTypes/mill_types and
+     * woodSpecies/wood_species, which correspond to n-to-n relationships.
+     * Also, we need to add state and mailingState to "cleanly?" handle getting the State names.
+     *
+     * @var array
+     */
+    public const array FORM_FIELDS = [
+        'mill_name',
+        'physical_address',
+        'physical_city',
+        'state',            // see above
+        'state_id',
+        'physical_zip',
+        'mailing_address',
+        'mailing_city',
+        'mailingState',    // see above - also note the lack of underscore!
+        'mailing_state_id',
+        'mailing_zip',
+        'contact_name',
+        'contact_title',
+        'telephone',
+        'telephone_2',
+        'fax',
+        'email',
+        'email_2',
+        'web_site',
+        'size',
+        'year',
+        // 'millTypes',        // see above
+        // 'woodSpecies',      // see above
+        'mill_types',
+        'wood_species',
+    ];
+
+    /**
+     * Mill's n-to-n relationships.
+     * They're referenced in so many places (often as an array), it seems silly to always use literals.
+     * Added class names as keys to simplify getting them since WoodSpecies doesn't properly transform
+     * when run through Str::singular()
+     * @var array
+     */
+    public const array N_TO_N = [
+        'MillType' => 'mill_types',
+        'WoodSpecies' => 'wood_species',
+    ];
+
+    /**
      * List of accessors to append to the model's array/JSON form.
      * Accessors with the same name as the underlying attribute do not need to be appended.
      * 
@@ -163,6 +239,7 @@ class Mill extends Model
      */
     protected $appends = [
         'physical_address_two',
+        'mailing_address_same_as_physical',
     ];
 
     protected $casts = [
@@ -200,7 +277,7 @@ class Mill extends Model
     {
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => 
-                self::buildAddress(
+                self::buildAddressTwo(
                     $attributes['physical_city'] ?? '',
                     // hopefully averting an undefined array key error
                     $attributes['physical_state'] ?? '',
@@ -213,7 +290,7 @@ class Mill extends Model
     {
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => 
-                self::buildAddress(
+                self::buildAddressTwo(
                     $attributes['mailing_city'] ?? '',
                     $attributes['mailing_state'] ?? '',
                     $attributes['mailing_zip'] ?? ''
@@ -221,13 +298,38 @@ class Mill extends Model
         );
     }
 
-    // belongsTo State
+    /**
+     * Attribute indicating whether the mailing and physical addresses of this Mill are the same.
+     * Added to simplify working with the Mill add/edit form schema which contains a pseudo-dummy field
+     * with the same name, but in snake_case.
+     * @return Attribute
+     */
+    protected function mailingAddressSameAsPhysical(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) =>
+                self::doAddressesMatch()
+        );
+    }
+
+    /*****************************************
+     * 
+     * Relationships
+     * 
+     *****************************************/
+
+    /**
+     * belongsTo State
+     */
     public function state(): BelongsTo
     {
         return $this->belongsTo(State::class);
     }
 
-    // belongsTo County
+    /**
+     * belongsTo County
+     * @return BelongsTo
+     */
     public function county(): BelongsTo
     {
         return $this->belongsTo(County::class);
@@ -307,20 +409,51 @@ class Mill extends Model
 
     /**
      * helper to jam together the second line of addresses
+     * Probably should have been named buildAddressLine2() or something more accurate.
+     * jamTogetherSecondAddressLine()
+     * cityStateZipOrBust()
      */
-    protected static function buildAddress(string $city = '', string $state = '', string $zip = ''): string
+    protected static function buildAddressTwo(string $city = '', string $state = '', string $zip = ''): string
     {
-        $address = \sprintf(
-            '%s, %s  %s',
-            $city,
-            $state,
-            $zip
+        /**
+         * @var array
+         */
+        // $parts = array_map(fn ($item) => trim($item, " \n\r\t\v\0,"), compact('city', 'state', 'zip'));
+        $parts = array_map(
+            // fn ($item) => mb_trim(mb_trim($item), ","),
+            fn ($item) => trimp($item, ","),
+            // instead of compact, we could just do [$var1, $varN]
+            // compact('city', 'state', 'zip')
+            [$city, $state, $zip]
         );
+        // undo compact
+        // extract($parts);
+        [$city, $state, $zip] = $parts;
+
+        /**
+         * Should probably use string interpolation instead of sprintf.
+         * Also, I'm tempted to trim each value before mashing them together.
+         * Also also, this method would probably be helpful with comparing addresses, no?
+         * 
+         * @var string
+         */
+        $address = "{$city}, {$state}  {$zip}";
+
+        // $address = \sprintf(
+        //     '%s, %s  %s',
+        //     $city,
+        //     $state,
+        //     $zip
+        // );
 
         // note the comma among the trimmed characters
         // it handles the case of empty city values
-        return trim($address, " \n\r\t\v\0,");
+        // if we just trim twice then we don't have to specify the defaults
+        // return trim($address, " \n\r\t\v\0,");
+        // return mb_trim(mb_trim($address), ",");
+        return trimp($address, ",");
     }
+
 
     /**
      * creates and executes a query based on the pre-validated API parameters
@@ -551,6 +684,8 @@ class Mill extends Model
 
     /**
      * Should I have just made scopes for these instead?
+     * Yeah, probably scopes would make more sense.
+     * Then we could apply to other Models as well.
      */
     public static function createdSince(Carbon $since): int
     {
@@ -689,20 +824,24 @@ class Mill extends Model
      */
     public function getRawAddress(?string $type = 'physical'): string
     {
-        $type = ('mailing' === $type ? $type : 'physical');
+        $type = static::validAddressType($type);
 
         if (!empty($this->{"raw_{$type}_address"})) {
             return $this->{"raw_{$type}_address"};
         }
 
-        $fields = [
-            $this->{"{$type}_address"} ?? '',
-            $this->{"{$type}_city"} ?? '',
-            $this->{"{$type}_state"} ?? '',
-            $this->{"{$type}_zip"} ?? '',
-        ];
+        /**
+         * We should just use addressToString() instead of repeating it here.
+         */
+        return $this->addressToString($type, ' ');
+        // $fields = [
+        //     $this->{"{$type}_address"} ?? '',
+        //     $this->{"{$type}_city"} ?? '',
+        //     $this->{"{$type}_state"} ?? '',
+        //     $this->{"{$type}_zip"} ?? '',
+        // ];
 
-        return join(' ', $fields);
+        // return join(' ', $fields);
     }
 
     public function hasAddress(?string $type = 'physical'): bool
@@ -747,15 +886,22 @@ class Mill extends Model
         // return ! empty($this->getRawAddress($type));
     }
 
+    /**
+     * Returns true if this Mill has valid, non-empty values for both latitude and longitude, false otherwise.
+     * Valid latitude values are between -90 and 90, inclusive.
+     * Valid longitude values are between -180 and 180 inclusive.
+     * @return bool
+     */
     public function hasLatLng(): bool
     {
         /**
-         * do we actually need to do the value
+         * do we actually need to do the value?
+         * we could take absolute value of both and only compare against positive limits.
          */
         $lat = (float) $this->latitude ?? null;
         $lng = (float) $this->longitude ?? null;
         if (empty($lat) || $lat > 90 || $lat < -90 ||
-            empty($lng) || $lng > 180 || $lat < -180
+            empty($lng) || $lng > 180 || $lng < -180
         ) {
             return false;
         }
@@ -858,6 +1004,14 @@ class Mill extends Model
         return [$value];
     }
 
+    /**
+     * Delete Mills from the specified State which belong to an Import other than the one specified by $importId.
+     * Mills in the given State which do not belong to any import should not be deleted.
+     *
+     * @param int $importId
+     * @param int $stateId
+     * @return bool|int|mixed|null
+     */
     public static function deleteOldImports(int $importId, int $stateId): int
     {
         /**
@@ -876,6 +1030,13 @@ class Mill extends Model
             ->delete();
     }
 
+    /**
+     * Update status of all mills with mill.import_id === $importId to 'Approved'.
+     * Yes, the nomenclature is inconsistent.
+     *
+     * @param int $importId
+     * @return bool|int
+     */
     public static function publishFromImport(int $importId): bool
     {
         /**
@@ -890,6 +1051,13 @@ class Mill extends Model
             ]);
     }
 
+    /**
+     * Scopes a Mill query to limit results to the specified $state.
+     *
+     * @param Builder $query
+     * @param int|string $state
+     * @return Builder
+     */
     #[Scope]
     protected function byState(Builder $query, int|string $state): Builder
     {
@@ -904,9 +1072,462 @@ class Mill extends Model
         return $query->where('state_id', $state);
     }
 
+    /**
+     * Scopes a Mill query to limit results to the specified $importId.
+     *
+     * @param Builder $query
+     * @param int $importId
+     * @return Builder
+     */
     #[Scope]
     protected function byImport(Builder $query, int $importId): Builder
     {
         return $query->where('import_id', $importId);
+    }
+
+    /**
+     * Returns address fields of the kind specified by $type as a single string.
+     * Similar to getRawAddress() 
+     *
+     * @param mixed $type
+     * @param string $glue
+     * @return string
+     */
+    public function addressToString(?string $type = 'physical', string $glue = ' '): string
+    {
+        $fieldNames = static::getAddressTypePartNames($type);
+
+        // filter fieldNames so we don't try to join emptys
+        // we also need to return now if the whole thing is empty
+        // we can also double trim instead of specifying the defaults + ,
+        $addy = array_map(
+            fn ($item) => trimp($item, ','),
+            array_filter($this->only($fieldNames))
+        );
+        // instead of empty check we could just return the result of array_reduce()
+        if (empty($addy)) {
+            return '';
+        }
+
+        return join($glue, $addy);
+    }
+
+    /**
+     * Returns an array containing all field names which compose the specified address type.
+     * E.g., $type = 'physical', yields ['physical_street', 'physical_city', ...].
+     *
+     * @param mixed $type
+     * @return string[]
+     */
+    public static function getAddressTypePartNames(?string $type = 'physical'): array
+    {
+        $type = static::validAddressType($type);
+        /**
+         * Doh!
+         * I just realized that this will fail to include state_id and mailing_state_id because they deviate from the pattern.
+         * However, those fields are contained in Mill::STATE_FIELDS
+         */
+        return array_map(
+            fn ($item) => "{$type}_{$item}",
+            self::ADDRESS_PARTS
+        );
+    }
+
+    /**
+     * Validates $type as being one of those specified in Mill::ADDRESS_TYPE.
+     * If $type is not a specified address type, returns the first element of Mill::ADDRESS_TYPE.
+     *
+     * @param mixed $type
+     * @return mixed|string|null
+     */
+    public static function validAddressType(?string $type): string
+    {
+        return \in_array($type, self::ADDRESS_TYPES) ? $type : array_first(self::ADDRESS_TYPES);        
+    }
+
+    /**
+     * Returns true if physical and mailing addresses are equal.
+     * Trims and converts fields to lowercase before comparison.
+     * 
+     * We might consider one or more additional cases as equivalent or not, depending.
+     * 1. When only one address is included, they are effectively the same for practical purposes.
+     * 
+     * @return bool
+     */
+    public function doAddressesMatch(): bool
+    {
+        /**
+         * @var Closure
+         * make a callable to use with array_map
+         */
+        $fn = fn ($item) => Str::lower(self::addressToString($item));
+        $addresses = array_map(
+            // fn ($item) => self::addressToString($item),
+            // modern callable syntax?!?
+            // Hint: Convert to callable syntax
+            // self::addressToString(...),
+            $fn(...),
+            self::ADDRESS_TYPES
+        );
+
+        // destructuring is what it meant
+        [$phys, $mail] = $addresses;
+
+        return $phys === $mail;
+    }
+
+    /**
+     * This method is used only twice and both invocations pass $withRelations = true.
+     * Ergo, we don't need that parameter.
+     * However, we do need something to inform how those relations are formatted.
+     * Or else we do that after returning from this method?
+     * Hmmm...
+     * $relationFormat = 'raw' | 'only_id' | 'id_name'
+     * We don't have an immediate use for 'raw'
+     * 'only_id' is for simple comparison and for use with sync()
+     * 'id_name' is for review
+     * In fact, id isn't even needed for 'id_name' (i.e., only name is needed).
+     * The two we currently use/need are only_id and id_name
+     * id => pluck('id')
+     * id:name => pluck('name', 'id')
+     *
+     * @param string $relationFormat
+     * @return array
+     */
+    public function onlyFormFields(string $relationFormat = 'id', ?array $except = []): array
+    {
+        /**
+         * toArray() does not include relationships (except unless the current model has foreignKeys).
+         * So we need to slap on millTypes and woodSpecies.
+         * No, we need to slap on mill_types and wood_species instead.
+         */
+        $mill = $this->toArray();
+
+        // Log::debug("\n".self::class."::onlyFormFields(): after toArray(): \n", [
+        //     "\nmill\n" => $mill,
+        //     "\nexcept\n" => $except,
+        // ]);
+
+        /**
+         * Should we flatten these to only be lists of ids?
+         * Maybe?
+         * For the purpose of comparison (and updating relationships), ids work better.
+         * For the purpose of review, labels work better.
+         *
+         * We could add another argument that controls how the relationship values are formatted?
+         * Maybe...
+         * If we're going to make this a pass-through, we should probably not format the relationship arrays here.
+         * But then we have to pass through two parameters, which is fine, but that still doesn't answer how we 
+         * should handle the formatting argument.
+         * Probably we only want two options for formatting relationships.
+         */
+
+        foreach (self::N_TO_N as $key) {
+            $camel = Str::camel($key);
+            $mill[$key] = $this->$camel
+                ->toArray();
+        }
+
+        /**
+         * Make sure the state fields have strings instead of numeric ids!
+         */
+        foreach (self::STATE_FIELDS as $key) {
+            $attr = Str::camel(Str::remove('_id', $key));
+            $mill[$attr] = State::find($mill[$key])?->name ?? '';
+
+            // Log::debug("\n".self::class."::onlyFormFields():\n state fields:\n", [
+            //     'attr' => $attr,
+            //     'key' => $key,
+            //     'mill[attr]' => $mill[$attr],
+            // ]);
+        }
+
+        // Log::debug("\n".self::class."::onlyFormFields():\nafter adding relations: \n", [
+        //     'mill' => $mill,
+        // ]);
+        return static::filterFormFields($mill, $relationFormat, $except);
+        // return $mill;
+    }
+
+    /**
+     * Why don't we need $withRelations on this one?
+     * And really, the other method should probably actually just invoke this one.
+     * Except that the other method handles relationships differently because it has an actual Mill object to work
+     * with.
+     * @param Mill|array $data
+     * @return array
+     */
+    public static function filterFormFields(Mill|array $data, ?string $relationFormat = 'id', ?array $except = []): array
+    {
+        $data = \is_array($data) ? $data : $data->toArray();
+
+        // Log::debug("\n".self::class."::filterFormFields():\nBEFORE filtering:", ['DATA' => $data]);
+
+        /**
+         * relationFormat?
+         * $format = explode(':')
+         * if (1 < count($format))
+         *  $keyBy = $format[0]
+         *  $fields = $format[1]
+         * else
+         *  $fields = $format[0]
+         *$fields = explode(',', $fields)
+         *  if (1 < count($fields))
+         *      use only
+         *  else
+         *      use pluck
+         */
+
+        /**
+         * Balls.
+         * We might need to massage the relationships to make them lists of integers.
+         * Also, when showing the diff, it seems better to show the labels instead of the ids.
+         * How can we did?
+         * Add another parameter to govern how the n-to-n relationships are formatted?
+         */
+        foreach (self::N_TO_N as $key) {
+            if (empty($data[$key])) {
+                continue;    
+            }
+            /**
+             * just jam it in the middle there
+             */
+            if ('id:name' === $relationFormat) {
+                $data[$key] = collect($data[$key])->pluck('name', 'id')->toArray();
+                continue;
+            } else if ('name' === $relationFormat) {
+                $data[$key] = collect($data[$key])->pluck('name')->toArray();
+                continue;
+            } else if ('id' === $relationFormat) {
+                /**
+                 * Keep this usage of sort() because the default sort is by name so this one sorts ids.
+                 * Capisce?
+                 */
+                $data[$key] = collect($data[$key])->pluck('id')->sort()->toArray();
+                continue;
+            }
+            /**
+             * Keep this usage of sort() as well because :shrugs:
+             */
+            $data[$key] = collect($data[$key])->sort()->toArray();
+        }
+
+        /**
+         * just use only()
+         * trying to use except here is a lost cause because reorderKeys() adds them back
+         */
+        $filtered = collect($data)
+            ->only(self::FORM_FIELDS)
+            ->toArray();
+
+        // Log::debug("\n".self::class."::filterFormFields():\nafter filtering:", ['mill' => $filtered]);
+
+        /**
+         * reorderKeys will repopulate anything we've already removed that's part of FORM_FIELDS so we need to
+         * prefilter that fucker.
+         * But we need to use array_diff() instead of collection->except() because FORM_FIELDS is not an 
+         * associative array!!!
+         */
+        $newOrder = array_diff(self::FORM_FIELDS, $except);
+
+        // Log::debug("\n".self::class."::filterFormFields():\nbefore reordering\n", [
+        //     "\nmill\n" => $filtered,
+        //     "\nnewOrder\n" => $newOrder,
+        //     "\nexcept\n" => $except,
+        // ]);
+
+        $darth = reorderKeys($filtered, $newOrder);
+
+        // Log::debug("\n".self::class."::filterFormFields():\nafter reordering\n", [
+        //     "\nmill\n" => $darth,
+        //     "\nnewOrder\n" => $newOrder,
+        // ]);
+        
+        return $darth;
+    }
+
+    public function diff(Mill|array $otherMill): array
+    {
+        /**
+         * or we could do ! is_array()
+         * Yeah, we maybe shouldn't allow passing a Mill...
+         * If we do though, we need to make sure to slap millTypes and woodSpecies back on it.
+         */
+        $otherMill = ($otherMill instanceof Mill) ? $otherMill->onlyFormFields('id') : $otherMill;
+
+        /**
+         * Use $otherMill to fill the current Mill.
+         * Then we can then use getDirty() and original (or getOriginal()) to examine most of the differences.
+         */
+        $this->fill($otherMill);
+
+        /**
+         * getDirty() doesn't include relationships that don't have a foreignKey on the current model.
+         * I.e., it doesn't include millTypes or woodSpecies.
+         */
+        $dirty = $this->getDirty();
+
+        /**
+         * @var array
+         */
+        $original = $this->original;
+
+        foreach (static::N_TO_N as $key) {
+            $camel = Str::camel($key);
+            $dirty[$key] = $otherMill[$key] ?? [];
+            $original[$key] = $this->$camel->toArray();
+        }
+
+        /**
+         * Now we can let filterFormFields() handle formatting mill_types and wood_species.
+         *
+         * @var array
+         */
+        $original = Mill::filterFormFields($original);
+
+        $diff = [];
+
+        /**
+         * Do our own comparison because Collection::diffAssocUsing() uses that weird array comparison that you only supply
+         * a closure to compare keys and uses basic comparison for the values.
+         */
+        foreach ($dirty as $k => $v) {
+            /**
+             * Skip anything not in FORM_FIELDS
+             */
+            if (! \in_array($k, self::FORM_FIELDS)) {
+                unset($dirty[$k]);
+                continue;
+            }
+
+            /**
+             * What are we looking for?
+             * False differences between null and empty strings.
+             * What else?
+             */
+            /**
+             * If both are empty, we don't care if one is null and the other is "".
+             */
+            if (empty($v) && empty($original[$k])) {
+                // Log::debug("Mill::diff(): unsetting dirty[{$k}] because both values are empty.", [
+                //     "dirty[{$k}]" => $dirty[$k],
+                //     "original[{$k}]" => $original[$k],
+                // ]);
+                unset($dirty[$k]);
+                continue;
+            }
+
+            /**
+             * This is what was strippping the mill_types and wood_species when there were no changes.
+             */
+            if ($v == $original[$k]) {
+                // Log::debug(self::class."::diff():\nAllegedly, the values for {$k} are equivalent: ", [
+                //     "dirty[$k]" => $v,
+                //     "original[$k]" => $original[$k],
+                // ]);
+                /**
+                 * Keep the n-to-n relationship fields or else they'll get removed during the save process.
+                 */
+                if (! \in_array($k, self::N_TO_N)) {
+                    unset($dirty[$k]);
+                }
+                continue;
+            }
+
+            
+            /**
+             * If we made it this far, we have a diff!
+             * Except...this style of diff cannot be used with Model::fill().
+             */
+            $from = $original[$k] ?: '';
+            $to = $otherMill[$k] ?: '';
+            if ($from != $to) {
+                $diff[$k] = [
+                    'from' => $from,
+                    'to' => $to,
+                ];
+            }
+
+        }
+
+        /**
+         * So what are we doing here?
+         * We check dirty, maybe remove some elements, then don't use it again?
+         */
+
+        // Log::debug('Mill::diff(): after dirty...', $dirty);
+        // Log::debug('Mill::diff(): and the diff?', ['diff' => $diff]);
+
+        return [
+            'diff' => $diff,
+            'changes' => $dirty,
+        ];
+    }
+
+    /**
+     * Infers the original source of this Mill based on the presence of 
+     * import table foreign keys.
+     *
+     * @return string
+     */
+    public function pedigree(): ImportSourceType
+    {
+        /**
+         * It seems better to not explicitly interact with the other tables if we can help it.
+         * Also, it seems better to act on presence before absence.
+         */
+        if (!empty($this->import_id)) {
+            if (!empty($this->mill_raw_import_id)) {
+                return ImportSourceType::Arcgis;
+            }
+            return ImportSourceType::Spreadsheet;
+        }
+
+        return ImportSourceType::User;
+    }
+
+    public function isArcGis(): bool
+    {
+        return ImportSourceType::Arcgis === $this->pedigree();
+    }
+
+    public function isSpreadsheet(): bool
+    {
+        return ImportSourceType::Spreadsheet === $this->pedigree();
+    }
+
+    public function isUserSubmitted(): bool
+    {
+        return ImportSourceType::User === $this->pedigree();
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === PublicationStatus::Pending;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === PublicationStatus::Approved;
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->isApproved();
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === PublicationStatus::Rejected;
+    }
+
+    public function isInvalid(): bool
+    {
+        return $this->status === PublicationStatus::Invalid;
+    }
+
+    public function isError(): bool
+    {
+        return $this->status === PublicationStatus::Error;
     }
 }

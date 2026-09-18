@@ -2,16 +2,14 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class UpdateMillRequest extends FormRequest
+class UpdateMillRequest extends AbstractMillRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +19,13 @@ class UpdateMillRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        return parent::baseRules();
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->mergeSubmitterIp();
+        $this->mergeStatus();
+        $this->handleMailingAddress();
+    }    
 }

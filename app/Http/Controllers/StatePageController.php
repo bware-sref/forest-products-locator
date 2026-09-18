@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\State;
+// use App\Models\PageSeo;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -20,6 +21,10 @@ class StatePageController extends Controller
 
         return Inertia::render('states', [
             'pageTitle' => 'State Resources',
+            /**
+             * Not sure if we should try to leverage that bonkers PageSeo model or what.
+             * Maybe we just add those fields to the base StatePage model?
+             */
             'pageSeo' => [
                 'title' => 'State Resources',
                 'description' => 'Forest industry information, contacts, and resources organized by state.',

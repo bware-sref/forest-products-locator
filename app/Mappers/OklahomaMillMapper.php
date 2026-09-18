@@ -43,12 +43,13 @@ class OklahomaMillMapper extends AbstractMillMapper
 
     /**
      * OK: Exclude the 3 records where State is Arkansas or Texas.
+     * Instead of doing this, we could include State = 'Oklahoma' in our query parameters.
      */
     public function shouldImport(array $feature): bool
     {
         $state = strtolower(trim($feature['properties']['State'] ?? ''));
 
-        return in_array($state, ['ok', 'oklahoma'], strict: true);
+        return \in_array($state, ['ok', 'oklahoma'], strict: true);
     }
 
     public function map(array $feature): array

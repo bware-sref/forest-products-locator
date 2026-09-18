@@ -18,6 +18,13 @@ class PageSeo extends Model
     use HasFactory;
 
     protected $fillable = [
+        /**
+         * FFS, this should have been relative path or URL instead of route_name because route_name is not unique.
+         * E.g., "mills.show" is the route name for every individual mill page, but "/mill-list/a-a-mills" is unique.
+         * Also, I just noticed that MillController::index() uses the incorrect route name "mill-list" instead of 
+         * "mills.index"
+         * In any case, the solution for state pages is perhaps to add SEO fields to one of the StatePage models, e.g., StatePage.
+         */
         'route_name',
         'title',
         'description',

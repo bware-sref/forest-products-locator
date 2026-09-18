@@ -24,6 +24,8 @@ export const contactFormSchema = z.object({
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 
 export const millFormSchema = z.object({
+    // add a hidden input to inform the method for put and patch requests
+    _method: z.literal(['POST', 'PATCH', 'PUT']),
     mill_name: z
         .string()
         .min(2, 'Mill Name must be at least 2 characters.')
@@ -47,7 +49,9 @@ export const millFormSchema = z.object({
         .optional()
         .or(z.literal('')),
 
-    state_id: z.string(),
+    // Added number but, FFS, TypeScript is still balking at the possibility of State
+    // when I try to add the value to the form
+    state_id: z.string().or(z.number()),
 
     // probably should add a regex for
     physical_zip: z
@@ -96,7 +100,7 @@ export const millFormSchema = z.object({
         .optional()
         .or(z.literal('')),
 
-    mailing_state_id: z.string().optional().or(z.literal('')),
+    mailing_state_id: z.string().or(z.number()).optional().or(z.literal('')),
 
     // probably should add a regex for
     mailing_zip: z
@@ -105,6 +109,21 @@ export const millFormSchema = z.object({
             /^\d{5}(-\d{4})?$/,
             'ZIP Code must be at least 5 digits. Optional 4-digit suffix must follow a "-", ex: 12345-6789.',
         )
+        .optional()
+        .or(z.literal('')),
+
+    // Additional fields from state data        
+    contact_name: z
+        .string()
+        .min(2, 'Contact Name must be at least 2 characters.')
+        .max(255, 'Contact Name may be at most 255 characters.')
+        .optional()
+        .or(z.literal('')),
+
+    contact_title: z
+        .string()
+        .min(2, 'Contact Title must be at least 2 characters.')
+        .max(255, 'Contact Title may be at most 255 characters.')
         .optional()
         .or(z.literal('')),
 
@@ -120,6 +139,17 @@ export const millFormSchema = z.object({
         .optional()
         .or(z.literal('')),
 
+    telephone_2: z
+        .string()
+        // eslint complains that escaping - and . in the character class is unnecessary.
+        // but that's only because - is first, and I guess also because escaping . in a character class is unnecessary?
+        .regex(
+            /^\+?1?(\s*[-.]\s*|\s+)?\(?[2-9][0-9]{2}\)?(\s*[-.]\s*|\s+)?[0-9]{3}(\s*[-.]\s*|\s+)?[0-9]{4}$/,
+            'Telephone 2 must be a valid US phone number.',
+        )
+        .optional()
+        .or(z.literal('')),
+
     fax: z
         .string()
         .regex(
@@ -130,6 +160,8 @@ export const millFormSchema = z.object({
         .or(z.literal('')),
 
     email: z.email().optional().or(z.literal('')),
+
+    email_2: z.email().optional().or(z.literal('')),
 
     web_site: z
         .url({

@@ -98,6 +98,10 @@ class NorthCarolinaMillMapper extends AbstractMillMapper
     public function shouldImport(array $feature): bool
     {
         $shouldImport = !blank($feature['properties']['Company']) && !blank($this->latitude($feature)) && !blank($this->longitude($feature));
+        /**
+         * FFS, parent::shouldImport() always returns true.
+         * Why does this mapper do this but none of the others?
+         */
         return $shouldImport && parent::shouldImport($feature);
     }
 }
