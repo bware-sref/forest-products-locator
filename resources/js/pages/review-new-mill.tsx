@@ -163,7 +163,7 @@ export default function ReviewNewMill({ submitted, ...props }: MillDiffProps) {
                                     {/* we should probably loop over original so we don't get the extra stuff */}
                                     {/* {Object.entries(submitted).map(([key, value]) => { */}
                                     {Object.entries(submitted).map(([key, value]) => {
-                                        const changed = false; // isChanged(key);
+                                        // const changed = false; // isChanged(key);
                                         return (
                                             <tr 
                                                 key={key} 
