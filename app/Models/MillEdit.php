@@ -368,13 +368,8 @@ class MillEdit extends Model
         ]);
 
         /**
-         * As such, we don't need to create a new mill here.
-         * @todo use make() instead so it doesn't persist the Mill. then we can use toArray() to prepare for proposed_changes
-         * Do we even need to use make()?
-         * I wonder what would happen if we used Mill::make() then ran Mill::diff()...
+         * Create a new MillEdit
          */
-        // $newMill = Mill::make($data)->toArray();
-
         $edit = MillEdit::create([
             'mill_id' => null, // $mill->id,
             'submitter_email' => $data['submitter_email'],
@@ -400,6 +395,6 @@ class MillEdit extends Model
 
     public function isNewMill(): bool
     {
-        return empty($this->mill);
+        return empty($this->mill_id);
     }
 }
