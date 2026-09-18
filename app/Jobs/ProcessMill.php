@@ -68,18 +68,15 @@ class ProcessMill implements ShouldQueue
          * because it aborts if the mill has no import_id value.
          * 
          * Additionally, we may need an alternative "closer" to finalize un-imported mills.
+         * 
+         * Also, we may not want to geocode Mills from ArcGIS imports unless they don't have an address.
          */
-        $gang = [
+        return [
             new GeocodeMill($mill, $allowFailures),
             new ProcessMillState($mill, $allowFailures),
             new ProcessMillMillTypes($mill, $allowFailures),
             new ProcessMillWoodSpecies($mill, $allowFailures),
+            new UpdateImportProcessedRows($mill, $allowFailures),
         ];
-
-        if (! empty($mill->import_id)) {
-            $gang[] = new UpdateImportProcessedRows($mill, $allowFailures);
-        }
-
-        return $gang;
     }
 }
