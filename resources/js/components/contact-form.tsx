@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
-import { storeContact } from "@/routes";
+import { store as storeContact } from "@/routes/contacts";
 import { router } from '@inertiajs/react';
 
 import { Button } from "@/components/ui/button"
