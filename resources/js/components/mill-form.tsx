@@ -166,7 +166,10 @@ export function MillForm({
                     })
                 })
             },
-            preserveState: true,
+            onSuccess: () => {
+              form.reset();
+            },
+            preserveState: isEditing,
         };
 
         if (isEditing) {
@@ -175,14 +178,6 @@ export function MillForm({
             router.post(storeMill(), data, options);
         }
     }
-
-  // use useEffect to reset the form after successful submission
-  React.useEffect(() => {
-      if (form.formState.isSubmitSuccessful) {
-          form.reset();
-      }
-  }, [form]);
-
 
   return (
     <Card className="w-full sm:max-w-md mx-auto">
