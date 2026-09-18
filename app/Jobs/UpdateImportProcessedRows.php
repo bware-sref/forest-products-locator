@@ -46,7 +46,7 @@ class UpdateImportProcessedRows implements ShouldQueue
          * If this mill isn't part of an import, we don't have anything to do here.
          */
         if (empty($this->mill->import_id)) {
-            Log::warning(self::class.": Mill #{$this->mill->id} does not belong to an import. Exiting...");
+            Log::debug(self::class.": Mill #{$this->mill->id} does not belong to an import. Exiting...");
             return;
         }
 
