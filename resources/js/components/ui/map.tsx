@@ -96,6 +96,7 @@ import {
     type WMSTileLayerProps,
 } from "react-leaflet"
 import type { MarkerClusterGroupProps } from "react-leaflet-markercluster"
+// so weird; the line below is flagged as an error, but without it, the markerclusters don't get styled.
 import "react-leaflet-markercluster/styles"
 
 // BEGIN dynamic imports
@@ -177,6 +178,8 @@ function Map({
     zoom = 15,
     maxZoom = 18,
     className,
+    // added attributionControl because it was hardcoded to be false
+    attributionControl,
     ...props
 }: Omit<MapContainerProps, "zoomControl"> & {
     center: LatLngExpression
@@ -186,7 +189,7 @@ function Map({
         <LeafletMapContainer
             zoom={zoom}
             maxZoom={maxZoom}
-            attributionControl={false}
+            attributionControl={attributionControl}
             zoomControl={false}
             className={cn(
                 "z-50 size-full min-h-96 flex-1",
