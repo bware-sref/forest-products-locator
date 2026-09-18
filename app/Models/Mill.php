@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\MillRawImportStatus;
+use App\Enums\ImportSourceType;
 use App\Enums\PublicationStatus;
 use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
@@ -1121,6 +1122,11 @@ class Mill extends Model
     public static function getAddressTypePartNames(?string $type = 'physical'): array
     {
         $type = static::validAddressType($type);
+        /**
+         * Doh!
+         * I just realized that this will fail to include state_id and mailing_state_id because they deviate from the pattern.
+         * However, those fields are contained in Mill::STATE_FIELDS
+         */
         return array_map(
             fn ($item) => "{$type}_{$item}",
             self::ADDRESS_PARTS
@@ -1379,51 +1385,6 @@ class Mill extends Model
          */
         $original = Mill::filterFormFields($original);
 
-
-        /**
-         * Okay.
-         * After much hemming and hawing, I've decided to convert the string ids from the form
-         * submission into integer values.
-         * We could probably do that in the Request, but mutating the submitted data directly seems like the
-         * wrong approach because we might have to push that data back to the form.
-         * 
-         * Holy mother of Pony!
-         * squishing to int does nothing because they still end up being strings when converted to JSON.
-         * Also, not using JSON_PRETTYPRINT cause damn thing to not fetch right from the DB.
-         * PHP ends up thinking it's a string instead of casting to an array.
-         */
-        // $dirty['mill_types'] = collect($otherMill['mill_types'] ?? [])->map('intval')->toArray();
-        // $dirty['wood_species'] = collect($otherMill['wood_species'] ?? [])->map('intval')->toArray();
-        // $dirty['mill_types'] = $otherMill['mill_types'] ?? [];
-        // $dirty['wood_species'] = $otherMill['wood_species'] ?? [];
-
-        /**
-         * Should we just convert mill_types and wood_species to integers here?
-         */
-
-        /**
-         * Pass the original Mill data through filterFormFields() to strip away values that are not in the form.
-         */
-        // $original = Mill::filterFormFields($this->original);
-
-        /**
-         * Instead of casting otherMill's strings to int, we cast the original ints to string.
-         * 
-         * MFs!
-         * Here we are again doing the same old mess...
-         * Actually, if we add these fuckers to $original before sending to filterFormFields(),
-         * it would handle the formatting...
-         */
-        // $original['mill_types'] = $this->millTypes->pluck('id')->map(fn($item) => (string) $item)->toArray();
-        // $original['wood_species'] = $this->woodSpecies->pluck('id')->map(fn($item) => (string) $item)->toArray();
-        // $original['mill_types'] = $this->millTypes->pluck('id')->toArray();
-        // $original['wood_species'] = $this->woodSpecies->pluck('id')->toArray();
-
-        // Log::debug('Mill::diff(): otherMill', $otherMill);
-
-        // Log::debug('Mill::diff(): dirty', $dirty);
-        // Log::debug('Mill::diff(): original', $original);
-
         $diff = [];
 
         /**
@@ -1501,8 +1462,27 @@ class Mill extends Model
             'diff' => $diff,
             'changes' => $dirty,
         ];
-        // if (empty($dirty)) {
-        //     return $dirty;
-        // }
+    }
+
+    /**
+     * Infers the original source of this Mill based on the presence of 
+     * import table foreign keys.
+     *
+     * @return string
+     */
+    public function pedigree(): ImportSourceType
+    {
+        /**
+         * It seems better to not explicitly interact with the other tables if we can help it.
+         * Also, it seems better to act on presence before absence.
+         */
+        if (!empty($this->import_id)) {
+            if (!empty($this->mill_raw_import_id)) {
+                return ImportSourceType::Arcgis;
+            }
+            return ImportSourceType::Spreadsheet;
+        }
+
+        return ImportSourceType::User;
     }
 }
