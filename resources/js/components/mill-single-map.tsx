@@ -27,6 +27,9 @@ import { show } from "@/actions/App/Http/Controllers/MillController"
 
 const zoom = 14;
 
+const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const tileLayerUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+
 /**
  * Currently, the only children we expect would be the mill-filters component.
  * In the future, there might be more children, e.g., wmsLayers?
@@ -46,6 +49,8 @@ export default function MillSingleMap({mills, children}: MillListProps) {
         >
             <MapGestureHandler />
             <MapTileLayer 
+                attribution={attribution}
+                url={tileLayerUrl}
             />
 
             <MapMarkerClusterGroup>
