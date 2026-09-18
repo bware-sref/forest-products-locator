@@ -1485,4 +1485,49 @@ class Mill extends Model
 
         return ImportSourceType::User;
     }
+
+    public function isArcGis(): bool
+    {
+        return ImportSourceType::Arcgis === $this->pedigree();
+    }
+
+    public function isSpreadsheet(): bool
+    {
+        return ImportSourceType::Spreadsheet === $this->pedigree();
+    }
+
+    public function isUserSubmitted(): bool
+    {
+        return ImportSourceType::User === $this->pedigree();
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === PublicationStatus::Pending;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === PublicationStatus::Approved;
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->isApproved();
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === PublicationStatus::Rejected;
+    }
+
+    public function isInvalid(): bool
+    {
+        return $this->status === PublicationStatus::Invalid;
+    }
+
+    public function isError(): bool
+    {
+        return $this->status === PublicationStatus::Error;
+    }
 }
