@@ -63,7 +63,8 @@ export function ContactForm({
             email: '',
             subject: '',
             message: '',
-            [honeypot.nameFieldName]: 'not empty', // non-empty value for testing but it succeeds anyway?!?
+            [honeypot.nameFieldName]: '', // 'buddy', // test with non-empty value
+            // of course it started working after this
             [honeypot.validFromFieldName]: honeypot.encryptedValidFrom,
         }
     });
@@ -74,6 +75,8 @@ export function ContactForm({
     function onSubmit(data: ContactFormData) {
         // do stuff
         // const payload: JimmyData = { ... data}
+        // console.log('submitted form data: ', data);
+
         router.post(storeContact(), data as unknown as RequestPayload, {
           /**
            * for the love of God, I finally found the type for flash! (ah ah)

@@ -48,7 +48,8 @@ return [
      * A valid responder is any class that implements
      * `Spatie\Honeypot\SpamResponder\SpamResponder`
      */
-    'respond_to_spam_with' => BlankPageResponder::class,
+    // 'respond_to_spam_with' => BlankPageResponder::class,
+    'respond_to_spam_with' => App\Http\Responders\InertiaSpamResponder::class,
 
     /*
      * When activated, requests will be checked if honeypot fields are missing,
