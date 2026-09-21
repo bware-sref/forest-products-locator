@@ -6,6 +6,7 @@ use App\Models\MillType;
 use App\Models\WoodSpecies;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Spatie\Honeypot\Honeypot;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -59,6 +60,12 @@ class HandleInertiaRequests extends Middleware
                 // via a forged Host header.
                 'siteUrl' => rtrim(config('app.url'), '/'),
             ],
+
+            /**
+             * Include Honeypot in all Inertia responses.
+             * NOTE: we may need to limit this to the routes with forms.
+             */
+            'honeypot' => new Honeypot(config('honeypot')),
         ];
     }
 
