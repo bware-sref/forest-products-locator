@@ -9,7 +9,7 @@ import { toast } from "sonner"
 import * as z from "zod"
 import { store as storeContact } from "@/routes/contacts";
 import { router } from '@inertiajs/react';
-
+import { RequestPayload } from '@inertiajs/core';
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -21,30 +21,32 @@ import {
 } from "@/components/ui/card";
 import {
   Field,
-//   FieldDescription,
-//   FieldError,
   FieldGroup,
-//   FieldLabel,
-//   FieldLegend,
-//   FieldSet,
 } from "@/components/ui/field"
 import { ControlledInput } from "@/components/extend/controlled-input";
 import { ControlledTextarea } from "@/components/extend/controlled-textarea";
 import {
     contactFormSchema,
     type ContactFormData,
+    // type ContactFormPayload,
     doesZodRequire
 } from "@/lib/zod-schemas";
-import { useEffect } from "react";
+// import { useEffect } from "react";
+
+import {
+    type IHoneypot,
+} from "@/types";
 
 export interface ContactFormProps {
     headline?: string;
     description?: string;
+    honeypot: IHoneypot;
 }
 
 export function ContactForm({
     headline = 'Fill in this form to contact site administrators.',
     description = 'Provides a directory of primary and secondary forest products companies that produce products using raw forest material such as trees, logs, bark, etc.',
+    honeypot
 }:ContactFormProps) {
     
     const {
@@ -53,18 +55,26 @@ export function ContactForm({
         ...form
     } = useForm<ContactFormData>({
         resolver: zodResolver(contactFormSchema),
+    // } = useForm<ContactFormPayload>({
+    //     resolver: zodResolver(z.looseObject(contactFormSchema.shape)),
         mode: "onBlur",
         defaultValues: {
             name: '',
             email: '',
             subject: '',
             message: '',
+            [honeypot.nameFieldName]: 'not empty', // non-empty value for testing but it succeeds anyway?!?
+            [honeypot.validFromFieldName]: honeypot.encryptedValidFrom,
         }
     });
 
+    // console.log('formState:', formState);
+    // console.log('form: ', form);
+
     function onSubmit(data: ContactFormData) {
         // do stuff
-        router.post(storeContact(), data, {
+        // const payload: JimmyData = { ... data}
+        router.post(storeContact(), data as unknown as RequestPayload, {
           /**
            * for the love of God, I finally found the type for flash! (ah ah)
            * PageFlashData defined(-ish) in inertiajs/core
@@ -92,16 +102,13 @@ export function ContactForm({
                         message: errors[key],
                     });
                 });
+            },
+            // use onSuccess() to trigger form reset.
+            onSuccess: () => {
+                reset();
             }
         });
     }
-
-    // use useEffect to reset the form after successful submission
-    useEffect(() => {
-        if (formState.isSubmitSuccessful) {
-            reset();
-        }
-    }, [formState.isSubmitSuccessful, reset]);
 
     return (
         <Card className="w-full sm:max-w-md mx-auto">
@@ -119,7 +126,26 @@ export function ContactForm({
                 </CardHeader>
                 <CardContent>
                     <FieldGroup>
-        
+                        {honeypot.enabled && (
+                            <div className="hidden" aria-hidden="true">
+                                <ControlledInput 
+                                    control={form.control}
+                                    name={honeypot.nameFieldName}
+                                    label=""
+                                    placeholder=""
+                                    required={false}
+                                    autocomplete="off"
+                                />
+                                <ControlledInput 
+                                    control={form.control}
+                                    name={honeypot.validFromFieldName}
+                                    label=""
+                                    placeholder=""
+                                    required={false}
+                                    autocomplete="off"
+                                />
+                            </div>
+                        )}
                         <ControlledInput
                             control={form.control}
                             name="name"

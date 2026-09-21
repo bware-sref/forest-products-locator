@@ -1,7 +1,10 @@
 // Externalize our Zod schemas to clean up components
 import { z } from 'zod';
 
-export const contactFormSchema = z.object({
+// change from object() to looseObject() to allow for randomly named Spatie Honeypot fields
+// or call loose() at the end (replaces passthrough() from Zod v3)
+// export const contactFormSchema = z.object({
+export const contactFormSchema = z.looseObject({
     name: z
         .string()
         .min(0)
@@ -20,8 +23,12 @@ export const contactFormSchema = z.object({
         .min(1, 'Message cannot be empty.')
         .max(1024, 'Message must be at most 1024 characters.')
 });
-
 export type ContactFormData = z.infer<typeof contactFormSchema>;
+
+// add Honeypot to ContactFormData via intersection
+export type ContactFormPayload = ContactFormData & {
+    [key: string]: string;
+};
 
 export const millFormSchema = z.object({
     // add a hidden input to inform the method for put and patch requests

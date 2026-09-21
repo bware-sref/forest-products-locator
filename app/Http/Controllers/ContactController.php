@@ -9,6 +9,7 @@ use App\Models\Contact;
 use App\Models\PageSeo;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Spatie\Honeypot\Honeypot;
 
 class ContactController extends Controller
 {
@@ -16,7 +17,7 @@ class ContactController extends Controller
      * This action should more properly be named "create" rather than "index".
      * @return \Inertia\Response
      */
-    public function index()
+    public function index(Honeypot $honeypot)
     {
         return Inertia::render('contact', [
             'pageTitle' => 'Contact',
@@ -25,15 +26,29 @@ class ContactController extends Controller
                 'Contact',
                 'Get in touch with the Forest Products Locator team.'
             ),
+            'honeypot' => $honeypot,
         ]);
     }
 
     public function store(StoreContactRequest $request)
     {
         // do stuff
+        $all = $request->all();
         $data = $request->validated();
-        Log::debug('Contact form submission: ', $data);
+        Log::debug("\n".self::class."::store():\nContact form submission: \n", [
+            "\nall\n" => $all,
+            "\nvalidated\n" => $data
+        ]);
+        /**
+         * As suspected, the Honeypot fields get added to the form.
+         * However, it doesn't seem to block anything.
+         * At this point, we could block it ourselves by checking the time and making sure the dummy field is empty
+         */
 
+
+        /**
+         * Should we do an empty check?
+         */
         $contact = Contact::create($data);
 
         $msg = \sprintf('Contact form submission %d stored!', $contact->id);
