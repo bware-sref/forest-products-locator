@@ -29,6 +29,7 @@
         "laravel/wayfinder": "^0.1.9",
         "maatwebsite/excel": "^3.1",
         "redsquirrelstudio/laravel-backpack-import-operation": "dev-feature/backpack-7.0 as 1.6.8",
+        "spatie/laravel-honeypot": "^4.7",
         "spatie/laravel-typescript-transformer": "^2.5"
     },
     "require-dev": {
