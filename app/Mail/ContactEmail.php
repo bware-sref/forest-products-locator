@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Enums\Environment;
 use App\Models\Contact;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,9 +32,13 @@ class ContactEmail extends Mailable
     public function envelope(): Envelope
     {
         $addy = new Address($this->contact->email, $this->contact->name ?? '');
+        $subject = 'Contact request from Forest Products Locator Network';
+        if (Environment::Production->value !== config('app.env')) {
+            $subject = config('mail.test.subject.prefix').$subject;
+        }
         return new Envelope(
             from: $addy,
-            subject: 'Contact request from Forest Products Locator Network',
+            subject: $subject,
             replyTo: [
                 $addy,
             ],

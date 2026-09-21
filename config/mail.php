@@ -115,4 +115,13 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Forest Products Locator'),
     ],
 
+
+    /***
+     * Specific to testing
+     */
+    'test' => [
+        'subject' => [
+            'prefix' => env('MAIL_TEST_SUBJECT_PREFIX', 'Testing:: '),
+        ],
+    ],
 ];
