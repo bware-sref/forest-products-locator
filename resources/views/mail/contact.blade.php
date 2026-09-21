@@ -15,4 +15,7 @@
 **IP Address:**<br>
 {{ $ip }}
 
+**Sent At:**<br>
+{{ $created_at }} UTC
+
 </x-mail::message>
