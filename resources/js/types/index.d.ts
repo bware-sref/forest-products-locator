@@ -442,5 +442,5 @@ export interface IHoneypot {
     unrandomizedNameFieldName: string;
     validFromFieldName: string;
     withCsp: boolean;
-    [key: string]: unknown;
+    [key: string]: string;
 }
