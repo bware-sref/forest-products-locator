@@ -33,25 +33,29 @@ class ContactController extends Controller
     public function store(StoreContactRequest $request)
     {
         // do stuff
-        $all = $request->all();
         $data = $request->validated();
         Log::debug("\n".self::class."::store():\nContact form submission: \n", [
-            "\nall\n" => $all,
             "\nvalidated\n" => $data
         ]);
-        /**
-         * As suspected, the Honeypot fields get added to the form.
-         * However, it doesn't seem to block anything.
-         * At this point, we could block it ourselves by checking the time and making sure the dummy field is empty
-         */
-
 
         /**
-         * Should we do an empty check?
+         * Should we do an empty check and possibly show an error?
          */
         $contact = Contact::create($data);
 
-        $msg = \sprintf('Contact form submission %d stored!', $contact->id);
+        if (empty($contact)) {
+            $msg = "An error occurred while sending your message. Please try again later.";
+            Log::error("\n".self::class."::store(): {$msg}", [
+                "\nvalidated form data:\n" => $data,
+            ]);
+            Inertia::flash([
+                'type' => 'error',
+                'message' => $msg,
+            ]);
+            return to_route('contacts.create');
+        }
+
+        $msg = "Contact form submission {$contact->id} stored!";
         Log::debug($msg);
 
         // try to send the email here?

@@ -5,7 +5,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
+import { ExternalToast, toast } from "sonner"
 import * as z from "zod"
 import { store as storeContact } from "@/routes/contacts";
 import { router } from '@inertiajs/react';
@@ -32,7 +32,9 @@ import {
     doesZodRequire
 } from "@/lib/zod-schemas";
 // import { useEffect } from "react";
-
+import {
+    cn,
+} from "@/lib/utils";
 import {
     type IHoneypot,
 } from "@/types";
@@ -42,6 +44,19 @@ export interface ContactFormProps {
     description?: string;
     honeypot: IHoneypot;
 }
+
+const getToastOptions = (msg : string, cName : string = '') : ExternalToast => {
+    const defaultCn = "mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground";
+    return {
+        closeButton: true,
+        position: "top-center",
+        description: (
+            <p className={cn(defaultCn, cName)}>
+                {msg}
+            </p>
+        ),
+    };
+};
 
 export function ContactForm({
     headline = 'Fill in this form to contact site administrators.',
@@ -55,28 +70,19 @@ export function ContactForm({
         ...form
     } = useForm<ContactFormData>({
         resolver: zodResolver(contactFormSchema),
-    // } = useForm<ContactFormPayload>({
-    //     resolver: zodResolver(z.looseObject(contactFormSchema.shape)),
         mode: "onBlur",
         defaultValues: {
             name: '',
             email: '',
             subject: '',
             message: '',
-            [honeypot.nameFieldName]: '', // 'buddy', // test with non-empty value
-            // of course it started working after this
+            [honeypot.nameFieldName]: '', // test spam-blocking with a non-empty value
             [honeypot.validFromFieldName]: honeypot.encryptedValidFrom,
         }
     });
 
-    // console.log('formState:', formState);
-    // console.log('form: ', form);
-
     function onSubmit(data: ContactFormData) {
         // do stuff
-        // const payload: JimmyData = { ... data}
-        // console.log('submitted form data: ', data);
-
         router.post(storeContact(), data as unknown as RequestPayload, {
           /**
            * for the love of God, I finally found the type for flash! (ah ah)
@@ -84,17 +90,21 @@ export function ContactForm({
            * @param flash PageFlashData
            */
             onFlash: (flash) => {
-              console.log('flash: ', flash);
+            //   console.log('flash: ', flash);
               if (flash.message) {
-                toast.success("Contact request sent.", {
-                  closeButton: true,
-                  position: "top-center",
-                  description: (
-                    <p className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-                        { String(flash.message) }
-                    </p>
-                  ),
-                });
+
+                if (flash.type && flash.type === 'error') {
+                    toast.error(
+                        "An error occurred...",
+                        getToastOptions(String(flash.message), 'text-red-700')
+                    );
+                    return;
+                }
+
+                toast.success(
+                    "Contact request sent.",
+                    getToastOptions(String(flash.message))
+                );
               }
             },
             onError: (errors) => {
