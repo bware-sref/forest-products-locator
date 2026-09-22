@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class InertiaSpamResponder implements SpamResponder
 {
 
-    public const string SESSION_KEY = 'spamRedirect';
+    protected const string SESSION_KEY = 'spamRedirect';
 
     public function respond(Request $request, Closure $next): Response
     {
@@ -65,20 +65,40 @@ class InertiaSpamResponder implements SpamResponder
         return redirect()->back();
     }
 
-    protected function hasSessionRedirect(): bool
+    public function hasSessionRedirect(): bool
     {
         return session()->has(self::SESSION_KEY);
     }
 
-    protected function getSessionRedirect()
+    public function getSessionRedirect()
     {
         return session()->get(self::SESSION_KEY);
     }
 
     protected function doSessionRedirect(): Response
     {
-        $route = session()->get(self::SESSION_KEY);
-        session()->forget(self::SESSION_KEY);
+        $route = session()->pull(self::SESSION_KEY);
+        // session()->forget(self::SESSION_KEY);
         return redirect()->to($route);
+    }
+
+    /**
+     * We could use a secondary key to handle multiple redirect values for the same user...
+     * As long as the redirects correspond to different URLs...
+     * maybe in the future
+     * For now, we just need a single redirect for each user session.
+     * The main thing these methods offer is an easy way to avoid using our session key elsewhere.
+     *
+     * @param string $url URL to which to redirect
+     * @return bool
+     */
+    public static function setRedirect(string $url): void
+    {
+        session()->put(self::SESSION_KEY, $url);
+    }
+
+    public static function clearRedirect(?string $url = ''): void
+    {
+        session()->forget(self::SESSION_KEY);
     }
 }

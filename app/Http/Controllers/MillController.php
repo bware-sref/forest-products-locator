@@ -217,7 +217,7 @@ class MillController extends Controller
      * Now with Honeypot!
      * 
      */
-    public function edit(Mill $mill, Honeypot $honeypot)
+    public function edit(Request $request, Mill $mill, Honeypot $honeypot)
     {
         /**
          * Load related models so they can populate in the form
@@ -231,9 +231,9 @@ class MillController extends Controller
          * session juggling.
          * Probably overkill since this is the only place we mess with that (at present)
          */
-        session([
-            InertiaSpamResponder::SESSION_KEY => action([self::class, 'show'], ['mill' => $mill]),
-        ]);
+        InertiaSpamResponder::setRedirect(
+            action([self::class, 'show'], ['mill' => $mill])
+        );
 
         return Inertia::render('add-business', [
             'honeypot' => $honeypot,
@@ -267,7 +267,8 @@ class MillController extends Controller
          * If we've made it this far, we can probably clear the spamRedirect...
          * It has occurred to me that a single entry might not be enough, but we'll see what happens.
          */
-        session()->forget(InertiaSpamResponder::SESSION_KEY);
+        InertiaSpamResponder::clearRedirect();
+
 
         /**
          * Get the data without attempting validation...yet!
