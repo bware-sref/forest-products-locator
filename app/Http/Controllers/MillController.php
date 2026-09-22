@@ -7,19 +7,18 @@ use App\Exports\MillsExport;
 use App\Http\Requests\MillResourceRequest;
 use App\Http\Requests\StoreMillRequest;
 use App\Http\Requests\UpdateMillRequest;
+use App\Http\Responders\InertiaSpamResponder;
 use App\Jobs\SendMillAddNotification;
 use App\Jobs\SendMillEditNotification;
-use App\Models\County;
 use App\Models\Mill;
 use App\Models\MillEdit;
 use App\Models\PageSeo;
 use App\Models\State;
-use App\Models\WoodSpecies;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
+use Spatie\Honeypot\Honeypot;
 
 class MillController extends Controller
 {
@@ -91,10 +90,10 @@ class MillController extends Controller
 
     /**
      * Display the Mill form
+     * Now with Honeypot!
      * 
-     * @TODO move this to MillEditController
      */
-    public function create()
+    public function create(Honeypot $honeypot)
     {
         return Inertia::render('add-business', [
             'pageTitle' => 'Add Your Business',
@@ -104,10 +103,11 @@ class MillController extends Controller
                 'List your sawmill, pulp mill, or forest product processing business in our directory.'
             ),
             'states' => Inertia::once(fn () => State::getWithCounties(
-                cols: ['id', 'name', 'abbreviation'],
-                countyCols: ['id', 'name', 'state_id']
-            )->toArray()
+                    cols: ['id', 'name', 'abbreviation'],
+                    countyCols: ['id', 'name', 'state_id']
+                )->toArray()
             ),
+            'honeypot' => $honeypot,
         ]);
     }
 
@@ -117,8 +117,6 @@ class MillController extends Controller
      * 
      * We might need to modify this to store submitted data in the mill_edits table instead of mills.
      * That can happen after we figure out how to handle mill edits.
-     * 
-     * @TODO move this to MillEditController
      */
     public function store(StoreMillRequest $request)
     {
@@ -135,18 +133,12 @@ class MillController extends Controller
         Log::debug("\n".self::class."::store():\nrequest->all() data\n", $data);
 
         /**
-         * @todo convert this store a MillEdit instead of creating a new mill and relations
-         */
-
-        /**
          * I don't think we need to wrap all this in a conditional because if the validation fails, it will automatically redirect back with errors and old input, so we won't even get to this point if the data is invalid.
          */
         try {
 
             $newMill = MillEdit::addBusiness($data);
-            /**
-             * @todo make this send a notification to admins and state officials; crib from how MillEdits do it.
-             */
+
             $msg = "Successfully submitted new Mill \"{$data['mill_name']}\"!";
             Log::debug("\n".self::class."::store():\n{$msg}", [
                 "\nmillData:\n" => $newMill->toArray(),
@@ -221,23 +213,30 @@ class MillController extends Controller
     }
 
     /**
-     * We need edit(Mill $mill) if we allow submitting corrections to Mill data
-     * It might be useful to make edit-business a separate page component...
+     * Display the Mill Edit form
+     * Now with Honeypot!
      * 
-     * @TODO move this to MillEditController
      */
-    public function edit(Mill $mill)
+    public function edit(Mill $mill, Honeypot $honeypot)
     {
         /**
          * Load related models so they can populate in the form
          */
         $mill->load(['millTypes', 'woodSpecies']);
 
-        // Log::debug("\n".self::class."::edit():\nmill? where are extra attributes?!?", [
-        //     "\nmill:\n" => $mill->toArray(),
-        // ]);
+        /**
+         * Set a session parameter to handle the redirect in case of a spam submission.
+         * It has occurred to me that a single entry might not be enough, but we'll see what happens.
+         * It might also be useful to add static methods to InertiaSpamResponder to handle its
+         * session juggling.
+         * Probably overkill since this is the only place we mess with that (at present)
+         */
+        session([
+            InertiaSpamResponder::SESSION_KEY => action([self::class, 'show'], ['mill' => $mill]),
+        ]);
 
         return Inertia::render('add-business', [
+            'honeypot' => $honeypot,
             'pageTitle' => 'Edit Mill',
             'pageSeo' => PageSeo::resolve(
                 'mills.edit',
@@ -252,10 +251,24 @@ class MillController extends Controller
     /**
      * Update the specified resource in storage.
      * 
-     * @TODO move this to MillEditController
      */
     public function update(UpdateMillRequest $request, Mill $mill)
     {
+        // Log::debug("\n".self::class."::update():\nreceived request:\n", [
+        //     "\nmethod\n" => $request->method(),
+        //     "\nwhy?\n" => "do we not hit the spam response?",
+        //     "\ndata\n" => $request->all(),
+        // ]);
+        /**
+         * Because Spatie Laravel Honeypot only intercepts POST requests!
+         */
+
+        /**
+         * If we've made it this far, we can probably clear the spamRedirect...
+         * It has occurred to me that a single entry might not be enough, but we'll see what happens.
+         */
+        session()->forget(InertiaSpamResponder::SESSION_KEY);
+
         /**
          * Get the data without attempting validation...yet!
          * also, make empty strings null so comparing empty to empty doesn't incorrectly flag changes.

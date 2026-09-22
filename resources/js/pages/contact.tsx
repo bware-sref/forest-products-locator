@@ -17,8 +17,6 @@ export default function Contact() {
     }>().props;
     const pageTitle = pageSeo.title;
 
-    console.log('honeypot: ', honeypot);
-
     return (
         <AppLayout>
             <Seo {...pageSeo} />

@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 // change from object() to looseObject() to allow for randomly named Spatie Honeypot fields
 // or call loose() at the end (replaces passthrough() from Zod v3)
-// export const contactFormSchema = z.object({
 export const contactFormSchema = z.looseObject({
     name: z
         .string()
@@ -26,13 +25,13 @@ export const contactFormSchema = z.looseObject({
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 
 // add Honeypot to ContactFormData via intersection
+// I don't think we actually use ContactFormPayload
 export type ContactFormPayload = ContactFormData & {
     [key: string]: string;
 };
 
-export const millFormSchema = z.object({
-    // add a hidden input to inform the method for put and patch requests
-    _method: z.literal(['POST', 'PATCH', 'PUT']),
+// change from object() to looseObject() to allow for randomly named Spatie Laravel Honeypot fields
+export const millFormSchema = z.looseObject({
     mill_name: z
         .string()
         .min(2, 'Mill Name must be at least 2 characters.')
