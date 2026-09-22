@@ -11,15 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InertiaSpamResponder implements SpamResponder
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
-    {
-        //
-    }
 
-    public function respond(Request $request, Closure $next)
+    public const string SESSION_KEY = 'spamRedirect';
+
+    public function respond(Request $request, Closure $next): Response
     {
         Log::debug("\n".self::class."::respond():\nSpam Form Request!\n", [
             // "\nrequest\n" => $request,
@@ -51,6 +46,16 @@ class InertiaSpamResponder implements SpamResponder
         }
 
         /**
+         * If a redirect location was specified in teh session, use it!
+         */
+        if (self::hasSessionRedirect()) {
+            Log::debug("\n".self::class."::respond():\nfound session ".self::SESSION_KEY."!", [
+                self::SESSION_KEY => self::getSessionRedirect(),
+            ]);
+            return self::doSessionRedirect();
+        }
+
+        /**
          * Because we're responding to a POST request, we have to use redirect()->back()
          * instead of just using back().
          * That's why returning flash()->back() resulted in no Flash!
@@ -58,5 +63,22 @@ class InertiaSpamResponder implements SpamResponder
          * For example, when the Edit Mill is successfully submitted, the browser returns to the Mill's single page.
          */
         return redirect()->back();
+    }
+
+    protected function hasSessionRedirect(): bool
+    {
+        return session()->has(self::SESSION_KEY);
+    }
+
+    protected function getSessionRedirect()
+    {
+        return session()->get(self::SESSION_KEY);
+    }
+
+    protected function doSessionRedirect(): Response
+    {
+        $route = session()->get(self::SESSION_KEY);
+        session()->forget(self::SESSION_KEY);
+        return redirect()->to($route);
     }
 }
