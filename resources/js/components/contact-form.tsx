@@ -4,12 +4,20 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
+import {
+    Control,
+    useForm,
+} from "react-hook-form"
+import { 
+    toast,
+} from "sonner"
+import {
+    makeToastOptions
+} from "@/lib/tsx-utils";
 import * as z from "zod"
 import { store as storeContact } from "@/routes/contacts";
 import { router } from '@inertiajs/react';
-
+import { RequestPayload } from '@inertiajs/core';
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -21,34 +29,35 @@ import {
 } from "@/components/ui/card";
 import {
   Field,
-//   FieldDescription,
-//   FieldError,
   FieldGroup,
-//   FieldLabel,
-//   FieldLegend,
-//   FieldSet,
 } from "@/components/ui/field"
 import { ControlledInput } from "@/components/extend/controlled-input";
 import { ControlledTextarea } from "@/components/extend/controlled-textarea";
+import {
+    HoneypotFields,
+} from "@/components/extend/honeypot-fields"
 import {
     contactFormSchema,
     type ContactFormData,
     doesZodRequire
 } from "@/lib/zod-schemas";
-import { useEffect } from "react";
+import {
+    type IHoneypot,
+} from "@/types";
 
 export interface ContactFormProps {
     headline?: string;
     description?: string;
+    honeypot: IHoneypot;
 }
 
 export function ContactForm({
     headline = 'Fill in this form to contact site administrators.',
     description = 'Provides a directory of primary and secondary forest products companies that produce products using raw forest material such as trees, logs, bark, etc.',
+    honeypot
 }:ContactFormProps) {
     
     const {
-        formState,
         reset,
         ...form
     } = useForm<ContactFormData>({
@@ -59,29 +68,40 @@ export function ContactForm({
             email: '',
             subject: '',
             message: '',
+            [honeypot.nameFieldName]: '', // test spam-blocking with a non-empty value
+            [honeypot.validFromFieldName]: honeypot.encryptedValidFrom,
         }
     });
 
     function onSubmit(data: ContactFormData) {
         // do stuff
-        router.post(storeContact(), data, {
+        router.post(storeContact(), data as unknown as RequestPayload, {
           /**
            * for the love of God, I finally found the type for flash! (ah ah)
            * PageFlashData defined(-ish) in inertiajs/core
            * @param flash PageFlashData
            */
             onFlash: (flash) => {
-              console.log('flash: ', flash);
+            //   console.log('flash: ', flash);
               if (flash.message) {
-                toast.success("Contact request sent.", {
-                  closeButton: true,
-                  position: "top-center",
-                  description: (
-                    <p className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-                        { String(flash.message) }
-                    </p>
-                  ),
-                });
+
+                if (flash.type && flash.type === 'error') {
+                    toast.error(
+                        "An error occurred...",
+                        makeToastOptions({
+                            msg: String(flash.message),
+                            className: 'text-red-700',
+                        })
+                    );
+                    return;
+                }
+
+                toast.success(
+                    "Contact request sent.",
+                    makeToastOptions({
+                        msg: String(flash.message),
+                    })
+                );
               }
             },
             onError: (errors) => {
@@ -92,16 +112,13 @@ export function ContactForm({
                         message: errors[key],
                     });
                 });
+            },
+            // use onSuccess() to trigger form reset.
+            onSuccess: () => {
+                reset();
             }
         });
     }
-
-    // use useEffect to reset the form after successful submission
-    useEffect(() => {
-        if (formState.isSubmitSuccessful) {
-            reset();
-        }
-    }, [formState.isSubmitSuccessful, reset]);
 
     return (
         <Card className="w-full sm:max-w-md mx-auto">
@@ -119,7 +136,10 @@ export function ContactForm({
                 </CardHeader>
                 <CardContent>
                     <FieldGroup>
-        
+                        <HoneypotFields 
+                            honeypot={honeypot}
+                            control={form.control as unknown as Control}
+                        />
                         <ControlledInput
                             control={form.control}
                             name="name"

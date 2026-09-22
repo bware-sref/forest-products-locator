@@ -62,8 +62,9 @@ Route::get('/mills/{mill:match_id}/edit', [MillController::class, 'edit'])
     ->name('mills.edit');
 /**
  * Patch seems more appropriate for this because it's spozta be a partial update.
+ * However, Spatie Laravel Honeypot only checks POST requests...
  */
-Route::match(['patch', 'put'], '/mills/{mill:match_id}', [MillController::class, 'update'])
+Route::post('/mills/{mill:match_id}', [MillController::class, 'update'])
     ->name('mills.update');
 
 /**

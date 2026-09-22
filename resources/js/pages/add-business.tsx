@@ -1,5 +1,6 @@
 import {
     type County,
+    type IHoneypot,
     type Mill,
     type MillType,
     type PageSeoOverride,
@@ -22,6 +23,7 @@ export default function AddBusiness() {
         // we may need to add something standard in order to catch errors
         // or to handle edits!
         mill?: Mill;
+        honeypot: IHoneypot;
     }>();
     const pageTitle = page.props.pageTitle || 'Add Your Business';
 
@@ -36,6 +38,7 @@ export default function AddBusiness() {
                         millTypes={page.props.millTypes}
                         woodSpecies={page.props.woodSpecies}
                         mill={page.props.mill}
+                        honeypot={page.props.honeypot}
                     />
                 </div>
                 {/** 
