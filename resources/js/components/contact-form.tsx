@@ -58,7 +58,6 @@ export function ContactForm({
 }:ContactFormProps) {
     
     const {
-        formState,
         reset,
         ...form
     } = useForm<ContactFormData>({
@@ -141,26 +140,6 @@ export function ContactForm({
                             honeypot={honeypot}
                             control={form.control as unknown as Control}
                         />
-                        {/* {honeypot.enabled && (
-                            <div className="hidden" aria-hidden="true">
-                                <ControlledInput 
-                                    control={form.control}
-                                    name={honeypot.nameFieldName}
-                                    label=""
-                                    placeholder=""
-                                    required={false}
-                                    autocomplete="off"
-                                />
-                                <ControlledInput 
-                                    control={form.control}
-                                    name={honeypot.validFromFieldName}
-                                    label=""
-                                    placeholder=""
-                                    required={false}
-                                    autocomplete="off"
-                                />
-                            </div>
-                        )} */}
                         <ControlledInput
                             control={form.control}
                             name="name"
