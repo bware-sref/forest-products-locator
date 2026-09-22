@@ -53,7 +53,9 @@ class InertiaSpamResponder implements SpamResponder
         /**
          * Because we're responding to a POST request, we have to use redirect()->back()
          * instead of just using back().
-         * That's why returning 
+         * That's why returning flash()->back() resulted in no Flash!
+         * However, we don't always want to go back to the form.
+         * For example, when the Edit Mill is successfully submitted, the browser returns to the Mill's single page.
          */
         return redirect()->back();
     }
