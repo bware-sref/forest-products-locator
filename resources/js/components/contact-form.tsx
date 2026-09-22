@@ -4,8 +4,16 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { ExternalToast, toast } from "sonner"
+import {
+    Control,
+    useForm,
+} from "react-hook-form"
+import { 
+    toast,
+} from "sonner"
+import {
+    makeToastOptions
+} from "@/lib/tsx-utils";
 import * as z from "zod"
 import { store as storeContact } from "@/routes/contacts";
 import { router } from '@inertiajs/react';
@@ -26,15 +34,13 @@ import {
 import { ControlledInput } from "@/components/extend/controlled-input";
 import { ControlledTextarea } from "@/components/extend/controlled-textarea";
 import {
+    HoneypotFields,
+} from "@/components/extend/honeypot-fields"
+import {
     contactFormSchema,
     type ContactFormData,
-    // type ContactFormPayload,
     doesZodRequire
 } from "@/lib/zod-schemas";
-// import { useEffect } from "react";
-import {
-    cn,
-} from "@/lib/utils";
 import {
     type IHoneypot,
 } from "@/types";
@@ -44,19 +50,6 @@ export interface ContactFormProps {
     description?: string;
     honeypot: IHoneypot;
 }
-
-const getToastOptions = (msg : string, cName : string = '') : ExternalToast => {
-    const defaultCn = "mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground";
-    return {
-        closeButton: true,
-        position: "top-center",
-        description: (
-            <p className={cn(defaultCn, cName)}>
-                {msg}
-            </p>
-        ),
-    };
-};
 
 export function ContactForm({
     headline = 'Fill in this form to contact site administrators.',
@@ -96,14 +89,19 @@ export function ContactForm({
                 if (flash.type && flash.type === 'error') {
                     toast.error(
                         "An error occurred...",
-                        getToastOptions(String(flash.message), 'text-red-700')
+                        makeToastOptions({
+                            msg: String(flash.message),
+                            className: 'text-red-700',
+                        })
                     );
                     return;
                 }
 
                 toast.success(
                     "Contact request sent.",
-                    getToastOptions(String(flash.message))
+                    makeToastOptions({
+                        msg: String(flash.message),
+                    })
                 );
               }
             },
@@ -139,7 +137,11 @@ export function ContactForm({
                 </CardHeader>
                 <CardContent>
                     <FieldGroup>
-                        {honeypot.enabled && (
+                        <HoneypotFields 
+                            honeypot={honeypot}
+                            control={form.control as unknown as Control}
+                        />
+                        {/* {honeypot.enabled && (
                             <div className="hidden" aria-hidden="true">
                                 <ControlledInput 
                                     control={form.control}
@@ -158,7 +160,7 @@ export function ContactForm({
                                     autocomplete="off"
                                 />
                             </div>
-                        )}
+                        )} */}
                         <ControlledInput
                             control={form.control}
                             name="name"
