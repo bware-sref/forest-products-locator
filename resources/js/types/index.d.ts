@@ -433,3 +433,14 @@ export interface MillEdit {
     status: string;
     [key: string]: unknown;
 }
+
+// Spatie Honeypot
+export interface IHoneypot {
+    enabled: boolean;
+    encryptedValidFrom: string;
+    nameFieldName: string;
+    unrandomizedNameFieldName: string;
+    validFromFieldName: string;
+    withCsp: boolean;
+    [key: string]: string;
+}

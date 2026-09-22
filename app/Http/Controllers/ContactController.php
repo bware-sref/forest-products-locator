@@ -9,6 +9,7 @@ use App\Models\Contact;
 use App\Models\PageSeo;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Spatie\Honeypot\Honeypot;
 
 class ContactController extends Controller
 {
@@ -16,7 +17,7 @@ class ContactController extends Controller
      * This action should more properly be named "create" rather than "index".
      * @return \Inertia\Response
      */
-    public function index()
+    public function index(Honeypot $honeypot)
     {
         return Inertia::render('contact', [
             'pageTitle' => 'Contact',
@@ -25,6 +26,7 @@ class ContactController extends Controller
                 'Contact',
                 'Get in touch with the Forest Products Locator team.'
             ),
+            'honeypot' => $honeypot,
         ]);
     }
 
@@ -32,11 +34,28 @@ class ContactController extends Controller
     {
         // do stuff
         $data = $request->validated();
-        Log::debug('Contact form submission: ', $data);
+        Log::debug("\n".self::class."::store():\nContact form submission: \n", [
+            "\nvalidated\n" => $data
+        ]);
 
+        /**
+         * Should we do an empty check and possibly show an error?
+         */
         $contact = Contact::create($data);
 
-        $msg = \sprintf('Contact form submission %d stored!', $contact->id);
+        if (empty($contact)) {
+            $msg = "An error occurred while sending your message. Please try again later.";
+            Log::error("\n".self::class."::store(): {$msg}", [
+                "\nvalidated form data:\n" => $data,
+            ]);
+            Inertia::flash([
+                'type' => 'error',
+                'message' => $msg,
+            ]);
+            return to_route('contacts.create');
+        }
+
+        $msg = "Contact form submission {$contact->id} stored!";
         Log::debug($msg);
 
         // try to send the email here?

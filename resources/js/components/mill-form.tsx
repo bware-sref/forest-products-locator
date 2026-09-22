@@ -3,21 +3,30 @@
  */
 "use client"
 
-import * as React from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm, useWatch } from "react-hook-form"
-import { toast } from "sonner"
-import * as z from "zod"
+import * as React from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Control,
+  Controller,
+  useForm,
+  useWatch
+} from "react-hook-form";
+import { toast } from "sonner";
+import { makeToastOptions } from "@/lib/tsx-utils";
+import * as z from "zod";
 import {
   store as storeMill,
   update as updateMill,
 } from "@/routes/mills";
 import { router } from '@inertiajs/react';
-import type { VisitHelperOptions } from '@inertiajs/core';
-
+import type {
+  RequestPayload,
+  VisitHelperOptions,
+} from '@inertiajs/core';
 import {
     type State,
     type County,
+    type IHoneypot,
     type Mill,
     type MillType,
     type WoodSpecies,
@@ -54,6 +63,7 @@ import {
     type MillFormData,
     doesZodRequire,
 } from '@/lib/zod-schemas';
+import { HoneypotFields } from "@/components/extend/honeypot-fields";
 
 
 /**
@@ -74,17 +84,18 @@ export interface MillFormProps {
     formData?: object;
     mill?: Mill;
     initialData?: MillFormData;
+    honeypot: IHoneypot;
 }
 
 export function MillForm({
   headline = '',
   description = 'Help us improve by submitting mills that are not in our system.',
   mill,
-  // initialData,
+  honeypot,
   ...props
 }: MillFormProps) {
     // is we have a Mill, we're editing and thus we need to post to updateMill
-    const isEditing = !!mill; // initialData;
+    const isEditing = !!mill;
 
     // don't extract states from props so we can use the name here
     const states = React.useMemo(() => normalizeStates(props.states), [props.states]);
@@ -93,9 +104,6 @@ export function MillForm({
         resolver: zodResolver(millFormSchema),
         mode: 'onBlur',
         defaultValues: {
-            // we might need to spoof the method because PATCH has patchy support
-            _method: isEditing ? 'PATCH' : 'POST',
-            // we might need to add match_id
             // I'd love to extract defaultValues into the zod-schemas file as well
             mill_name: mill?.mill_name || '',      
             physical_address: mill?.physical_address || '',
@@ -124,6 +132,9 @@ export function MillForm({
             mill_types: mill?.mill_types?.map((millType) => String(millType.id)) || [],
             wood_species: mill?.wood_species?.map((woodSpecies) => String(woodSpecies.id)) || [],
             submitter_email: mill?.submitter_email || '',
+            // sugar, sugar
+            [honeypot.nameFieldName]: '', // test with non-empty value
+            [honeypot.validFromFieldName]: honeypot.encryptedValidFrom,
         },
     });
 
@@ -142,19 +153,26 @@ export function MillForm({
          * PageFlashData defined(-ish) in inertiajs/core
          * @param flash PageFlashData
          */
-        const options: VisitHelperOptions<MillFormData> = {
+        const options: VisitHelperOptions<RequestPayload> = {
             onFlash: (flash) => {
               // console.log('flash: ', flash);
               if (flash.message) {
-                toast.success("Thank you for contributing.", {
-                  closeButton: true,
-                  position: "top-center",
-                  description: (
-                    <p className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-                      {String(flash.message)}
-                    </p>
-                  ),
-                });
+                const msg = String(flash.message);
+                if (flash.type && flash.type === 'error') {
+                  toast.error(
+                    'An error occurred.',
+                    makeToastOptions({
+                      msg: msg,
+                      className: "text-red-700",
+                    })
+                  );
+                  return;
+                }
+                // default to success
+                toast.success(
+                  "Thank you for contributing.",
+                  makeToastOptions({msg: msg})
+                );
               }
             },
             onError: (errors) => {
@@ -173,11 +191,15 @@ export function MillForm({
         };
 
         if (isEditing) {
-            router.patch(updateMill(mill.match_id), data, options);
+          // change to post() to jibe with Spatie Laravel Honeypot
+          // router.patch(updateMill(mill.match_id), data as RequestPayload, options);
+          router.post(updateMill(mill.match_id), data as RequestPayload, options);
         } else {
-            router.post(storeMill(), data, options);
+          router.post(storeMill(), data as RequestPayload, options);
         }
     }
+
+    console.log('honeypot: ', honeypot);
 
   return (
     <Card className="w-full sm:max-w-md mx-auto">
@@ -198,6 +220,11 @@ export function MillForm({
           React Hook Form state adds hidden inputs for items in form schema which lack an explicit form element.
            */}
           <FieldGroup>
+
+            <HoneypotFields 
+              honeypot={honeypot}
+              control={form.control as unknown as Control}
+            />
 
             <ControlledInput
               control={form.control}
