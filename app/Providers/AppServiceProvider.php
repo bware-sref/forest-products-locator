@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\Environment;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Http\Request;
@@ -113,13 +114,16 @@ class AppServiceProvider extends ServiceProvider
 
         /**
          * Add an Inertia exception handler
+         * But don't use it in local environments (unless APP_DEBUG is false)
          */
-        Inertia::handleExceptionsUsing(function (ExceptionResponse $response) {
-            if (\in_array($response->statusCode(), config('inertia.error_codes', []))) {
-                return $response->render('error', [
-                    'status' => $response->statusCode(),
-                ])->withSharedData();
-            }
-        });
+        if (config('app.env') !== Environment::Local->value || false === config('app.debug')) {
+            Inertia::handleExceptionsUsing(function (ExceptionResponse $response) {
+                if (\in_array($response->statusCode(), config('inertia.error_codes', []))) {
+                    return $response->render('error', [
+                        'status' => $response->statusCode(),
+                    ])->withSharedData();
+                }
+            });
+        } 
     }
 }
