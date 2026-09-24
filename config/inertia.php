@@ -202,4 +202,10 @@ return [
 
     ],
 
+    /**
+     * Error Codes for which Inertia should return a formatted Inertia response.
+     * To customize response messaging for a specific error code, add title and description
+     * values for that error code to resources/pages/error.tsx.
+     */
+    'error_codes' => explode(',', env('INERTIA_ERROR_CODES', '403,404,500,503')),
 ];

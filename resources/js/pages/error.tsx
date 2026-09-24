@@ -8,6 +8,7 @@ const Error: React.FC<ErrorProps> = ({ status }) => {
     const title = {
         503: '503: Service Unavailable',
         500: '500: Server Error',
+        429: '429: Rate Limit Exceeded',
         404: '404: Page Not Found',
         403: '403: Forbidden',
     }[status] || 'An error occurred';
@@ -15,6 +16,7 @@ const Error: React.FC<ErrorProps> = ({ status }) => {
     const description = {
         503: 'We\'re all out at the moment.',
         500: 'Uh oh...',
+        429: 'Sorry, you have exceeded the limit for this type of request. Please try again later.',
         404: 'Sorry, I cannot find that.',
         403: 'Sorry, you cannot do that.',
     }[status] || 'An expected error occurred. :-D';
@@ -23,7 +25,6 @@ const Error: React.FC<ErrorProps> = ({ status }) => {
         <div>
             <h1>{title}</h1>
             <p>{description}</p>
-            <p>:shrug: what you gonna do? :-p</p>
         </div>
     );
 };

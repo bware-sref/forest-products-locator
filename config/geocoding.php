@@ -21,7 +21,7 @@ return [
     */
 
     'rate_limits' => [
-        'per_minute' => env('GEOCODING_RATE_LIMIT_PER_MINUTE', 10),
+        'per_minute' => env('GEOCODING_RATE_LIMIT_PER_MINUTE', 5),
         'per_day' => env('GEOCODING_RATE_LIMIT_PER_DAY', 200),
     ],    
 
