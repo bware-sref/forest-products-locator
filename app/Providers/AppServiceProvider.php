@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
+use Inertia\ExceptionResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -62,8 +64,10 @@ class AppServiceProvider extends ServiceProvider
          */
         RateLimiter::for('geocoding', function (Request $request) {
             return [
-                Limit::perMinute(config('geocoding.rate_limits.per_minute'))->by($request->ip()),
-                Limit::perDay(config('geocoding.rate_limits.per_day'))->by($request->ip()),
+                Limit::perMinute(config('geocoding.rate_limits.per_minute'))
+                    ->by('minute:'.$request->ip()),
+                Limit::perDay(config('geocoding.rate_limits.per_day'))
+                    ->by('day:'.$request->ip()),
             ];
         });
 
@@ -72,9 +76,9 @@ class AppServiceProvider extends ServiceProvider
          */
         RateLimiter::for('api', fn (Request $request) => [
             Limit::perMinute(config('rate-limits.api.per_minute'))
-                ->by($request->ip()),
+                ->by('minute:'.$request->ip()),
             Limit::perDay(config('rate-limits.api.per_day'))
-                ->by($request->ip()),
+                ->by('day:'.$request->ip()),
         ]);
 
         /**
@@ -82,9 +86,9 @@ class AppServiceProvider extends ServiceProvider
          */
         RateLimiter::for('contact', fn (Request $request) => [
             Limit::perMinute(config('rate-limits.contact.per_minute'))
-                ->by($request->ip()),
+                ->by('minute:'.$request->ip()),
             Limit::perDay(config('rate-limits.contact.per_day'))
-                ->by($request->ip()),
+                ->by('day:'.$request->ip()),
         ]);
 
         /**
@@ -92,9 +96,9 @@ class AppServiceProvider extends ServiceProvider
          */
         RateLimiter::for('export', fn (Request $request) => [
             Limit::perMinute(config('rate-limits.export.per_minute'))
-                ->by($request->ip()),
+                ->by('minute:'.$request->ip()),
             Limit::perDay(config('rate-limits.export.per_day'))
-                ->by($request->ip()),
+                ->by('day:'.$request->ip()),
         ]);
 
         /**
@@ -102,9 +106,20 @@ class AppServiceProvider extends ServiceProvider
          */
         RateLimiter::for('mills', fn (Request $request) => [
             Limit::perMinute(config('rate-limits.mills.per_minute'))
-                ->by($request->ip()),
+                ->by('minute:'.$request->ip()),
             Limit::perDay(config('rate-limits.mills.per_day'))
-                ->by($request->ip()),
+                ->by('day:'.$request->ip()),
         ]);
+
+        /**
+         * Add an Inertia exception handler
+         */
+        Inertia::handleExceptionsUsing(function (ExceptionResponse $response) {
+            if (\in_array($response->statusCode(), config('inertia.error_codes', []))) {
+                return $response->render('error', [
+                    'status' => $response->statusCode(),
+                ])->withSharedData();
+            }
+        });
     }
 }
