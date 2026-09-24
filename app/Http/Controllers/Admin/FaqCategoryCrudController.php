@@ -54,15 +54,27 @@ class FaqCategoryCrudController extends CrudController
         CRUD::setFromDb(); // set columns from db columns.
 
         /**
+         * Add counts to the list view
+         */
+        $this->crud->query->withCount('faqs');
+
+        /**
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');
          */
         CRUD::column('name')
             ->type('text')
             ->orderable(true);
-        CRUD::column('slug')
+        CRUD::column('faqs_count')
+            ->after('name')
             ->type('text')
+            ->label('FAQs')
+            ->suffix(' FAQs')
             ->orderable(true);
+        CRUD::column('slug')
+            ->remove();
+            // ->type('text')
+            // ->orderable(true);
         CRUD::column('order')
             ->label('Sort Weight')
             ->type('number')
@@ -84,6 +96,12 @@ class FaqCategoryCrudController extends CrudController
          * Fields can be defined using the fluent syntax:
          * - CRUD::field('price')->type('number');
          */
+        // hide slug so we can autopopulate
+        CRUD::field('slug')->remove();
+
+        CRUD::field('order')
+            ->label('Sort Weight')
+            ->type('number');
     }
 
     /**
