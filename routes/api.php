@@ -18,18 +18,19 @@ Route::name('api.v1.')
      */
     Route::controller(MillResourceController::class)
         ->prefix('mills')
-        ->name('mills.')
+        ->name('mills.')        
+        ->middleware(['throttle:api'])
         ->group(function () {
 
             /**
-             * mills.index
+             * api.v1.mills.index
              * accept get and post requests
              */
             Route::match(['get', 'post'], '/', 'index')
                 ->name('index');
 
             /**
-             * mills.show
+             * api.v1.mills.show
              */
             Route::get('/{mill:match_id}', 'show')
                 ->name('show');                

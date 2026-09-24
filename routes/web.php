@@ -20,6 +20,9 @@ Route::get('/', function () {
         'pageSeo' => PageSeo::resolve(
             'home',
             'Home',
+            /**
+             * This might be better as a config value...
+             */
             'Find sawmills, pulp mills, and other forest product processors near you.'
         ),
     ]);
@@ -41,41 +44,47 @@ Route::get('/mill-list', [MillController::class, 'index'])
     ->name('mills.index');
 
 /**
- * Add a Business
- * MillController?
- */
-Route::get('/add-business', [MillController::class, 'create'])
-    ->name('mills.create');
-Route::post('/mills', [MillController::class, 'store'])
-    ->name('mills.store');
-
-/**
- * Show new mill for review + approve + reject
- * 
- * Show, Approve, and Reject aren't needed for new Mills because we piggyback the existing controller actions.
- */
-
-/**
- * Edit a Mill
- */
-Route::get('/mills/{mill:match_id}/edit', [MillController::class, 'edit'])
-    ->name('mills.edit');
-/**
- * Patch seems more appropriate for this because it's spozta be a partial update.
- * However, Spatie Laravel Honeypot only checks POST requests...
- */
-Route::post('/mills/{mill:match_id}', [MillController::class, 'update'])
-    ->name('mills.update');
-
-/**
  * Show details of Mill specified by mill.match_id
  * This URL pattern was chosen because it mirrors the URL pattern on the old version.
  */
 Route::get('/mill-list/{mill:match_id}', [MillController::class, 'show'])
     ->name('mills.show');
 
+/**
+ * Add a Business
+ * MillController?
+ */
+Route::get('/add-business', [MillController::class, 'create'])
+    ->name('mills.create');
+
+/**
+ * Edit a Mill
+ */
+Route::get('/mills/{mill:match_id}/edit', [MillController::class, 'edit'])
+    ->name('mills.edit');
+
+Route::middleware(['throttle:mills'])->group(function () {
+    Route::post('/mills', [MillController::class, 'store'])
+        ->name('mills.store');
+    /**
+     * Patch seems more appropriate for this because it's spozta be a partial update.
+     * However, Spatie Laravel Honeypot only checks POST requests...
+     */
+    Route::post('/mills/{mill:match_id}', [MillController::class, 'update'])
+        ->name('mills.update');
+});
+
+/**
+ * Export Mills!
+ * Export probably deserves its own rate limit.
+ */
 Route::match(['get', 'post'], '/mills/export/', [MillController::class, 'export'])
-    ->name('mills.export');
+    ->name('mills.export')
+    ->middleware(['throttle:export']);
+
+/**
+ * Show new Mill or MillEdit for review + approve + reject
+ */
 
 /**
  * Show MillEdits!
@@ -136,8 +145,10 @@ Route::get('/states/{state:slug}', [StatePageController::class, 'show'])
 Route::get('/contact', [ContactController::class, 'index'])
     ->name('contacts.create');
 
-Route::post('/contact', [ContactController::class, 'store'])
-    ->name('contacts.store');
+Route::middleware(['throttle:contact'])->group(function() {
+    Route::post('/contact', [ContactController::class, 'store'])
+        ->name('contacts.store');
+});
 
 /**
  * Redirect the route to map the contact page URL from the old site to the new one
