@@ -42,18 +42,18 @@ export const millFormSchema = z.looseObject({
     physical_address: z
         .string()
         .min(5, 'Address must be at least 5 characters.')
-        .max(255, 'Address must be at most 255 characters.')
-        .optional()
+        .max(255, 'Address must be at most 255 characters.'),
+        // .optional()
         // or() with a literal is the magic that makes optional work properly
-        .or(z.literal('')),
+        // .or(z.literal('')),
 
     // the shortest US city name is 2 characters, so we can use that as our min length
     physical_city: z
         .string()
         .min(2, 'City must be at least 2 characters.')
-        .max(255, 'City must be at most 255 characters.')
-        .optional()
-        .or(z.literal('')),
+        .max(255, 'City must be at most 255 characters.'),
+        // .optional()
+        // .or(z.literal('')),
 
     // Added number but, FFS, TypeScript is still balking at the possibility of State
     // when I try to add the value to the form
@@ -65,11 +65,9 @@ export const millFormSchema = z.looseObject({
         .regex(
             /^\d{5}(-\d{4})?$/,
             'ZIP Code must be at least 5 digits. Optional 4-digit suffix must follow a "-", ex: 12345-6789.',
-        )
-        // .min(5, 'ZIP Code must be at least 5 characters.')
-        // .max(10, 'ZIP Code must be at most 10 characters.')
-        .optional()
-        .or(z.literal('')),
+        ),
+        // .optional()
+        // .or(z.literal('')),
 
     // do we want to add counties yet?
     // I'm not sure we ever want to add County if we are able to look it up
