@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
@@ -26,6 +27,16 @@ class FaqCategory extends Model
         'slug',
         'order',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (FaqCategory $faqCategory) {
+            /**
+             * I think we might just want to always update the slugs.
+             */
+            $faqCategory->slug = Str::slug($faqCategory->name);
+        });
+    }
 
     public function faqs(): HasMany
     {
