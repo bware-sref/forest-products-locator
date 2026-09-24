@@ -66,5 +66,42 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perDay(config('geocoding.rate_limits.per_day'))->by($request->ip()),
             ];
         });
+
+        /**
+         * API Requests
+         */
+        RateLimiter::for('api', fn (Request $request) =>
+            [
+                Limit::perMinute(config('rate-limits.api.per_minute'))
+                    ->by($request->ip()),
+                Limit::perDay(config('rate-limits.api.per_day'))
+                    ->by($request->ip()),
+            ]
+        );
+
+        /**
+         * Contact
+         */
+        RateLimiter::for('contact', fn (Request $request) =>
+            [
+                Limit::perMinute(config('rate-limits.contact.per_minute'))
+                    ->by($request->ip()),
+                Limit::perDay(config('rate-limits.contact.per_day'))
+                    ->by($request->ip()),
+            ]
+        );
+
+        /**
+         * Mill Create/Edit
+         */
+        RateLimiter::for('mills', fn (Request $request) =>
+            [
+                Limit::perMinute(config('rate-limits.mills.per_minute'))
+                    ->by($request->ip()),
+                Limit::perDay(config('rate-limits.mills.per_day'))
+                    ->by($request->ip()),
+            ]
+        );
+
     }
 }
