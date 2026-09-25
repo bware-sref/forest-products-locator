@@ -22,7 +22,7 @@ const setCookie = (name: string, value: string, days = 365) => {
 
 const applyTheme = (appearance: Appearance) => {
     if (appearance === 'dark') {
-        console.log(appearance);
+        // console.log(appearance);
     }
     return;
     // const isDark =

@@ -27,9 +27,6 @@ export default function DumpTrunk({ original, submitted, etAl }: DumpTrunkProps)
         // console.log(`helf.${key}`, helf);
         // if original2[key] is NOT not a number
         if (typeof original2[key] === 'number' && typeof submitted2[key] !== 'number') {
-            console.log(`typeof original2[${key}]: ${typeof original2[key]} : (${original2[key]})`);
-            console.log(`typeof submitted2[${key}]: ${typeof submitted2[key]} : (${submitted2[key]})`);
-            console.log(`converting submitted2[${key}] to number: (original2) ${submitted2[key]}`);
             // modifying component props or hook arguments is a TypeScript no-no.
             // the rec is to use a local variable instead...
             submitted2[key] = Number(submitted2[key]);

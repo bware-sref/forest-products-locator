@@ -76,28 +76,12 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
 
     // Type-safe comparison check
     const isChanged = (key: string): boolean => {
-        // changing to non-strict equivalence to allow string/number equivalence
-        // const helf = {
-        //     oog: original2[key],
-        //     og: JSON.stringify(original2[key]),
-        //     nbcbs: JSON.stringify(submitted2[key]),
-        //     onbcbs: submitted2[key],
-        // };
-        // console.log(`helf.${key}`, helf);
         // if original2[key] is NOT not a number
         if (typeof original2[key] === 'number' && typeof submitted2[key] !== 'number') {
-            console.log(`typeof original2[${key}]: ${typeof original2[key]} : (${original2[key]})`);
-            console.log(`typeof submitted2[${key}]: ${typeof submitted2[key]} : (${submitted2[key]})`);
-            console.log(`converting submitted2[${key}] to number: (original2) ${submitted2[key]}`);
             // modifying component props or hook arguments is a TypeScript no-no.
             // the rec is to use a local variable instead...
             submitted2[key] = Number(submitted2[key]);
-        // } else {
-        //     console.log(`original2[${key}] is not a number: typeof ${original2[key]} : ${typeof original2[key]}`);
-            // console.log(`original2[${key}] is NaN? ${Number(original2[key]) + ' vs ' + original2[key]}`);
         }
-        // console.log(`original2[${key}] vs. submitted2[${key}]: ${original2[key]} ?== ${submitted2[key]}`);
-        // console.log(`JSON.stringify(original2[${key}]) vs. JSON.stringify(submitted2[${key}]): ${JSON.stringify(original2[key])} ?== ${JSON.stringify(submitted2[key])}`);
         // when would we actually need stringify?
         return JSON.stringify(original2[key]) != JSON.stringify(submitted2[key]);
     };

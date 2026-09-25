@@ -230,8 +230,6 @@ export default function MillFilters({
     // geolocation properties
     const proximityDisabledReason = GEOLOCATION_DISABLED_REASON[geolocationStatus];
 
-    console.log('millFilters.searchParams: ', searchParams);
-
     return (
         <div data-thing="filter-wrap"
             className={cn("flex w-full flex-row items-stretch max-w-screen lg:max-w-full bg-nature lg:bg-transparent lg:max-h-[80vh] lg:overflow-y-auto z-101", className)}
