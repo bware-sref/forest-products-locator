@@ -214,8 +214,8 @@ source "$CONFIG_FILE"
 # default values for FILE_USER and FILE_GROUP
 # the ssh key for github is set up for ec2-user
 FILE_USER=${FILE_USER:-"ec2-user"}
-# nginx runs as apache on this system
-FILE_GROUP=${FILE_GROUP:-"apache"}
+# nginx runs as nginx on this system
+FILE_GROUP=${FILE_GROUP:-"nginx"}
 
 # releases to keep also has a default!
 RELEASES_TO_KEEP=${RELEASES_TO_KEEP:-3}
