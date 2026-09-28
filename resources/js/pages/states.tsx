@@ -34,12 +34,14 @@ const heroSources = [
 
 export default function States() {
     const page = usePage<{
+        appName: string;
         states: State[];
         pageTitle?: string;
         pageSeo: PageSeoOverride;
     }>();
 
     const states = page.props.states;
+    const appName = page.props.appName;
 
     return (
         <AppLayout>
@@ -53,12 +55,12 @@ export default function States() {
                 alt="Pine trees"
                 sources={heroSources}
             >
-                <div className="flex flex-col gap-12 lg:gap-8 max-w-83.75 lg:max-w-3xl justify-self-center items-center-safe text-white">
-                    <h1 className="text-3xl lg:text-5xl leading-10 font-bold mt-8 mb-6 w-full">
+                <div className="flex flex-col gap-12 lg:gap-8 lg:max-w-3xl justify-self-center items-center-safe text-white my-11 md:pb-10">
+                    <h1 className="text-4xl lg:text-5xl leading-10 font-bold X-mt-8 X-mb-6 w-full">
                         {page.props.pageTitle}
                     </h1>
-                    <p className="text-[18px] lg:text-[22px] leading-8 my-5">
-                        The Primary Forest Products Locator is a tool provided by the <em className="italic">Southern Group of State Foresters</em> to assist buyers in locating primary wood product manufacturing companies.
+                    <p className="text-[20px] lg:text-[22px] leading-8 mt-6">
+                        The <span className="app-name whitespace-nowrap font-bold">{appName}</span> is a tool provided by the <em className="italic">Southern Group of State Foresters</em> to assist buyers in locating primary wood product manufacturing companies.
                     </p>
                 </div>
             </Hero>
