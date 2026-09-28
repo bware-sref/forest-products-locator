@@ -69,7 +69,7 @@ export default function States() {
                 {states.map(state => (
                     <Card
                         key={state.id}
-                        className="w-full border-0 rounded-2xl bg-coupe pt-0 md:w-55 lg:w-70 lg:max-w-70 xl:w-87.5 xl:max-w-95"
+                        className="w-full border-0 rounded-2xl bg-coupe pt-0 md:w-80 lg:w-70 lg:max-w-70 xl:w-87.5 xl:max-w-95"
                     >
                         <CardHeader className="rounded-t-2xl bg-coupe py-4 xl:pt-6 xl:pb-3">
                             <CardTitle className="text-beluga">
