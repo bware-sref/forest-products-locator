@@ -6,36 +6,15 @@ import {
     useState,
     useEffect,
 } from 'react';
-
-type TwoNumbers = [number, number];
-
-type GteLt = TwoNumbers | null | undefined;
-
-// interface Size {
-//     label: string;
-//     lt?: SizeValue;
-//     gte?: SizeValue;
-// }
-// interface SizeValue {
-//     rem: number;
-//     px: number;
-// }
+import {
+    cn
+} from "@/lib/utils";
 
 class SizeValue {
     constructor(
         public rem: number,
         public px: number,
     ){}
-    
-    // static create({
-    //     rem,
-    //     px,
-    // }:{
-    //     rem: number;
-    //     px: number;
-    // }): SizeValue {
-    //     return new SizeValue(rem, px);
-    // }
 }
 class Size {
     private constructor(
@@ -116,6 +95,7 @@ function useViewSize() {
 
         window.addEventListener('resize', handleResize);
 
+        // return a method that removes the event listener
         return () => {
             window.removeEventListener('resize', handleResize);
         }
@@ -131,37 +111,18 @@ export function SizeOMeter() {
     return (
         <div className="font-extrabold flex flex-col text-center items-center justify-center gap-4 bg-green-500 sm:bg-cyan-500 md:bg-blue-500 lg:bg-amber-500 xl:bg-red-500 2xl:bg-purple-500 2xl:text-beluga">
             {sizes.map(v => 
-                <div key={v.label} className={v.className ?? ''}>
-                    {v.label} 
-                    <div>(
-                        {v.gte && (`lower: >=${v.gte?.rem}rem (${v.gte?.px}px)`)}
-                        {v.lt && (` upper: <${v.lt?.rem}rem (${v.lt?.px}px)`)}
-                    )</div>
+                <div key={v.label} className={cn('flex flex-col', v.className ?? '')}>
+                    <span className="text-2xl">{v.label}</span>
+                    <div>
+                        {v.gte && <div>starts: &gt;={v.gte?.rem}rem ({v.gte?.px}px)</div>}
+                        {v.lt && (` ends: <${v.lt?.rem}rem (${v.lt?.px}px)`)}
+                    </div>
                 </div>
             )}
-                {/* <div className="sm:hidden">
-                    Regular (&lt;40rem (640px))
-                </div>
-                <div className="hidden sm:max-md:block">
-                    Small (&gt;=40rem (640px), &lt;48rem (768px))
-                </div>
-                <div className="hidden md:max-lg:block">
-                    Medium (&gt;=48rem (768px), &lt;64rem (1024px))
-                </div>
-                <div className="hidden lg:max-xl:block">
-                    Large 1024
-                    (&gt;=64rem (1024px), &lt;80rem (1280px))
-                </div>
-                <div className="hidden xl:max-2xl:block">
-                    Extra Large 80 1280
-                </div>
-                <div className="hidden 2xl:block text-beluga">
-                    2XL 96 1536
-                </div> */}
-                <div className="flex flex-row gap-4">
-                    <div>Screen: {window.screen.width} x {window.screen.height}</div>
-                    <div> Viewport: {innerWidth} x {innerHeight}</div>
-                </div>
+            <div className="flex flex-row gap-4">
+                <div>Screen: {window.screen.width}px x {window.screen.height}px</div>
+                <div>Viewport: {innerWidth}px x {innerHeight}px</div>
+            </div>
         </div>
     );
 }
