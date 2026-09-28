@@ -74,8 +74,6 @@ export default function Welcome() {
             <Hero
                 src={mobileHero}
                 alt="Lumber"
-                pictureClassName={''}
-                imageClassName={''}
                 sources={heroSources}
             >
                 <div className="flex flex-col gap-12 lg:gap-8 max-w[335px] lg:max-w-3xl justify-self-center-safe items-center-safe text-white Xbg-amber-400 lg:items-start">

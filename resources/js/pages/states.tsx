@@ -22,12 +22,12 @@ import mobileHero2x from '@img/pine-trees_short-780w.jpg';
 
 const heroSources = [
     {
-        srcSet: mobileHero,
-        media: '(max-width: 390px)',
+        srcSet: heroFallback,
+        media: '(min-width: 769px)',
     },
     {
         srcSet: mobileHero2x + ' 2x',
-        media: '(max-width: 768px)',
+        media: '(min-width: 391px)',
     },
 ];
 
@@ -49,9 +49,8 @@ export default function States() {
              * Hero must be in a full-width wrapper.
             */}
             <Hero
-                src={heroFallback}
+                src={mobileHero}
                 alt="Pine trees"
-                pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
                 sources={heroSources}
             >
                 <div className="flex flex-col gap-12 lg:gap-8 max-w-83.75 lg:max-w-3xl justify-self-center items-center-safe text-white">
