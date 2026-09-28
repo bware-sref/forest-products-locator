@@ -199,8 +199,6 @@ export function MillForm({
         }
     }
 
-    console.log('honeypot: ', honeypot);
-
   return (
     <Card className="w-full sm:max-w-md mx-auto">
       <CardHeader>

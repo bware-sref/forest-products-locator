@@ -15,7 +15,6 @@ interface AppLayoutProps {
  * Per InertiaJS docs, it seems like it would be good centralize the toasting flash data
  */
 function handleFlashData(flash: PageFlashData) {
-    console.log("Handling flash data:", flash);
     
     if (flash.success || flash.type === 'success') {
         toast.success(String(flash.message || 'Success!'));

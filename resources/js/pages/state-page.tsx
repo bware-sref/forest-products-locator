@@ -23,8 +23,6 @@ import {
     Phone,
 } from 'lucide-react';
 import heroFallback from '@img/pine-trees_short.jpg';
-import mobileHeroFallback from '@img/pine-trees_short-390w.jpg';
-import mobileHeroFallback2x from '@img/pine-trees_short-780w.jpg';
 
 import { isExternalUrl } from '@/lib/utils';
 
@@ -63,6 +61,8 @@ function ContactPhone({phone, label}: { phone?: string; label?: string;}) {
         </div>
     );
 }
+
+const agencyButtonClassName = "bg-aircraft border-white border rounded-sm hover:bg-white hover:text-aircraft hover:border-aircraft text-lg px-6 py-8 md:py-6 whitespace-normal md:whitespace-nowrap max-w-full";
 
 export default function StatePage() {
     const page = usePage<{
@@ -109,10 +109,7 @@ export default function StatePage() {
         ? [
               { srcSet: storageUrl(statePage.hero_img_mobile), media: '(max-width: 768px)' },
           ]
-        : [
-              { srcSet: mobileHeroFallback, media: '(max-width: 390px)' },
-              { srcSet: mobileHeroFallback2x + ' 2x', media: '(max-width: 768px)' },
-          ];
+        : [];
 
     const overviewImage = storageUrl(overview?.image);
 
@@ -126,14 +123,16 @@ export default function StatePage() {
                     src={heroSrc}
                     alt={state.name}
                     sources={heroSources}
+                    pictureClassName="hidden lg:block lg:max-w-xl"
+                    imageClassName=''
                 >
-                    <div className="flex max-w-83.75 flex-col gap-8 text-white md:max-w-3xl lg:max-w-4xl lg:pt-8">
-                        <h1 className="mb-10 w-full text-3xl leading-11 font-bold md:text-[45px]">
+                    <div className="flex max-w-full flex-col gap-8 text-white md:max-w-3xl lg:max-w-4xl lg:pt-8">
+                        <h1 className="xl:mb-10 w-full text-3xl leading-11 font-bold md:text-[45px]">
                             {statePage?.hero_headline || `${state.name} Forest Products`}
                         </h1>
                         <SafeHtml
                             html={statePage?.hero_copy}
-                            className="flex flex-col gap-3 mt-5 pr-5 text-2xl [&_li]:ml-5 [&_ul]:list-disc"
+                            className="flex flex-col gap-3 lg:mt-5 md:pr-5 text-2xl [&_li]:ml-5 [&_ul]:list-disc"
                         />
                     </div>
                 </HeroSplit>
@@ -199,7 +198,7 @@ export default function StatePage() {
 
             {/* Forest Overview -- optional */}
             {overview && (
-                <section className="w-full bg-nature text-beluga">
+                <section id="forest-overview" className="w-full bg-nature text-beluga">
                     <div className="mx-auto flex w-full max-w-full flex-col gap-8 px-5 py-10 md:w-6xl lg:w-7xl lg:py-16">
                         <div className="flex flex-col items-center gap-8 lg:flex-row">
                             <div className="flex flex-1 flex-col gap-4 md:pr-16 self-start md:max-w-162.5">
@@ -247,7 +246,7 @@ export default function StatePage() {
                                                         />
                                                     )}
                                                     <div>
-                                                        <p className="text-[20px]">{type.title}</p>
+                                                        <p className="text-[20px] font-bold">{type.title}</p>
                                                         {type.description && (
                                                             <p className="text-sm">{type.description}</p>
                                                         )}
@@ -258,7 +257,7 @@ export default function StatePage() {
                                     </div>
                                 )}
                                 {forestProducts.length > 0 && (
-                                    <div className="flex flex-col gap-4 md:pl-6 border-l-2">
+                                    <div className="flex flex-col gap-4 md:pl-6 md:border-l-2">
                                         <h3 className="text-xl font-bold md:text-[36px]">{state.name} Forest Products</h3>
                                         <div className="flex flex-wrap gap-3">
                                             {forestProducts.map(product => (
@@ -312,7 +311,7 @@ export default function StatePage() {
                                 {agency.cta_1_label && agency.cta_1_url && (
                                     <Button
                                         asChild
-                                        className="bg-aircraft border-white border rounded-sm hover:bg-white hover:text-aircraft hover:border-aircraft text-lg p-6"
+                                        className={agencyButtonClassName}
                                     >
                                         <a href={agency.cta_1_url} target="_blank" rel="noreferrer">
                                             {agency.cta_1_label}
@@ -324,7 +323,7 @@ export default function StatePage() {
                                     <Button
                                         asChild
                                         
-                                        className="bg-aircraft border-white border rounded-sm hover:bg-white hover:text-aircraft hover:border-aircraft text-lg p-6"
+                                        className={agencyButtonClassName}
                                     >
                                         <a href={agency.cta_2_url}>
                                             {agency.cta_2_label}
