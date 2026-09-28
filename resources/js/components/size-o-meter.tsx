@@ -114,8 +114,8 @@ export function SizeOMeter() {
                 <div key={v.label} className={cn('flex flex-col', v.className ?? '')}>
                     <span className="text-2xl">{v.label}</span>
                     <div>
-                        {v.gte && <div>starts: &gt;={v.gte?.rem}rem ({v.gte?.px}px)</div>}
-                        {v.lt && (` ends: <${v.lt?.rem}rem (${v.lt?.px}px)`)}
+                        {v.gte && <div>lower bound: &gt;={v.gte?.rem}rem ({v.gte?.px}px)</div>}
+                        {v.lt && (` upper bound: ${v.lt?.rem}rem (${v.lt?.px}px)`)}
                     </div>
                 </div>
             )}
