@@ -128,15 +128,16 @@ export default function StatePage() {
                     src={heroSrc}
                     alt={state.name}
                     sources={heroSources}
-                    pictureClassName="hidden lg:block"
+                    pictureClassName="hidden lg:block lg:max-w-xl"
+                    imageClassName=''
                 >
-                    <div className="flex max-w-83.75 flex-col gap-8 text-white md:max-w-3xl lg:max-w-4xl lg:pt-8">
-                        <h1 className="mb-10 w-full text-3xl leading-11 font-bold md:text-[45px]">
+                    <div className="flex max-w-full flex-col gap-8 text-white md:max-w-3xl lg:max-w-4xl lg:pt-8">
+                        <h1 className="xl:mb-10 w-full text-3xl leading-11 font-bold md:text-[45px]">
                             {statePage?.hero_headline || `${state.name} Forest Products`}
                         </h1>
                         <SafeHtml
                             html={statePage?.hero_copy}
-                            className="flex flex-col gap-3 mt-5 pr-5 text-2xl [&_li]:ml-5 [&_ul]:list-disc"
+                            className="flex flex-col gap-3 lg:mt-5 md:pr-5 text-2xl [&_li]:ml-5 [&_ul]:list-disc"
                         />
                     </div>
                 </HeroSplit>
