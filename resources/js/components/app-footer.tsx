@@ -116,7 +116,7 @@ export function AppFooter() {
                     <NavigationMenu
                         aria-label="Secondary"
                         data-orientation={isMobile ? 'vertical' : 'horizontal'}
-                        className="flex flex-col md:flex-row h-full items-stretch w-full md:w-auto max-w-full py-2 justify-end md:-mr-4"
+                        className="flex flex-col md:flex-row h-full items-stretch w-full md:w-auto max-w-full py-2 lg:justify-end lg:-mr-4"
                     >
                         <NavigationMenuList
                             data-orientation={isMobile ? 'vertical' : 'horizonta'}

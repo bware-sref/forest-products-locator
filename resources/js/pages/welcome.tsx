@@ -21,17 +21,29 @@ import {
 
 const heroSources = [
     {
-        srcSet: mobileHero,
-        media: '(max-width: 390px)',
+        srcSet: heroFallback,
+        media: '(min-width: 769px)',
     },
     {
         srcSet: mobileHero2x + ' 2x',
-        media: '(max-width: 768px)',
+        media: '(min-width: 391px)',
     },
+    // {
+    //     srcSet: mobileHero,
+    //     media: '(max-width: 390px)',
+    // },
+    // {
+    //     srcSet: mobileHero2x + ' 2x',
+    //     media: '(max-width: 768px)',
+    // },
 ];
 
 export default function Welcome() {
-    const page = usePage<{ pageSeo: PageSeoOverride }>();
+    const page = usePage<{
+        appName: string,
+        pageSeo: PageSeoOverride
+     }>();
+    const appName = page.props.appName;
     const cards = [
         {
             title: 'Mill List',
@@ -60,17 +72,21 @@ export default function Welcome() {
              * Hero must be in a full-width wrapper.
             */}
             <Hero
-                src={heroFallback}
+                src={mobileHero}
                 alt="Lumber"
-                pictureClassName={'col-start-1 row-start-1 h-full w-full max-w-full object-cover'}
                 sources={heroSources}
             >
-                <div className="flex flex-col gap-12 lg:gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white">
-                    <h1 className="text-3xl lg:text-5xl leading-10 font-bold my-11 lg:my-6">
-                        Welcome to the Primary Forest Products Locator
+                {/**
+                 * There's a typo in the max-width below.
+                 * Correct canonical class commented out (prefixed with "X-") beside the typo.
+                 * I don't think we need the width contraint on smaller screens.
+                 */}
+                <div className="flex flex-col gap-12 lg:gap-8 lg:max-w-3xl justify-self-center-safe items-center-safe text-white lg:items-start">
+                    <h1 className="text-4xl lg:text-5xl leading-12 font-bold my-11 lg:my-6">
+                        Welcome to the <span className="app-name whitespace-nowrap">{appName}</span>
                     </h1>
-                    <p className="text-[18px] lg:text-[22px] leading-8 my-10 lg:my-5">
-                        The Primary Forest Products Locator is a tool provided by the <em className="italic">Southern Group of State Foresters</em> to assist buyers in locating primary wood product manufacturing companies.
+                    <p className="text-[20px] lg:text-[22px] leading-8 my-10 lg:my-5">
+                        The <span className="app-name">{appName}</span> is a tool provided by the <em className="italic">Southern Group of State Foresters</em> to assist buyers in locating primary wood product manufacturing companies.
                     </p>
                     <Button
                         asChild
