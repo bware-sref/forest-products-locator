@@ -23,8 +23,8 @@ import {
     Phone,
 } from 'lucide-react';
 import heroFallback from '@img/pine-trees_short.jpg';
-import mobileHeroFallback from '@img/pine-trees_short-390w.jpg';
-import mobileHeroFallback2x from '@img/pine-trees_short-780w.jpg';
+// import mobileHeroFallback from '@img/pine-trees_short-390w.jpg';
+// import mobileHeroFallback2x from '@img/pine-trees_short-780w.jpg';
 
 import { isExternalUrl } from '@/lib/utils';
 
@@ -63,6 +63,8 @@ function ContactPhone({phone, label}: { phone?: string; label?: string;}) {
         </div>
     );
 }
+
+const agencyButtonClassName = "bg-aircraft border-white border rounded-sm hover:bg-white hover:text-aircraft hover:border-aircraft text-lg px-6 py-8 md:py-6 whitespace-normal md:whitespace-nowrap max-w-full";
 
 export default function StatePage() {
     const page = usePage<{
@@ -110,8 +112,8 @@ export default function StatePage() {
               { srcSet: storageUrl(statePage.hero_img_mobile), media: '(max-width: 768px)' },
           ]
         : [
-              { srcSet: mobileHeroFallback, media: '(max-width: 390px)' },
-              { srcSet: mobileHeroFallback2x + ' 2x', media: '(max-width: 768px)' },
+            //   { srcSet: mobileHeroFallback, media: '(max-width: 390px)' },
+            //   { srcSet: mobileHeroFallback2x + ' 2x', media: '(max-width: 768px)' },
           ];
 
     const overviewImage = storageUrl(overview?.image);
@@ -126,6 +128,7 @@ export default function StatePage() {
                     src={heroSrc}
                     alt={state.name}
                     sources={heroSources}
+                    pictureClassName="hidden lg:block"
                 >
                     <div className="flex max-w-83.75 flex-col gap-8 text-white md:max-w-3xl lg:max-w-4xl lg:pt-8">
                         <h1 className="mb-10 w-full text-3xl leading-11 font-bold md:text-[45px]">
@@ -312,7 +315,7 @@ export default function StatePage() {
                                 {agency.cta_1_label && agency.cta_1_url && (
                                     <Button
                                         asChild
-                                        className="bg-aircraft border-white border rounded-sm hover:bg-white hover:text-aircraft hover:border-aircraft text-lg p-6"
+                                        className={agencyButtonClassName}
                                     >
                                         <a href={agency.cta_1_url} target="_blank" rel="noreferrer">
                                             {agency.cta_1_label}
@@ -324,7 +327,7 @@ export default function StatePage() {
                                     <Button
                                         asChild
                                         
-                                        className="bg-aircraft border-white border rounded-sm hover:bg-white hover:text-aircraft hover:border-aircraft text-lg p-6"
+                                        className={agencyButtonClassName}
                                     >
                                         <a href={agency.cta_2_url}>
                                             {agency.cta_2_label}
