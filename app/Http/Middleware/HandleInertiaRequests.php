@@ -41,10 +41,13 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // redundancy for disambiguation
+            'appName' => config('app.name'),
 
             'auth' => [
                 'user' => $request->user(),
             ],
+            // sidebar stuff is junk
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'csrf_token' => csrf_token(),
             'env' => config('app.env'),
