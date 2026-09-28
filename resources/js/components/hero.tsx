@@ -18,6 +18,7 @@ import {
 interface HeroProps extends ImgHTMLAttributes<HTMLPictureElement> {
     src: string;
     alt: string;
+    className?: string;
     pictureClassName?: string;
     imageClassName?: string;
     sources?: SourceHTMLAttributes<HTMLSourceElement>[];
@@ -28,6 +29,7 @@ export default function Hero({
     src,
     alt,
     // defaults moved to elements for use with cn()
+    className = '',
     pictureClassName = '',
     imageClassName = '',
     sources = [],
@@ -38,7 +40,7 @@ export default function Hero({
     );
     return (
         // grid-rows-[minmax(0,min-content)] is part of the magic that constrains row height to the content.
-        <div className="hero grid grid-cols-1 grid-rows-[minmax(0,min-content)] w-full max-w-full">
+        <div className={cn('hero', "grid grid-cols-1 grid-rows-[minmax(0,min-content)] w-full max-w-full", className)}>
             {/**
              * Move text content before <picture> so screen readers see it first!
              */}
