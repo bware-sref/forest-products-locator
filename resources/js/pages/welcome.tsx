@@ -31,7 +31,11 @@ const heroSources = [
 ];
 
 export default function Welcome() {
-    const page = usePage<{ pageSeo: PageSeoOverride }>();
+    const page = usePage<{
+        appName: string,
+        pageSeo: PageSeoOverride
+     }>();
+    const appName = page.props.appName;
     const cards = [
         {
             title: 'Mill List',
@@ -67,10 +71,10 @@ export default function Welcome() {
             >
                 <div className="flex flex-col gap-12 lg:gap-8 max-w[335px] lg:max-w-3xl justify-self-center items-center-safe text-white">
                     <h1 className="text-3xl lg:text-5xl leading-10 font-bold my-11 lg:my-6">
-                        Welcome to the Primary Forest Products Locator
+                        Welcome to the <span className="app-name">{appName}</span>
                     </h1>
                     <p className="text-[18px] lg:text-[22px] leading-8 my-10 lg:my-5">
-                        The Primary Forest Products Locator is a tool provided by the <em className="italic">Southern Group of State Foresters</em> to assist buyers in locating primary wood product manufacturing companies.
+                        The <span className="app-name">{appName}</span> is a tool provided by the <em className="italic">Southern Group of State Foresters</em> to assist buyers in locating primary wood product manufacturing companies.
                     </p>
                     <Button
                         asChild
