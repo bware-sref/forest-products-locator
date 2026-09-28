@@ -23,8 +23,6 @@ import {
     Phone,
 } from 'lucide-react';
 import heroFallback from '@img/pine-trees_short.jpg';
-// import mobileHeroFallback from '@img/pine-trees_short-390w.jpg';
-// import mobileHeroFallback2x from '@img/pine-trees_short-780w.jpg';
 
 import { isExternalUrl } from '@/lib/utils';
 
@@ -111,10 +109,7 @@ export default function StatePage() {
         ? [
               { srcSet: storageUrl(statePage.hero_img_mobile), media: '(max-width: 768px)' },
           ]
-        : [
-            //   { srcSet: mobileHeroFallback, media: '(max-width: 390px)' },
-            //   { srcSet: mobileHeroFallback2x + ' 2x', media: '(max-width: 768px)' },
-          ];
+        : [];
 
     const overviewImage = storageUrl(overview?.image);
 
