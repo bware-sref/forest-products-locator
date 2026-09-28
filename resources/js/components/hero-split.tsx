@@ -1,4 +1,11 @@
-import React, { ImgHTMLAttributes, ReactNode, SourceHTMLAttributes } from 'react';
+import React, {
+    ImgHTMLAttributes,
+    ReactNode,
+    SourceHTMLAttributes,
+} from 'react';
+import {
+    cn
+} from "@/lib/utils";
 
 interface HeroSplitProps extends ImgHTMLAttributes<HTMLPictureElement> {
     src: string;
@@ -32,10 +39,10 @@ export default function HeroSplit({
     return (
         <div className="hero-split flex w-full max-w-full flex-col mx-auto py-5 md:w-6xl lg:w-7xl lg:flex-row lg:items-stretch lg:overflow-x-clip xl:overflow-visible">
             <picture
-                className={`order-1 md:-mr-20 md:min-w-200 md:min-h-125 lg:order-2 lg:aspect-auto lg:flex-1 lg:overflow-x-clip lg:max-w-175 ${pictureClassName}`}
+                className={cn('order-1 md:-mr-20 md:min-w-200 md:min-h-125 lg:order-2 lg:aspect-auto lg:flex-1 lg:overflow-x-clip lg:max-w-175', pictureClassName)}
             >
                 {sourceList}
-                <img src={src} alt={alt} className={imageClassName} />
+                <img src={src} alt={alt} className={cn('w-full h-full object-cover lg:max-w-175', imageClassName)} />
             </picture>
             <div className="hero-split-content order-2 flex w-full flex-col lg:order-1 lg:flex-1">
                 <div className="hero-split-content__inner mx-auto flex h-full w-full max-w-3xl flex-col items-start justify-between gap-8 p-5 md:pr-0 lg:max-w-none">
