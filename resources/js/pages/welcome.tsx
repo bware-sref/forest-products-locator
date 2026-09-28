@@ -76,7 +76,12 @@ export default function Welcome() {
                 alt="Lumber"
                 sources={heroSources}
             >
-                <div className="flex flex-col gap-12 lg:gap-8 max-w[335px] lg:max-w-3xl justify-self-center-safe items-center-safe text-white Xbg-amber-400 lg:items-start">
+                {/**
+                 * There's a typo in the max-width below.
+                 * Correct canonical class commented out (prefixed with "X-") beside the typo.
+                 * I don't think we need the width contraint on smaller screens.
+                 */}
+                <div className="flex flex-col gap-12 lg:gap-8 lg:max-w-3xl justify-self-center-safe items-center-safe text-white lg:items-start">
                     <h1 className="text-4xl lg:text-5xl leading-12 font-bold my-11 lg:my-6">
                         Welcome to the <span className="app-name whitespace-nowrap">{appName}</span>
                     </h1>
