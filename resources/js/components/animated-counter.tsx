@@ -1,4 +1,5 @@
 import React, {
+    useCallback,
     useEffect,
     useRef,
     useState
@@ -24,38 +25,7 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   const hasAnimated = useRef<boolean>(false);  
   const numDecimals = countDecimals(targetNumber);
 
-  useEffect(() => {
-    const observerOptions = {
-      root: null, // uses the viewport
-      rootMargin: '0px',
-      threshold: 0.1, // triggers when 10% of the element is visible
-    };
-
-    const observer = new IntersectionObserver(([entry]) => {
-      // Trigger only once when it intersects the viewport
-      if (entry.isIntersecting && !hasAnimated.current) {
-        hasAnimated.current = true;
-        animateNumber();
-        // Optional: stop observing once animation triggers
-        if (elementRef.current) {
-          observer.unobserve(elementRef.current);
-        }
-      }
-    }, observerOptions);
-
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
-    }
-
-    // Clean up observer on component unmount
-    return () => {
-      if (elementRef.current) {
-        observer.disconnect();
-      }
-    };
-  }, [targetNumber, duration]);
-
-  const animateNumber = () => {
+  const animateNumber = useCallback(() => {
     let startTimestamp: number | null = null;
     const startValue = 0;
     const step = (timestamp: number) => {
@@ -76,7 +46,40 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
     };
 
     window.requestAnimationFrame(step);
-  };
+  }, [targetNumber, numDecimals, duration]);
+
+  useEffect(() => {
+    const observerOptions = {
+      root: null, // uses the viewport
+      rootMargin: '0px',
+      threshold: 0.1, // triggers when 10% of the element is visible
+    };
+
+    const elRef = elementRef;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      // Trigger only once when it intersects the viewport
+      if (entry.isIntersecting && !hasAnimated.current) {
+        hasAnimated.current = true;
+        animateNumber();
+        // Optional: stop observing once animation triggers
+        if (elementRef.current) {
+          observer.unobserve(elementRef.current);
+        }
+      }
+    }, observerOptions);
+
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+
+    // Clean up observer on component unmount
+    return () => {
+      if (elRef.current) {
+        observer.disconnect();
+      }
+    };
+  }, [targetNumber, duration, animateNumber]);
 
   return (
     <span ref={elementRef} className={className}>
