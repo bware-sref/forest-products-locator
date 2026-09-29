@@ -45,13 +45,16 @@ export function isExternalUrl(
 }
 
 export function splitOnNumber(text : string = '') {
+    const value = text ?? '';
+
     // matches negatives and floats with a non-capture group for the mentissa
     const numberRegEx = new RegExp(/(-?\d+(?:,\d{3})*(?:\.\d+)?)/);
-    const parts = text.split(numberRegEx);
+    // const parts = text.split(numberRegEx);
+    const parts = value.split(numberRegEx);
     if (parts.length < 3) {
         // that's not right...
         return {
-            start: text,
+            start: value,
             number: undefined,
             end: undefined,
         };
