@@ -24,7 +24,14 @@ import {
 } from 'lucide-react';
 import heroFallback from '@img/pine-trees_short.jpg';
 
-import { isExternalUrl } from '@/lib/utils';
+import { 
+    isExternalUrl,
+    splitOnNumber,
+ } from '@/lib/utils';
+
+import {
+    AnimatedCounter
+} from "@/components/animated-counter";
 
 /** Backpack's upload field stores a path relative to the public disk. */
 function storageUrl(path?: string | null): string | undefined {
@@ -86,20 +93,33 @@ export default function StatePage() {
 
     const overviewStats = overview
         ? ([
-              [overview.stat_1_label, overview.stat_1_value],
-              [overview.stat_2_label, overview.stat_2_value],
-              [overview.stat_3_label, overview.stat_3_value],
-              [overview.stat_4_label, overview.stat_4_value],
+              [overview.stat_1_label, splitOnNumber(overview.stat_1_value as string)],
+              [overview.stat_2_label, splitOnNumber(overview.stat_2_value as string)],
+              [overview.stat_3_label, splitOnNumber(overview.stat_3_value as string)],
+              [overview.stat_4_label, splitOnNumber(overview.stat_4_value as string)],
+            //   [overview.stat_1_label, overview.stat_1_value],
+            //   [overview.stat_2_label, overview.stat_2_value],
+            //   [overview.stat_3_label, overview.stat_3_value],
+            //   [overview.stat_4_label, overview.stat_4_value],
           ] as const).filter(([label, value]) => label && value)
         : [];
+    // console.log('overview: ', overview);
+    // console.log('overviewStats: ', overviewStats);
 
     const impactStats = impact
         ? ([
-              [impact.stat_1_label, impact.stat_1_value],
-              [impact.stat_2_label, impact.stat_2_value],
-              [impact.stat_3_label, impact.stat_3_value],
+              [impact.stat_1_label, splitOnNumber(impact.stat_1_value as string)],
+              [impact.stat_2_label, splitOnNumber(impact.stat_2_value as string)],
+              [impact.stat_3_label, splitOnNumber(impact.stat_3_value as string)],
+              [impact.stat_4_label, splitOnNumber(impact.stat_4_value as string)],
+            //   [impact.stat_1_label, impact.stat_1_value],
+            //   [impact.stat_2_label, impact.stat_2_value],
+            //   [impact.stat_3_label, impact.stat_3_value],
           ] as const).filter(([label, value]) => label && value)
         : [];
+
+    // console.log('impact: ', impact);
+    // console.log('impactStats: ', impactStats);
 
     // hero_img_dt/hero_img_mobile mirror <Hero>'s src/sources art-direction
     // shape directly; fall back to the site's bundled forest photo until a
@@ -211,7 +231,11 @@ export default function StatePage() {
                                         {overviewStats.map(([label, value], i) => (
                                             <div key={i} className="rounded-lg border border-beluga p-3">
                                                 <p className="text-xs tracking-wide">{label}</p>
-                                                <p className="text-3xl font-bold">{value}</p>
+                                                <p className="text-3xl font-bold">
+                                                    {value.start}
+                                                    <AnimatedCounter targetNumber={parseFloat(value.number ?? '')} />
+                                                    {value.end}
+                                                </p>
                                             </div>
                                         ))}
                                     </div>
@@ -288,8 +312,13 @@ export default function StatePage() {
                             {impactStats.map(([label, value], i) => (
                                 <Card key={i} className="max-w-full flex-1 items-center py-8 md:max-w-75 border-coupe border-2">
                                     <CardContent className="w-full">
-                                        <p className="text-[42px] font-extrabold">{value}</p>
-                                        <p className="mt-2 text-[20px]">{label}</p>
+                                        <p className="text-[42px] font-extrabold">
+                                            {value.start}
+                                            {/* {value.number} */}
+                                            <AnimatedCounter targetNumber={parseFloat(value.number || '')} />
+                                            {value.end}
+                                        </p>
+                                        <p className="mt-2 text-[20px]">{label as string}</p>
                                     </CardContent>
                                 </Card>
                             ))}
