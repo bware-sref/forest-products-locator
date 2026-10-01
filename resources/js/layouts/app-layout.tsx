@@ -27,13 +27,18 @@ function handleFlashData(flash: PageFlashData) {
     // we can add more types of flash messages here as needed
 }
 
-export default ({ children, breadcrumbs, flash, ...props }: AppLayoutProps) => (
-    <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
-        {children}
-        <Toaster />        
-        <>
-            {/** wrap flash data handling in a fragment */}
-            {flash && handleFlashData(flash)}
-        </>
-    </AppLayoutTemplate>
-);
+// fast refresh hates anonymous components
+// export default ({ children, breadcrumbs, flash, ...props }: AppLayoutProps) => (
+export default function AppLayout ({ children, breadcrumbs, flash, ...props }: AppLayoutProps) { // => (
+    return (
+        <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
+            {children}
+            <Toaster />        
+            <>
+                {/** wrap flash data handling in a fragment */}
+                {flash && handleFlashData(flash)}
+            </>
+        </AppLayoutTemplate>
+    );
+}
+// );

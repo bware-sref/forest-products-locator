@@ -23,7 +23,11 @@ export default defineConfig({
         tsConfigPaths(),
         ViteImageOptimizer({
             cache: true,
-            jpeg: { quality: 60 },
+            jpeg: {
+                quality: 72,
+                progressive: false,
+                chromaSubsampling: '4:2:0',
+            },
             png: { quality: 80 },
         }),
         wayfinder({
@@ -53,6 +57,7 @@ export default defineConfig({
                 }
             }
         },
+        sourcemap: false, // disable production sourcemaps
     },
     // ignore AI assistant and IDE helper files
     server: {

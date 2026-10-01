@@ -3,8 +3,10 @@ import {
     NavigationMenu,
     NavigationMenuItem,
     NavigationMenuList,
-    navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import {
+    navigationMenuTriggerStyle,
+} from "@/cva/navigation-menu.variants";
 import {
     cn,
     isSameUrl,

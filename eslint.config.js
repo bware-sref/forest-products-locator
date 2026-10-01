@@ -4,6 +4,7 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import typescript from 'typescript-eslint';
+import { reactRefresh } from 'eslint-plugin-react-refresh';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -18,10 +19,19 @@ export default [
                 ...globals.browser,
             },
         },
+        plugins: {
+            'react-refresh': reactRefresh.plugin,
+        },
         rules: {
             'react/react-in-jsx-scope': 'off',
             'react/prop-types': 'off',
             'react/no-unescaped-entities': 'off',
+            'react-refresh/only-export-components': [
+                'warn',
+                {
+                    allowConstantExport: true,
+                }
+            ],
         },
         settings: {
             react: {
