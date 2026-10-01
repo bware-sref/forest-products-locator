@@ -33,6 +33,8 @@ import type {
     LocateOptions,
     LocationEvent,
     Marker,
+    // I don't know what to do about this.
+    // The editor flags it as an error, but it seems to work...
     MarkerCluster,
     PointExpression,
     Polygon,
@@ -42,8 +44,13 @@ import type {
     TileLayer,
     Tooltip,
 } from "leaflet"
+// import MarkerClusterGroup from "react-leaflet-markercluster"
+// import MarkerClusterGroup from "react-leaflet-cluster"
 import "leaflet-draw/dist/leaflet.draw.css"
 import "leaflet/dist/leaflet.css"
+// for react-leaflet-cluster (as opposed react-leaflet-markercluster)
+import "react-leaflet-cluster/dist/assets/MarkerCluster.css"
+import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css"
 import {
     CircleIcon,
     LayersIcon,
@@ -95,9 +102,13 @@ import {
     // have to import WMSTileLayer and ...Props from React Leaflet to 
     type WMSTileLayerProps,
 } from "react-leaflet"
-import type { MarkerClusterGroupProps } from "react-leaflet-markercluster"
+// import type { MarkerClusterGroupProps } from "react-leaflet-markercluster"
+import type { MarkerClusterGroupProps } from "@/types";
 // so weird; the line below is flagged as an error, but without it, the markerclusters don't get styled.
-import "react-leaflet-markercluster/styles"
+// import "react-leaflet-markercluster/styles"
+import {
+    useLeaflet,
+} from "@/hooks/use-leaflet";
 
 // BEGIN dynamic imports
 /*
@@ -582,6 +593,7 @@ function MapMarkerClusterGroup({
     },
     icon,
     ...props
+// }: Omit<MarkerClusterGroupProps, "iconCreateFunction"> & {
 }: Omit<MarkerClusterGroupProps, "iconCreateFunction"> & {
     children: ReactNode
     icon?: (markerCount: number) => ReactNode
@@ -1389,36 +1401,39 @@ function useMapDrawHandleIcon() {
 // BTW, the main difference seems to be that the React version uses import() instead of require().
 // Additionally, import() employs callbacks to invoke setL() and setLeafDraw().
 // I'm just going to make the change below and comment out the old lines instead of duplicating the entire function
-function useLeaflet() {
-    const [L, setL] = useState<typeof import("leaflet") | null>(null)
-    const [LeafletDraw, setLeafletDraw] = useState<
-        typeof import("leaflet-draw") | null
-    >(null)
 
-    useEffect(() => {
-        if (L && LeafletDraw) return
-        if (typeof window !== "undefined") {
-            if (!L) {
-                // default, nextJS version
-                // setL(require("leaflet"))
-                // React version
-                import("leaflet").then((module) => {
-                    setL(module)
-                })
-            }
-            if (!LeafletDraw) {
-                // default, nextJS version
-                // setLeafletDraw(require("leaflet-draw"))
-                // React version
-                import("leaflet-draw").then((module) => {
-                    setLeafletDraw(module)
-                })
-            }
-        }
-    }, [L, LeafletDraw])
+// 2026-09-29: exporting anything except components from a tsx file violates eslint-plugin-react-refresh
+// useLeaflet() is a hook, so it needs to be moved to a ts file
+// function useLeaflet() {
+//     const [L, setL] = useState<typeof import("leaflet") | null>(null)
+//     const [LeafletDraw, setLeafletDraw] = useState<
+//         typeof import("leaflet-draw") | null
+//     >(null)
 
-    return { L, LeafletDraw }
-}
+//     useEffect(() => {
+//         if (L && LeafletDraw) return
+//         if (typeof window !== "undefined") {
+//             if (!L) {
+//                 // default, nextJS version
+//                 // setL(require("leaflet"))
+//                 // React version
+//                 import("leaflet").then((module) => {
+//                     setL(module)
+//                 })
+//             }
+//             if (!LeafletDraw) {
+//                 // default, nextJS version
+//                 // setLeafletDraw(require("leaflet-draw"))
+//                 // React version
+//                 import("leaflet-draw").then((module) => {
+//                     setLeafletDraw(module)
+//                 })
+//             }
+//         }
+//     }, [L, LeafletDraw])
+
+//     return { L, LeafletDraw }
+// }
 
 
 function useDebounceLoadingState(delay = 200) {
@@ -1553,6 +1568,7 @@ export {
     MapTileLayer,
     MapTooltip,
     MapZoomControl,
-    useLeaflet,
+    // to comply with only export components
+    // useLeaflet,
     MapWMSTileLayer,
 }
