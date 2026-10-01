@@ -1,5 +1,7 @@
 <?php
 
+use app\Http\Middleware\BackpackAuthenticateSession;
+
 return [
 
     /*
@@ -112,7 +114,16 @@ return [
     'middleware_class' => [
         App\Http\Middleware\CheckIfAdmin::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \Backpack\CRUD\app\Http\Middleware\AuthenticateSession::class,
+        /**
+         * @TODO: check for updates to Backpack!!!
+         * 2026-09-30: Backpack's extension of AuthenticateSession started breaking login.
+         * Not sure when it started, but Laravel recently changed how it handles hasing passwords
+         * in session data.
+         * Backpack hasn't caught up yet, so we comment out AuthenticateSession.
+         * And/or we can patch the class ourselves instead of waiting.
+         */
+        App\Http\Middleware\BackpackAuthenticateSession::class,
+        // \Backpack\CRUD\app\Http\Middleware\AuthenticateSession::class,
         // \Backpack\CRUD\app\Http\Middleware\UseBackpackAuthGuardInsteadOfDefaultAuthGuard::class,
     ],
 
