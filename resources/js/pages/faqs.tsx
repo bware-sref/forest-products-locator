@@ -2,6 +2,9 @@ import AppLayout from '@/layouts/app-layout';
 import { type PageSeoOverride, type IFaqCategory } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Seo } from '@/components/seo';
+import {
+    SafeHtml
+} from "@/components/safe-html"
 
 export default function Faqs() {
     const page = usePage<{
@@ -31,7 +34,10 @@ export default function Faqs() {
                                             className="odd:bg-lorne even:bg-coupe p-4"
                                         >
                                             <div className="question mb-2">{faq.question}</div>
-                                            <div className="answer">{faq.answer}</div>
+                                            <SafeHtml 
+                                                html={faq.answer}
+                                                className="answer"
+                                            />
                                         </li>
                                     ))}
                                 </ul>
