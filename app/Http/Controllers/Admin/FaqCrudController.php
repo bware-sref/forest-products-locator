@@ -103,6 +103,10 @@ class FaqCrudController extends CrudController
             //     'placeholder' => 'Leave blank to create Slug from Question'
             // ]);
 
+        CRUD::field('answer')
+            ->label('Answer')
+            ->type('ckeditor');
+
         CRUD::field('faq_category_id')
             ->label('Category')
             ->type('select')
@@ -115,6 +119,8 @@ class FaqCrudController extends CrudController
         CRUD::field('order')
             ->label('Sort Weight')
             ->type('number');
+
+        Widget::add()->type('script')->content(asset('assets/js/admin/forms/faqs.js'));            
     }
 
     /**
