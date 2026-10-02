@@ -1,5 +1,4 @@
 import AppLayout from '@/layouts/app-layout';
-import DOMPurify from 'isomorphic-dompurify';
 import {
     type PageSeoOverride,
     SeoDefaults,
@@ -32,6 +31,10 @@ import {
 import {
     AnimatedCounter
 } from "@/components/animated-counter";
+import {
+    SafeHtml
+} from "@/components/safe-html";
+
 
 /** Backpack's upload field stores a path relative to the public disk. */
 function storageUrl(path?: string | null): string | undefined {
@@ -39,16 +42,6 @@ function storageUrl(path?: string | null): string | undefined {
     return path.startsWith('http') || path.startsWith('/') ? path : `/storage/${path}`;
 }
 
-/** CKEditor fields store HTML; sanitize before rendering. */
-function SafeHtml({ html, className }: { html?: string; className?: string }) {
-    if (!html) return null;
-    return (
-        <div
-            className={className}
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
-        />
-    );
-}
 
 // helper to make displaying phone number with label simpler
 function ContactPhone({phone, label}: { phone?: string; label?: string;}) {
