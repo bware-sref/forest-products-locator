@@ -37,7 +37,13 @@ class PermissionSeeder extends Seeder
         $json = File::get(database_path('data/permissions.json'));
         $data = json_decode($json, true);
 
+        /**
+         * Make sure we use the correct guard.
+         */
+        $guard = function_exists('backpack_guard_name') ? backpack_guard_name() : config('auth.defaults.guard');
+
         foreach ($data as $permission) {
+            $permission['guard_name'] = $guard;
             $permission['created_at'] = now();
             $permission['updated_at'] = now();
             DB::table('permissions')->updateOrInsert(
