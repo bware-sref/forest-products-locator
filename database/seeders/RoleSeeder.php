@@ -21,8 +21,11 @@ class RoleSeeder extends Seeder
 
         /**
          * Make sure we're using the correct guard.
+         * FFS, changing the guard to backpack broke a lot of stuff.
+         * We should just use whatever has been configured to be the default.
          */
-        $guard = function_exists('backpack_guard_name') ? backpack_guard_name() : config('auth.defaults.guard');
+        // $guard = function_exists('backpack_guard_name') ? backpack_guard_name() : config('auth.defaults.guard');
+        $guard = config('auth.defaults.guard');
 
         foreach ($data as $role) {
             $role['guard_name'] = $guard;

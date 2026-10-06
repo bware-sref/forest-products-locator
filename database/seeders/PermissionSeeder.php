@@ -39,8 +39,11 @@ class PermissionSeeder extends Seeder
 
         /**
          * Make sure we use the correct guard.
+         * Changing the guard to backpack broke a lot of stuff.
+         * We should just use whatever has been configured to be the default.
          */
-        $guard = function_exists('backpack_guard_name') ? backpack_guard_name() : config('auth.defaults.guard');
+        // $guard = function_exists('backpack_guard_name') ? backpack_guard_name() : config('auth.defaults.guard');
+        $guard = config('auth.defaults.guard');
 
         foreach ($data as $permission) {
             $permission['guard_name'] = $guard;
