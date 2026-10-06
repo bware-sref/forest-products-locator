@@ -139,7 +139,25 @@ trait MillImportOperation
      */
     protected function setupImportDefaults(): void
     {
+        /**
+         * allowAcces() below is what allows everyone to see the button!
+         * We need to limit to users who can('mills.import').
+         */
+        $user = backpack_user();
+        if (! $user->can('mills.import')) {
+            Log::debug("\n".self::class."::setupImportDefaults():\nuser cannot mills.import");
+            /**
+             * Do we want to deny any access before returning?
+             * Maybe?
+             */
+            CRUD::denyAccess('import');
+            return;
+        }
+        /**
+         * Does putting this below the above prevent it executing?
+         */
         CRUD::allowAccess('import');
+
         CRUD::enableGroupedErrors();
         // CRUD::operation('import', function () {
         //     CRUD::loadDefaultOperationSettingsFromConfig();
@@ -153,6 +171,7 @@ trait MillImportOperation
 
         /**
          * Just to be clear, this hooks into the CrudController::list() method for the current Controller, e.g., MillCrudController.
+         * @TODO: the import button should only display for users which have mills.import permission!
          */
         LifecycleHook::hookInto('list:before_setup', function () {
             CRUD::addButton('top', 'import', 'view', 'import-operation::buttons.import_button');
