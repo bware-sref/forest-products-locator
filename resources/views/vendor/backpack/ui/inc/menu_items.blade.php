@@ -6,19 +6,28 @@
     <x-backpack::menu-dropdown-item title="Mill Edits" icon="la la-edit" :link="backpack_url('mill-edits')" />
     <x-backpack::menu-dropdown-item title="Mill Types" icon="la la-keyboard" :link="backpack_url('mill-type')" />
     <x-backpack::menu-dropdown-item title="Wood Species" icon="la la-tree" :link="backpack_url('wood-species')" />
-    <x-backpack::menu-dropdown-item title="Import" icon="la la-tree" :link="backpack_url('mill/import')" />
+    @if(backpack_user()->can('mills.import'))
+        <x-backpack::menu-dropdown-item title="Import" icon="la la-tree" :link="backpack_url('mill/import')" />
+    @endif
 </x-backpack::menu-dropdown>
+@if(backpack_user()->canAny(['states.see', 'states.edit', 'counties.see', 'counties.edit']))
 <x-backpack::menu-dropdown title="States" icon="la la-landmark"> 
-    <x-backpack::menu-dropdown-item title="States" icon="la la-flag-usa" :link="backpack_url('state')" />
-    <x-backpack::menu-dropdown-item title="Counties" icon="la la-hotdog" :link="backpack_url('county')" />
+    @if(backpack_user()->canAny(['states.see', 'states.edit',]))
+        <x-backpack::menu-dropdown-item title="States" icon="la la-flag-usa" :link="backpack_url('state')" />
+    @endif
+    @if(backpack_user()->canAny(['counties.see', 'counties.edit']))
+        <x-backpack::menu-dropdown-item title="Counties" icon="la la-hotdog" :link="backpack_url('county')" />
+    @endif
     @if(false)
     {{-- Agents and State Resources are legacy --}}
     <x-backpack::menu-dropdown-item title="Agents" icon="la la-question" :link="backpack_url('agent')" />
     <x-backpack::menu-dropdown-item title="State Resources" icon="la la-boxes" :link="backpack_url('state-resource')" />
     @endif
 </x-backpack::menu-dropdown>
+@endif
 @if(backpack_user()->canAny(['state_pages.see', 'state_pages.edit']))
 <x-backpack::menu-dropdown title="State Pages" icon="la la-file-alt">
+    
     <x-backpack::menu-dropdown-item title="Hero / Page Content" icon="la la-heading" :link="backpack_url('state-page')" />
     <x-backpack::menu-dropdown-item title="Contacts" icon="la la-address-card" :link="backpack_url('state-contact')" />
     <x-backpack::menu-dropdown-item title="Forest Overview" icon="la la-tree" :link="backpack_url('state-forest-overview')" />
