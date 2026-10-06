@@ -10,11 +10,12 @@
 </x-backpack::menu-dropdown>
 <x-backpack::menu-dropdown title="States" icon="la la-landmark"> 
     <x-backpack::menu-dropdown-item title="States" icon="la la-flag-usa" :link="backpack_url('state')" />
-    @if(false)
-    <x-backpack::menu-dropdown-item title="Agents" icon="la la-question" :link="backpack_url('agent')" />
-    @endif
     <x-backpack::menu-dropdown-item title="Counties" icon="la la-hotdog" :link="backpack_url('county')" />
+    @if(false)
+    {{-- Agents and State Resources are legacy --}}
+    <x-backpack::menu-dropdown-item title="Agents" icon="la la-question" :link="backpack_url('agent')" />
     <x-backpack::menu-dropdown-item title="State Resources" icon="la la-boxes" :link="backpack_url('state-resource')" />
+    @endif
 </x-backpack::menu-dropdown>
 @if(backpack_user()->canAny(['state_pages.see', 'state_pages.edit']))
 <x-backpack::menu-dropdown title="State Pages" icon="la la-file-alt">
