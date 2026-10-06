@@ -63,8 +63,12 @@ class MillCrudController extends CrudController
         /**
          * DIY filter
          * This might end up conflicting with the state agent filter.
+         * Maybe so.
+         * However, if the user is a state agent, we don't need to filter by State 
          */
-        $this->doFilterByState();
+        if (! $user->isStateAgent()) {
+            $this->doFilterByState();
+        }
 
         /**
          * Filter by state if $user has a state_id and isStateAgent()
