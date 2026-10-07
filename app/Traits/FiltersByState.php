@@ -157,6 +157,11 @@ trait FiltersByState
             // return;
         }
 
+        /**
+         * Doh!
+         * Turns out this gets added to every crud controller that uses FiltersByState...
+         * Not the worst thing, but that might merit renaming the JS file.
+         */
         Widget::add()
             ->type('script')
             ->content(asset('assets/js/admin/forms/mill-list.js'));
