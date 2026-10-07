@@ -51,6 +51,12 @@ trait MillImportOperation
     protected function setupImportRoutes(string $segment, string $routeName, string $controller): void
     {
         /**
+         * Do we need to set up the import routes if the user cannot import?
+         * Well, that would be nice except apparently the
+         * user isn't defined yet so we can't do that.
+         */
+
+        /**
          * Step 1
          * Displays the "SelectFile" screen
          * Note that 'uses' points to the 'selectFile' method that this trait adds to the current CrudController.
@@ -145,7 +151,7 @@ trait MillImportOperation
          */
         $user = backpack_user();
         if (! $user->can('mills.import')) {
-            Log::debug("\n".self::class."::setupImportDefaults():\nuser cannot mills.import");
+            // Log::debug("\n".self::class."::setupImportDefaults():\nuser cannot mills.import");
             /**
              * Do we want to deny any access before returning?
              * Maybe?
