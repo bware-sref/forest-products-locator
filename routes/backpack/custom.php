@@ -27,10 +27,13 @@ Route::group([
     Route::crud('wood-species', 'WoodSpeciesCrudController');
     Route::crud('faq-category', 'FaqCategoryCrudController');
     Route::crud('faq', 'FaqCrudController');
-    Route::get('statistics', 'StatisticsController@index')->name('page.statistics.index');
-    Route::get('statistics/updated', 'StatisticsController@updated')->name('page.statistics.updated');
-    Route::get('statistics/additions', 'StatisticsController@additions')->name('page.statistics.additions');
-    Route::crud('state-resource', 'StateResourceCrudController');
+    Route::get('statistics', 'StatisticsController@index')
+        ->name('page.statistics.index');
+    Route::get('statistics/updated', 'StatisticsController@updated')
+        ->name('page.statistics.updated');
+    Route::get('statistics/additions', 'StatisticsController@additions')
+        ->name('page.statistics.additions');
+    // Route::crud('state-resource', 'StateResourceCrudController');
     Route::crud('page-seo', 'PageSeoCrudController');
     Route::crud('state-page', 'StatePageCrudController');
     Route::crud('state-contact', 'StateContactCrudController');
