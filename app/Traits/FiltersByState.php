@@ -19,9 +19,16 @@ trait FiltersByState
      * Adds a State filter to Backpack CRUD list pages.
      * Hmm...we may want to add a check to be sure we're on a list page.
      * We could add that check to addStateFilterWidget().
+     * Do we ever pass anything to this method or are we just following a pattern?
      */
     public function doFilterByState(?callable $fn = null): void
     {
+        if (backpack_user()->isStateAgent()) {
+            Log::debug("\n".self::class."::doFilterByState(): doing for a StateAgent!");
+            self::doFilterForAgent($fn);
+            return;
+        }
+
         // add widget first so we can do if without else
         $this->addStateFilterWidget();
 
@@ -32,6 +39,7 @@ trait FiltersByState
          * That also reduces nesting.
          */
         if (! $this->shouldApplyStateFilter()) {
+            Log::debug("\n".self::class."::doFilterByState()");
             return;
         }
 
@@ -80,6 +88,10 @@ trait FiltersByState
      */
     public function shouldApplyStateFilter(): bool
     {
+        /**
+         * If the filter value is NOT empty, we should apply the filter?
+         * I thought originally we only applied the filter when it was empty.
+         */
         return ! empty($this->getStateFilterValue());
     }
 
@@ -89,6 +101,11 @@ trait FiltersByState
     public function getStateFilterValue(): ?int
     {
         return $this->crud->getRequest()->input(self::STATE_FILTER_KEY, null);
+    }
+
+    public function hasStateFilterValue(): bool
+    {
+        return ! empty(self::getStateFilterValue());
     }
 
     /**
@@ -112,6 +129,50 @@ trait FiltersByState
      */
     public function applyStateFilterQuery(Builder $query): Builder
     {
+        /**
+         * See this gets the stateFilterValue() from the request.
+         */
         return $this->crud->addClause('where', self::STATE_FILTER_KEY, $this->getStateFilterValue());
+    }
+
+    public function doFilterForAgent(?callable $fn = null): void
+    {
+        /**
+         * Double check that the user is a state agent because this is a public method.
+         */
+        $user = backpack_user();
+        if (! $user->isStateAgent()) {
+            return;
+        }
+
+        /**
+         * If there's already a state filter value, bail.
+         * Or should we?
+         * StateAgent should not care if there's already a filter value, they should always only see stuff from their state.
+         */
+        if (self::hasStateFilterValue()) {
+            Log::warning("\n".self::class."::doFilterForAgent():\n request already has a StateFilter value?!?", [
+                "\nstateFilterValue:\n" => self::getStateFilterValue(),
+            ]);
+            // return;
+        }
+
+        Widget::add()
+            ->type('script')
+            ->content(asset('assets/js/admin/forms/mill-list.js'));
+
+
+        /**
+         * If we received a Closure, apply it and return.
+         */
+        if ($fn instanceof \Closure) {
+            $this->crud->addClause($fn);
+            return;
+        }
+
+        /**
+         * After all this, apply the clause to the query.
+         */
+        $this->crud->addClause('whereIn', 'state_id', [$user->state_id]);
     }
 }
