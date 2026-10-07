@@ -35,7 +35,7 @@ class CountyCrudController extends CrudController
         CRUD::setRoute(config('backpack.base.route_prefix') . '/county');
         CRUD::setEntityNameStrings('county', 'counties');
 
-        // $this->setAccessUsingPermissions();
+        $this->setAccessUsingPermissions();
     }
 
     /**
