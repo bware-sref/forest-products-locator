@@ -149,16 +149,16 @@ trait MillImportOperation
          * allowAcces() below is what allows everyone to see the button!
          * We need to limit to users who can('mills.import').
          */
-        $user = backpack_user();
-        if (! $user->can('mills.import')) {
-            // Log::debug("\n".self::class."::setupImportDefaults():\nuser cannot mills.import");
-            /**
-             * Do we want to deny any access before returning?
-             * Maybe?
-             */
-            CRUD::denyAccess('import');
-            return;
-        }
+        // $user = backpack_user();
+        // if (! $user->can('mills.import')) {
+        //     // Log::debug("\n".self::class."::setupImportDefaults():\nuser cannot mills.import");
+        //     /**
+        //      * Do we want to deny any access before returning?
+        //      * Maybe?
+        //      */
+        //     CRUD::denyAccess('import');
+        //     return;
+        // }
         /**
          * Does putting this below the above prevent it executing?
          */
@@ -180,7 +180,15 @@ trait MillImportOperation
          * @TODO: the import button should only display for users which have mills.import permission!
          */
         LifecycleHook::hookInto('list:before_setup', function () {
-            CRUD::addButton('top', 'import', 'view', 'import-operation::buttons.import_button');
+            if (backpack_user()?->can('mills.import')) {
+                CRUD::addButton('top', 'import', 'view', 'import-operation::buttons.import_button');
+            }
+        });
+
+        LifecycleHook::hookInto('crud:after_setup', function () {
+            if (backpack_user()?->cant('mills.import')) {
+                CRUD::denyAccess('import');
+            }
         });
     }
 
