@@ -55,50 +55,21 @@ class MillCrudController extends CrudController
     protected function setupListOperation()
     {
         // CRUD::setFromDb(); // set columns from db columns.
-        /**
-         * @var User
-         */
-        $user = backpack_user();
 
         /**
          * DIY filter
-         * This might end up conflicting with the state agent filter.
-         * Maybe so.
-         * However, if the user is a state agent, we don't need to filter by State 
+         * BTW, doFilterByState() now handles filtering list views for state agents on all CRUD controllers that use it.
+         * Should possibly make it remove the Add button for things there can only be one of, such as Hero, ForestOverview, EconomicImpact, and ForestryAgency.
+         * On second thought, those CRUD controllers should be responsible for that.
          */
-        if (! $user->isStateAgent()) {
-            $this->doFilterByState();
-        }
+        $this->doFilterByState();
 
         /**
-         * Filter by state if $user has a state_id and isStateAgent()
-         * if the request doesn't already have a filter for state_id, that is.
-         * 
-         * NOTE: this may conflict with the state filter unless we apply it first
+         * Apply order if it's in the request
          */
-        if (!request()->has('state_id') && !empty($user->state_id) && $user->isStateAgent()) {
-            // default to only show Mills from the StateAgent's state
-            $this->crud->addClause('whereIn', 'state_id', [$user->state_id]);
-
-            // CRUD::addButtonFromView('top', 'toggle-state', 'toggle-state-agent-filter', 'end');
-        }
-
         if (! $this->crud->getRequest()->has('order')) {
             $this->crud->orderBy('mill_name', 'asc');
         }
-
-        /**
-         * Add filter for states...except filter is PRO add-on...
-         */
-        // $this->crud->addFilter([
-        //     'name' => 'state_id',
-        //     'type' => 'select2',
-        //     'label' => 'Filter by State',
-        // ], function () {
-        //     return \App\Models\State::all()->pluck('name', 'id')->toArray();
-        // }, function ($value) {
-        //     $this->crud->addClause('where', 'state_id', $value);
-        // });
 
         /**
          * Because List and Show can sorta share setup, it might be useful to extract the stuff below into a
