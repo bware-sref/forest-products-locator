@@ -11,9 +11,9 @@
     @if(backpack_user()->canAny(['mills.see', 'mills.edit']))
         <x-backpack::menu-dropdown-item title="Mills" icon="la la-industry" :link="backpack_url('mill')" />
     @endif
-    @if(backpack_user()->canAny(['mill_edits.see', 'mill_edits.edit']))
+    {{-- @if(backpack_user()->canAny(['mill_edits.see', 'mill_edits.edit']))
         <x-backpack::menu-dropdown-item title="Mill Edits" icon="la la-edit" :link="backpack_url('mill-edits')" />
-    @endif
+    @endif --}}
     @if(backpack_user()->canAny(['mill_types.see', 'mill_types.edit']))
         <x-backpack::menu-dropdown-item title="Mill Types" icon="la la-keyboard" :link="backpack_url('mill-type')" />
     @endif

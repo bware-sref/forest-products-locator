@@ -88,6 +88,35 @@ class UserCrudController extends BaseUserCrudController
          * CrudPermissionsTrait goes here because the model needs to be set before it can check it programmatically.
          */
         $this->setAccessUsingPermissions();
+
+        $this->restrictToOwnRecordUnlessSuper();
+    }
+
+    /**
+     * Only Superadmins may update or delete other users.
+     * Everyone else (even with users.edit) may only update or delete their own record.
+     *
+     * The query clause is the actual enforcement: Backpack's update() saves to the id in the request body, not the
+     * route, but its findOrFail() uses the CRUD query, so any other user's id 404s.
+     * The access condition just hides the edit/delete buttons on other users' rows in the list view.
+     */
+    protected function restrictToOwnRecordUnlessSuper(): void
+    {
+        $user = backpack_user();
+        if (! $user || $user->isSuper()) {
+            return;
+        }
+
+        CRUD::operation(['update', 'delete'], function () use ($user) {
+            CRUD::addClause('where', $user->getKeyName(), $user->getKey());
+        });
+
+        foreach (['update', 'delete'] as $operation) {
+            // don't grant access via the condition if setAccessUsingPermissions() denied it (e.g., users.see only)
+            if (CRUD::hasAccess($operation)) {
+                CRUD::setAccessCondition($operation, fn ($entry) => $entry?->getKey() === $user->getKey());
+            }
+        }
     }
 
     /**

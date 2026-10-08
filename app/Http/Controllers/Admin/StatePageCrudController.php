@@ -36,6 +36,8 @@ class StatePageCrudController extends CrudController
         CRUD::setEntityNameStrings('state page', 'state pages');
 
         $this->setAccessUsingPermissions();
+
+        $this->doSetupForAgent();
     }
 
     /**
@@ -103,13 +105,13 @@ class StatePageCrudController extends CrudController
             'disk' => 'public',
             'withFiles' => true,
         ]);
-        CRUD::field([
-            'name' => 'hero_img_mobile',
-            'label' => 'Hero Image (Mobile)',
-            'type' => 'upload',
-            'disk' => 'public',
-            'withFiles' => true,
-        ]);
+        // CRUD::field([
+        //     'name' => 'hero_img_mobile',
+        //     'label' => 'Hero Image (Mobile)',
+        //     'type' => 'upload',
+        //     'disk' => 'public',
+        //     'withFiles' => true,
+        // ]);
         CRUD::field([
             'name' => 'hero_copy',
             'label' => 'Hero Copy',

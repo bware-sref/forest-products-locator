@@ -135,6 +135,15 @@ trait FiltersByState
         return $this->crud->addClause('where', self::STATE_FILTER_KEY, $this->getStateFilterValue());
     }
 
+    /**
+     * I may move this method to another trait since that seems the easiest way to handle StateAgent restrictions for multiple controllers.
+     * On the other hand...all those controllers already use this trait.
+     * On the other other hand, adding setupForStateAgent() to this
+     * trait seems like mixing concerns...
+     * Additionally, for all the state entities that there can only be one of, we need to remove the add button
+     * @param mixed $fn
+     * @return void
+     */
     public function doFilterForAgent(?callable $fn = null): void
     {
         /**
@@ -180,4 +189,19 @@ trait FiltersByState
          */
         $this->crud->addClause('whereIn', 'state_id', [$user->state_id]);
     }
+
+    // public function doSetupForAgent(): void
+    // {
+    //     if (! backpack_user()->isStateAgent()) {
+    //         // we could log but seems silly
+    //         return;
+    //     }
+
+    //     // we could either list the Models that are highlanders or pass a parameter.
+    //     Log::debug("\n".self::class."::doSetupForAgent(): model? ", [
+    //         "\nmodel\n" => $this->crud->model,
+    //         "\ngetModel()\n" => $this->crud->getModel(),
+    //     ]);
+    // }
+
 }

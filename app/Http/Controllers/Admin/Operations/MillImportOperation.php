@@ -185,10 +185,14 @@ trait MillImportOperation
             }
         });
 
+        /**
+         * By the time this hook executes, we've applied denyAllAccess() so we have to reallow.
+         */
         LifecycleHook::hookInto('crud:after_setup', function () {
-            if (backpack_user()?->cant('mills.import')) {
-                CRUD::denyAccess('import');
-            }
+            CRUD::setAccessCondition('import', fn () => (bool) backpack_user()?->can('mills.import'));
+            // if (backpack_user()?->can('mills.import')) {
+            //     CRUD::allowAccess('import');
+            // }
         });
     }
 

@@ -17,11 +17,17 @@ Route::group([
     'namespace' => 'App\Http\Controllers\Admin',
     'as' => config('backpack.base.route_prefix', 'admin').'.',
 ], function () { // custom admin routes
+    /**
+     * permission related routes
+     */
     Route::crud('user', 'UserCrudController');
+    Route::crud('permission', 'PermissionCrudController');
+    Route::crud('role', 'RoleCrudController');
+
     // Route::crud('agent', 'AgentCrudController');
     Route::crud('county', 'CountyCrudController');
     Route::crud('mill', 'MillCrudController');
-    Route::crud('mill-edits', 'MillEditCrudController');
+    // Route::crud('mill-edits', 'MillEditCrudController');
     Route::crud('mill-type', 'MillTypeCrudController');
     Route::crud('state', 'StateCrudController');
     Route::crud('wood-species', 'WoodSpeciesCrudController');

@@ -11,6 +11,7 @@ use App\Imports\MillsCrudImport;
 use App\Models\User;
 use App\Traits\CrudPermissionTrait;
 use App\Traits\FiltersByState;
+use App\Traits\SetsUpForStateAgents;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +32,7 @@ class MillCrudController extends CrudController
     // use \RedSquirrelStudio\LaravelBackpackImportOperation\ImportOperation;
     use MillImportOperation;
     use FiltersByState;
+    use SetsUpForStateAgents;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -44,6 +46,21 @@ class MillCrudController extends CrudController
         CRUD::setEntityNameStrings('mill', 'mills');
 
         $this->setAccessUsingPermissions();
+
+        $this->doSetupForStateAgent();
+        /**
+         * Restrict State Agent actions to Mills in their state
+         * @var mixed
+         */
+        // $user = backpack_user();
+        // if ($user?->isStateAgent()) {
+        //     // Log::debug("\n".self::class."::setup():\n restricting mill access for state agent user #{$user->id}");
+        //     CRUD::operation(['show', 'update', 'delete'], function () {
+        //         CRUD::setAccessCondition(['show', 'update', 'delete'], function ($entry) {
+        //             return $entry->state_id === backpack_user()->state_id;
+        //         });
+        //     });
+        // }
     }
 
     /**
