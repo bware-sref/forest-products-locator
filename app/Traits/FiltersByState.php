@@ -24,7 +24,7 @@ trait FiltersByState
     public function doFilterByState(?callable $fn = null): void
     {
         if (backpack_user()->isStateAgent()) {
-            Log::debug("\n".self::class."::doFilterByState(): doing for a StateAgent!");
+            // Log::debug("\n".self::class."::doFilterByState(): doing for a StateAgent!");
             self::doFilterForAgent($fn);
             return;
         }
@@ -39,7 +39,7 @@ trait FiltersByState
          * That also reduces nesting.
          */
         if (! $this->shouldApplyStateFilter()) {
-            Log::debug("\n".self::class."::doFilterByState()");
+            // Log::debug("\n".self::class."::doFilterByState(): no need to apply state filter.");
             return;
         }
 
@@ -159,12 +159,12 @@ trait FiltersByState
          * Or should we?
          * StateAgent should not care if there's already a filter value, they should always only see stuff from their state.
          */
-        if (self::hasStateFilterValue()) {
-            Log::warning("\n".self::class."::doFilterForAgent():\n request already has a StateFilter value?!?", [
-                "\nstateFilterValue:\n" => self::getStateFilterValue(),
-            ]);
-            // return;
-        }
+        // if (self::hasStateFilterValue()) {
+        //     Log::warning("\n".self::class."::doFilterForAgent():\n request already has a StateFilter value?!?", [
+        //         "\nstateFilterValue:\n" => self::getStateFilterValue(),
+        //     ]);
+        //     // return;
+        // }
 
         /**
          * Doh!
