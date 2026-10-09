@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 // use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 // use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -92,10 +93,26 @@ class User extends Authenticatable
     /**
      * Still need to flesh out state agent stuff before we know how to evaluate this.
      * Adding the method now anyway so it can be used in Policies.
+     * I was tempted to make this method throw an exception if the user has the role but
+     * doesn't have a state_id.
+     * Instead, I think I'll just have it check for the role and state_id.
+     * Tempting to log a warning if the user has a state but not the role, or vice versa.
      */
     public function isStateAgent(): bool
     {
-        return $this->hasRole(UserRoles::AGENT);
+        $hasRole = $this->hasRole(UserRoles::AGENT);
+        $hasState = ! empty($this->state_id);
+        /**
+         * Log warnings for weird situations that should not exist.
+         */
+        if ($hasRole && ! $hasState) {
+            Log::warning("\n".self::class."::isStateAgent():\nuser #{$this->id} has the StateAgent role, but does not have a state_id.");
+            return false;
+        } else if (! $hasRole && $hasState) {
+            Log::warning("\n".self::class."::isStateAgent():\nuser #{$this->id} has a state_id but does not have the StateAgent role.");
+            return false;
+        }
+        return $hasRole && $hasState;
     }
 
     /**

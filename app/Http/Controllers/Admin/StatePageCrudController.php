@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\StatePageRequest;
 use App\Traits\CrudPermissionTrait;
 use App\Traits\FiltersByState;
+use App\Traits\SetsUpForStateAgents;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -23,6 +24,7 @@ class StatePageCrudController extends CrudController
 
     use CrudPermissionTrait;
     use FiltersByState;
+    use SetsUpForStateAgents;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -36,6 +38,8 @@ class StatePageCrudController extends CrudController
         CRUD::setEntityNameStrings('state page', 'state pages');
 
         $this->setAccessUsingPermissions();
+
+        $this->doSetupForStateAgent();
     }
 
     /**
@@ -90,6 +94,8 @@ class StatePageCrudController extends CrudController
             'entity' => 'state',
             'model' => 'App\Models\State',
             'attribute' => 'name',
+            // preselected by the State Hub's Add links
+            'default' => request('state_id'),
         ]);
         CRUD::field([
             'name' => 'hero_headline',
@@ -103,13 +109,13 @@ class StatePageCrudController extends CrudController
             'disk' => 'public',
             'withFiles' => true,
         ]);
-        CRUD::field([
-            'name' => 'hero_img_mobile',
-            'label' => 'Hero Image (Mobile)',
-            'type' => 'upload',
-            'disk' => 'public',
-            'withFiles' => true,
-        ]);
+        // CRUD::field([
+        //     'name' => 'hero_img_mobile',
+        //     'label' => 'Hero Image (Mobile)',
+        //     'type' => 'upload',
+        //     'disk' => 'public',
+        //     'withFiles' => true,
+        // ]);
         CRUD::field([
             'name' => 'hero_copy',
             'label' => 'Hero Copy',

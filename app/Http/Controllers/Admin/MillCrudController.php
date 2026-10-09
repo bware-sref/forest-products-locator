@@ -11,6 +11,7 @@ use App\Imports\MillsCrudImport;
 use App\Models\User;
 use App\Traits\CrudPermissionTrait;
 use App\Traits\FiltersByState;
+use App\Traits\SetsUpForStateAgents;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +32,7 @@ class MillCrudController extends CrudController
     // use \RedSquirrelStudio\LaravelBackpackImportOperation\ImportOperation;
     use MillImportOperation;
     use FiltersByState;
+    use SetsUpForStateAgents;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -44,6 +46,21 @@ class MillCrudController extends CrudController
         CRUD::setEntityNameStrings('mill', 'mills');
 
         $this->setAccessUsingPermissions();
+
+        $this->doSetupForStateAgent();
+        /**
+         * Restrict State Agent actions to Mills in their state
+         * @var mixed
+         */
+        // $user = backpack_user();
+        // if ($user?->isStateAgent()) {
+        //     // Log::debug("\n".self::class."::setup():\n restricting mill access for state agent user #{$user->id}");
+        //     CRUD::operation(['show', 'update', 'delete'], function () {
+        //         CRUD::setAccessCondition(['show', 'update', 'delete'], function ($entry) {
+        //             return $entry->state_id === backpack_user()->state_id;
+        //         });
+        //     });
+        // }
     }
 
     /**
@@ -55,46 +72,21 @@ class MillCrudController extends CrudController
     protected function setupListOperation()
     {
         // CRUD::setFromDb(); // set columns from db columns.
-        /**
-         * @var User
-         */
-        $user = backpack_user();
 
         /**
          * DIY filter
-         * This might end up conflicting with the state agent filter.
+         * BTW, doFilterByState() now handles filtering list views for state agents on all CRUD controllers that use it.
+         * Should possibly make it remove the Add button for things there can only be one of, such as Hero, ForestOverview, EconomicImpact, and ForestryAgency.
+         * On second thought, those CRUD controllers should be responsible for that.
          */
         $this->doFilterByState();
 
         /**
-         * Filter by state if $user has a state_id and isStateAgent()
-         * if the request doesn't already have a filter for state_id, that is.
-         * 
-         * NOTE: this may conflict with the state filter unless we apply it first
+         * Apply order if it's in the request
          */
-        if (!request()->has('state_id') && !empty($user->state_id) && $user->isStateAgent()) {
-            // default to only show Mills from the StateAgent's state
-            $this->crud->addClause('whereIn', 'state_id', [$user->state_id]);
-
-            // CRUD::addButtonFromView('top', 'toggle-state', 'toggle-state-agent-filter', 'end');
-        }
-
         if (! $this->crud->getRequest()->has('order')) {
             $this->crud->orderBy('mill_name', 'asc');
         }
-
-        /**
-         * Add filter for states...except filter is PRO add-on...
-         */
-        // $this->crud->addFilter([
-        //     'name' => 'state_id',
-        //     'type' => 'select2',
-        //     'label' => 'Filter by State',
-        // ], function () {
-        //     return \App\Models\State::all()->pluck('name', 'id')->toArray();
-        // }, function ($value) {
-        //     $this->crud->addClause('where', 'state_id', $value);
-        // });
 
         /**
          * Because List and Show can sorta share setup, it might be useful to extract the stuff below into a
@@ -147,7 +139,6 @@ class MillCrudController extends CrudController
     protected function setupCreateOperation()
     {
         CRUD::setValidation(MillRequest::class);
-        // CRUD::setFromDb(); // set fields from db columns.
 
         /**
          * Fields can be defined using the fluent syntax:
@@ -159,179 +150,160 @@ class MillCrudController extends CrudController
         //     ->attributes(['readonly' => 'readonly']);
 
         // the mill name should sit above the tabs for easy reference and should be editable from the main info tab
-        CRUD::field([
-            'name' => 'mill_name',
-            'label' => 'Mill Name',
-            'type' => 'text',
-        ]); // ->tab('Basic Information');
+        CRUD::field('mill_name')
+            ->label('Mill Name')
+            ->type('text');
+        // ->tab('Basic Information');
 
         // basic info fields
         // match_id is a unique identifier that will be used to link mills to mill edits. It should be generated automatically and not editable by the user.
-        CRUD::field([
-            'name' => 'match_id',
-            'label' => 'Match ID',
-            'type' => 'text',
-            'attributes' => [
-                'readonly' => 'readonly',
-                'disabled' => 'disabled',
-            ],
-        ])->tab('Basic Information');
-        CRUD::field([
-            'name' => 'year',
-            'label' => 'Year Established',
-            'type' => 'text',
-        ])->tab('Basic Information');
-        CRUD::field([
-            'name' => 'size',
-            'label' => 'Mill Size',
-            'type' => 'text',
-        ])->tab('Basic Information');
+        // arguably, it shouldn't even be shown to the user 
+        // CRUD::field('match_id')
+        //     ->label('Match ID')
+        //     ->type('text')
+        //     ->attributes([
+        //         'readonly' => 'readonly',
+        //         'disabled' => 'disabled',
+        //     ])
+        //     ->tab('Basic Information');
+        CRUD::field('year')
+            ->label('Year Established')
+            ->type('text')
+            ->tab('Basic Information');
+        CRUD::field('size')
+            ->label('Mill Size')
+            ->type('text')
+            ->tab('Basic Information');
 
         // physical address fields
-        CRUD::field([
-            'name' => 'physical_address',
-            'label' => 'Street Address',
-            'type' => 'text',
-        ])->tab('Physical Address');
-        CRUD::field([
-            'name' => 'physical_city',
-            'label' => 'City',
-            'type' => 'text',
-        ])->tab('Physical Address');
-        CRUD::field([
-            'name' => 'state_id',
-            'label' => 'State',
-            'type' => 'select',
-            'entity' => 'state',
-            'model' => 'App\Models\State',
-            'attribute' => 'name',
-        ])->tab('Physical Address');
-        CRUD::field([
-            'name' => 'physical_zip',
-            'label' => 'Zip Code',
-            'type' => 'text',
-        ])->tab('Physical Address');
-        CRUD::field([
-            'name' => 'latitude',
-            'label' => 'Latitude',
-            'type' => 'number',
-            'attributes' => [
+        CRUD::field('physical_address')
+            ->label('Street Address')
+            ->type('text')
+            ->tab('Physical Address');
+        CRUD::field('physical_city')
+            ->label('City')
+            ->type('text')
+            ->tab('Physical Address');
+        CRUD::field('state_id')
+            ->label('State')
+            ->type('select')
+            ->entity('state')
+            ->model('App\Models\State')
+            ->attribute('name')
+            ->tab('Physical Address');
+        CRUD::field('physical_zip')
+            ->label('Zip Code')
+            ->type('text')
+            ->tab('Physical Address');
+        CRUD::field('latitude')
+            ->label('Latitude')
+            ->type('number')
+            ->attributes([
                 'step' => 'any',
-            ],
-        ])->tab('Physical Address');
-        CRUD::field([
-            'name' => 'longitude',
-            'label' => 'Longitude',
-            'type' => 'number',
-            'attributes' => [
+            ])
+            ->tab('Physical Address');
+        CRUD::field('longitude')
+            ->label('Longitude')
+            ->type('number')
+            ->attributes([
                 'step' => 'any',
-            ],
-        ])->tab('Physical Address');
+            ])
+            ->tab('Physical Address');
         // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
 
         // mailing address fields
-        CRUD::field([
-            'name' => 'mailing_address',
-            'label' => 'Street Address',
-            'type' => 'text',
-        ])->tab('Mailing Address');
-        CRUD::field([
-            'name' => 'mailing_city',
-            'label' => 'City',
-            'type' => 'text',
-        ])->tab('Mailing Address');
-        CRUD::field([
-            'name' => 'mailing_state_id',
-            'label' => 'State',
-            'type' => 'select',
-            'entity' => 'mailingState',
-            'model' => 'App\Models\State',
-            'attribute' => 'name',
-        ])->tab('Mailing Address');
-        CRUD::field([
-            'name' => 'mailing_zip',
-            'label' => 'Zip Code',
-            'type' => 'text',
-        ])->tab('Mailing Address');
+        CRUD::field('mailing_address')
+            ->label('Street Address')
+            ->type('text')
+            ->tab('Mailing Address');
+        CRUD::field('mailing_city')
+            ->label('City')
+            ->type('text')
+            ->tab('Mailing Address');
+        CRUD::field('mailing_state_id')
+            ->label('State')
+            ->type('select')
+            ->entity('mailingState')
+            ->model('App\Models\State')
+            ->attribute('name')
+            ->tab('Mailing Address');
+        CRUD::field('mailing_zip')
+            ->label('Zip Code')
+            ->type('text')
+            ->tab('Mailing Address');
         // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
 
 
         // contact info fields
-        CRUD::field([
-            'name' => 'contact_name',
-            'label' => 'Contact Name',
-            'type' => 'text',
-        ])->tab('Contact Information');
-        CRUD::field([
-            'name' => 'contact_title',
-            'label' => 'Contact Title',
-            'type' => 'text',
-        ])->tab('Contact Information');
-        CRUD::field([
-            'name' => 'telephone',
-            'label' => 'Telephone',
-            'type' => 'text',
-        ])->tab('Contact Information');
-        CRUD::field([
-            'name' => 'telephone_2',
-            'label' => 'Telephone 2',
-            'type' => 'text',
-        ])->tab('Contact Information');
-        CRUD::field([
-            'name' => 'fax',
-            'label' => 'Fax',
-            'type' => 'text',
-        ])->tab('Contact Information');
-        CRUD::field([
-            'name' => 'email',
-            'label' => 'Email',
-            'type' => 'email',
-        ])->tab('Contact Information');
-        CRUD::field([
-            'name' => 'email_2',
-            'label' => 'Email 2',
-            'type' => 'email',
-        ])->tab('Contact Information');
-        CRUD::field([
-            'name' => 'web_site',
-            'label' => 'Website',
-            'type' => 'text',
-        ])->tab('Contact Information');
+        CRUD::field('contact_name')
+            ->label('Contact Name')
+            ->type('text')
+            ->tab('Contact Information');
+        CRUD::field('contact_title')
+            ->label('Contact Title')
+            ->type('text')
+            ->tab('Contact Information');
+        CRUD::field('telephone')
+            ->label('Telephone')
+            ->type('text')
+            ->tab('Contact Information');
+        CRUD::field('telephone_2')
+            ->label('Telephone 2')
+            ->type('text')
+            ->tab('Contact Information');
+        CRUD::field('fax')
+            ->label('Fax')
+            ->type('text')
+            ->tab('Contact Information');
+        CRUD::field('email')
+            ->label('Email')
+            ->type('email')
+            ->tab('Contact Information');
+        CRUD::field('email_2')
+            ->label('Email 2')
+            ->type('email')
+            ->tab('Contact Information');
+        CRUD::field('web_site')
+            ->label('Website')
+            ->type('text')
+            ->tab('Contact Information');
 
+        // CRUD::group()->tab('Relationships');
         // relationships
-        CRUD::field([
-            /**
-             * name = 'mill_type' caused bad method exception
-             * Per docs, for most field types, allegedly "name" should match the DB column name.
-             * However, for n-to-n relationship fields, 'name' should be this Model's relationship method for
-             * this relationship.
-             * I.e., millTypes
-             */
-            'name' => 'millTypes',
-            'label' => 'Mill Type',
-            'type' => 'select_multiple',
-            'entity' => 'millTypes',
-            'model' => 'App\Models\MillType',
-            'attribute' => 'name',
-            'multiple' => true,
-            'pivot' => true,
-        ])->tab('Relationships');
-        CRUD::field([
-            /**
-             * name = 'wood_species' caused bad method exception
-             * Per docs, for most field types, allegedly "name" should match the DB column name.
-             * However, for n-to-n relationship fields, 'name' should be this Model's relationship method for
-             * this relationship.
-             */
-            'name' => 'woodSpecies',
-            'label' => 'Wood Species',
-            'type' => 'select_multiple',
-            'entity' => 'woodSpecies',
-            'model' => 'App\Models\WoodSpecies',
-            'attribute' => 'name',
-            'multiple' => true,
-            'pivot' => true,
-        ])->tab('Relationships');
+        /**
+         * name = 'mill_type' caused bad method exception
+         * Per docs, for most field types, allegedly "name" should match the DB column name.
+         * However, for n-to-n relationship fields, 'name' should be this Model's relationship method for
+         * this relationship.
+         * I.e., millTypes
+         */
+        CRUD::field('millTypes')
+            ->label('Mill Type')
+            ->hint('Hold CTRL to select multiple items')
+            ->type('select_multiple')
+            ->entity('millTypes')
+            ->model('App\Models\MillType')
+            ->attribute('name')
+            ->multiple(true)
+            ->pivot(true)
+            ->tab('Relationships');
+
+        /**
+         * name = 'wood_species' caused bad method exception
+         * Per docs, for most field types, allegedly "name" should match the DB column name.
+         * However, for n-to-n relationship fields, 'name' should be this Model's relationship method for
+         * this relationship.
+         */
+        CRUD::field('woodSpecies')
+            ->label('Wood Species')
+            ->hint('Hold CTRL to select multiple items')
+            ->type('select_multiple')
+            ->entity('woodSpecies')
+            ->model('App\Models\WoodSpecies')
+            ->attribute('name')
+            ->multiple(true)
+            ->pivot(true)
+            ->tab('Relationships');
     }
 
     /**
@@ -586,18 +558,13 @@ class MillCrudController extends CrudController
             'mailing_county_id',
         ]);
 
-        CRUD::column([
-            'name' => 'extended_attributes',
-            'label' => 'Extra',
-            'type' => 'json',
-            'toggle' => true,
-        ]);
-        CRUD::column([
-            'name' => 'status',
-            'label' => 'Status',
-            'type' => 'enum',
-            'enum_class' => PublicationStatus::class,
-
-        ]);
+        CRUD::column('extended_attributes')
+            ->label('Extra')
+            ->type('json')
+            ->toggle(true);
+        CRUD::column('status')
+            ->label('Status')
+            ->type('enum')
+            ->enum_class(PublicationStatus::class);
     }
 }

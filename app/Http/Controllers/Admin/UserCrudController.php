@@ -88,6 +88,35 @@ class UserCrudController extends BaseUserCrudController
          * CrudPermissionsTrait goes here because the model needs to be set before it can check it programmatically.
          */
         $this->setAccessUsingPermissions();
+
+        $this->restrictToOwnRecordUnlessSuper();
+    }
+
+    /**
+     * Only Superadmins may update or delete other users.
+     * Everyone else (even with users.edit) may only update or delete their own record.
+     *
+     * The query clause is the actual enforcement: Backpack's update() saves to the id in the request body, not the
+     * route, but its findOrFail() uses the CRUD query, so any other user's id 404s.
+     * The access condition just hides the edit/delete buttons on other users' rows in the list view.
+     */
+    protected function restrictToOwnRecordUnlessSuper(): void
+    {
+        $user = backpack_user();
+        if (! $user || $user->isSuper()) {
+            return;
+        }
+
+        CRUD::operation(['update', 'delete'], function () use ($user) {
+            CRUD::addClause('where', $user->getKeyName(), $user->getKey());
+        });
+
+        foreach (['update', 'delete'] as $operation) {
+            // don't grant access via the condition if setAccessUsingPermissions() denied it (e.g., users.see only)
+            if (CRUD::hasAccess($operation)) {
+                CRUD::setAccessCondition($operation, fn ($entry) => $entry?->getKey() === $user->getKey());
+            }
+        }
     }
 
     /**
@@ -124,6 +153,11 @@ class UserCrudController extends BaseUserCrudController
 
         parent::setupCreateOperation();
 
+        /**
+         * auth check for roles and permissions moved to addUserFields()
+         */
+
+        // parent::setupCreateOperation() already sets the validation
         $this->crud->setValidation(StoreRequest::class);
     }
 
@@ -152,21 +186,9 @@ class UserCrudController extends BaseUserCrudController
 
         $this->crud->setValidation(UpdateRequest::class);
 
-        // CRUD::field([
-        //     'name' => 'state_id',
-        //     'label' => 'State',
-        //     'type' => 'select',
-        //     'entity' => 'state',
-        //     'model' => 'App\Models\State',
-        //     'attribute' => 'name',
-        // ])->after('password_confirmation');
-
         /**
-         * Add our custom JS as a script Widget.
+         * auth check for roles and permissions moved to addUserFields()
          */
-        // Widget::add()
-        //     ->type('script')
-        //     ->content(asset('assets/js/admin/forms/user.js'));
     }
 
     public function store()
@@ -200,24 +222,60 @@ class UserCrudController extends BaseUserCrudController
     #[Override]
     protected function addUserFields()
     {
-        // Log::debug('using ' . self::class . 'addUserFields()!');
+        // Log::debug("\n".self::class."::addUserFields():\n", [
+        //     "\naction\n" => $this->crud->getAction(),
+        //     "\nactionMethod:\n" => $this->crud->getActionMethod(),
+        //     "\nactionName:\n" => $this->crud->getActionName(),
+        //     "\nentry\n" => $this->crud->getCurrentEntry()?->toArray() ?? 'no entry',
+        //     "\nrequest method?\n" => $this->crud->getRequest()->method() ?? 'no request method?',
+        //     "\nrequest!\n" => $this->crud->getRequest() ?? 'getRequest() returns nothing?!?',
+        // ]);
 
         parent::addUserFields();
 
         /**
+         * Remove the value from the password field
+         * It would be better if we could determine if this after the user has submitted
+         * the form or not, meaning if this is happening to prepare the form for
+         * rendering errors.
+         * So, if the actionMethod is "edit" and this is a GET request (meaning nothing 
+         * submitted so far), then we should probably clear the password value.
+         * Gemini claims that FF is causes the password field to be autopopulated.
+         */
+        if ("edit" === $this->crud->getActionMethod() && 'GET' === $this->crud->getRequest()->method()) {
+            // Log::debug("\n".self::class.":addUserFIelds():\n trying to prevent password autopopulation in FF.");
+
+            CRUD::field('password')
+                ->attributes([
+                    'autocomplete' => 'new-password',
+                ]);
+        }
+
+        /**
+         * The stuff below this conditional block should only happen if the user can do stuff.
+         * So we return if the user can't do stuff instead of adding conditions.
+         */       
+        if (backpack_user()->cant(['permissions.edit', 'roles.edit'])) {
+            // Log::debug("\n".self::class.":addUserFIelds():\n user cant p&r");
+            CRUD::field('roles,permissions')
+                ->remove();
+            return;
+        }
+
+        /**
          * We could limit the states to those already having mills...
          */
-        CRUD::field([
-            'name' => 'state_id',
-            'label' => 'State',
-            'type' => 'select',
-            'entity' => 'state',
-            'model' => 'App\Models\State',
-            'attribute' => 'name',
-            'options' => (function ($query) {
+        CRUD::field('state_id')
+            ->label('State')
+            ->type('select')
+            ->entity('state')
+            ->model('App\Models\State')
+            ->attribute('name')
+            ->options(function ($query) {
+                // limit to the states which already have mills
                 return $query->has('mills')->get();
-            }),
-        ])->after('password_confirmation');
+            })
+            ->after('password_confirmation');
 
         /**
          * Okay.
@@ -228,17 +286,13 @@ class UserCrudController extends BaseUserCrudController
          * :shrug:
          */
 
-        CRUD::field([
-            'name' => 'agent_role_name',
-            'type' => 'hidden',
-            'value' => UserRoles::AGENT,
-        ]);
+        CRUD::field('agent_role_name')
+            ->type('hidden')
+            ->value(UserRoles::AGENT);
 
-        CRUD::field([
-            'name' => 'is_agent',
-            'type' => 'hidden',
-            'value' => 'false',
-        ]);
+        CRUD::field('is_agent')
+            ->type('hidden')
+            ->value('false');
 
         /**
          * Add our custom JS as a script Widget.

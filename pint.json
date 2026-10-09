@@ -1,0 +1,16 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "array_indentation": true,
+        "trim_array_spaces": true,
+        "trailing_comma_in_multiline": {
+            "elements": [
+                "arrays",
+                "arguments",
+                "parameters",
+                "match",
+                "array_destructuring"
+            ]
+        }
+    }
+}

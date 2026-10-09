@@ -31,6 +31,8 @@ class CheckIfAdmin
         // return true;
         /**
          * We only have "admin" users (meaning they can all see the basic admin panel), but we at least to have a user.
+         * However, the comment above this method states that if admins and users are in the same table, this method should 
+         * be modified
          */
         return null !== $user;
     }

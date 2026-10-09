@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\CountyRequest;
 use App\Traits\CrudPermissionTrait;
 use App\Traits\FiltersByState;
+use App\Traits\SetsUpForStateAgents;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -23,6 +24,7 @@ class CountyCrudController extends CrudController
 
     use CrudPermissionTrait;
     use FiltersByState;
+    use SetsUpForStateAgents;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -35,7 +37,8 @@ class CountyCrudController extends CrudController
         CRUD::setRoute(config('backpack.base.route_prefix') . '/county');
         CRUD::setEntityNameStrings('county', 'counties');
 
-        // $this->setAccessUsingPermissions();
+        $this->setAccessUsingPermissions();
+        $this->doSetupForStateAgent();
     }
 
     /**
