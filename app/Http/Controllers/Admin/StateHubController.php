@@ -22,14 +22,62 @@ class StateHubController extends Controller
      * label: attribute shown for each record
      */
     public const array SECTIONS = [
-        ['title' => 'Hero / Page Content', 'table' => 'state_pages', 'relation' => 'statePage', 'single' => true, 'label' => 'hero_headline'],
-        ['title' => 'Contacts', 'table' => 'state_contacts', 'relation' => 'stateContacts', 'single' => false, 'label' => 'name'],
-        ['title' => 'Forest Overview', 'table' => 'state_forest_overviews', 'relation' => 'stateForestOverview', 'single' => true, 'label' => 'headline'],
-        ['title' => 'Regional Forest Types', 'table' => 'state_forest_types', 'relation' => 'stateForestTypes', 'single' => false, 'label' => 'title'],
-        ['title' => 'Forest Products', 'table' => 'state_forest_products', 'relation' => 'stateForestProducts', 'single' => false, 'label' => 'label'],
-        ['title' => 'Economic Impact', 'table' => 'state_economic_impacts', 'relation' => 'stateEconomicImpact', 'single' => true, 'label' => 'headline'],
-        ['title' => 'Forestry Agency', 'table' => 'state_forestry_agencies', 'relation' => 'stateForestryAgency', 'single' => true, 'label' => 'headline'],
-        ['title' => 'Assistance Categories', 'table' => 'state_assistance_categories', 'relation' => 'stateAssistanceCategories', 'single' => false, 'label' => 'title'],
+        [
+            'title' => 'Hero / Page Content',
+            'table' => 'state_pages',
+            'relation' => 'statePage',
+            'single' => true,
+            'label' => 'hero_headline',
+        ],
+        [
+            'title' => 'Contacts',
+            'table' => 'state_contacts',
+            'relation' => 'stateContacts',
+            'single' => false,
+            'label' => 'name',
+        ],
+        [
+            'title' => 'Forest Overview',
+            'table' => 'state_forest_overviews',
+            'relation' => 'stateForestOverview',
+            'single' => true,
+            'label' => 'headline',
+        ],
+        [
+            'title' => 'Regional Forest Types',
+            'table' => 'state_forest_types',
+            'relation' => 'stateForestTypes',
+            'single' => false,
+            'label' => 'title',
+        ],
+        [
+            'title' => 'Forest Products',
+            'table' => 'state_forest_products',
+            'relation' => 'stateForestProducts',
+            'single' => false,
+            'label' => 'label',
+        ],
+        [
+            'title' => 'Economic Impact',
+            'table' => 'state_economic_impacts',
+            'relation' => 'stateEconomicImpact',
+            'single' => true,
+            'label' => 'headline',
+        ],
+        [
+            'title' => 'Forestry Agency',
+            'table' => 'state_forestry_agencies',
+            'relation' => 'stateForestryAgency',
+            'single' => true,
+            'label' => 'headline',
+        ],
+        [
+            'title' => 'Assistance Categories',
+            'table' => 'state_assistance_categories',
+            'relation' => 'stateAssistanceCategories',
+            'single' => false,
+            'label' => 'title',
+        ],
     ];
 
     /**
@@ -63,7 +111,7 @@ class StateHubController extends Controller
         /**
          * Everyone else picks a state first.
          */
-        if (! $state) {
+        if (!$state) {
             return view('admin.state-hub.index', [
                 'title' => 'State Hub',
                 'breadcrumbs' => [
@@ -86,7 +134,7 @@ class StateHubController extends Controller
                 // agents can't pick another state, so don't offer the picker
                 'State Hub' => $user->isStateAgent() ? null : route('admin.page.state-hub.show'),
                 $state->name => false,
-            ], fn ($url) => $url !== null),
+            ], fn($url) => $url !== null),
             'state' => $state,
             'sections' => self::SECTIONS,
             'segments' => self::SEGMENTS,
@@ -102,7 +150,7 @@ class StateHubController extends Controller
     {
         return collect(self::SEGMENTS)
             ->keys()
-            ->flatMap(fn ($table) => ["{$table}.see", "{$table}.edit"])
+            ->flatMap(fn($table) => ["{$table}.see", "{$table}.edit"])
             ->all();
     }
 }
