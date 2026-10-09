@@ -11,7 +11,16 @@
         "faqs.edit",
         "mills.import",
         "mill_edits.edit",
-        "page_seos.edit"
+        "page_seos.edit",
+        "state_pages.edit",
+        "state_contacts.edit",
+        "state_forest_overviews.edit",
+        "state_forest_types.edit",
+        "state_forest_products.edit",
+        "state_economic_impacts.edit",
+        "state_forestry_agencies.edit",
+        "state_assistance_categories.edit",
+        "state_assistance_links.edit"
     ],
     "Editor": [
         "mills.edit",
@@ -55,8 +64,14 @@
         "statistics.see",
         "mill_types.edit",
         "wood_species.edit",
-        "states.edit",
-        "counties.edit",
-        "mill_edits.edit"
+        "state_pages.edit",
+        "state_contacts.edit",
+        "state_forest_overviews.edit",
+        "state_forest_types.edit",
+        "state_forest_products.edit",
+        "state_economic_impacts.edit",
+        "state_forestry_agencies.edit",
+        "state_assistance_categories.edit",
+        "state_assistance_links.edit"
     ]
 }
