@@ -100,7 +100,7 @@ class Mill extends Model
 
         /**
          * Fields added for ArcGis imports
-        */
+         */
         'mill_raw_import_id',
         'contact_name',
         'contact_title',
@@ -276,11 +276,11 @@ class Mill extends Model
     protected function physicalAddressTwo(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => 
+            get: fn(mixed $value, array $attributes) =>
                 self::buildAddressTwo(
                     $attributes['physical_city'] ?? '',
                     // hopefully averting an undefined array key error
-                    $attributes['physical_state'] ?? '',
+                    $this->state?->abbreviation ?? $attributes['physical_state'] ?? '',
                     $attributes['physical_zip'] ?? ''
                 )
         );
@@ -289,7 +289,7 @@ class Mill extends Model
     protected function mailingAddressTwo(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => 
+            get: fn(mixed $value, array $attributes) =>
                 self::buildAddressTwo(
                     $attributes['mailing_city'] ?? '',
                     $attributes['mailing_state'] ?? '',
@@ -307,7 +307,7 @@ class Mill extends Model
     protected function mailingAddressSameAsPhysical(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) =>
+            get: fn(mixed $value, array $attributes) =>
                 self::doAddressesMatch()
         );
     }
@@ -379,7 +379,7 @@ class Mill extends Model
     {
         return $this->belongsTo(MillRawImport::class);
     }
-    
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -421,7 +421,7 @@ class Mill extends Model
         // $parts = array_map(fn ($item) => trim($item, " \n\r\t\v\0,"), compact('city', 'state', 'zip'));
         $parts = array_map(
             // fn ($item) => mb_trim(mb_trim($item), ","),
-            fn ($item) => trimp($item, ","),
+            fn($item) => trimp($item, ","),
             // instead of compact, we could just do [$var1, $varN]
             // compact('city', 'state', 'zip')
             [$city, $state, $zip]
@@ -494,7 +494,7 @@ class Mill extends Model
             $latitude = $validated['lat'];
             $longitude = $validated['lng'];
             $radius = $validated['radius'];
-            
+
             $latitudeRadius = Geo::distanceToDegreesLatitude($radius);
             $longitudeRadius = Geo::distanceToDegreesLongitude($radius, $latitude);
             Log::debug('proximity params in API request: ', ['lng' => $validated['lng'], 'lat' => $validated['lat']]);
@@ -608,37 +608,37 @@ class Mill extends Model
          * otherwise, fetch them all
          */
         return Mill::with([
-                'state:id,name,abbreviation',
-                'county:id,name',
-                'millTypes:id,name',
-                'woodSpecies:id,name',
-            ])->get([
-                /**
-                 * We may need to revise this list
-                 */
-                'id',
-                'match_id',
-                'mill_name',
-                'latitude',
-                'longitude',
-                'year',
-                'physical_address',
-                'physical_city',
-                'county_id',
-                'state_id',
-                'physical_zip',
-                'mailing_address',
-                'mailing_city',
-                'mailing_county_id',
-                'mailing_state_id',
-                'mailing_zip',
-                'telephone',
-                'fax',
-                'email',
-                'web_site',
-                'size',
-                'updated_at',
-            ]);
+            'state:id,name,abbreviation',
+            'county:id,name',
+            'millTypes:id,name',
+            'woodSpecies:id,name',
+        ])->get([
+                    /**
+                     * We may need to revise this list
+                     */
+                    'id',
+                    'match_id',
+                    'mill_name',
+                    'latitude',
+                    'longitude',
+                    'year',
+                    'physical_address',
+                    'physical_city',
+                    'county_id',
+                    'state_id',
+                    'physical_zip',
+                    'mailing_address',
+                    'mailing_city',
+                    'mailing_county_id',
+                    'mailing_state_id',
+                    'mailing_zip',
+                    'telephone',
+                    'fax',
+                    'email',
+                    'web_site',
+                    'size',
+                    'updated_at',
+                ]);
     }
 
     /**
@@ -727,7 +727,7 @@ class Mill extends Model
          * should probably throw an exception here
          */
         if (empty($mill['mill_name'])) {
-            Log::error(self::class.'makeMatchId(): no mill name?!?', ['mill' => $mill]);
+            Log::error(self::class . 'makeMatchId(): no mill name?!?', ['mill' => $mill]);
             // dd($mill);
             // throw new exception
         }
@@ -749,7 +749,7 @@ class Mill extends Model
             ->orWhere('match_id', $slugWithCity)
             ->orWhereLike('match_id', "$slug%", caseSensitive: false)
             ->orWhereLike('match_id', "$slugWithCity%", false)
-            ->orderBy('match_id','desc')
+            ->orderBy('match_id', 'desc')
             ->get()
             ->withoutAppends()
             ->pluck('match_id');
@@ -857,7 +857,7 @@ class Mill extends Model
          * So, this does seem like the right place handle that situation.
          */
         // $type = ('mailing' === $type ? $type : 'physical');
-        $addy = $this->getRawAddress($type);        
+        $addy = $this->getRawAddress($type);
 
         /**
          * We can bail if it's truly empty.
@@ -900,7 +900,8 @@ class Mill extends Model
          */
         $lat = (float) $this->latitude ?? null;
         $lng = (float) $this->longitude ?? null;
-        if (empty($lat) || $lat > 90 || $lat < -90 ||
+        if (
+            empty($lat) || $lat > 90 || $lat < -90 ||
             empty($lng) || $lng > 180 || $lng < -180
         ) {
             return false;
@@ -955,8 +956,8 @@ class Mill extends Model
          * If this isn't a valid field, just bail silently and without error.
          * Maybe log it :-D
          */
-        if (! \in_array($field, $allowedFields)) {
-            Log::error(self::class."::getRawList(): invalid field name '{$field}'. Failing silently...");
+        if (!\in_array($field, $allowedFields)) {
+            Log::error(self::class . "::getRawList(): invalid field name '{$field}'. Failing silently...");
             return [];
         }
 
@@ -980,7 +981,7 @@ class Mill extends Model
          * get the separator, if any
          */
         $separators = ['|', ','];
-        $separator = null;        
+        $separator = null;
         foreach ($separators as $sep) {
             if (Str::contains($value, $sep)) {
                 $separator = $sep;
@@ -993,7 +994,7 @@ class Mill extends Model
          */
         if (!empty($separator)) {
             return array_map(
-                fn ($item) => Str::trim($item),
+                fn($item) => Str::trim($item),
                 explode($separator, $value)
             );
         }
@@ -1101,7 +1102,7 @@ class Mill extends Model
         // we also need to return now if the whole thing is empty
         // we can also double trim instead of specifying the defaults + ,
         $addy = array_map(
-            fn ($item) => trimp($item, ','),
+            fn($item) => trimp($item, ','),
             array_filter($this->only($fieldNames))
         );
         // instead of empty check we could just return the result of array_reduce()
@@ -1128,7 +1129,7 @@ class Mill extends Model
          * However, those fields are contained in Mill::STATE_FIELDS
          */
         return array_map(
-            fn ($item) => "{$type}_{$item}",
+            fn($item) => "{$type}_{$item}",
             self::ADDRESS_PARTS
         );
     }
@@ -1142,7 +1143,7 @@ class Mill extends Model
      */
     public static function validAddressType(?string $type): string
     {
-        return \in_array($type, self::ADDRESS_TYPES) ? $type : array_first(self::ADDRESS_TYPES);        
+        return \in_array($type, self::ADDRESS_TYPES) ? $type : array_first(self::ADDRESS_TYPES);
     }
 
     /**
@@ -1160,7 +1161,7 @@ class Mill extends Model
          * @var Closure
          * make a callable to use with array_map
          */
-        $fn = fn ($item) => Str::lower(self::addressToString($item));
+        $fn = fn($item) => Str::lower(self::addressToString($item));
         $addresses = array_map(
             // fn ($item) => self::addressToString($item),
             // modern callable syntax?!?
@@ -1287,7 +1288,7 @@ class Mill extends Model
          */
         foreach (self::N_TO_N as $key) {
             if (empty($data[$key])) {
-                continue;    
+                continue;
             }
             /**
              * just jam it in the middle there
@@ -1342,7 +1343,7 @@ class Mill extends Model
         //     "\nmill\n" => $darth,
         //     "\nnewOrder\n" => $newOrder,
         // ]);
-        
+
         return $darth;
     }
 
@@ -1395,7 +1396,7 @@ class Mill extends Model
             /**
              * Skip anything not in FORM_FIELDS
              */
-            if (! \in_array($k, self::FORM_FIELDS)) {
+            if (!\in_array($k, self::FORM_FIELDS)) {
                 unset($dirty[$k]);
                 continue;
             }
@@ -1428,13 +1429,13 @@ class Mill extends Model
                 /**
                  * Keep the n-to-n relationship fields or else they'll get removed during the save process.
                  */
-                if (! \in_array($k, self::N_TO_N)) {
+                if (!\in_array($k, self::N_TO_N)) {
                     unset($dirty[$k]);
                 }
                 continue;
             }
 
-            
+
             /**
              * If we made it this far, we have a diff!
              * Except...this style of diff cannot be used with Model::fill().
