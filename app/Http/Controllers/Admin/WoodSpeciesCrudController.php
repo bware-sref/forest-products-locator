@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\WoodSpeciesRequest;
 use App\Traits\CrudPermissionTrait;
+use App\Traits\SetsUpForStateAgents;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -21,6 +22,7 @@ class WoodSpeciesCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     use CrudPermissionTrait;
+    use SetsUpForStateAgents;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -34,6 +36,7 @@ class WoodSpeciesCrudController extends CrudController
         CRUD::setEntityNameStrings('wood species', 'wood species');
 
         $this->setAccessUsingPermissions();
+        $this->doSetupForStateAgent();
     }
 
     /**

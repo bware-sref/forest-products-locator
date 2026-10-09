@@ -7,6 +7,7 @@ use App\Models\StateAssistanceCategory;
 use App\Http\Requests\StateAssistanceLinkRequest;
 use App\Traits\CrudPermissionTrait;
 use App\Traits\FiltersByState;
+use App\Traits\SetsUpForStateAgents;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Backpack\CRUD\app\Library\Widget;
@@ -27,6 +28,7 @@ class StateAssistanceLinkCrudController extends CrudController
 
     use CrudPermissionTrait;
     use FiltersByState;
+    use SetsUpForStateAgents;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -40,6 +42,7 @@ class StateAssistanceLinkCrudController extends CrudController
         CRUD::setEntityNameStrings('state assistance link', 'state assistance links');
 
         $this->setAccessUsingPermissions();
+        $this->doSetupForStateAgent();
     }
 
     /**
@@ -113,6 +116,8 @@ class StateAssistanceLinkCrudController extends CrudController
             'entity' => 'category',
             'model' => 'App\Models\StateAssistanceCategory',
             'attribute' => 'select_label',
+            // preselected by the State Hub's Add link
+            'default' => request('state_assistance_category_id'),
             // groups/orders options by state so the (already state-prefixed) labels
             // read as contiguous per-state blocks instead of being interleaved
             'options' => fn ($query) => $query->orderBy('state_id', 'asc')->orderBy('sort_weight', 'asc')->get(),
@@ -166,6 +171,38 @@ class StateAssistanceLinkCrudController extends CrudController
              */
             $query->where('state_id', $this->getStateFilterValue());
         });
+    }
+
+    /**
+     * Overrides SetsUpForStateAgents: links belong to a state via their category.
+     */
+    protected function scopeToAgentState(Builder $query, int $stateId): void
+    {
+        $query->whereHas('category', fn ($query) => $query->where('state_id', $stateId));
+    }
+
+    /**
+     * Overrides SetsUpForStateAgents: only offer the agent's state's categories.
+     */
+    protected function limitAgentStateField(int $stateId): void
+    {
+        CRUD::field('state_assistance_category_id')
+            ->options(fn ($query) => $query->where('state_id', $stateId)->orderBy('sort_weight', 'asc')->get());
+    }
+
+    /**
+     * Overrides SetsUpForStateAgents: there's no state_id to coerce, so reject another state's category instead.
+     * The form only offers the agent's categories, so this only trips on a tampered request.
+     */
+    protected function enforceAgentStateOnInput(int $stateId): void
+    {
+        $categoryId = CRUD::getRequest()->input('state_assistance_category_id');
+
+        abort_if(
+            $categoryId !== null
+                && ! StateAssistanceCategory::whereKey($categoryId)->where('state_id', $stateId)->exists(),
+            403
+        );
     }
 
 }
