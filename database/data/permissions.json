@@ -16,10 +16,6 @@
         "guard_name": "web"
     },
     {
-        "name": "mill_edits.edit",
-        "guard_name": "web"
-    },
-    {
         "name": "mill_types.edit",
         "guard_name": "web"
     },
@@ -36,6 +32,10 @@
         "guard_name": "web"
     },
     {
+        "name": "mills.see",
+        "guard_name": "web"
+    },
+    {
         "name": "page_seos.edit",
         "guard_name": "web"
     },
@@ -45,10 +45,6 @@
     },
     {
         "name": "roles.edit",
-        "guard_name": "web"
-    },
-    {
-        "name": "state_resources.edit",
         "guard_name": "web"
     },
     {
