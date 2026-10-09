@@ -1,5 +1,5 @@
 <?php
-
+// routes/backpack/permissionmanager.php
 /*
 |--------------------------------------------------------------------------
 | Backpack\PermissionManager Routes
@@ -11,7 +11,11 @@
 */
 
 /**
- * @HEY: these mofos got moved to custom.php to reduce duplication
+ * @HEY: these mofos got moved to routes/backpack/custom.php.
+ * However, the existence of this file prevents Backpack from 
+ * registering its default version of this file, which would 
+ * override the routes we moved to custom.php.
+ * Routes are sorta like CSS rules:  the last rule has precedence.
  */
 
 // Route::group([
