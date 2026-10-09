@@ -52,6 +52,7 @@
     'state_assistance_links.see', 'state_assistance_links.edit',
 ]))
 <x-backpack::menu-dropdown title="State Pages" icon="la la-file-alt">
+    <x-backpack::menu-dropdown-item title="State Hub" icon="la la-sitemap" :link="route('admin.page.state-hub.show')" />
     @if(backpack_user()->canAny(['state_pages.see', 'state_pages.edit']))
         <x-backpack::menu-dropdown-item title="Hero / Page Content" icon="la la-heading" :link="backpack_url('state-page')" />
     @endif

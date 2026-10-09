@@ -39,6 +39,8 @@ Route::group([
         ->name('page.statistics.updated');
     Route::get('statistics/additions', 'StatisticsController@additions')
         ->name('page.statistics.additions');
+    Route::get('state-hub/{state?}', 'StateHubController@show')
+        ->name('page.state-hub.show');
     // Route::crud('state-resource', 'StateResourceCrudController');
     Route::crud('page-seo', 'PageSeoCrudController');
     Route::crud('state-page', 'StatePageCrudController');
