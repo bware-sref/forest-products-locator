@@ -17,20 +17,31 @@ Route::group([
     'namespace' => 'App\Http\Controllers\Admin',
     'as' => config('backpack.base.route_prefix', 'admin').'.',
 ], function () { // custom admin routes
+    /**
+     * permission related routes
+     */
     Route::crud('user', 'UserCrudController');
+    Route::crud('permission', 'PermissionCrudController');
+    Route::crud('role', 'RoleCrudController');
+
     // Route::crud('agent', 'AgentCrudController');
     Route::crud('county', 'CountyCrudController');
     Route::crud('mill', 'MillCrudController');
-    Route::crud('mill-edits', 'MillEditCrudController');
+    // Route::crud('mill-edits', 'MillEditCrudController');
     Route::crud('mill-type', 'MillTypeCrudController');
     Route::crud('state', 'StateCrudController');
     Route::crud('wood-species', 'WoodSpeciesCrudController');
     Route::crud('faq-category', 'FaqCategoryCrudController');
     Route::crud('faq', 'FaqCrudController');
-    Route::get('statistics', 'StatisticsController@index')->name('page.statistics.index');
-    Route::get('statistics/updated', 'StatisticsController@updated')->name('page.statistics.updated');
-    Route::get('statistics/additions', 'StatisticsController@additions')->name('page.statistics.additions');
-    Route::crud('state-resource', 'StateResourceCrudController');
+    Route::get('statistics', 'StatisticsController@index')
+        ->name('page.statistics.index');
+    Route::get('statistics/updated', 'StatisticsController@updated')
+        ->name('page.statistics.updated');
+    Route::get('statistics/additions', 'StatisticsController@additions')
+        ->name('page.statistics.additions');
+    Route::get('state-hub/{state?}', 'StateHubController@show')
+        ->name('page.state-hub.show');
+    // Route::crud('state-resource', 'StateResourceCrudController');
     Route::crud('page-seo', 'PageSeoCrudController');
     Route::crud('state-page', 'StatePageCrudController');
     Route::crud('state-contact', 'StateContactCrudController');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\StateForestTypeRequest;
 use App\Traits\CrudPermissionTrait;
 use App\Traits\FiltersByState;
+use App\Traits\SetsUpForStateAgents;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -23,6 +24,7 @@ class StateForestTypeCrudController extends CrudController
 
     use CrudPermissionTrait;
     use FiltersByState;
+    use SetsUpForStateAgents;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -36,6 +38,7 @@ class StateForestTypeCrudController extends CrudController
         CRUD::setEntityNameStrings('regional forest type', 'regional forest types');
 
         $this->setAccessUsingPermissions();
+        $this->doSetupForStateAgent();
     }
 
     /**
@@ -88,6 +91,8 @@ class StateForestTypeCrudController extends CrudController
             'entity' => 'state',
             'model' => 'App\Models\State',
             'attribute' => 'name',
+            // preselected by the State Hub's Add links
+            'default' => request('state_id'),
         ]);
         CRUD::field([
             'name' => 'title',

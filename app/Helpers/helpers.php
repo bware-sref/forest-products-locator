@@ -88,3 +88,28 @@ if (! function_exists('callerId')) {
         return "{$class}{$type}{$function}";
     }
 }
+
+if (!function_exists('permuteAndJoin')) {
+    /**
+     * Summary of permuteAndJoin
+     * @param array<string> $first
+     * @param array<string> $second
+     * @param string $separator
+     * @return array<string>
+     */
+    function permuteAndJoin(array $first, array $second, string $separator = '.'): array {
+        $z = [];
+        foreach ($first as $f) {
+            if (! is_string($f)) {
+                continue;
+            }
+            foreach ($second as $s) {
+                if (!is_string($s)) {
+                    continue;
+                }
+                $z[] = join([$f, $separator, $s]);
+            }
+        }
+        return $z;
+    }
+}

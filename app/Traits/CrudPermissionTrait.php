@@ -17,7 +17,6 @@ trait CrudPermissionTrait
         'create',
         'update',
         'delete',
-        'import',
     ];
 
     // corresponds to 'see' in permission levels

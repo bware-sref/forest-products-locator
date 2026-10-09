@@ -51,6 +51,12 @@ trait MillImportOperation
     protected function setupImportRoutes(string $segment, string $routeName, string $controller): void
     {
         /**
+         * Do we need to set up the import routes if the user cannot import?
+         * Well, that would be nice except apparently the
+         * user isn't defined yet so we can't do that.
+         */
+
+        /**
          * Step 1
          * Displays the "SelectFile" screen
          * Note that 'uses' points to the 'selectFile' method that this trait adds to the current CrudController.
@@ -139,7 +145,25 @@ trait MillImportOperation
      */
     protected function setupImportDefaults(): void
     {
+        /**
+         * allowAcces() below is what allows everyone to see the button!
+         * We need to limit to users who can('mills.import').
+         */
+        // $user = backpack_user();
+        // if (! $user->can('mills.import')) {
+        //     // Log::debug("\n".self::class."::setupImportDefaults():\nuser cannot mills.import");
+        //     /**
+        //      * Do we want to deny any access before returning?
+        //      * Maybe?
+        //      */
+        //     CRUD::denyAccess('import');
+        //     return;
+        // }
+        /**
+         * Does putting this below the above prevent it executing?
+         */
         CRUD::allowAccess('import');
+
         CRUD::enableGroupedErrors();
         // CRUD::operation('import', function () {
         //     CRUD::loadDefaultOperationSettingsFromConfig();
@@ -153,9 +177,22 @@ trait MillImportOperation
 
         /**
          * Just to be clear, this hooks into the CrudController::list() method for the current Controller, e.g., MillCrudController.
+         * @TODO: the import button should only display for users which have mills.import permission!
          */
         LifecycleHook::hookInto('list:before_setup', function () {
-            CRUD::addButton('top', 'import', 'view', 'import-operation::buttons.import_button');
+            if (backpack_user()?->can('mills.import')) {
+                CRUD::addButton('top', 'import', 'view', 'import-operation::buttons.import_button');
+            }
+        });
+
+        /**
+         * By the time this hook executes, we've applied denyAllAccess() so we have to reallow.
+         */
+        LifecycleHook::hookInto('crud:after_setup', function () {
+            CRUD::setAccessCondition('import', fn () => (bool) backpack_user()?->can('mills.import'));
+            // if (backpack_user()?->can('mills.import')) {
+            //     CRUD::allowAccess('import');
+            // }
         });
     }
 
