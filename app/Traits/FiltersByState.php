@@ -185,23 +185,9 @@ trait FiltersByState
         }
 
         /**
-         * After all this, apply the clause to the query.
+         * No default state clause here: SetsUpForStateAgents::doSetupForStateAgent() already scopes every operation
+         * (list included) to the agent's state. A bare whereIn('state_id') here also broke models without a
+         * state_id column, e.g., StateAssistanceLink.
          */
-        $this->crud->addClause('whereIn', 'state_id', [$user->state_id]);
     }
-
-    // public function doSetupForAgent(): void
-    // {
-    //     if (! backpack_user()->isStateAgent()) {
-    //         // we could log but seems silly
-    //         return;
-    //     }
-
-    //     // we could either list the Models that are highlanders or pass a parameter.
-    //     Log::debug("\n".self::class."::doSetupForAgent(): model? ", [
-    //         "\nmodel\n" => $this->crud->model,
-    //         "\ngetModel()\n" => $this->crud->getModel(),
-    //     ]);
-    // }
-
 }
