@@ -47,6 +47,10 @@ class WoodSpeciesCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        if (!$this->crud->getRequest()->has('order')) {
+            $this->crud->orderBy('name', 'asc');
+        }
+
         CRUD::setFromDb(); // set columns from db columns.
 
         /**
