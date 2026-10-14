@@ -27,17 +27,17 @@ class MississippiMillMapper extends AbstractMillMapper
         $props = $feature['properties'] ?? [];
 
         return array_filter([
-            'mill_name'         => $this->clean($props['company_na'] ?? null),
-            'latitude'          => $this->latitudeFromProperty($props, 'Lat_dd'),
-            'longitude'         => $this->longitudeFromProperty($props, 'Long_dd'),
-            'physical_address'  => $this->clean($props['physical_a'] ?? null),
-            'physical_city'     => $this->clean($props['city'] ?? null),
-            'physical_state'    => $this->stateCode($props['state'] ?? 'MS'),
-            'physical_zip'      => $this->zip($props['zip'] ?? null),
-            'county_name'       => $this->clean($props['county'] ?? null),
-            'type'              => $this->mapType($props['mill_Type'] ?? null),
-            'species'           => $this->mapSpecies($props['species'] ?? null),
-        ], fn ($v) => $v !== null);
+            'mill_name' => $this->clean($props['company_na'] ?? null),
+            'latitude' => $this->latitudeFromProperty($props, 'Lat_dd'),
+            'longitude' => $this->longitudeFromProperty($props, 'Long_dd'),
+            'physical_address' => $this->clean($props['physical_a'] ?? null),
+            'physical_city' => $this->clean($props['city'] ?? null),
+            'physical_state' => $this->stateCode($props['state'] ?? 'MS'),
+            'physical_zip' => $this->zip($props['zip'] ?? null),
+            'county_name' => $this->clean($props['county'] ?? null),
+            'type' => $this->mapType($props['mill_Type'] ?? null),
+            'species' => $this->mapSpecies($props['species'] ?? null),
+        ], fn($v) => $v !== null);
     }
 
     private function mapType(?string $raw): ?string
@@ -54,18 +54,25 @@ class MississippiMillMapper extends AbstractMillMapper
         }
 
         $crosswalk = [
-            'Sawmill'       => 'Sawmill',
-            'Chip'          => 'Chip Mill',
-            'Pole'          => 'Post & Pole',
-            'Plywood'       => 'Veneer / Plywood / Panels',
-            'Pulp Paper'    => 'Pulp & Paper',
-            'Energy Product'=> 'Energy Product',
-            'OSB'           => 'OSB',
-            'Particle Board'=> 'Particle Board',
-            'Other'         => 'Other',
+            'Chip' => 'Chip Mill',
+            // 'Sawmill'       => 'Sawmill',
+            // 'Pole'          => 'Post & Pole',
+            // 'Plywood'       => 'Veneer / Plywood / Panels',
+            // 'Pulp Paper'    => 'Pulp & Paper',
+            // 'Energy Product'=> 'Energy Product',
+            // 'OSB'           => 'OSB',
+            // 'Particle Board'=> 'Particle Board',
+            // 'Other'         => 'Other',
         ];
 
-        $canonical = $crosswalk[$cleaned] ?? null;
+        /**
+         * Why return nothing when would could use the original value instead?!?
+         * This also lets us get rid of the values that map back to themselves.
+         * AND!
+         * It lets us just comment out incorrect mappings instead of correcting them!
+         */
+        // $canonical = $crosswalk[$cleaned] ?? null;
+        $canonical = $crosswalk[$cleaned] ?? $cleaned;
 
         return $canonical !== null ? $this->titleCase($canonical) : null;
     }
@@ -81,7 +88,7 @@ class MississippiMillMapper extends AbstractMillMapper
         $crosswalk = [
             'Softwood' => ['Softwood'],
             'Hardwood' => ['Hardwood'],
-            'Mixed'    => ['Hardwood', 'Softwood'],
+            'Mixed' => ['Hardwood', 'Softwood'],
         ];
 
         $values = $crosswalk[$cleaned] ?? null;

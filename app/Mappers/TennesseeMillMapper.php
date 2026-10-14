@@ -30,10 +30,21 @@ class TennesseeMillMapper extends AbstractMillMapper
      * Stored as extended_attributes.species_flags JSON object.
      */
     private const array SPECIES_FLAGS = [
-        'Cypress', 'Cedar', 'Pine', 'Hemlock',
-        'SoftMaple', 'HardMaple', 'Tupelo', 'Beech',
-        'RedOak', 'WhiteOak', 'Hickory', 'Walnut',
-        'YellowPoplar', 'Ash', 'OtherHdwds',
+        'Cypress',
+        'Cedar',
+        'Pine',
+        'Hemlock',
+        'SoftMaple',
+        'HardMaple',
+        'Tupelo',
+        'Beech',
+        'RedOak',
+        'WhiteOak',
+        'Hickory',
+        'Walnut',
+        'YellowPoplar',
+        'Ash',
+        'OtherHdwds',
     ];
 
     /**
@@ -41,8 +52,17 @@ class TennesseeMillMapper extends AbstractMillMapper
      * Stored as extended_attributes.product_flags JSON object.
      */
     private const array PRODUCT_FLAGS = [
-        'RoundLogs', 'SawnDimLumber', 'Pallet', 'Crosstie', 'Cant',
-        'HandlesHandleBlanks', 'BarrelStave', 'Posts', 'Chips', 'Sawdust', 'Mulch',
+        'RoundLogs',
+        'SawnDimLumber',
+        'Pallet',
+        'Crosstie',
+        'Cant',
+        'HandlesHandleBlanks',
+        'BarrelStave',
+        'Posts',
+        'Chips',
+        'Sawdust',
+        'Mulch',
     ];
 
     public function stateAbbreviation(): string
@@ -52,39 +72,42 @@ class TennesseeMillMapper extends AbstractMillMapper
 
     public function map(array $feature): array
     {
-        $props    = $feature['properties'] ?? [];
+        $props = $feature['properties'] ?? [];
         $extended = $this->buildExtendedAttributes($props);
 
         return array_filter([
-            'mill_name'           => $this->clean($props['Company_Name'] ?? null),
-            'latitude'            => $this->latitude($feature),
-            'longitude'           => $this->longitude($feature),
-            'physical_address'    => $this->clean($props['Phys_Add'] ?? null),
-            'physical_city'       => $this->clean($props['Phys_City'] ?? null),
-            'physical_state'      => $this->stateCode($props['Phys_St'] ?? 'TN'),
-            'physical_zip'        => $this->zip($props['Phys_Zip'] ?? null),
+            'mill_name' => $this->clean($props['Company_Name'] ?? null),
+            'latitude' => $this->latitude($feature),
+            'longitude' => $this->longitude($feature),
+            'physical_address' => $this->clean($props['Phys_Add'] ?? null),
+            'physical_city' => $this->clean($props['Phys_City'] ?? null),
+            'physical_state' => $this->stateCode($props['Phys_St'] ?? 'TN'),
+            'physical_zip' => $this->zip($props['Phys_Zip'] ?? null),
             // Phys_County is a numeric FIPS code — stored as-is for ProcessMillState
-            'county_name'         => isset($props['Phys_County']) && $props['Phys_County'] !== null
-                                        ? (string) (int) $props['Phys_County']
-                                        : null,
-            'mailing_address'     => $this->clean($props['Mail_Add'] ?? null),
-            'mailing_city'        => $this->clean($props['Mail_City'] ?? null),
-            'mailing_state'       => $this->stateCode($props['Mail_St'] ?? null),
-            'mailing_zip'         => $this->zip($props['Mail_Zip'] ?? null),
-            'telephone'           => $this->clean($props['Comp_Phone'] ?? null),
-            'web_site'            => $this->clean($props['Website'] ?? null),
-            'size'                => $this->nullIfDateCorrupted($props['Employees'] ?? null),
-            'type'                => $this->mapType($props),
-            'species'             => $this->mapSpecies($props['SpeciesGroup'] ?? null),
-            'modification_date'   => $this->fromUnixMs($props['EditDate'] ?? null),
-            'extended_attributes' => ! empty($extended) ? $extended : null,
-        ], fn ($v) => $v !== null);
+            'county_name' => isset($props['Phys_County']) && $props['Phys_County'] !== null
+                ? (string) (int) $props['Phys_County']
+                : null,
+            'mailing_address' => $this->clean($props['Mail_Add'] ?? null),
+            'mailing_city' => $this->clean($props['Mail_City'] ?? null),
+            'mailing_state' => $this->stateCode($props['Mail_St'] ?? null),
+            'mailing_zip' => $this->zip($props['Mail_Zip'] ?? null),
+            'telephone' => $this->clean($props['Comp_Phone'] ?? null),
+            'web_site' => $this->clean($props['Website'] ?? null),
+            'size' => $this->nullIfDateCorrupted($props['Employees'] ?? null),
+            'type' => $this->mapType($props),
+            'species' => $this->mapSpecies($props['SpeciesGroup'] ?? null),
+            'modification_date' => $this->fromUnixMs($props['EditDate'] ?? null),
+            'extended_attributes' => !empty($extended) ? $extended : null,
+        ], fn($v) => $v !== null);
     }
 
     // -------------------------------------------------------------------------
 
     private function mapType(array $props): ?string
     {
+        /**
+         * $types is an array because we also capture "Portable" as a type if the Portable attribute is populated.
+         */
         $types = [];
 
         $rawType = $this->clean($props['Type'] ?? null);
@@ -92,20 +115,29 @@ class TennesseeMillMapper extends AbstractMillMapper
         if ($rawType !== null) {
             $crosswalk = [
                 'Saw mill (includes cooperage/stave, handle mills)' => 'Sawmill',
-                'Pulp/Paper mill'                                   => 'Pulp & Paper',
-                'Chip mill'                                         => 'Chip Mill',
-                'Veneer/plywood mill'                               => 'Veneer / Plywood / Panels',
+                'Pulp/Paper mill' => 'Pulp & Paper',
+                'Veneer/plywood mill' => 'Veneer / Plywood / Panels',
                 // Retained verbatim per audit decision
-                'Industrial fuelwood/Biomass/Energy'                => 'Industrial Fuelwood/Biomass/Energy',
-                'Biomass/Energy plant'                              => 'Biomass/Energy Plant',
-                'Export yard'                                       => 'Export Yard',
-                'Log yard'                                          => 'Log Yard',
-                'Firewood'                                          => 'Firewood',
-                'Fuelwood'                                          => 'Fuelwood',
-                'Composite'                                         => 'Composite',
+                // 'Industrial fuelwood/Biomass/Energy'                => 'Industrial Fuelwood/Biomass/Energy',
+
+                /**
+                 * The following are just title case fixes and don't need to be here
+                 */
+                // 'Industrial fuelwood/Biomass/Energy'                => 'Industrial Fuelwood/Biomass/Energy',
+                // 'Chip mill'                                         => 'Chip Mill',
+                // 'Biomass/Energy plant'                              => 'Biomass/Energy Plant',
+                // 'Export yard'                                       => 'Export Yard',
+                // 'Log yard'                                          => 'Log Yard',
+                // 'Firewood'                                          => 'Firewood',
+                // 'Fuelwood'                                          => 'Fuelwood',
+                // 'Composite'                                         => 'Composite',
             ];
 
-            $canonical = $crosswalk[$rawType] ?? null;
+            /**
+             * @FFS
+             * Why return nothing instead using the original value?
+             */
+            $canonical = $crosswalk[$rawType] ?? $rawType; // null;
 
             if ($canonical !== null) {
                 $types[] = $this->titleCase($canonical);
@@ -138,7 +170,7 @@ class TennesseeMillMapper extends AbstractMillMapper
             match (strtolower($token)) {
                 'hardwood' => $species[] = 'Hardwood',
                 'softwood' => $species[] = 'Softwood',
-                default    => null,
+                default => null,
             };
         }
 
@@ -156,7 +188,7 @@ class TennesseeMillMapper extends AbstractMillMapper
                 $speciesFlags[$col] = true;
             }
         }
-        if (! empty($speciesFlags)) {
+        if (!empty($speciesFlags)) {
             $extended['species_flags'] = $speciesFlags;
         }
 
@@ -171,7 +203,7 @@ class TennesseeMillMapper extends AbstractMillMapper
                 $productFlags[$col] = true;
             }
         }
-        if (! empty($productFlags)) {
+        if (!empty($productFlags)) {
             $extended['product_flags'] = $productFlags;
         }
 
