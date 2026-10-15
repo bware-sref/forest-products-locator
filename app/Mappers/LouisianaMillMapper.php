@@ -30,16 +30,16 @@ class LouisianaMillMapper extends AbstractMillMapper
         [$type, $species] = $this->mapTypesField($props['Types'] ?? null);
 
         return array_filter([
-            'mill_name'         => $this->clean($props['Company'] ?? null),
-            'latitude'          => $this->latitudeFromProperty($props, 'Lat'),
-            'longitude'         => $this->longitudeFromProperty($props, 'Lon'),
-            'physical_state'    => 'LA',
-            'physical_address'  => $this->clean($props['Address'] ?? null),
-            'physical_zip'      => $this->zip($props['Zip'] ?? null),
-            'county_name'       => $this->clean($props['Parish'] ?? null),
-            'type'              => $type,
-            'species'           => $species,
-        ], fn ($v) => $v !== null);
+            'mill_name' => $this->clean($props['Company'] ?? null),
+            'latitude' => $this->latitudeFromProperty($props, 'Lat'),
+            'longitude' => $this->longitudeFromProperty($props, 'Lon'),
+            'physical_state' => 'LA',
+            'physical_address' => $this->clean($props['Address'] ?? null),
+            'physical_zip' => $this->zip($props['Zip'] ?? null),
+            'county_name' => $this->clean($props['Parish'] ?? null),
+            'type' => $type,
+            'species' => $species,
+        ], fn($v) => $v !== null);
     }
 
     /**
@@ -68,18 +68,30 @@ class LouisianaMillMapper extends AbstractMillMapper
 
         // Type crosswalk
         $typeCrosswalk = [
-            'Chip'      => 'Chip Mill',
-            'Pulp&Paper'=> 'Pulp & Paper',
-            'Plywood'   => 'Veneer / Plywood / Panels',
-            'Panel'     => 'Veneer / Plywood / Panels',
-            'Pole'      => 'Post & Pole',
-            'OSB'       => 'OSB',
-            'Pellet'    => 'Pellet',
-            'EWP'       => 'Engineered Wood Products',
+            'Chip' => 'Chip Mill',
+            'Pulp&Paper' => 'Pulp & Paper',
+            'EWP' => 'Engineered Wood Products',
+            // 'Plywood' => 'Veneer / Plywood / Panels',
+            // 'Panel' => 'Veneer / Plywood / Panels',
+            // 'Pole' => 'Post & Pole',
+            // 'OSB' => 'OSB',
+            // 'Pellet' => 'Pellet',
         ];
 
-        $canonical = $typeCrosswalk[$cleaned] ?? null;
+        /**
+         * Why return nothing when would could use the original value instead?!?
+         * This also lets us get rid of the values that map back to themselves.
+         * AND!
+         * It lets us just comment out incorrect mappings instead of correcting them!
+         */
+        // $canonical = $typeCrosswalk[$cleaned] ?? null;
+        $canonical = $typeCrosswalk[$cleaned] ?? $cleaned;
 
+        /**
+         * Why do we always return null for wood species?!?
+         * Ah
+         * Because Louisiana data apparently only has wood species OR mill type.
+         */
         return [
             $canonical !== null ? $this->titleCase($canonical) : null,
             null,

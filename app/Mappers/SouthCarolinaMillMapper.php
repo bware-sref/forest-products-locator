@@ -33,24 +33,24 @@ class SouthCarolinaMillMapper extends AbstractMillMapper
         $extended = $this->buildExtendedAttributes($props);
 
         return array_filter([
-            'mill_name'           => $this->clean($props['Name'] ?? null),
-            'latitude'            => $this->latitudeFromProperty($props, 'Y'),
-            'longitude'           => $this->longitudeFromProperty($props, 'X'),
-            'physical_address'    => $this->clean($props['Location'] ?? null),
-            'physical_state'      => 'SC',
-            'mailing_address'     => $this->clean($props['Address'] ?? null),
-            'county_name'         => $this->clean($props['County'] ?? null),
-            'telephone'           => $this->clean($props['Phone'] ?? null),
-            'fax'                 => $this->clean($props['Fax'] ?? null),
-            'email'               => $this->clean($props['Email'] ?? null),
-            'web_site'            => $this->clean($props['Web'] ?? null),
-            'contact_name'        => $this->buildContactName($props),
-            'contact_title'       => $this->clean($props['Title'] ?? null),
-            'type'                => $type,
-            'species'             => $this->mapSpecies($props['Species'] ?? null),
-            'size'                => $size,
-            'extended_attributes' => ! empty($extended) ? $extended : null,
-        ], fn ($v) => $v !== null);
+            'mill_name' => $this->clean($props['Name'] ?? null),
+            'latitude' => $this->latitudeFromProperty($props, 'Y'),
+            'longitude' => $this->longitudeFromProperty($props, 'X'),
+            'physical_address' => $this->clean($props['Location'] ?? null),
+            'physical_state' => 'SC',
+            'mailing_address' => $this->clean($props['Address'] ?? null),
+            'county_name' => $this->clean($props['County'] ?? null),
+            'telephone' => $this->clean($props['Phone'] ?? null),
+            'fax' => $this->clean($props['Fax'] ?? null),
+            'email' => $this->clean($props['Email'] ?? null),
+            'web_site' => $this->clean($props['Web'] ?? null),
+            'contact_name' => $this->buildContactName($props),
+            'contact_title' => $this->clean($props['Title'] ?? null),
+            'type' => $type,
+            'species' => $this->mapSpecies($props['Species'] ?? null),
+            'size' => $size,
+            'extended_attributes' => !empty($extended) ? $extended : null,
+        ], fn($v) => $v !== null);
     }
 
     // -------------------------------------------------------------------------
@@ -67,23 +67,33 @@ class SouthCarolinaMillMapper extends AbstractMillMapper
             return [null, null];
         }
 
+        /**
+         * Okay, this one's (almost) totally legit.
+         * Even though these are the only values present in the latest data from SC, 
+         * we still need to account for values not in the crosswalk.
+         */
         $crosswalk = [
-            'SawS'      => [['Sawmill'],                        'Small'],
-            'SawM'      => [['Sawmill'],                        'Medium'],
-            'SawL'      => [['Sawmill'],                        'Large'],
-            'Portable'  => [['Sawmill', 'Portable Sawmill'],    null],
-            'ShavMulch' => [['Wood Shavings', 'Mulch'],         null],
-            'PP'        => [['Post & Pole'],                    null],
-            'VP'        => [['Veneer / Plywood / Panels'],      null],
-            'LEY'       => [['Log Export'],                     null],
-            'BE'        => [['Energy Product'],                 null],
-            'PulpPaper' => [['Pulp & Paper'],                   null],
-            'ChipMill'  => [['Chip Mill'],                      null],
-            'PSM'       => [['Pallet'],                         null],
+            'SawS' => [['Sawmill'], 'Small'],
+            'SawM' => [['Sawmill'], 'Medium'],
+            'SawL' => [['Sawmill'], 'Large'],
+            'Portable' => [['Sawmill', 'Portable Sawmill'], null],
+            'ShavMulch' => [['Wood Shavings', 'Mulch'], null],
+            'PP' => [['Post & Pole'], null],
+            'VP' => [['Veneer / Plywood / Panels'], null],
+            'LEY' => [['Log Export'], null],
+            'BE' => [['Energy Product'], null],
+            'PulpPaper' => [['Pulp & Paper'], null],
+            'ChipMill' => [['Chip Mill'], null],
+            'PSM' => [['Pallet'], null],
         ];
 
-        if (! isset($crosswalk[$cleaned])) {
-            return [null, null];
+        /**
+         * Broken record!
+         * Why return nothing instead of using the original value?
+         */
+        if (!isset($crosswalk[$cleaned])) {
+            // return [null, null];
+            return [[$cleaned], null];
         }
 
         [$types, $size] = $crosswalk[$cleaned];
@@ -111,7 +121,7 @@ class SouthCarolinaMillMapper extends AbstractMillMapper
             match (strtolower($token)) {
                 'hardwood' => $species[] = 'Hardwood',
                 'softwood' => $species[] = 'Softwood',
-                default    => null, // specific species go to extended_attributes.species_detail
+                default => null, // specific species go to extended_attributes.species_detail
             };
         }
 
@@ -121,11 +131,11 @@ class SouthCarolinaMillMapper extends AbstractMillMapper
     private function buildContactName(array $props): ?string
     {
         $first = $this->clean($props['First_Name'] ?? null);
-        $last  = $this->clean($props['Last_Name'] ?? null);
+        $last = $this->clean($props['Last_Name'] ?? null);
 
         $parts = array_filter([$first, $last]);
 
-        return ! empty($parts) ? implode(' ', $parts) : null;
+        return !empty($parts) ? implode(' ', $parts) : null;
     }
 
     private function buildExtendedAttributes(array $props): array

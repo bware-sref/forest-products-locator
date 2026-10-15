@@ -25,33 +25,33 @@ class GeorgiaMillMapper extends AbstractMillMapper
 
     public function map(array $feature): array
     {
-        $props    = $feature['properties'] ?? [];
+        $props = $feature['properties'] ?? [];
         $extended = $this->buildExtendedAttributes($props);
 
         return array_filter([
-            'mill_name'           => $this->clean($props['MillName'] ?? null),
-            'latitude'            => $this->latitudeFromProperty($props, 'Latitude'),
-            'longitude'           => $this->longitudeFromProperty($props, 'Longitude'),
-            'physical_address'    => $this->clean($props['AddressPhysical'] ?? null),
-            'physical_city'       => $this->clean($props['City'] ?? null),
-            'physical_state'      => $this->stateCode($props['State'] ?? 'GA'),
-            'physical_zip'        => $this->zip($props['Zip'] ?? null),
-            'mailing_address'     => $this->clean($props['AddressMail'] ?? null),
-            'mailing_city'        => $this->clean($props['City_1'] ?? null),
-            'mailing_state'       => $this->stateCode($props['State_1'] ?? null),
-            'mailing_zip'         => $this->zip($props['Zip_1'] ?? null),
-            'county_name'         => $this->clean($props['County'] ?? null),
-            'telephone'           => $this->clean($props['Telephone'] ?? null),
-            'fax'                 => $this->clean($props['Fax'] ?? null),
-            'email'               => $this->clean($props['Email'] ?? null),
-            'web_site'            => $this->clean($props['Web'] ?? null),
-            'contact_name'        => $this->clean($props['CEO'] ?? null),
-            'size'                => $this->clean($props['Mill_Size'] ?? null),
-            'type'                => $this->mapTypes($props),
-            'species'             => $this->mapSpecies($props),
-            'modification_date'   => $this->fromUnixMs($props['EditDate'] ?? null),
-            'extended_attributes' => ! empty($extended) ? $extended : null,
-        ], fn ($v) => $v !== null);
+            'mill_name' => $this->clean($props['MillName'] ?? null),
+            'latitude' => $this->latitudeFromProperty($props, 'Latitude'),
+            'longitude' => $this->longitudeFromProperty($props, 'Longitude'),
+            'physical_address' => $this->clean($props['AddressPhysical'] ?? null),
+            'physical_city' => $this->clean($props['City'] ?? null),
+            'physical_state' => $this->stateCode($props['State'] ?? 'GA'),
+            'physical_zip' => $this->zip($props['Zip'] ?? null),
+            'mailing_address' => $this->clean($props['AddressMail'] ?? null),
+            'mailing_city' => $this->clean($props['City_1'] ?? null),
+            'mailing_state' => $this->stateCode($props['State_1'] ?? null),
+            'mailing_zip' => $this->zip($props['Zip_1'] ?? null),
+            'county_name' => $this->clean($props['County'] ?? null),
+            'telephone' => $this->clean($props['Telephone'] ?? null),
+            'fax' => $this->clean($props['Fax'] ?? null),
+            'email' => $this->clean($props['Email'] ?? null),
+            'web_site' => $this->clean($props['Web'] ?? null),
+            'contact_name' => $this->clean($props['CEO'] ?? null),
+            'size' => $this->clean($props['Mill_Size'] ?? null),
+            'type' => $this->mapTypes($props),
+            'species' => $this->mapSpecies($props),
+            'modification_date' => $this->fromUnixMs($props['EditDate'] ?? null),
+            'extended_attributes' => !empty($extended) ? $extended : null,
+        ], fn($v) => $v !== null);
     }
 
     // -------------------------------------------------------------------------
@@ -81,26 +81,50 @@ class GeorgiaMillMapper extends AbstractMillMapper
      */
     private function crosswalkType(string $raw): array
     {
+        /**
+         * The values that return the same value are curious.
+         * Why wouldn't the fallback be just trusting what was given?
+         * Why even try to map something to itself?
+         *
+         * FYI, Mill Type values are revisted when mapping wood species.
+         * That means we can keep the "Sawmill - Wood Type" mappings to "Sawmill".
+         */
         $crosswalk = [
-            'Sawmill - Hardwood'            => ['Sawmill'],
-            'Sawmill - Softwood'            => ['Sawmill'],
+            'Sawmill - Hardwood' => ['Sawmill'],
+            'Sawmill - Softwood' => ['Sawmill'],
             'Sawmill - Hardwood & Softwood' => ['Sawmill'],
-            'Chip Mill'                     => ['Chip Mill'],
-            'Pulp & Paper'                  => ['Pulp & Paper'],
-            'Pole - Post'                   => ['Post & Pole'],
-            'Panel & Engineered Wood'       => ['Veneer / Plywood / Panels'],
-            'OSB'                           => ['OSB'],
-            'Energy Product'                => ['Energy Product'],
-            'Energy Product-wood pellets'   => ['Pellet'],
-            'Chip/Log Exports'              => ['Chip Mill', 'Log Export'],
-            'Pole & Log Export'             => ['Post & Pole', 'Log Export'],
-            'Firewood'                      => ['Firewood'],
-            'Log Home'                      => ['Log Home'],
-            'Mulch'                         => ['Mulch'],
-            'Other'                         => ['Other'],
+
+            /**
+             * values that return the same value seem pointless
+             * especially after adding the most sensible fallback I could imagine...
+             * THE RAW VALUE, FFFS!
+             */
+            // 'Chip Mill' => ['Chip Mill'],
+            // 'Pulp & Paper' => ['Pulp & Paper'],
+            // 'OSB' => ['OSB'],
+            // 'Energy Product' => ['Energy Product'],
+            // 'Firewood' => ['Firewood'],
+            // 'Log Home' => ['Log Home'],
+            // 'Mulch' => ['Mulch'],
+            // 'Other' => ['Other'],
+
+            /**
+             * Below are potentially problematic mappings
+             */
+            // 'Pole - Post'                   => ['Post & Pole'],
+            // 'Panel & Engineered Wood'       => ['Veneer / Plywood / Panels'],
+            // 'Energy Product-wood pellets'   => ['Pellet'],
+            // specific call out on "Chip/Log Exports" mapping
+            // 'Chip/Log Exports'              => ['Chip Mill', 'Log Export'],
+            // 'Pole & Log Export'             => ['Post & Pole', 'Log Export'],
         ];
 
-        return $crosswalk[$raw] ?? [];
+        /**
+         * Why would we return an empty type instead of just using the value in the data?
+         * That seems crazy.
+         */
+        return $crosswalk[$raw] ?? [$raw];
+        // return $crosswalk[$raw] ?? [];
     }
 
     /**
@@ -115,8 +139,8 @@ class GeorgiaMillMapper extends AbstractMillMapper
 
         if ($rawSpecies !== null) {
             $speciesMap = [
-                'HW'      => ['Hardwood'],
-                'SW'      => ['Softwood'],
+                'HW' => ['Hardwood'],
+                'SW' => ['Softwood'],
                 'HW & SW' => ['Hardwood', 'Softwood'],
             ];
             $species = array_merge($species, $speciesMap[$rawSpecies] ?? []);

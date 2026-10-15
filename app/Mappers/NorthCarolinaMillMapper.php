@@ -23,46 +23,54 @@ class NorthCarolinaMillMapper extends AbstractMillMapper
         $props = $feature['properties'] ?? [];
 
         return array_filter([
-            'mill_name'         => $this->clean($props['Company'] ?? null),
+            'mill_name' => $this->clean($props['Company'] ?? null),
             /**
              * Pass the entire feature just in case we have to fallback to coordinates.
              */
-            'latitude'          => $this->latitude($feature),
-            'longitude'         => $this->longitude($feature),
+            'latitude' => $this->latitude($feature),
+            'longitude' => $this->longitude($feature),
             /**
              * Why doesn't the mapper use the stateAbbreviation() method?
              */
-            'physical_state'    => 'NC',
-            'type'              => $this->mapType($props['OP1'] ?? null),
+            'physical_state' => 'NC',
+            'type' => $this->mapType($props['OP1'] ?? null),
             'modification_date' => $this->fromUnixMs($props['EditDate'] ?? null),
-        ], fn ($v) => $v !== null);
+        ], fn($v) => $v !== null);
     }
 
     private function mapType(?string $raw): ?string
     {
-        $crosswalk = [
-            'Sawmill'               => 'Sawmill',
-            'Pulp & Paper Mill'     => 'Pulp & Paper',
-            'Chip Mill'             => 'Chip Mill',
-            'Plywood/Veneer Mill'   => 'Veneer / Plywood / Panels',
-            'OSB Mfg Plant'         => 'OSB',
-            'Pellet Mill'           => 'Pellet',
-            'Firewood'              => 'Firewood',
-            'Commercial Firewood'   => 'Firewood',
-            'Mulch Plant'           => 'Mulch',
-            'Electrical Power Plant'=> 'Electrical Power Plant',
-            'Fiberboard Plant (MDF)'=> 'Fiberboard Plant (MDF)',
-            'Particle Board'        => 'Particle Board',
-            'Log Export Yard'       => 'Log Export',
-        ];
-
         $cleaned = $this->clean($raw);
 
         if ($cleaned === null) {
             return null;
         }
 
-        $canonical = $crosswalk[$cleaned] ?? null;
+        $crosswalk = [
+            'Pulp & Paper Mill' => 'Pulp & Paper',
+            'Plywood/Veneer Mill' => 'Veneer / Plywood / Panels',
+            'OSB Mfg Plant' => 'OSB',
+            'Pellet Mill' => 'Pellet',
+            'Commercial Firewood' => 'Firewood',
+            'Mulch Plant' => 'Mulch',
+            'Fiberboard Plant (MDF)' => 'Fiberboard Plant (MDF)',
+            'Log Export Yard' => 'Log Export',
+
+            // 'Sawmill'               => 'Sawmill',
+            // 'Chip Mill'             => 'Chip Mill',
+            // 'Firewood'              => 'Firewood',
+            // 'Particle Board'        => 'Particle Board',
+            // 'Electrical Power Plant' => 'Electrical Power Plant',
+        ];
+
+        /**
+         * Why return nothing when would could use the original value instead?!?
+         * This also lets us get rid of the values that map back to themselves.
+         * AND!
+         * It lets us just comment out incorrect mappings instead of correcting them!
+         */
+        // $canonical = $crosswalk[$cleaned] ?? null;
+        $canonical = $crosswalk[$cleaned] ?? $cleaned;
 
         return $canonical !== null ? $this->titleCase($canonical) : null;
     }
