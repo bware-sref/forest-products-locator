@@ -56,7 +56,7 @@ class StateAssistanceLinkCrudController extends CrudController
         // avoid N+1s from the state_name model_function column below
         $this->crud->query->with('category.state');
 
-        if (! $this->crud->getRequest()->has('order')) {
+        if (!$this->crud->getRequest()->has('order')) {
             $this->crud->query
                 ->orderBy(
                     StateAssistanceCategory::select('state_id')
@@ -68,7 +68,7 @@ class StateAssistanceLinkCrudController extends CrudController
                         ->whereColumn('state_assistance_categories.id', 'state_assistance_links.state_assistance_category_id'),
                     'asc'
                 )
-                
+
                 ->orderBy('sort_weight', 'asc');
         }
 
@@ -109,40 +109,31 @@ class StateAssistanceLinkCrudController extends CrudController
     {
         CRUD::setValidation(StateAssistanceLinkRequest::class);
 
-        CRUD::field([
-            'name' => 'state_assistance_category_id',
-            'label' => 'Category (State — Category)',
-            'type' => 'select',
-            'entity' => 'category',
-            'model' => 'App\Models\StateAssistanceCategory',
-            'attribute' => 'select_label',
+        CRUD::field('state_assistance_category_id')
+            ->label('Category (State — Category)')
+            ->type('select')
+            ->entity('category')
+            ->model('App\Models\StateAssistanceCategory')
+            ->attribute('select_label')
             // preselected by the State Hub's Add link
-            'default' => request('state_assistance_category_id'),
+            ->default(request('state_assistance_category_id'))
             // groups/orders options by state so the (already state-prefixed) labels
             // read as contiguous per-state blocks instead of being interleaved
-            'options' => fn ($query) => $query->orderBy('state_id', 'asc')->orderBy('sort_weight', 'asc')->get(),
-        ]);
-        CRUD::field([
-            'name' => 'label',
-            'label' => 'Label',
-            'type' => 'text',
-        ]);
-        CRUD::field([
-            'name' => 'description',
-            'label' => 'Description',
-            'type' => 'textarea',
-        ]);
-        CRUD::field([
-            'name' => 'url',
-            'label' => 'URL',
-            'type' => 'text',
-        ]);
-        CRUD::field([
-            'name' => 'sort_weight',
-            'label' => 'Sort Weight',
-            'type' => 'number',
-            'default' => 10,
-        ]);
+            ->options(fn($query) => $query->orderBy('state_id', 'asc')->orderBy('sort_weight', 'asc')->get());
+
+        CRUD::field('label')
+            ->label('Label')
+            ->type('text');
+        CRUD::field('description')
+            ->label('Description')
+            ->type('textarea');
+        CRUD::field('url')
+            ->label('URL')
+            ->type('text');
+        CRUD::field('sort_weight')
+            ->label('Sort Weight')
+            ->type('number')
+            ->default(10);
     }
 
     /**
@@ -178,7 +169,7 @@ class StateAssistanceLinkCrudController extends CrudController
      */
     protected function scopeToAgentState(Builder $query, int $stateId): void
     {
-        $query->whereHas('category', fn ($query) => $query->where('state_id', $stateId));
+        $query->whereHas('category', fn($query) => $query->where('state_id', $stateId));
     }
 
     /**
@@ -187,7 +178,7 @@ class StateAssistanceLinkCrudController extends CrudController
     protected function limitAgentStateField(int $stateId): void
     {
         CRUD::field('state_assistance_category_id')
-            ->options(fn ($query) => $query->where('state_id', $stateId)->orderBy('sort_weight', 'asc')->get());
+            ->options(fn($query) => $query->where('state_id', $stateId)->orderBy('sort_weight', 'asc')->get());
     }
 
     /**
@@ -200,7 +191,7 @@ class StateAssistanceLinkCrudController extends CrudController
 
         abort_if(
             $categoryId !== null
-                && ! StateAssistanceCategory::whereKey($categoryId)->where('state_id', $stateId)->exists(),
+            && !StateAssistanceCategory::whereKey($categoryId)->where('state_id', $stateId)->exists(),
             403
         );
     }
