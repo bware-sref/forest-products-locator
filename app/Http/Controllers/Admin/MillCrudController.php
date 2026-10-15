@@ -84,7 +84,7 @@ class MillCrudController extends CrudController
         /**
          * Apply order if it's in the request
          */
-        if (! $this->crud->getRequest()->has('order')) {
+        if (!$this->crud->getRequest()->has('order')) {
             $this->crud->orderBy('mill_name', 'asc');
         }
 
@@ -166,6 +166,10 @@ class MillCrudController extends CrudController
         //         'disabled' => 'disabled',
         //     ])
         //     ->tab('Basic Information');
+
+        /**
+         * Basic information
+         */
         CRUD::field('year')
             ->label('Year Established')
             ->type('text')
@@ -174,8 +178,17 @@ class MillCrudController extends CrudController
             ->label('Mill Size')
             ->type('text')
             ->tab('Basic Information');
+        CRUD::field('status')
+            ->label('Status')
+            ->hint('Hide a mill without deleting it by setting its publication status to "Pending"')
+            ->type('enum')
+            ->enum_class(PublicationStatus::class)
+            ->tab('Basic Information');
 
-        // physical address fields
+
+        /**
+         * physical address fields
+         */
         CRUD::field('physical_address')
             ->label('Street Address')
             ->type('text')
@@ -211,7 +224,9 @@ class MillCrudController extends CrudController
             ->tab('Physical Address');
         // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
 
-        // mailing address fields
+        /**
+         * mailing address fields
+         */
         CRUD::field('mailing_address')
             ->label('Street Address')
             ->type('text')
@@ -231,6 +246,7 @@ class MillCrudController extends CrudController
             ->label('Zip Code')
             ->type('text')
             ->tab('Mailing Address');
+
         // omitting county_id for the time being because it really should be limited by state_id and that would require a custom field type
 
 
@@ -258,10 +274,16 @@ class MillCrudController extends CrudController
         CRUD::field('email')
             ->label('Email')
             ->type('email')
+            ->attributes([
+                'autocomplete' => 'off',
+            ])
             ->tab('Contact Information');
         CRUD::field('email_2')
             ->label('Email 2')
             ->type('email')
+            ->attributes([
+                'autocomplete' => 'off',
+            ])
             ->tab('Contact Information');
         CRUD::field('web_site')
             ->label('Website')
@@ -451,7 +473,7 @@ class MillCrudController extends CrudController
         //     'model' => 'App\Models\State',
         //     'attribute' => 'name',
         // ]);
-        
+
         CRUD::addColumn([
             'name' => 'mailing_zip',
             'label' => 'Mailing ZIP',
