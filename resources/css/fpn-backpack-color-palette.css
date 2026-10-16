@@ -1,6 +1,18 @@
 /**
     This file declares css color variables for branding purposes.
     Attention, "./color-adjustments.css" depends on this file to properly function.
+
+    Contrast (WCAG 2.2): every text/background pairing below is chosen to meet AA (4.5:1 body text,
+    3:1 UI component boundaries) at minimum and AAA (7:1) wherever the brand palette allows it.
+    Ratios are noted next to the tokens that matter. Surfaces used for the math:
+      light: white / glass surface (#fbfcfd) and paper-background body (--tblr-gray-100, #f1f5f9)
+      dark:  card/form surface (--tblr-bg-surface = coupe, #2f454d) and page body (black/#181818)
+    Component-level fixes that can't be done with tokens alone live in ./bp-hooks.css.
+
+    Tabler derives every *-fg (button/badge text) from --tblr-light, which this file used to set to
+    velvet (dark) so .btn-secondary text would show on its beluga background -- which in turn put
+    dark text on every primary/success/danger button. Each *-fg is now set explicitly instead, and
+    --tblr-light is a light color again.
 */
 
 @charset "UTF-8";
@@ -19,6 +31,21 @@
     --color-sonic: oklch(0.5624 0 0); /* #757575; text search placeholder, mill list item header bottom border */
     --color-lorne: oklch(47.38% 0.022 137.85); /* #565f53; filters background */
 
+    /**
+     admin-only contrast tokens, derived from the brand colors above
+     nature (#6a7666) is only 4.22:1 against beluga and 4.36:1 against the paper background, so the
+     admin's primary is a deeper shade of the same hue. Sage is the light counterpart for dark mode.
+     */
+    --fpn-nature-deep: #475044; /* beluga on it 7.43:1, it on white 8.40:1, on #f1f5f9 7.67:1 -- AAA both ways */
+    --fpn-nature-deep-rgb: 71, 80, 68;
+    --fpn-sage: #b5c2ad; /* velvet on it 8.66:1; it on coupe 5.43:1, on black 11.28:1 */
+    --fpn-sage-rgb: 181, 194, 173;
+    --fpn-slate: #4a4f57; /* neutral secondary/muted text; on white 8.24:1, on beluga 7.29:1, on #f1f5f9 7.53:1 */
+    --fpn-slate-rgb: 74, 79, 87;
+    /* form field boundaries (WCAG 1.4.11 non-text contrast, 3:1) */
+    --fpn-input-border: #7d8379; /* on white 3.89:1, on #f1f5f9 3.55:1 */
+    --fpn-placeholder: #5c6166; /* on white 6.26:1 -- passes AA but still reads lighter than typed text */
+
     --tblr-gray: #4c496c;
     --tblr-gray-dark: #211d3b;
     --tblr-gray-100: #f1f5f9;
@@ -30,59 +57,58 @@
     --tblr-gray-700: #333152;
     --tblr-gray-800: #211d3b;
     --tblr-gray-900: #1a0f2a;
-    /* --tblr-primary: #7c69ef; */
-    /* --tblr-primary: var(--color-lorne); */
-    /* primary becomes nav bar active link border color, FFS */
-    /* oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card */
-    /* --tblr-primary: var(--color-coupe); */
-    --tblr-primary: var(--color-nature);
-    /* --tblr-primary: var(--color-beluga); */
-    /* --tblr-secondary: #66626c; */
-    /** 
-        tblr-secondary is used for tblr-btn-bg in the class .btn-secondary
-        also for links
-        zucchini may not be light enough
+    /* primary becomes nav bar active link border color, button bg, checkbox fill, focus ring, list-page link text */
+    --tblr-primary: var(--fpn-nature-deep);
+    --tblr-primary-fg: var(--color-beluga); /* 7.43:1 */
+    --tblr-primary-darken: color-mix(in oklab, var(--tblr-primary), black 18%); /* hover; Tabler's default mixes toward transparent, i.e. *lighter* on a light page, which lowered contrast */
+    /**
+        --tblr-secondary is Tabler's secondary *text* color: navbar links, .form-hint, .text-secondary,
+        badges. It was beluga, which made the light-mode navbar text invisible (1.1:1 on white).
+        .btn-secondary / .bg-secondary keep their beluga fill via bp-hooks.css instead.
     */
-    /* --tblr-secondary: var(--color-zucchini); */
-    --tblr-secondary: var(--color-beluga);
-    /* --tblr-secondary:  var(--color-velvet); /* oklch(0.9577 0.0017 247.84); #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
-    --tblr-success: #42ba96;
-    --tblr-info: #467fd0;
-    --tblr-warning: #ffc107;
-    --tblr-danger: #df4759;
-    /* tblr-light gets used for tblr-secondary-fg, which is in turn used for tblr-btn-color */
-    /* --tblr-light: #f8fafc; */
-    --tblr-light: var(--color-beluga);
-    /* tblr-light becomes btn-fg */
-    --tblr-light: var(--color-velvet);
+    --tblr-secondary: var(--fpn-slate);
+    --tblr-secondary-fg: var(--color-velvet);
+    --tblr-secondary-darken: color-mix(in oklab, var(--tblr-secondary), black 18%);
+    /* status colors: deep enough for white text, and for use as text on light surfaces */
+    --tblr-success: #17614a; /* white on it 7.38:1 */
+    --tblr-success-fg: #fff;
+    --tblr-success-darken: color-mix(in oklab, var(--tblr-success), black 18%);
+    --tblr-info: #24528f; /* white on it 7.84:1 */
+    --tblr-info-fg: #fff;
+    --tblr-info-darken: color-mix(in oklab, var(--tblr-info), black 18%);
+    --tblr-warning: #ffc107; /* stays yellow; velvet on it 9.89:1. .text-warning is remapped in bp-hooks.css */
+    --tblr-warning-fg: var(--color-velvet);
+    --tblr-warning-darken: color-mix(in oklab, var(--tblr-warning), black 12%);
+    --tblr-danger: #a32635; /* white on it 7.28:1, it on #f1f5f9 6.64:1 */
+    --tblr-danger-fg: #fff;
+    --tblr-danger-darken: color-mix(in oklab, var(--tblr-danger), black 18%);
+    --tblr-light: #f8fafc;
+    --tblr-light-fg: var(--color-velvet);
     --tblr-dark: #241f2d;
-    /* muted is the color used for table headings. that gray wasn't cutting it. */
-    /* --tblr-muted: #66626c; */
-    --tblr-muted: var(--tblr-gray-400);
-    /* --tblr-tabler: #7c69ef; */
+    --tblr-dark-fg: var(--color-beluga);
+    /* muted is the color used for table headings, .text-muted, inactive tabs, help text */
+    --tblr-muted: var(--fpn-slate);
+    --tblr-muted-fg: var(--color-beluga);
     --tblr-tabler: var(--color-coupe);
-    /* --tblr-primary-rgb: 124, 105, 239; */
-    --tblr-primary-rgb: 106, 118, 102; /* matches --tblr-primary/--color-nature (#6a7666); was #2f454d (coupe) instead, which is also --tblr-bg-surface in dark mode -- the focus ring was rendering in nearly the same hue as its own background */
-    /* --tblr-secondary-rgb: 102, 98, 108; */
-    --tblr-secondary-rgb: 240, 241, 242; /* beluga */
-    /* --tblr-secondary-rgb: 37, 32, 29; velvet */
-    --tblr-success-rgb: 66, 186, 150;
-    --tblr-info-rgb: 70, 127, 208;
+    --tblr-primary-rgb: var(--fpn-nature-deep-rgb);
+    --tblr-secondary-rgb: var(--fpn-slate-rgb);
+    --tblr-success-rgb: 23, 97, 74;
+    --tblr-info-rgb: 36, 82, 143;
     --tblr-warning-rgb: 255, 193, 7;
-    --tblr-danger-rgb: 223, 71, 89;
+    --tblr-danger-rgb: 163, 38, 53;
     --tblr-light-rgb: 248, 250, 252;
     --tblr-dark-rgb: 36, 31, 45;
-    --tblr-muted-rgb: 102, 98, 108;
-    --tblr-tabler-rgb: 124, 105, 239;
-    --tblr-primary-text-emphasis: #322a60;
+    --tblr-muted-rgb: var(--fpn-slate-rgb);
+    --tblr-tabler-rgb: 47, 69, 77;
+    --tblr-primary-text-emphasis: #2c3329;
     --tblr-secondary-text-emphasis: #42444b;
-    --tblr-success-text-emphasis: #1a4a3c;
+    --tblr-success-text-emphasis: #0f3f30;
     --tblr-info-text-emphasis: #1c3353;
-    --tblr-warning-text-emphasis: #664d03;
+    --tblr-warning-text-emphasis: #5c4402;
     --tblr-danger-text-emphasis: #591c24;
     --tblr-light-text-emphasis: #333152;
     --tblr-dark-text-emphasis: #333152;
-    --tblr-primary-bg-subtle: #e5e1fc;
+    --tblr-primary-bg-subtle: #e3e8e0;
     --tblr-secondary-bg-subtle: #edeef1;
     --tblr-success-bg-subtle: #d9f1ea;
     --tblr-info-bg-subtle: #dae5f6;
@@ -90,7 +116,7 @@
     --tblr-danger-bg-subtle: #f9dade;
     --tblr-light-bg-subtle: #f8fafc;
     --tblr-dark-bg-subtle: #a09bbe;
-    --tblr-primary-border-subtle: #cbc3f9;
+    --tblr-primary-border-subtle: #b9c4b3;
     --tblr-secondary-border-subtle: #dbdde4;
     --tblr-success-border-subtle: #b3e3d5;
     --tblr-info-border-subtle: #b5ccec;
@@ -101,47 +127,51 @@
     --tblr-body-font-size: 0.875rem;
     --tblr-body-font-weight: 400;
     --tblr-body-line-height: 1.4285714286;
-    --tblr-body-color: #241f2d;
+    --tblr-body-color: #241f2d; /* 15.6:1 on the glass surface */
     --tblr-body-color-rgb: 36, 31, 45;
-    /* --tblr-body-bg: #f1f5f9; */
     --tblr-body-bg: var(--color-beluga);
-    --tblr-body-bg-rgb: 241, 245, 249;
+    --tblr-body-bg-rgb: var(--color-beluga-rgb);
     --tblr-emphasis-color: #000;
     --tblr-emphasis-color-rgb: 0, 0, 0;
-    /* --tblr-secondary-color: rgba(36, 31, 45, .75); */
     --tblr-secondary-color: var(--color-velvet);
-    --tblr-secondary-color-rgb: 36, 31, 45;
+    --tblr-secondary-color-rgb: 37, 32, 29;
     --tblr-secondary-bg: #e2e8f0;
     --tblr-secondary-bg-rgb: 226, 232, 240;
-    --tblr-tertiary-color: rgba(36, 31, 45, .5);
+    --tblr-tertiary-color: rgba(36, 31, 45, .75); /* was .5 (~4.0:1); .75 is ~7.6:1 on white */
     --tblr-tertiary-color-rgb: 36, 31, 45;
+    --tblr-tertiary: var(--fpn-placeholder); /* Tabler's ::placeholder color */
     --tblr-tertiary-bg: #f1f5f9;
     --tblr-tertiary-bg-rgb: 241, 245, 249;
-    /* --tblr-link-color: #7c69ef; */
-    --tblr-link-color: var(--color-coupe);
-    --tblr-link-color-rgb: 124, 105, 239;
-    /* --tblr-link-hover-color: #6354bf; */
-    --tblr-link-hover-color: var(--color-nature);
-    --tblr-link-hover-color-rgb: 99, 84, 191;
+    --tblr-link-color: var(--color-coupe); /* 10.1:1 on white */
+    --tblr-link-color-rgb: 47, 69, 77; /* was Backpack's purple 124,105,239, so rgba()-based link styles rendered purple */
+    --tblr-link-hover-color: var(--fpn-nature-deep); /* was nature: 4.36:1 on the paper background */
+    --tblr-link-hover-color-rgb: var(--fpn-nature-deep-rgb);
     --tblr-border-color: #e7e6e7;
     --tblr-border-color-translucent: rgba(102, 98, 108, .16);
     --tblr-box-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, .075);
     --tblr-focus-ring-width: 0.25rem;
     --tblr-focus-ring-opacity: 0.25;
-    --tblr-focus-ring-color: rgba(124, 105, 239, .25);
-    --tblr-form-valid-color: #42ba96;
-    --tblr-form-valid-border-color: #42ba96;
-    --tblr-form-invalid-color: #df4759;
-    --tblr-form-invalid-border-color: #df4759;
+    --tblr-focus-ring-color: rgba(var(--tblr-primary-rgb), .25);
+    --tblr-form-valid-color: var(--tblr-success);
+    --tblr-form-valid-border-color: var(--tblr-success);
+    --tblr-form-invalid-color: var(--tblr-danger);
+    --tblr-form-invalid-border-color: var(--tblr-danger);
     --tblr-danger-text: var(--tblr-danger);
     --tblr-navbar-border-color: transparent;
     --bg-switch-checked-color: var(--tblr-primary);
+
+    /* focus indicator (bp-hooks.css); primary is >= 7.6:1 against every light surface */
+    --fpn-focus-color: var(--tblr-primary);
+    /* fill used by .btn-secondary / .bg-secondary (bp-hooks.css) */
+    --fpn-secondary-fill: var(--color-beluga);
+    --fpn-secondary-fill-hover: #dfe2e5;
+    --fpn-warning-text: #6b4e00; /* .text-warning on light surfaces, 7.74:1 on white */
 }
 
 [data-bs-theme=dark], [data-menu-theme=dark] {
     /**
      text hierarchy in dark mode is one color (beluga, our off-white brand token) at
-     decreasing opacity -- body full strength, secondary .75, tertiary .5 -- rather than
+     decreasing opacity -- body full strength, secondary .85, tertiary .7 -- rather than
      three unrelated literals. Previously these were Tabler's stock 160,155,190 (a purple-gray
      with no relation to this app's palette), and --tblr-body-color-rgb didn't even match the
      hex in --tblr-body-color right next to it.
@@ -149,22 +179,64 @@
      but Tabler never actually defines it anywhere -- not in @tabler/core, not in theme-tabler's
      own CSS. Defining it here fixes every rgba(var(--tblr-light-text), ...) call site.
     */
-    --tblr-body-color: var(--color-beluga);
+    --tblr-body-color: var(--color-beluga); /* 8.93:1 on coupe */
     --tblr-body-color-rgb: var(--color-beluga-rgb);
     --tblr-body-bg: #181818;
     --tblr-body-bg-rgb: 24, 24, 24;
     --tblr-emphasis-color: #fff;
     --tblr-emphasis-color-rgb: 255, 255, 255;
-    --tblr-secondary-color: rgba(var(--color-beluga-rgb), .75);
+    --tblr-secondary-color: rgba(var(--color-beluga-rgb), .85); /* was .75 (~5.9:1 on coupe); .85 is ~7.1:1 */
     --tblr-secondary-color-rgb: var(--color-beluga-rgb);
     --tblr-secondary-bg: #211d3b;
     --tblr-secondary-bg-rgb: 33, 29, 59;
-    --tblr-tertiary-color: rgba(var(--color-beluga-rgb), .5);
+    --tblr-tertiary-color: rgba(var(--color-beluga-rgb), .7); /* was .5 (~3.4:1 on coupe); .7 is ~5.2:1 */
     --tblr-tertiary-color-rgb: var(--color-beluga-rgb);
+    --tblr-tertiary: rgba(var(--color-beluga-rgb), .7); /* ::placeholder */
     --tblr-light-text: var(--color-beluga-rgb);
     --tblr-tertiary-bg: #1e1633;
     --tblr-tertiary-bg-rgb: 30, 22, 51;
-    --tblr-primary-text-emphasis: #b0a5f5;
+
+    /**
+     In dark mode the brand/status colors flip to light tints with dark (velvet) text: a mid-tone
+     green can't reach 4.5:1 against both beluga text and the coupe surface it sits on.
+    */
+    --tblr-primary: var(--fpn-sage);
+    --tblr-primary-rgb: var(--fpn-sage-rgb);
+    --tblr-primary-fg: var(--color-velvet); /* 8.66:1 */
+    --tblr-primary-darken: color-mix(in oklab, var(--tblr-primary), white 22%); /* hover gets lighter, which raises contrast with the dark fg */
+    --tblr-secondary: var(--color-beluga); /* secondary text: 8.93:1 on coupe */
+    --tblr-secondary-rgb: var(--color-beluga-rgb);
+    --tblr-secondary-fg: var(--color-velvet);
+    --tblr-secondary-darken: color-mix(in oklab, var(--tblr-secondary), black 8%);
+    --tblr-success: #7dd8b9; /* velvet 9.51:1; on coupe 5.96:1 */
+    --tblr-success-rgb: 125, 216, 185;
+    --tblr-success-fg: var(--color-velvet);
+    --tblr-success-darken: color-mix(in oklab, var(--tblr-success), white 22%);
+    --tblr-info: #9cc0f0; /* velvet 8.60:1; on coupe 5.39:1 */
+    --tblr-info-rgb: 156, 192, 240;
+    --tblr-info-fg: var(--color-velvet);
+    --tblr-info-darken: color-mix(in oklab, var(--tblr-info), white 22%);
+    --tblr-warning: #ffd451; /* velvet 11.35:1; on coupe 7.11:1 */
+    --tblr-warning-rgb: 255, 212, 81;
+    --tblr-warning-fg: var(--color-velvet);
+    --tblr-warning-darken: color-mix(in oklab, var(--tblr-warning), white 22%);
+    --tblr-danger: #f5a8b0; /* velvet 8.53:1; on coupe 5.34:1 */
+    --tblr-danger-rgb: 245, 168, 176;
+    --tblr-danger-fg: var(--color-velvet);
+    --tblr-danger-darken: color-mix(in oklab, var(--tblr-danger), white 22%);
+    --tblr-light: var(--color-beluga);
+    --tblr-light-rgb: var(--color-beluga-rgb);
+    --tblr-light-fg: var(--color-velvet);
+    --tblr-muted: #d8dce0; /* table headings, help text, inactive tabs: 7.33:1 on coupe */
+    --tblr-muted-rgb: 216, 220, 224;
+    --tblr-muted-fg: var(--color-velvet);
+    --fpn-input-border: #93a7af; /* 4.03:1 on coupe */
+    --fpn-focus-color: var(--tblr-primary); /* 5.43:1 on coupe, 9.54:1 on #181818 */
+    --fpn-secondary-fill: var(--color-beluga);
+    --fpn-secondary-fill-hover: #dfe2e5;
+    --fpn-warning-text: var(--tblr-warning);
+
+    --tblr-primary-text-emphasis: #d3dccd;
     --tblr-secondary-text-emphasis: #cacdd6;
     --tblr-success-text-emphasis: #8ed6c0;
     --tblr-info-text-emphasis: #90b2e3;
@@ -172,7 +244,7 @@
     --tblr-danger-text-emphasis: #ec919b;
     --tblr-light-text-emphasis: #f1f5f9;
     --tblr-dark-text-emphasis: #c8d3e1;
-    --tblr-primary-bg-subtle: #191530;
+    --tblr-primary-bg-subtle: #1c211a;
     --tblr-secondary-bg-subtle: #212225;
     --tblr-success-bg-subtle: #0d251e;
     --tblr-info-bg-subtle: #0e192a;
@@ -180,7 +252,7 @@
     --tblr-danger-bg-subtle: #2d0e12;
     --tblr-light-bg-subtle: #211d3b;
     --tblr-dark-bg-subtle: #110f1e;
-    --tblr-primary-border-subtle: #383243;
+    --tblr-primary-border-subtle: #4a5d64; /* used by theme-tabler for checkbox/repeatable/file-field fills; was #383243, nearly invisible on coupe */
     --tblr-secondary-border-subtle: #646770;
     --tblr-success-border-subtle: #28705a;
     --tblr-info-border-subtle: #2a4c7d;
@@ -188,29 +260,24 @@
     --tblr-danger-border-subtle: #862b35;
     --tblr-light-border-subtle: #29272f;
     --tblr-dark-border-subtle: #211d3b;
-    /* --tblr-link-color: #b0a5f5; */
-    /* --tblr-link-color: var(--color-zucchini); */
-    --tblr-link-color: var(--beluga);
-    --tblr-link-hover-color: #c0b7f7;
-    --tblr-link-color-rgb: 176, 165, 245;
-    --tblr-link-hover-color-rgb: 192, 183, 247;
-    --tblr-code-color: #b0a5f5;
+    --tblr-link-color: #cfe0e7; /* ~7.2:1 on coupe; was var(--beluga), an undefined variable */
+    --tblr-link-color-rgb: 207, 224, 231; /* was lavender 176,165,245, which is what links actually rendered as */
+    --tblr-link-hover-color: #fff;
+    --tblr-link-hover-color-rgb: 255, 255, 255;
+    --tblr-code-color: #d3dccd;
     --tblr-border-color: #20202b;
     --tblr-border-color-translucent: var(--tblr-border-color);
-    --tblr-form-valid-color: #93c29a;
-    --tblr-form-valid-border-color: #93c29a;
-    --tblr-form-invalid-color: #d69090;
-    --tblr-form-invalid-border-color: #d69090;
-    /* --tblr-bg-surface: #221e26; */
+    --tblr-form-valid-color: var(--tblr-success);
+    --tblr-form-valid-border-color: var(--tblr-success);
+    --tblr-form-invalid-color: #fbd0d4; /* error *text* gets a paler tint than the danger fill: 7.25:1 on coupe vs 5.34:1 */
+    --tblr-form-invalid-border-color: var(--tblr-danger);
     --tblr-bg-surface: var(--color-coupe);
     --tblr-navbar-bg: var(--tblr-bg-surface);
     --tblr-dark-mode-border-color: #302b33;
     --tblr-bg-main-color: #181818;
     --tblr-bg-forms: var(--tblr-dark-mode-border-color);
     --tblr-danger-text: var(--tblr-danger);
-    --tblr-danger: #E25A6A;
-    --tblr-danger-rgb: 226, 90, 106;
-    --tblr-navbar-color: rgba(255, 255, 255, 0.7);
+    --tblr-navbar-color: rgba(var(--color-beluga-rgb), .9); /* was white at .7 (~5.0:1 on coupe) */
     --tblr-bg-surface-tertiary: #ffffff02;
     --tblr-navbar-border-color: transparent;
 }
