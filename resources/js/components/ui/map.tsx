@@ -190,9 +190,14 @@ function Map({
     maxZoom = 18,
     className,
     // added attributionControl because it was hardcoded to be false
-    attributionControl,
+    // default must be explicit: Leaflet's setOptions copies undefined values too, so passing
+    // attributionControl={undefined} overrides Leaflet's own default of true and no control is created
+    attributionControl = true,
+    // it also bothers me that zoomControl is hardcoded to be false but I don't want to fool with that now.
+    zoomControl = false,
     ...props
-}: Omit<MapContainerProps, "zoomControl"> & {
+// }: Omit<MapContainerProps, "zoomControl"> & {
+}: MapContainerProps & {
     center: LatLngExpression
     ref?: Ref<LeafletMap>
 }) {
@@ -201,7 +206,7 @@ function Map({
             zoom={zoom}
             maxZoom={maxZoom}
             attributionControl={attributionControl}
-            zoomControl={false}
+            zoomControl={zoomControl}
             className={cn(
                 "z-50 size-full min-h-96 flex-1",
                 className
