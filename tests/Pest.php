@@ -13,6 +13,17 @@
 
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->beforeEach(function () {
+        /**
+         * Basset (Backpack's asset loader) registers its own "basset" disk at boot with
+         * 'url' => url('').'/storage', i.e. an absolute APP_URL. Pest's browser tests serve the app from
+         * their own server (127.0.0.1:<random port>), so admin pages pointed the test browser at the dev
+         * server instead: cross-origin, so Tabler's CSS/JS (tagged integrity + crossorigin="anonymous")
+         * were blocked by CORS, and every other admin asset only loaded if the dev server was up.
+         * A relative disk URL lets Basset emit same-origin paths that Pest's server serves from public/.
+         */
+        config(['filesystems.disks.basset.url' => '/storage']);
+    })
     ->in('Feature');
 
 /*

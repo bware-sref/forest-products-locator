@@ -48,7 +48,9 @@ class CensusGeocoderService
     /**
      * Look up a single free-form address.
      *
-     * @return array{input: array, addressMatches: array}|null Null when the API returns no addressMatches.
+     * @return array{query: string, latitude: float|string, longitude: float|string, state: string, city: string, zip: string, street_address: string, addressComponents: array}|array{input: array, addressMatches: array}|null
+     *         The formatted first match (see formatGeocodeResult()), or the API's raw `result` when $rawOutput is true.
+     *         Null when the API returns no addressMatches, in either mode.
      *
      * @throws RuntimeException on connection failure, a non-2xx response, or an unexpected response shape.
      */
@@ -64,6 +66,11 @@ class CensusGeocoderService
         ]);
 
         $result = $this->nullIfEmpty($result, 'addressMatches');
+
+        // no match: return null before formatting, which would otherwise turn it into []
+        if (null === $result) {
+            return null;
+        }
 
         if (true === $rawOutput) {
             return $result;
@@ -362,6 +369,25 @@ class CensusGeocoderService
         return (string) (config("census-geocoder.endpoints.{$key}") ?? $key);
     }
 
+    /**
+     * matchedAddress is "STREET, CITY, STATE, ZIP". Strip only that trailing suffix: replacing the city,
+     * state, and zip anywhere in the string also hit the street itself, e.g. "123 WASHINGTON ST" in
+     * Washington, DC lost "WASHINGTON", and "1 ALABAMA ST" in AL became "1 ABAMA ST".
+     * If the suffix doesn't match (e.g. addressComponents missing), the whole address is kept.
+     */
+    protected function streetFromMatchedAddress(string $matchedAddress, string $city, string $state, string $zip): string
+    {
+        $street = Str::of($matchedAddress)->trim();
+        $parts = array_filter([$city, $state, $zip], fn(string $part) => '' !== $part);
+        $suffix = ', ' . implode(', ', $parts);
+
+        if ([] !== $parts && $street->endsWith($suffix)) {
+            $street = $street->beforeLast($suffix);
+        }
+
+        return $street->trim()->trim(',')->trim()->title()->toString();
+    }
+
     protected function formatGeocodeResult(?array $result): array
     {
         if (empty($result)) {
@@ -386,12 +412,7 @@ class CensusGeocoderService
             'state' => $state,
             'city' => Str::title($city),
             'zip' => $zip,
-            'street_address' => Str::of($matches['matchedAddress'] ?? '')
-                ->replace([$city, $state, $zip], '')
-                ->trim()
-                ->trim(', ')
-                ->title()
-                ->toString(),
+            'street_address' => $this->streetFromMatchedAddress($matches['matchedAddress'] ?? '', $city, $state, $zip),
             'addressComponents' => $bits,
         ];
     }

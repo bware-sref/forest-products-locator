@@ -1,35 +1,32 @@
 <?php
 
-namespace app\Http\Middleware;
+namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Session\Middleware\AuthenticateSession as LaravelAuthenticateSession;
 
+/**
+ * Patched copy of Backpack\CRUD\app\Http\Middleware\AuthenticateSession.
+ *
+ * Backpack's version compares the raw password hash from the DB, getAuthPassword(), to the session's
+ * password_hash_<guard>. Laravel's SessionGuard::login() now stores an HMAC of that hash instead, so
+ * Backpack's comparison never matched and every admin login was immediately logged out (2026-09-30).
+ * @TODO: check whether Backpack has caught up, and switch back to its middleware if so.
+ *
+ * Differences from Backpack's version:
+ * - Hashes are stored and checked with the Backpack guard's own hashPasswordForCookie() (HMAC keyed with
+ *   app.key) via the parent's validatePasswordHash(), which also still accepts a raw hash in the session.
+ *   An earlier patch stored hashes with a locally copied hashPasswordForCookie() whose key was never set, so
+ *   whenever this middleware had to store the hash itself (e.g. actingAs() in tests) the check that
+ *   followed always failed and logged the user out.
+ * - guard() returns the Backpack guard. Backpack's returned the auth manager, which proxies to the
+ *   *default* (web) guard, so its remember-me check, post-request hash refresh, and logout all looked at
+ *   the wrong guard.
+ * - The user is looked up per request rather than captured when the middleware is constructed.
+ */
 class BackpackAuthenticateSession extends LaravelAuthenticateSession
 {
-    /**
-     * The authentication factory implementation.
-     *
-     * @var \Illuminate\Contracts\Auth\Factory
-     */
-    protected $auth;
-
-    protected $user;
-
-    /**
-     * Create a new middleware instance.
-     *
-     * @param  \Illuminate\Contracts\Auth\Factory  $auth
-     * @return void
-     */
-    public function __construct(AuthFactory $auth)
-    {
-        $this->auth = $auth;
-        $this->user = backpack_user();
-    }
-
     /**
      * Handle an incoming request.
      *
@@ -39,41 +36,30 @@ class BackpackAuthenticateSession extends LaravelAuthenticateSession
      */
     public function handle($request, Closure $next)
     {
-        if (! $request->hasSession() || ! $this->user) {
+        $user = backpack_user();
+
+        if (! $request->hasSession() || ! $user) {
             return $next($request);
         }
 
         if ($this->guard()->viaRemember()) {
-            $passwordHash = explode('|', $request->cookies->get($this->guard()->getRecallerName()))[2] ?? null;
+            // the recaller cookie is "id|token|password hash HMAC"
+            $passwordHash = explode('|', (string) $request->cookies->get($this->guard()->getRecallerName()))[2] ?? null;
 
-            if (! $passwordHash || $passwordHash != $this->user->getAuthPassword()) {
+            if (! $passwordHash || ! $this->validatePasswordHash($user->getAuthPassword(), $passwordHash)) {
                 $this->logout($request);
             }
         }
 
-        if (! $request->session()->has('password_hash_'.backpack_guard_name())) {
+        if (! $request->session()->has($this->sessionKey())) {
             $this->storePasswordHashInSession($request);
         }
 
-        /**
-         * This is what breaks login.
-         * Backpack compares the Bcrypt password from the DB, getAuthPassword(), to
-         * a rehashed version of the password put in the session by Sanctum.
-         * As you might guess, they dont' match.
-         * Instead, we should be able to just use the parent class method
-         * validatePasswordHash()
-         * args are guard, password from DB, password from session
-         */
-        // if ($request->session()->get('password_hash_'.backpack_guard_name()) !== $this->user->getAuthPassword()) {
-        if (! $this->validatePasswordHash(
-            $this->user->getAuthPassword(),
-            $request->session()->get('password_hash_'.backpack_guard_name())
-            )) {
+        if (! $this->validatePasswordHash($user->getAuthPassword(), $request->session()->get($this->sessionKey()))) {
             $this->logout($request);
         }
 
         return tap($next($request), function () use ($request) {
-            // if (! is_null($this->guard()->user())) {
             if (null !== $this->guard()->user()) {
                 $this->storePasswordHashInSession($request);
             }
@@ -81,21 +67,21 @@ class BackpackAuthenticateSession extends LaravelAuthenticateSession
     }
 
     /**
-     * Store the user's current password hash in the session.
+     * Store the user's current password hash in the session, in the same HMAC form SessionGuard::login() uses.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
     protected function storePasswordHashInSession($request)
     {
-        if (! $this->user) {
+        $user = $this->guard()->user();
+
+        if (! $user) {
             return;
         }
 
         $request->session()->put([
-            'password_hash_'.backpack_guard_name() => self::hashPasswordForCookie(
-                $this->user->getAuthPassword()
-            ),
+            $this->sessionKey() => $this->guard()->hashPasswordForCookie($user->getAuthPassword()),
         ]);
     }
 
@@ -119,28 +105,17 @@ class BackpackAuthenticateSession extends LaravelAuthenticateSession
     }
 
     /**
-     * Get the guard instance that should be used by the middleware.
+     * The Backpack guard (a SessionGuard), not the auth manager.
      *
-     * @return \Illuminate\Contracts\Auth\Factory|\Illuminate\Contracts\Auth\Guard
+     * @return \Illuminate\Auth\SessionGuard
      */
     protected function guard()
     {
-        return $this->auth;
+        return $this->auth->guard(backpack_guard_name());
     }
 
-    /**
-     * Create a HMAC of the password hash for storage in cookies.
-     * Lifted from Illuminate\Auth\SessionGuard
-     *
-     * @param  string  $passwordHash
-     * @return string
-     */
-    public function hashPasswordForCookie($passwordHash)
+    protected function sessionKey(): string
     {
-        return hash_hmac(
-            'sha256',
-            $passwordHash,
-            $this->hashKey ?? 'base-key-for-password-hash-mac'
-        );
+        return 'password_hash_' . backpack_guard_name();
     }
 }
