@@ -27,7 +27,7 @@ import { show } from "@/actions/App/Http/Controllers/MillController"
 
 const zoom = 14;
 
-const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
 const tileLayerUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 
 /**
