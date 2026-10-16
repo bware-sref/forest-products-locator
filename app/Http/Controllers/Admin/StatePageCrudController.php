@@ -54,7 +54,7 @@ class StatePageCrudController extends CrudController
          * states.name, bruh
          * we can actually just order by state_id because they end up being alphabetical anyway
          */
-        if (! $this->crud->getRequest()->has('order')) {
+        if (!$this->crud->getRequest()->has('order')) {
             $this->crud->orderBy('state_id', 'asc');
         }
 
@@ -87,28 +87,28 @@ class StatePageCrudController extends CrudController
     {
         CRUD::setValidation(StatePageRequest::class);
 
-        CRUD::field([
-            'name' => 'state_id',
-            'label' => 'State',
-            'type' => 'select',
-            'entity' => 'state',
-            'model' => 'App\Models\State',
-            'attribute' => 'name',
+        CRUD::field('state_id')
+            ->label('State')
+            ->type('select')
+            ->entity('state')
+            ->model('App\Models\State')
+            ->attribute('name')
             // preselected by the State Hub's Add links
-            'default' => request('state_id'),
-        ]);
-        CRUD::field([
-            'name' => 'hero_headline',
-            'label' => 'Hero Headline',
-            'type' => 'text',
-        ]);
-        CRUD::field([
-            'name' => 'hero_img_dt',
-            'label' => 'Hero Image (Desktop)',
-            'type' => 'upload',
-            'disk' => 'public',
-            'withFiles' => true,
-        ]);
+            ->default(request('state_id'));
+
+        CRUD::field('hero_headline')
+            ->label('Hero Headline')
+            ->type('text');
+        CRUD::field('hero_img_dt')
+            ->label('Hero Image (Desktop)')
+            ->type('upload')
+            ->disk('public')
+            ->withFiles(true);
+
+        /**
+         * Design removed mobile hero image
+         */
+
         // CRUD::field([
         //     'name' => 'hero_img_mobile',
         //     'label' => 'Hero Image (Mobile)',
@@ -116,21 +116,16 @@ class StatePageCrudController extends CrudController
         //     'disk' => 'public',
         //     'withFiles' => true,
         // ]);
-        CRUD::field([
-            'name' => 'hero_copy',
-            'label' => 'Hero Copy',
-            'type' => 'ckeditor',
-        ]);
-        CRUD::field([
-            'name' => 'contacts_headline',
-            'label' => 'Contacts Headline',
-            'type' => 'text',
-        ]);
-        CRUD::field([
-            'name' => 'contacts_copy',
-            'label' => 'Contacts Copy',
-            'type' => 'textarea',
-        ]);
+
+        CRUD::field('hero_copy')
+            ->label('Hero Copy')
+            ->type('ckeditor');
+        CRUD::field('contacts_headline')
+            ->label('Contacts Headline')
+            ->type('text');
+        CRUD::field('contacts_copy')
+            ->label('Contacts Copy')
+            ->type('textarea');
     }
 
     /**

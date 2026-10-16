@@ -27,7 +27,7 @@ class TexasMillMapper extends AbstractMillMapper
 
     public function map(array $feature): array
     {
-        $props    = $feature['properties'] ?? [];
+        $props = $feature['properties'] ?? [];
         $extended = $this->buildExtendedAttributes($props);
 
         [$species, $speciesDetail] = $this->mapSpecies($props['Species'] ?? null);
@@ -37,20 +37,20 @@ class TexasMillMapper extends AbstractMillMapper
         }
 
         return array_filter([
-            'mill_name'           => $this->clean($props['Company'] ?? null),
-            'latitude'            => $this->latitudeFromProperty($props, 'Latitude'),
-            'longitude'           => $this->longitudeFromProperty($props, 'Longitude'),
-            'physical_address'    => $this->clean($props['Address'] ?? null),
-            'physical_state'      => 'TX',
-            'county_name'         => $this->clean($props['County'] ?? null),
-            'telephone'           => $this->clean($props['Phone1'] ?? null),
-            'telephone_2'         => $this->clean($props['Phone2'] ?? null),
-            'email'               => $this->clean($props['Email'] ?? null),
-            'web_site'            => $this->clean($props['Homepage'] ?? null),
-            'type'                => $this->mapType($props['SpecificIndustryType'] ?? null),
-            'species'             => $species,
-            'extended_attributes' => ! empty($extended) ? $extended : null,
-        ], fn ($v) => $v !== null);
+            'mill_name' => $this->clean($props['Company'] ?? null),
+            'latitude' => $this->latitudeFromProperty($props, 'Latitude'),
+            'longitude' => $this->longitudeFromProperty($props, 'Longitude'),
+            'physical_address' => $this->clean($props['Address'] ?? null),
+            'physical_state' => 'TX',
+            'county_name' => $this->clean($props['County'] ?? null),
+            'telephone' => $this->clean($props['Phone1'] ?? null),
+            'telephone_2' => $this->clean($props['Phone2'] ?? null),
+            'email' => $this->clean($props['Email'] ?? null),
+            'web_site' => $this->clean($props['Homepage'] ?? null),
+            'type' => $this->mapType($props['SpecificIndustryType'] ?? null),
+            'species' => $species,
+            'extended_attributes' => !empty($extended) ? $extended : null,
+        ], fn($v) => $v !== null);
     }
 
     // -------------------------------------------------------------------------
@@ -63,42 +63,66 @@ class TexasMillMapper extends AbstractMillMapper
             return null;
         }
 
-        $crosswalk = [
-            'Sawmill'
-                => 'Sawmill',
-
-            'Post, pole, piling, preservative treating plant'
-                => 'Post, Pole, Piling, Preservative Treating Plant',
-
-            // Retained verbatim — TX's ambiguous label
-            'Paper mill or chip mill'
-                => 'Paper Mill Or Chip Mill',
-
-            'Plywood, veneer, or oriented strandboard mill'
-                => null, // multi-type — handled below
-
-            // Retained verbatim — TX's ambiguous label
-            'Biomass, wood pellet or landscape organic facility'
-                => 'Biomass, Wood Pellet Or Landscape Organic Facility',
-
-            'Mulch'
-                => 'Mulch',
-
-            'Firewood'
-                => 'Firewood',
-        ];
-
+        /**
+         * Special cases that result in returning early should happen as soon as possible!
+         * Also, I'm not sure we necessarily want this special case.
+         * I see.
+         * The special case is referenced in the $crosswalk :facepalm:
+         */
         // Special case: plywood/veneer/OSB → two canonical types
         if ($cleaned === 'Plywood, veneer, or oriented strandboard mill') {
             return $this->pipeJoin(['Veneer / Plywood / Panels', 'OSB']);
         }
 
-        if (\array_key_exists($cleaned, $crosswalk)) {
-            $canonical = $crosswalk[$cleaned];
-            return $canonical !== null ? $this->titleCase($canonical) : null;
-        }
+        /**
+         * FFS, don't return nothing unless that's the value in the data, FFS!
+         */
+        return $this->titleCase($cleaned);
 
-        return null;
+        /**
+         * These are either the same or title case differences.
+         * I.e., completely useless and/or unneeded.
+         */
+        // $crosswalk = [
+        //     'Sawmill'
+        //         => 'Sawmill',
+
+        //     'Post, pole, piling, preservative treating plant'
+        //         => 'Post, Pole, Piling, Preservative Treating Plant',
+
+        //     // Retained verbatim — TX's ambiguous label
+        //     'Paper mill or chip mill'
+        //         => 'Paper Mill Or Chip Mill',
+
+        //     /**
+        //      * @FFS
+        //      * Why would you also include the special case?
+        //      */
+        //     'Plywood, veneer, or oriented strandboard mill'
+        //         => null, // multi-type — handled below
+
+        //     // Retained verbatim — TX's ambiguous label
+        //     'Biomass, wood pellet or landscape organic facility'
+        //         => 'Biomass, Wood Pellet Or Landscape Organic Facility',
+
+        //     'Mulch'
+        //         => 'Mulch',
+
+        //     'Firewood'
+        //         => 'Firewood',
+        // ];
+
+        /**
+         * FFS, don't return nothing unless that's the valu ein the data, FFS!
+         */
+        // return $this->titleCase($crosswalk[$cleaned] ?? $cleaned);
+
+        // if (\array_key_exists($cleaned, $crosswalk)) {
+        //     $canonical = $crosswalk[$cleaned];
+        //     return $canonical !== null ? $this->titleCase($canonical) : null;
+        // }
+
+        // return null;
     }
 
     /**
@@ -115,7 +139,7 @@ class TexasMillMapper extends AbstractMillMapper
         }
 
         $remainder = null;
-        $resolved  = $this->inferSpecies($cleaned, $remainder);
+        $resolved = $this->inferSpecies($cleaned, $remainder);
 
         return [
             $this->pipeJoin($resolved),

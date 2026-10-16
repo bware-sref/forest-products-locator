@@ -38,26 +38,26 @@ class AlabamaMillMapper extends AbstractMillMapper
 
     public function map(array $feature): array
     {
-        $props    = $feature['properties'] ?? [];
+        $props = $feature['properties'] ?? [];
         $extended = $this->buildExtendedAttributes($props);
 
         return array_filter([
-            'mill_name'           => $this->clean($props['Company'] ?? null),
-            'latitude'            => $this->latitudeFromProperty($props, 'Latitude'),
-            'longitude'           => $this->longitudeFromProperty($props, 'Longitude'),
-            'physical_address'    => $this->clean($props['Address'] ?? null),
-            'physical_city'       => $this->clean($props['City'] ?? null),
-            'physical_state'      => 'AL',
-            'physical_zip'        => $this->zip($props['ZIP'] ?? null),
-            'county_name'         => $this->clean($props['County'] ?? null),
-            'telephone'           => $this->clean($props['Phone'] ?? null),
-            'web_site'            => $this->clean($props['Website'] ?? null),
-            'size'                => $this->nullIfDateCorrupted($props['Employee'] ?? null),
-            'type'                => $this->mapType($props['IndSectors'] ?? null),
-            'species'             => $this->mapSpecies($props),
-            'modification_date'   => $this->fromUnixMs($props['last_edited_date'] ?? null),
-            'extended_attributes' => ! empty($extended) ? $extended : null,
-        ], fn ($v) => $v !== null);
+            'mill_name' => $this->clean($props['Company'] ?? null),
+            'latitude' => $this->latitudeFromProperty($props, 'Latitude'),
+            'longitude' => $this->longitudeFromProperty($props, 'Longitude'),
+            'physical_address' => $this->clean($props['Address'] ?? null),
+            'physical_city' => $this->clean($props['City'] ?? null),
+            'physical_state' => 'AL',
+            'physical_zip' => $this->zip($props['ZIP'] ?? null),
+            'county_name' => $this->clean($props['County'] ?? null),
+            'telephone' => $this->clean($props['Phone'] ?? null),
+            'web_site' => $this->clean($props['Website'] ?? null),
+            'size' => $this->nullIfDateCorrupted($props['Employee'] ?? null),
+            'type' => $this->mapType($props['IndSectors'] ?? null),
+            'species' => $this->mapSpecies($props),
+            'modification_date' => $this->fromUnixMs($props['last_edited_date'] ?? null),
+            'extended_attributes' => !empty($extended) ? $extended : null,
+        ], fn($v) => $v !== null);
     }
 
     // -------------------------------------------------------------------------
@@ -71,20 +71,33 @@ class AlabamaMillMapper extends AbstractMillMapper
         }
 
         $crosswalk = [
-            'Sawmills'                              => 'Sawmill',
-            'Pole and Piling'                       => 'Post & Pole',
-            'Pulp, Paper, and Paperboards'          => 'Pulp, Paper, And Paperboards',
-            'Veneer And Plywood Manufacturing'      => 'Veneer / Plywood / Panels',
-            'Reconstituted Wood Products'           => 'Reconstituted Wood Products',
-            'Engineered Wood Member'                => 'Engineered Wood Products',
-            'Wood Preservation'                     => 'Wood Preservation',
-            'Pellet'                                => 'Pellet',
-            'Miscellaneous Wood Products'           => 'Other',
-            'Wood Container and Pallet Manufacturing' => 'Wood Container And Pallet Manufacturing',
+            'Sawmills' => 'Sawmill',
+            // 'Pole and Piling'                       => 'Post & Pole',
+            /**
+             * WTF? Why would we map to improper title case?
+             * If anything, this mapping is backwards.
+             */
+            'Pulp, Paper, And Paperboards' => 'Pulp, Paper, and Paperboards',
+            // 'Veneer And Plywood Manufacturing'      => 'Veneer / Plywood / Panels',
+            // 'Reconstituted Wood Products'           => 'Reconstituted Wood Products',
+            // 'Engineered Wood Member'                => 'Engineered Wood Products',
+            // 'Wood Preservation'                     => 'Wood Preservation',
+            // 'Pellet'                                => 'Pellet',
+            // 'Miscellaneous Wood Products'           => 'Other',
+            // 'Wood Container and Pallet Manufacturing' => 'Wood Container And Pallet Manufacturing',
         ];
 
-        $canonical = $crosswalk[$cleaned] ?? null;
+        /**
+         * Again, why we would return nothing instead of the raw or rather cleaned value.
+         * And why doesn't Georgia use clean()?
+         */
+        // $canonical = $crosswalk[$cleaned] ?? null;
+        $canonical = $crosswalk[$cleaned] ?? $cleaned;
 
+        /**
+         * WTAF?
+         * This will undo mapping And to and
+         */
         return $canonical !== null ? $this->titleCase($canonical) : null;
     }
 
@@ -96,10 +109,10 @@ class AlabamaMillMapper extends AbstractMillMapper
 
         if ($rawWoodType !== null) {
             $woodTypeMap = [
-                'Hardwood'             => ['Hardwood'],
-                'Softwood'             => ['Softwood'],
-                'Hardwood and Softwood'=> ['Hardwood', 'Softwood'],
-                'Imported'             => [], // stored in extended_attributes
+                'Hardwood' => ['Hardwood'],
+                'Softwood' => ['Softwood'],
+                'Hardwood and Softwood' => ['Hardwood', 'Softwood'],
+                'Imported' => [], // stored in extended_attributes
             ];
 
             $species = array_merge(
