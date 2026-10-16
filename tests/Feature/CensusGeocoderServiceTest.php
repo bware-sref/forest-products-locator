@@ -13,6 +13,47 @@ function multipartField(Request $request, string $name): ?string
     return collect($request->data())->firstWhere('name', $name)['contents'] ?? null;
 }
 
+// A real `locations/onelineaddress` response (benchmark 4, format=json), captured 2026-10-16 for
+// "4600 Silver Hill Rd, Washington, DC 20233". Keep it real-shaped: formatGeocodeResult() reads
+// addressComponents, and a trimmed-down fake silently produces empty city/state/zip.
+function censusOneLineAddressResponse(): array
+{
+    return [
+        'result' => [
+            'input' => [
+                'address' => ['address' => '4600 Silver Hill Rd, Washington, DC 20233'],
+                'benchmark' => [
+                    'isDefault' => true,
+                    'benchmarkDescription' => 'Public Address Ranges - Current Benchmark',
+                    'id' => '4',
+                    'benchmarkName' => 'Public_AR_Current',
+                ],
+            ],
+            'addressMatches' => [
+                [
+                    'tigerLine' => ['side' => 'L', 'tigerLineId' => '657091557'],
+                    'coordinates' => ['x' => -76.92836638093, 'y' => 38.84505589808],
+                    'addressComponents' => [
+                        'zip' => '20233',
+                        'streetName' => 'SILVER HILL',
+                        'preType' => '',
+                        'city' => 'WASHINGTON',
+                        'preDirection' => '',
+                        'suffixDirection' => '',
+                        'fromAddress' => '4600',
+                        'state' => 'DC',
+                        'suffixType' => 'RD',
+                        'toAddress' => '4700',
+                        'suffixQualifier' => '',
+                        'preQualifier' => '',
+                    ],
+                    'matchedAddress' => '4600 SILVER HILL RD, WASHINGTON, DC, 20233',
+                ],
+            ],
+        ],
+    ];
+}
+
 beforeEach(function () {
     Config::set('census-geocoder', [
         'base_url' => 'https://geocoding.geo.census.gov/geocoder',
@@ -32,24 +73,55 @@ beforeEach(function () {
 
 describe('oneLineAddress()', function () {
 
-    it('returns the decoded result when addressMatches are found', function () {
-        Http::fake([
-            '*/locations/onelineaddress*' => Http::response([
-                'result' => [
-                    'input' => ['address' => ['address' => '4600 Silver Hill Rd, Washington, DC 20233']],
-                    'addressMatches' => [
-                        [
-                            'matchedAddress' => '4600 SILVER HILL RD, WASHINGTON, DC, 20233',
-                            'coordinates' => ['x' => -76.92744, 'y' => 38.845985],
-                        ],
-                    ],
-                ],
-            ]),
-        ]);
+    it('returns the formatted first match when addressMatches are found', function () {
+        Http::fake(['*/locations/onelineaddress*' => Http::response(censusOneLineAddressResponse())]);
 
         $result = (new CensusGeocoderService())->oneLineAddress('4600 Silver Hill Rd, Washington, DC 20233');
 
-        expect($result['addressMatches'])->toHaveCount(1)
+        expect($result)->toBe([
+            'query' => '4600 Silver Hill Rd, Washington, DC 20233',
+            'latitude' => 38.84505589808,
+            'longitude' => -76.92836638093,
+            'state' => 'DC',
+            'city' => 'Washington',
+            'zip' => '20233',
+            // city/state/zip are stripped from matchedAddress before title-casing, so the state abbreviation never reaches title()
+            'street_address' => '4600 Silver Hill Rd',
+            'addressComponents' => censusOneLineAddressResponse()['result']['addressMatches'][0]['addressComponents'],
+        ]);
+    });
+
+    it('strips only the trailing city, state, and zip from street_address', function (
+        string $matchedAddress,
+        string $city,
+        string $state,
+        string $zip,
+        string $expectedStreet,
+    ) {
+        $response = censusOneLineAddressResponse();
+        $response['result']['addressMatches'][0]['matchedAddress'] = $matchedAddress;
+        $response['result']['addressMatches'][0]['addressComponents'] = array_merge(
+            $response['result']['addressMatches'][0]['addressComponents'],
+            ['city' => $city, 'state' => $state, 'zip' => $zip],
+        );
+        Http::fake(['*/locations/onelineaddress*' => Http::response($response)]);
+
+        $result = (new CensusGeocoderService())->oneLineAddress($matchedAddress);
+
+        expect($result['street_address'])->toBe($expectedStreet);
+    })->with([
+        'city name in the street name' => ['123 WASHINGTON ST, WASHINGTON, DC, 20233', 'WASHINGTON', 'DC', '20233', '123 Washington St'],
+        'state abbreviation inside a street word' => ['1 ALABAMA ST, MOBILE, AL, 36602', 'MOBILE', 'AL', '36602', '1 Alabama St'],
+        'zip digits in the house number' => ['20233 SILVER HILL RD, WASHINGTON, DC, 20233', 'WASHINGTON', 'DC', '20233', '20233 Silver Hill Rd'],
+    ]);
+
+    it('returns the raw result when rawOutput is true', function () {
+        Http::fake(['*/locations/onelineaddress*' => Http::response(censusOneLineAddressResponse())]);
+
+        $result = (new CensusGeocoderService())->oneLineAddress('4600 Silver Hill Rd, Washington, DC 20233', rawOutput: true);
+
+        expect($result)->toBe(censusOneLineAddressResponse()['result'])
+            ->and($result['addressMatches'])->toHaveCount(1)
             ->and($result['addressMatches'][0]['matchedAddress'])->toBe('4600 SILVER HILL RD, WASHINGTON, DC, 20233');
     });
 
