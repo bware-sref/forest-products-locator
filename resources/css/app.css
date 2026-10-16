@@ -222,6 +222,17 @@ disabling dark for now
 }
 */
 
+/**
+ * Smooth in-page anchor scrolling, only on pages that opt in (e.g. the FAQ category nav) and only
+ * when the user hasn't asked for reduced motion. Not site-wide: Inertia resets scroll with
+ * window.scrollTo on every visit, which would then animate on every page change.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    html:has([data-smooth-scroll]) {
+        scroll-behavior: smooth;
+    }
+}
+
 @layer base {
     * {
         @apply border-border;
