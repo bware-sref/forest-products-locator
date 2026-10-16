@@ -7,14 +7,24 @@
 .actions-buttons-column {
     background-color: var(--tblr-primary);
     border-color: var(--tblr-primary);
-    color: var(--color-beluga);
+    color: var(--tblr-primary-fg);
 }
 
 .actions-buttons-column:hover,
 .actions-buttons-column:focus {
-    background-color: var(--color-beluga);
+    background-color: var(--tblr-primary-darken);
     border-color: var(--tblr-primary);
-    color: var(--tblr-primary);
+    color: var(--tblr-primary-fg);
+}
+
+/* theme-tabler colors the dropdown caret separately (--tblr-dark-text / --tblr-light), not with the button text */
+a.actions-buttons-column:after,
+a.actions-buttons-column:hover:after,
+a.actions-buttons-column.show:after,
+[data-bs-theme=dark] a.actions-buttons-column:after,
+[data-bs-theme=dark] a.actions-buttons-column:hover:after,
+[data-bs-theme=dark] a.actions-buttons-column.show:after {
+    color: var(--tblr-primary-fg);
 }
 
 /**
@@ -42,7 +52,7 @@
 .form-control:focus,
 .form-select:focus {
     border-color: var(--tblr-primary);
-    box-shadow: 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), .5);
+    box-shadow: 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), .75);
 }
 
 /**
@@ -51,7 +61,7 @@
  get no focus ring at all, just a border color change. Give it the same ring as above.
 */
 html[data-bs-theme=dark] {
-    --bp-select2-focus-box-shadow: 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), .5);
+    --bp-select2-focus-box-shadow: 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), .75);
 }
 
 /**
@@ -60,25 +70,16 @@ html[data-bs-theme=dark] {
 */
 ::selection {
     background-color: var(--tblr-primary);
-    color: var(--color-beluga);
+    color: var(--tblr-primary-fg);
 }
 
-[bp-section=crud-operation-list] {
-    .bp-datagrid-title {
-        color: #fff;
-    }
-}
-
-[bp-section=crud-operation-show] {
-    .bp-datagrid-title {
-        color: #fff;
-    }
-}
-
-[bp-section=import-select-file] {
-    form .help-block {
-        color: --var(--color-beluga);
-    }
+/**
+ Datagrid labels (show page, list details row): was hardcoded #fff, which only worked in dark
+ mode -- white on white in light mode. Also 10px in common.css; bumped to 12px.
+*/
+.bp-datagrid-title {
+    color: var(--tblr-muted);
+    font-size: .75rem;
 }
 
 /**
@@ -104,6 +105,316 @@ html[data-bs-theme=dark] {
 [data-bs-theme=dark] span.cke_button_label,
 [data-bs-theme=dark] span.cke_combo_text {
     color: rgb(var(--tblr-light-text)) !important;
+}
+
+/**
+ ==========================================================================================
+ WCAG 2.2 contrast fixes. Colors come from fpn-backpack-color-palette.css tokens; these rules
+ only point vendor selectors (Tabler, theme-tabler, common.css) at the right token where the
+ vendor CSS hardcodes a color or uses a token that's wrong for the context.
+ ==========================================================================================
+*/
+
+/**
+ .btn-secondary/.bg-secondary keep the light beluga fill they always had here. --tblr-secondary is
+ now a dark text color (Tabler uses it for navbar links, form hints, badges), so the fill gets its
+ own token rather than piggybacking on it.
+*/
+.btn-secondary {
+    --tblr-btn-bg: var(--fpn-secondary-fill);
+    --tblr-btn-color: var(--color-velvet);
+    --tblr-btn-hover-bg: var(--fpn-secondary-fill-hover);
+    --tblr-btn-hover-color: var(--color-velvet);
+    --tblr-btn-active-bg: var(--fpn-secondary-fill-hover);
+    --tblr-btn-active-color: var(--color-velvet);
+    --tblr-btn-disabled-bg: var(--fpn-secondary-fill);
+    --tblr-btn-disabled-color: var(--color-velvet);
+    --tblr-btn-border-color: var(--fpn-input-border);
+}
+
+.bg-secondary {
+    background-color: var(--fpn-secondary-fill) !important;
+}
+
+/**
+ Text on solid .bg-* fills (statistics/dashboard cards, badges). Tabler sets the fill but leaves the
+ text color to inheritance, so cards came out e.g. beluga-on-yellow or beluga-on-beluga.
+*/
+.card.bg-primary, .badge.bg-primary { color: var(--tblr-primary-fg) !important; }
+.card.bg-secondary, .badge.bg-secondary { color: var(--color-velvet) !important; }
+.card.bg-success, .badge.bg-success { color: var(--tblr-success-fg) !important; }
+.card.bg-info, .badge.bg-info { color: var(--tblr-info-fg) !important; }
+.card.bg-warning, .badge.bg-warning { color: var(--tblr-warning-fg) !important; }
+.card.bg-danger, .badge.bg-danger { color: var(--tblr-danger-fg) !important; }
+.card.bg-light, .badge.bg-light { color: var(--tblr-light-fg) !important; }
+.card.bg-dark, .badge.bg-dark { color: var(--tblr-dark-fg) !important; }
+
+/* Tabler's .text-bg-* hardcode #f9fafb text regardless of the fill */
+.text-bg-primary { color: var(--tblr-primary-fg) !important; }
+.text-bg-secondary { color: var(--color-velvet) !important; }
+.text-bg-success { color: var(--tblr-success-fg) !important; }
+.text-bg-info { color: var(--tblr-info-fg) !important; }
+.text-bg-warning { color: var(--tblr-warning-fg) !important; }
+.text-bg-danger { color: var(--tblr-danger-fg) !important; }
+
+/* crud/inc/form_save_buttons.blade.php hardcodes `btn-success text-white`; success is a light mint in dark mode */
+.btn.btn-success.text-white {
+    color: var(--tblr-success-fg) !important;
+}
+
+/* theme-tabler's fallback avatar (user's initial) is hardcoded #FFF on a primary fill */
+.backpack-avatar-menu-container {
+    color: var(--tblr-primary-fg);
+    font-weight: 500;
+}
+
+/* yellow can't be a text color on a light surface */
+.text-warning {
+    color: var(--fpn-warning-text) !important;
+}
+
+/**
+ Secondary/de-emphasized text that vendor CSS colors with gray-500 (#736c91: 4.47:1 light,
+ 3.27:1 dark) or a hardcoded #73818f (common.css help text: 3.98:1 light, 2.53:1 dark).
+*/
+.nav-tabs,
+.card-header-tabs {
+    --tblr-nav-link-color: var(--tblr-muted);
+}
+
+.input-group-text,
+[data-bs-theme=dark] .iti .iti__selected-dial-code {
+    color: var(--tblr-muted) !important;
+}
+
+form .help-block,
+.form-hint {
+    color: var(--tblr-muted);
+}
+
+/**
+ Table column headings: theme-tabler sets these at 10px uppercase. Contrast now passes via
+ --tblr-muted, but 10px is still hard to read, so bump to 12px.
+*/
+.table thead th,
+.table tfoot th {
+    font-size: .75rem;
+}
+
+.navbar.navbar-filters .nav-link {
+    font-size: .8125rem;
+}
+
+/**
+ Form field boundaries (WCAG 1.4.11, 3:1). Tabler borders inputs with --tblr-border-color
+ (~1.2:1 on white) and theme-tabler uses --tblr-primary-border-subtle in dark mode (~1.2:1 on coupe).
+*/
+.form-control,
+.form-select,
+.form-check-input,
+.input-group-text,
+.select2-container--bootstrap .select2-selection,
+form .select2.select2-container,
+[data-bs-theme=dark] input:not(input[type=hidden]).form-control:not(:disabled),
+[data-bs-theme=dark] textarea.form-control:not(:disabled),
+[data-bs-theme=dark] select.form-control:not(:disabled),
+[data-bs-theme=dark] select.form-select:not(:disabled),
+[data-bs-theme=dark] span.input-group-text {
+    border-color: var(--fpn-input-border);
+}
+
+[data-bs-theme=dark] span.select2-selection.select2-selection--single,
+[data-bs-theme=dark] .select2-selection.select2-selection--multiple ul.select2-selection__rendered,
+[data-bs-theme=dark] :not(.navbar-filters) .select2-selection--single,
+[data-bs-theme=dark] :not(.navbar-filters) .select2-selection--multiple {
+    border-color: var(--fpn-input-border) !important;
+}
+
+.form-check-input:checked {
+    border-color: var(--tblr-primary);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--tblr-primary);
+}
+
+/* light (sage) fills in dark mode need a dark check mark / radio dot / switch knob, not white */
+[data-bs-theme=dark] .form-check-input:checked[type=checkbox] {
+    --tblr-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3e%3cpath fill='none' stroke='%2325201d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8.5l2.5 2.5l5.5 -5.5'/%3e%3c/svg%3e");
+}
+
+[data-bs-theme=dark] .form-check-input:checked[type=radio] {
+    --tblr-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3ccircle r='3' fill='%2325201d' cx='8' cy='8' /%3e%3c/svg%3e");
+}
+
+[data-bs-theme=dark] .form-switch .form-check-input:checked {
+    --tblr-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2325201d'/%3e%3c/svg%3e");
+}
+
+/* placeholders: theme-tabler renders them at 50% opacity in dark mode (~3.4:1) */
+.form-control::placeholder,
+[data-bs-theme=dark] ::placeholder {
+    color: var(--tblr-tertiary) !important;
+}
+
+/**
+ select2 in dark mode: theme-tabler renders the selected value and search text at 50% opacity
+ (same problem as the typed-input fix above), and option highlight puts white on primary.
+*/
+html[data-bs-theme=dark] {
+    --bp-select2-rendered-color: var(--tblr-body-color);
+    --bp-select2-search-color: var(--tblr-body-color);
+    --bp-select2-focus-color: var(--tblr-body-color);
+    --bp-select2-placeholder-color: var(--tblr-tertiary);
+    --bp-select2-option-selected-color: var(--tblr-body-color);
+    --select2-selected-item-color: var(--tblr-primary-fg);
+}
+
+[data-bs-theme=dark] .select2-selection--multiple input:not(:focus) {
+    color: var(--tblr-tertiary) !important;
+}
+
+[data-bs-theme=dark] .navbar-filters .select2-selection__rendered:not(input) {
+    color: var(--tblr-body-color) !important;
+}
+
+[data-bs-theme=dark] .navbar-filters .select2-results ul.select2-results__options li.select2-results__option.select2-results__option--highlighted,
+[data-bs-theme=dark] .select2-container--bootstrap .select2-results__option--highlighted[aria-selected] {
+    color: var(--tblr-primary-fg);
+}
+
+/**
+ Dark mode: theme-tabler puts white / --tblr-light text on a primary fill in several places.
+ Primary is a light sage in dark mode, so those need the dark primary foreground.
+*/
+html[data-bs-theme=dark] ul.pagination li.paginate_button.page-item.active a.page-link,
+html[data-bs-theme=dark] ul.pagination li.paginate_button.page-item.active a,
+html[data-bs-theme=dark] .page-item.active .page-link,
+html[data-bs-theme=dark] .dt-button-collection .dropdown-menu .dropdown-item:hover,
+html[data-bs-theme=dark] .buttons-colvis .dropdown-menu .dropdown-item:hover,
+html[data-bs-theme=dark] .iti .iti__active,
+html[data-bs-theme=dark] .iti .iti__highlight,
+html[data-bs-theme=dark] div.array-controls button.btn-light:hover,
+html[data-bs-theme=dark] .note-editor .note-btn.active,
+html[data-bs-theme=dark] .daterangepicker .ranges li.active,
+html[data-bs-theme=dark] .daterangepicker .ranges li:hover,
+html[data-bs-theme=dark] .daterangepicker .calendar-table td.active,
+html[data-bs-theme=dark] .daterangepicker .calendar-table td:hover,
+html[data-bs-theme=dark] select[multiple]:focus option:checked {
+    color: var(--tblr-primary-fg) !important;
+}
+
+/* the dark-mode "browse"/file-picker buttons sit on --tblr-gray-500 (#736c91), too dark for dark text and too light for 7:1 */
+[data-bs-theme=dark] label.backstrap-file-label::after,
+[data-bs-theme=dark] div.btn-file {
+    background-color: var(--tblr-gray-600);
+    color: var(--tblr-body-color);
+}
+
+[data-bs-theme=dark] .input-group button.popup_selector,
+[data-bs-theme=dark] .input-group button.clear_elfinder_picker,
+.swal-title,
+.swal-text {
+    color: var(--tblr-body-color);
+}
+
+/* Backpack marks an errored field's wrapper .text-danger; in dark mode use the paler invalid-text tint */
+[data-bs-theme=dark] .form-group.text-danger,
+[data-bs-theme=dark] .form-group.text-danger label {
+    color: var(--tblr-form-invalid-color) !important;
+}
+
+/* Tabler's focused page-link sits on --tblr-secondary-bg, which takes primary text just under 7:1 */
+.page-link:focus {
+    color: var(--tblr-body-color);
+}
+
+/* common.css hardcodes a navy tab hover color: fine on white, 1.2:1 on coupe */
+form .nav-tabs .nav-link:hover {
+    color: var(--tblr-body-color);
+}
+
+/**
+ sweetalert's chrome (delete confirmation) isn't theme-aware. Its own buttons are white text on
+ #7cd1f9 (confirm) / #e64942 (danger) -- 1.9:1 and 3.9:1.
+*/
+.swal-button--confirm {
+    background-color: var(--fpn-nature-deep);
+    color: var(--color-beluga);
+}
+
+.swal-button--danger {
+    background-color: #a32635;
+    color: #fff;
+}
+
+/* the delete dialog's confirm button is `.swal-button.bg-danger` (buttons/delete.blade.php); danger is a light pink in dark mode */
+.swal-button.bg-danger {
+    color: var(--tblr-danger-fg) !important;
+}
+
+.swal-button--confirm:not([disabled]):hover {
+    background-color: color-mix(in oklab, var(--fpn-nature-deep), black 18%);
+}
+
+.swal-button--danger:not([disabled]):hover {
+    background-color: color-mix(in oklab, #a32635, black 18%);
+}
+
+/**
+ Noty toasts (save/delete confirmations): common.css hardcodes near-white text on Backpack's stock
+ status colors (success 2.3:1, warning 1.5:1, info 3.6:1, danger 3.9:1). Point them at the tokens.
+*/
+.noty_theme__backstrap.noty_type__success { background-color: var(--tblr-success); border-color: var(--tblr-success-darken); color: var(--tblr-success-fg); }
+.noty_theme__backstrap.noty_type__warning { background-color: var(--tblr-warning); border-color: var(--tblr-warning-darken); color: var(--tblr-warning-fg); }
+.noty_theme__backstrap.noty_type__danger,
+.noty_theme__backstrap.noty_type__error { background-color: var(--tblr-danger); border-color: var(--tblr-danger-darken); color: var(--tblr-danger-fg); }
+.noty_theme__backstrap.noty_type__info,
+.noty_theme__backstrap.noty_type__information { background-color: var(--tblr-info); border-color: var(--tblr-info-darken); color: var(--tblr-info-fg); }
+.noty_theme__backstrap.noty_type__primary { background-color: var(--tblr-primary); border-color: var(--tblr-primary-darken); color: var(--tblr-primary-fg); }
+
+/* the close "x" is #161C2D at 50% opacity -- invisible on dark fills */
+.noty_theme__backstrap.noty_bar .noty_close_button {
+    color: inherit;
+    text-shadow: none;
+    opacity: .85;
+}
+
+/**
+ Underline links (WCAG 1.4.1 Use of Color): link color alone doesn't reach 3:1 against the
+ surrounding body text in either theme, so links need a non-color cue. Anything that is a UI
+ control rather than a link in content (buttons, nav/tab links, menu items, pagination, brand)
+ is left alone.
+*/
+a:not(.btn, .nav-link, .dropdown-item, .page-link, .navbar-brand, .dropdown-toggle, .list-group-item-action, .actions-buttons-column, [role=button], [role=tab]) {
+    text-decoration-line: underline;
+    text-underline-offset: .2em;
+}
+
+/* hover/focus gets a thicker line instead of removing it, which Tabler and theme-tabler both do */
+a:not(.btn, .nav-link, .dropdown-item, .page-link, .navbar-brand, .dropdown-toggle, .list-group-item-action, .actions-buttons-column, [role=button], [role=tab]):hover,
+a:not(.btn, .nav-link, .dropdown-item, .page-link, .navbar-brand, .dropdown-toggle, .list-group-item-action, .actions-buttons-column, [role=button], [role=tab]):focus-visible {
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+}
+
+/**
+ Keyboard focus indicator (WCAG 2.4.7 / 2.4.13 / 1.4.11): Tabler mostly relies on a 25%-opacity
+ primary ring, which is ~1.4:1. A solid 2px outline in the focus color is >= 3:1 against every
+ surface in both themes.
+*/
+a:focus-visible,
+.btn:focus-visible,
+button:focus-visible,
+.nav-link:focus-visible,
+.dropdown-item:focus-visible,
+.page-link:focus-visible,
+.form-check-input:focus-visible,
+[tabindex]:focus-visible,
+summary:focus-visible {
+    outline: 2px solid var(--fpn-focus-color) !important;
+    outline-offset: 2px;
 }
 
 /**
