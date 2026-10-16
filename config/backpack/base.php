@@ -1,6 +1,6 @@
 <?php
 
-use app\Http\Middleware\BackpackAuthenticateSession;
+use App\Http\Middleware\BackpackAuthenticateSession;
 
 return [
 
