@@ -92,7 +92,19 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                     <h2 className="font-bold text-lg mb-4">Contact</h2>
                     {/** Gemini says to wrap contact info <dl> in an address tag. */}
                     <address className="not-italic">
-                        <dl className="grid grid-cols-3 max-w-80 gap-y-2">
+                        <dl className="grid grid-cols-3 max-w-84 gap-y-2">
+                            {mill.contact_name && (
+                                <>
+                                    <dt className="font-bold">Name</dt>
+                                    <dd className="col-span-2">{mill.contact_name}</dd>
+                                </>
+                            )}
+                            {mill.contact_title && (
+                                <>
+                                    <dt className="font-bold">Title</dt>
+                                    <dd className="col-span-2">{mill.contact_title}</dd>
+                                </>
+                            )}
                             {mill.telephone && (
                                 <>
                                     <dt className="font-bold">Telephone</dt>
@@ -102,6 +114,19 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                                             href={'tel:' + mill.telephone}
                                         >
                                             {mill.telephone}
+                                        </a>
+                                    </dd>
+                                </>
+                            )}
+                            {mill.telephone_2 && (
+                                <>
+                                    <dt className="font-bold">Telephone 2</dt>
+                                    <dd className="col-span-2">
+                                        <a 
+                                            className="underline hover:no-underline"
+                                            href={'tel:' + mill.telephone_2}
+                                        >
+                                            {mill.telephone_2}
                                         </a>
                                     </dd>
                                 </>
@@ -128,7 +153,20 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                                     </dd>
                                 </>
                             )}
-                            {mill.web_site && (
+                            {mill.email_2 && (
+                                <>
+                                    <dt className="font-bold">Email 2</dt>
+                                    <dd className="col-span-2">
+                                        <a
+                                            className="underline hover:no-underline"
+                                            href={'mailto:' + mill.email_2}
+                                        >
+                                            {mill.email_2}
+                                        </a>
+                                        
+                                    </dd>
+                                </>
+                            )}                            {mill.web_site && (
                                 <>
                                     <dt className="font-bold">Web Site</dt>
                                     <dd className="col-span-2">
@@ -137,6 +175,7 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                                             className="underline hover:no-underline"
                                             href={mill.web_site}
                                             target="_blank"
+                                            title="(Opens in a new tab)"
                                         >
                                             {mill.web_site}
                                         </Link>
