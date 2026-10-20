@@ -10,6 +10,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Backpack\CRUD\app\Library\Widget;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 
 /**
@@ -51,10 +52,15 @@ class FaqCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        if (! $this->crud->getRequest()->has('order')) {
-            $this->crud
-                ->orderBy('faq_category_id', 'asc')
-                ->orderBy('order', 'asc');
+        if (!$this->crud->getRequest()->has('order')) {
+            $this->crud->query
+                ->orderBy(
+                    FaqCategory::select('order')
+                        ->whereColumn('faq_categories.id', 'faqs.faq_category_id')
+                        ->limit(1)
+                    ,
+                    'asc'
+                );
         }
 
         $this->doFilter();
@@ -95,13 +101,8 @@ class FaqCrudController extends CrudController
          * Fields can be defined using the fluent syntax:
          * - CRUD::field('price')->type('number');
          */
-        
+
         CRUD::field('slug')->remove();
-            // ->type('text')
-            // ->label('Slug')
-            // ->attributes([
-            //     'placeholder' => 'Leave blank to create Slug from Question'
-            // ]);
 
         CRUD::field('answer')
             ->label('Answer')
@@ -120,7 +121,19 @@ class FaqCrudController extends CrudController
             ->label('Sort Weight')
             ->type('number');
 
-        Widget::add()->type('script')->content(asset('assets/js/admin/forms/faqs.js'));            
+        CRUD::field('published_at')
+            ->label('Publish At')
+            ->type('datetime')
+            ->hint('Specify a date to publish in the future; leave blank to publish immediately.');
+
+        CRUD::field('unpublished_at')
+            ->label('Unpublish At')
+            ->type('datetime')
+            ->hint('Specify a date to unpublish in the future; leave blank to remain published indefinitely.');
+
+        Widget::add()
+            ->type('script')
+            ->content(asset('assets/js/admin/forms/faqs.js'));
     }
 
     /**
@@ -146,7 +159,7 @@ class FaqCrudController extends CrudController
     {
         $this->addFilterWidget();
 
-        if (! $this->shouldApplyFilter()) {
+        if (!$this->shouldApplyFilter()) {
             return;
         }
 
@@ -183,7 +196,7 @@ class FaqCrudController extends CrudController
 
     protected function shouldApplyFilter(): bool
     {
-        return ! empty($this->getFilterValue());
+        return !empty($this->getFilterValue());
     }
 
     protected function getFilterValue(): ?int
