@@ -38,7 +38,7 @@ export default function Faqs() {
                                     {/* scroll margin clears the sticky mobile bar (up to ~6rem when the category name wraps at 320px) / sits just below the top on desktop */}
                                     <h2
                                         id={category.slug}
-                                        className="font-bold text-xl mb-4 scroll-mt-28 lg:scroll-mt-6"
+                                        className="font-bold text-2xl mb-4 scroll-mt-28 lg:scroll-mt-6"
                                     >
                                         {category.name}
                                     </h2>
@@ -47,11 +47,21 @@ export default function Faqs() {
                                             <li key={faq.id}
                                                 className="odd:bg-lorne even:bg-coupe p-4"
                                             >
-                                                <div className="question mb-2">{faq.question}</div>
-                                                <SafeHtml
-                                                    html={faq.answer}
-                                                    className="answer"
-                                                />
+                                                <div className="question flex flex-row gap-4 mb-2 text-lg">
+                                                    <div className="text-xl font-bold">
+                                                        Q<span className="sr-only">uestion</span>:
+                                                    </div>
+                                                    {faq.question}
+                                                </div>
+                                                <div className="answer flex flex-row gap-4 text-lg pr-4">
+                                                    <div className="text-xl font-bold">
+                                                        A<span className="sr-only">nswer</span>:
+                                                    </div>
+                                                    <SafeHtml
+                                                        html={faq.answer}
+                                                        className="answerd"
+                                                    />
+                                                </div>
                                             </li>
                                         ))}
                                     </ul>

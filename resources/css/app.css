@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -12,12 +12,12 @@
 @theme {
     --font-sans:
         /*'Instrument Sans', ui-sans-serif, system-ui, sans-serif,*/
-        'Lato', ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+        'Lato', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     /** override default serif font stack */
     --font-serif:
-        'Zilla Slab', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+        'Zilla Slab', ui-serif, Georgia, Cambria, 'Times New Roman', Times,
+        serif;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -68,16 +68,26 @@
     */
     --color-aircraft: oklch(0.4131 0.0375 222.36); /* #34505a */
     --color-baize: oklch(0.434 0.0299 137.89); /* #495545 */
-    --color-beluga: oklch(0.9577 0.0017 247.84); /* #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
-    --color-coupe: oklch(0.3754 0.0306 222.53); /*#2f454d;  homepage card heading background, arrow buttons, et al */
+    --color-beluga: oklch(
+        0.9577 0.0017 247.84
+    ); /* #f0f1f2; off-white for hero text, footer text, and card body backgrounds */
+    --color-coupe: oklch(
+        0.3754 0.0306 222.53
+    ); /*#2f454d;  homepage card heading background, arrow buttons, et al */
     --color-ebony: oklch(0.315 0.0279 136.83); /* #2b3527 State pages */
-    --color-nature: oklch(0.5509 0.0282 137.85); /* #6a7666;  footer background */
+    --color-nature: oklch(
+        0.5509 0.0282 137.85
+    ); /* #6a7666;  footer background */
     --color-lorne: oklch(47.38% 0.022 137.85); /* #565f53; filters background */
-    --color-petroleum: oklch(0.2439 0.0096 53.02); /* #241f1c; state page hero bg */
-    --color-sonic: oklch(0.5624 0 0); /* #757575; text search placeholder, mill list item header bottom border */
+    --color-petroleum: oklch(
+        0.2439 0.0096 53.02
+    ); /* #241f1c; state page hero bg */
+    --color-sonic: oklch(
+        0.5624 0 0
+    ); /* #757575; text search placeholder, mill list item header bottom border */
     /* --color-velvet: oklch(0.2481 0.0095 53.04); #25201d; top nav foreground */
     /** different hex to oklch converters yield different values */
-    --color-velvet: oklch(24.81% 0.010 53.04); /* #25201d; top nav foreground */
+    --color-velvet: oklch(24.81% 0.01 53.04); /* #25201d; top nav foreground */
     --color-zucchini: oklch(0.7107 0.0429 133.87); /* #97a88d; top nav bg */
 
     /** override default bg, fg, et al */
@@ -137,9 +147,13 @@
     --color-chart-5: var(--chart-5);
 
     --color-sidebar: var(--color-zucchini); /*var(--sidebar);*/
-    --color-sidebar-foreground: var(--color-velvet); /* var(--sidebar-foreground); */
+    --color-sidebar-foreground: var(
+        --color-velvet
+    ); /* var(--sidebar-foreground); */
     --color-sidebar-primary: var(--color-zucchini); /*var(--sidebar-primary); */
-    --color-sidebar-primary-foreground: var(--color-velvet); /* var(--sidebar-primary-foreground); */
+    --color-sidebar-primary-foreground: var(
+        --color-velvet
+    ); /* var(--sidebar-primary-foreground); */
     --color-sidebar-accent: var(--sidebar-accent);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
@@ -241,54 +255,61 @@ disabling dark for now
     body {
         @apply bg-background text-foreground;
     }
-  .leaflet-container {
-    @apply bg-card! font-[inherit]!;
+    .leaflet-container {
+        @apply bg-card! font-[inherit]!;
     }
-  .leaflet-container a {
-    @apply text-inherit!;
+    .leaflet-container a {
+        @apply text-inherit!;
     }
-  .leaflet-div-icon {
-    @apply bg-transparent! border-none!;
+    .leaflet-div-icon {
+        @apply border-none! bg-transparent!;
     }
-  .leaflet-popup-content-wrapper, .leaflet-popup-content, .leaflet-popup-content p {
-    @apply [all:unset]!;
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-content,
+    .leaflet-popup-content p {
+        @apply [all:unset]!;
     }
-  .leaflet-popup {
-    @apply animate-none!;
+    .leaflet-popup {
+        @apply animate-none!;
     }
-  .leaflet-popup-close-button {
-    @apply ring-offset-background focus:ring-ring bg-secondary rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:outline-hidden;
+    .leaflet-popup-close-button {
+        @apply rounded-xs bg-secondary opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:outline-hidden;
     }
-  .leaflet-tooltip, .leaflet-draw-tooltip {
-    @apply bg-foreground! text-background! animate-none! rounded-md! border-none! p-0! px-3! py-1.5! shadow-none!;
+    .leaflet-tooltip,
+    .leaflet-draw-tooltip {
+        @apply animate-none! rounded-md! border-none! bg-foreground! p-0! px-3! py-1.5! text-background! shadow-none!;
     }
-  .leaflet-draw-tooltip:before {
-    @apply bg-foreground top-1/2! right-0.5! size-2.5 translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[2px] border-none!;
+    .leaflet-draw-tooltip:before {
+        @apply top-1/2! right-0.5! size-2.5 translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[2px] border-none! bg-foreground;
     }
-  .leaflet-error-draw-tooltip {
-    @apply bg-destructive! text-white!;
+    .leaflet-error-draw-tooltip {
+        @apply bg-destructive! text-white!;
     }
-  .leaflet-error-draw-tooltip:before {
-    @apply bg-destructive;
+    .leaflet-error-draw-tooltip:before {
+        @apply bg-destructive;
     }
-  .leaflet-draw-tooltip-subtext {
-    @apply text-background!;
+    .leaflet-draw-tooltip-subtext {
+        @apply text-background!;
     }
-  .leaflet-popup-tip-container, .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before {
-    @apply hidden;
+    .leaflet-popup-tip-container,
+    .leaflet-tooltip-top:before,
+    .leaflet-tooltip-bottom:before,
+    .leaflet-tooltip-left:before,
+    .leaflet-tooltip-right:before {
+        @apply hidden;
     }
-  .leaflet-control-attribution {
-    /* @apply bg-muted! rounded-md px-[4px]! py-[2px]! text-[10px] leading-none! text-inherit!; */
-    @apply bg-muted! rounded-md px-1! py-0.5! text-[10px] leading-none! text-inherit!;
+    .leaflet-control-attribution {
+        /* @apply bg-muted! rounded-md px-[4px]! py-[2px]! text-[10px] leading-none! text-inherit!; */
+        @apply rounded-md bg-muted! px-1! py-0.5! text-[10px] leading-none! text-inherit!;
     }
-  .leaflet-draw-guide-dash {
-    @apply rounded-full;
+    .leaflet-draw-guide-dash {
+        @apply rounded-full;
     }
-  .leaflet-edit-marker-selected {
-    @apply border-transparent! bg-transparent!;
+    .leaflet-edit-marker-selected {
+        @apply border-transparent! bg-transparent!;
     }
-  .marker-cluster div {
-    @apply font-[inherit];
+    .marker-cluster div {
+        @apply font-[inherit];
     }
 }
 
@@ -297,8 +318,8 @@ disabling dark for now
   */
 @utility required {
     & label::after {
-        content: "*";
-        @apply text-destructive ml-0.5;
+        content: '*';
+        @apply ml-0.5 text-destructive;
     }
 }
 
@@ -306,29 +327,42 @@ disabling dark for now
  * add ": " after <dt> inside <address>
  */
 address dt::after {
-  content: ": ";
+    content: ': ';
 }
 /**
  * add Q before questions and A before answers
+ * The Q: and A: have become problematic.
+ * More specifically, answers push to the next line after the A: because they include <p> tags.
  */
-.question::before {
-  content: "Q: ";
+/* .question::before {
+    content: 'Q: ';
 }
 .answer::before {
-  content: "A: ";
-}
+    content: 'A: ';
+} */
 
+/**
+ * We still need to apply styles to lists in FAQ answers
+ */
+.answer {
+    ul {
+        padding-left: 1.5rem;
+        li {
+            list-style-type: disc;
+        }
+    }
+}
 
 /**
  * increase size of map popup close button
  * we should probsibly make a utility instead of using raw CSS because a utility will allow using responsive classes
  */
 .leaflet-container .leaflet-popup a.leaflet-popup-close-button {
-  font-size: 24px;
-  width: 30px;
-  height: 30px;
-  padding: 5px;
-  line-height: 24px; /* it's already 24px but oh well */
+    font-size: 24px;
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+    line-height: 24px; /* it's already 24px but oh well */
 }
 
 /**
@@ -345,26 +379,30 @@ address dt::after {
  * browser that doesn't understand one of :-webkit-autofill / :autofill
  * would otherwise drop the whole rule.
  */
-[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:-webkit-autofill,
-[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:-webkit-autofill:hover,
-[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:-webkit-autofill:focus,
-[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:-webkit-autofill:active {
-  font: inherit;
-  -webkit-text-fill-color: var(--color-velvet);
-  -webkit-box-shadow: 0 0 0 1000px var(--color-beluga) inset;
-  caret-color: var(--color-velvet);
-  transition: background-color 5000s ease-in-out 0s;
+[data-thing='filter-inner-wrap']
+    [data-slot='input-group-control']:-webkit-autofill,
+[data-thing='filter-inner-wrap']
+    [data-slot='input-group-control']:-webkit-autofill:hover,
+[data-thing='filter-inner-wrap']
+    [data-slot='input-group-control']:-webkit-autofill:focus,
+[data-thing='filter-inner-wrap']
+    [data-slot='input-group-control']:-webkit-autofill:active {
+    font: inherit;
+    -webkit-text-fill-color: var(--color-velvet);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-beluga) inset;
+    caret-color: var(--color-velvet);
+    transition: background-color 5000s ease-in-out 0s;
 }
-[data-thing="filter-inner-wrap"] [data-slot="input-group-control"]:autofill {
-  font: inherit;
-  -webkit-text-fill-color: var(--color-velvet);
-  box-shadow: 0 0 0 1000px var(--color-beluga) inset;
-  caret-color: var(--color-velvet);
+[data-thing='filter-inner-wrap'] [data-slot='input-group-control']:autofill {
+    font: inherit;
+    -webkit-text-fill-color: var(--color-velvet);
+    box-shadow: 0 0 0 1000px var(--color-beluga) inset;
+    caret-color: var(--color-velvet);
 }
 
 /**
  * constrain height of input selects in mill filters
  */
 .input-select-popout {
-  max-height: var(--radix-popover-content-available-height);
+    max-height: var(--radix-popover-content-available-height);
 }
