@@ -49,12 +49,12 @@ class StateForestTypeCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        if (! $this->crud->getRequest()->has('order')) {
+        if (!$this->crud->getRequest()->has('order')) {
             $this->crud->query
                 ->orderBy('state_id', 'asc')
                 ->orderBy('sort_weight', 'asc');
         }
-        
+
         /**
          * DIY filter
          */
@@ -84,40 +84,38 @@ class StateForestTypeCrudController extends CrudController
     {
         CRUD::setValidation(StateForestTypeRequest::class);
 
-        CRUD::field([
-            'name' => 'state_id',
-            'label' => 'State',
-            'type' => 'select',
-            'entity' => 'state',
-            'model' => 'App\Models\State',
-            'attribute' => 'name',
+        CRUD::field('state_id')
+            ->label('State')
+            ->type('select')
+            ->entity('state')
+            ->model('App\Models\State')
+            ->attribute('name')
             // preselected by the State Hub's Add links
-            'default' => request('state_id'),
-        ]);
-        CRUD::field([
-            'name' => 'title',
-            'label' => 'Title',
-            'type' => 'text',
-        ]);
-        CRUD::field([
-            'name' => 'description',
-            'label' => 'Description',
-            'type' => 'textarea',
-        ]);
-        CRUD::field([
-            'name' => 'icon',
-            'label' => 'Icon',
-            'type' => 'upload',
-            'disk' => 'public',
-            'withFiles' => true,
-            'hint' => 'SVG icon to render alongside this forest type.',
-        ]);
-        CRUD::field([
-            'name' => 'sort_weight',
-            'label' => 'Sort Weight',
-            'type' => 'number',
-            'default' => 10,
-        ]);
+            ->default(request('state_id'));
+
+        CRUD::field('title')
+            ->label('Title')
+            ->type('text');
+
+        CRUD::field('description')
+            ->label('Description')
+            ->type('textarea');
+
+        CRUD::field('icon')
+            ->label('Icon')
+            ->type('upload')
+            ->disk('public')
+            /**
+             * Backpack's uploader has its own extension allowlist (FileExtensions::DEFAULT_ALLOWED), separate from
+             * request validation, and it leaves svg out on purpose (SVGs can carry scripts). Opt this field back in.
+             */
+            ->withFiles(['allowedExtensions' => ['svg', 'png']])
+            ->hint('SVG icon to render alongside this forest type.');
+
+        CRUD::field('sort_weight')
+            ->label('Sort Weight')
+            ->type('number')
+            ->default(10);
     }
 
     /**
