@@ -391,6 +391,15 @@ html[data-bs-theme=dark] select[multiple]:focus option:checked {
     color: var(--tblr-primary-fg) !important;
 }
 
+/**
+ Upload field's picked-file name: the field's own CSS hardcodes #5c6873 text, and theme-tabler's dark mode swaps
+ the label background to --tblr-primary-border-subtle (#4a5d64), leaving the name at 1.21:1. Body color: 6.11:1.
+ (tests/Feature/Browser/UploadFieldContrastTest.php)
+*/
+[data-bs-theme=dark] label.backstrap-file-label {
+    color: var(--tblr-body-color);
+}
+
 /* the dark-mode "browse"/file-picker buttons sit on --tblr-gray-500 (#736c91), too dark for dark text and too light for 7:1 */
 [data-bs-theme=dark] label.backstrap-file-label::after,
 [data-bs-theme=dark] div.btn-file {
