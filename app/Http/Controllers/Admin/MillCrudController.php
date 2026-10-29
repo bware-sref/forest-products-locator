@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\PublicationStatus;
+use App\Jobs\GeocodeMill;
 use App\Http\Controllers\Admin\Operations\MillImportOperation;
 use App\Http\Requests\ImportMillRequest;
 use App\Http\Requests\MillRequest;
 use App\Imports\FloridaMills;
 use App\Imports\MillsCrudImport;
+use App\Models\Mill;
 use App\Models\User;
 use App\Traits\CrudPermissionTrait;
 use App\Traits\FiltersByState;
@@ -24,8 +26,8 @@ use Illuminate\Support\Facades\Log;
 class MillCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation { store as traitStore; }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitUpdate; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use CrudPermissionTrait;
@@ -61,6 +63,40 @@ class MillCrudController extends CrudController
         //         });
         //     });
         // }
+    }
+
+    public function store()
+    {
+        $response = $this->traitStore();
+        $this->geocodeIfNeeded($this->crud->entry);
+
+        return $response;
+    }
+
+    public function update()
+    {
+        $response = $this->traitUpdate();
+        $this->geocodeIfNeeded($this->crud->entry);
+
+        return $response;
+    }
+
+    /**
+     * Geocode a mill saved here when it has no coordinates or its address changed (Mill flags needs_geocode).
+     * GeocodeMill itself decides between a forward and a reverse lookup, and skips mills that don't need one.
+     * Not for mills with neither address nor coordinates: GeocodeMill would mark those Invalid, which hides them,
+     * and an admin save shouldn't do that.
+     * allowFailures so a lookup error is logged rather than failing the save (on a sync queue it runs inline).
+     */
+    protected function geocodeIfNeeded(?Mill $mill): void
+    {
+        if (! $mill || ! ($mill->hasAddress() || $mill->hasLatLng())) {
+            return;
+        }
+
+        if ($mill->needs_geocode || ! $mill->hasLatLng()) {
+            GeocodeMill::dispatch($mill, allowFailures: true);
+        }
     }
 
     /**
