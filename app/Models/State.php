@@ -68,7 +68,7 @@ class State extends Model
         return Attribute::make(
             // casting the value attribute to a string here might have saved us some headache earlier on
             // except normalizeStates broke when I removed the string cast it contained/s
-            get: fn () => (string) $this->id,
+            get: fn() => (string) $this->id,
         );
     }
 
@@ -98,17 +98,6 @@ class State extends Model
     public function mailingMills(): HasMany
     {
         return $this->hasMany(Mill::class, 'mailing_state_id');
-    }
-
-    // public function agents(): HasMany
-    // {
-    //     return $this->hasMany(Agent::class);
-    // }
-
-    public function stateResources(): HasMany
-    {
-        return $this->hasMany(StateResource::class)
-            ->orderBy('sort_weight', 'asc');
     }
 
     /**
@@ -220,7 +209,8 @@ class State extends Model
                     $query->select('id', 'name', 'state_id')
                         ->has('mills')
                         ->orderBy('name', 'asc');
-            }]);
+                }
+            ]);
         }
         return $states->get(['id', 'name', 'abbreviation'])
             ->append(['value', 'label']);
@@ -228,11 +218,11 @@ class State extends Model
 
     /**
      * getWithCounties()
-      * Fetches States along with their Counties.
-      * Both States and Counties can be filtered by passing an array of columns to select.
-      * By default, all columns are selected for both States and Counties.
-      * The $keyForSelect parameter determines whether to append 'value' and 'label' attributes to the State models, which can be useful for select inputs in the frontend.
-      * By default, $keyForSelect is true, meaning 'value' and 'label' will be appended to the State models. If set to false, these attributes will not be appended.
+     * Fetches States along with their Counties.
+     * Both States and Counties can be filtered by passing an array of columns to select.
+     * By default, all columns are selected for both States and Counties.
+     * The $keyForSelect parameter determines whether to append 'value' and 'label' attributes to the State models, which can be useful for select inputs in the frontend.
+     * By default, $keyForSelect is true, meaning 'value' and 'label' will be appended to the State models. If set to false, these attributes will not be appended.
      * This method is primarily intended for fetching States and their Counties for use in select inputs, but it can be used in other contexts as well.
      */
     public static function getWithCounties(?array $cols = ['*'], ?array $countyCols = ['*'], ?bool $keyForSelect = true): Collection
@@ -242,14 +232,15 @@ class State extends Model
                 'counties' => function ($query) use ($countyCols) {
                     $query->select($countyCols)
                         ->orderBy('name', 'asc');
-            }])->get();
-        
+                }
+            ])->get();
+
         if ($keyForSelect) {
             $states->append(['value', 'label']);
         }
         return $states;
     }
- 
+
     public static function millCounts(): array
     {
         return State::select('name')
@@ -284,9 +275,11 @@ class State extends Model
             ->whereHas('mills', function ($query) use ($column, $since) {
                 $query->where($column, '>=', $since);
             })
-            ->withCount(['mills' => function ($query) use ($column, $since) {
-                $query->where($column, '>=', $since);
-            }])            
+            ->withCount([
+                'mills' => function ($query) use ($column, $since) {
+                    $query->where($column, '>=', $since);
+                }
+            ])
             ->get()
             ->withoutAppends()
             ->pluck('mills_count', 'name')
@@ -300,11 +293,11 @@ class State extends Model
         $query = State::select(['id', 'name'])
             ->where('abbreviation', $name, null, 'and')
             ->orWhere('name', $name);
-        
+
         if (null !== $countyName) {
             $query = $query->with([
                 'counties' => function ($q) use ($countyName) {
-                    $q->select(['id', 'name', 'type', 'state_id'])                        
+                    $q->select(['id', 'name', 'type', 'state_id'])
                         ->where('name', $countyName);
                 }
             ]);
