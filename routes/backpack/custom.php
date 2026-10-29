@@ -15,7 +15,7 @@ Route::group([
         (array) config('backpack.base.middleware_key', 'admin')
     ),
     'namespace' => 'App\Http\Controllers\Admin',
-    'as' => config('backpack.base.route_prefix', 'admin').'.',
+    'as' => config('backpack.base.route_prefix', 'admin') . '.',
 ], function () { // custom admin routes
     /**
      * permission related routes
@@ -24,7 +24,6 @@ Route::group([
     Route::crud('permission', 'PermissionCrudController');
     Route::crud('role', 'RoleCrudController');
 
-    // Route::crud('agent', 'AgentCrudController');
     Route::crud('county', 'CountyCrudController');
     Route::crud('mill', 'MillCrudController');
     // Route::crud('mill-edits', 'MillEditCrudController');
@@ -41,7 +40,6 @@ Route::group([
         ->name('page.statistics.additions');
     Route::get('state-hub/{state?}', 'StateHubController@show')
         ->name('page.state-hub.show');
-    // Route::crud('state-resource', 'StateResourceCrudController');
     Route::crud('page-seo', 'PageSeoCrudController');
     Route::crud('state-page', 'StatePageCrudController');
     Route::crud('state-contact', 'StateContactCrudController');

@@ -2,11 +2,10 @@
 
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
-use App\Http\Controllers\GeocodingController;
+// I think geocoding was moved to API routes.
 use App\Http\Controllers\MillController;
 use App\Http\Controllers\MillEditController;
 use App\Http\Controllers\StatePageController;
-use App\Http\Controllers\StateResourceController;
 use App\Models\PageSeo;
 // use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
@@ -145,7 +144,7 @@ Route::get('/states/{state:slug}', [StatePageController::class, 'show'])
 Route::get('/contact', [ContactController::class, 'index'])
     ->name('contacts.create');
 
-Route::middleware(['throttle:contact'])->group(function() {
+Route::middleware(['throttle:contact'])->group(function () {
     Route::post('/contact', [ContactController::class, 'store'])
         ->name('contacts.store');
 });
