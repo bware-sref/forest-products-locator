@@ -7,9 +7,6 @@ use App\Models\StateAssistanceCategory;
 use App\Models\StateAssistanceLink;
 use App\Models\StateContact;
 use App\Models\StatePage;
-use App\Models\User;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 /**
  * SetsUpForStateAgents: State Agents only see and change records for their own state.
@@ -22,42 +19,6 @@ beforeEach(function () {
     $this->home = State::forceCreate(['name' => 'Alabama', 'abbreviation' => 'AL']);
     $this->other = State::forceCreate(['name' => 'Georgia', 'abbreviation' => 'GA']);
 });
-
-/**
- * Log in a user on the backpack guard with the given permissions (all 'web' guard, like the real ones).
- * Not actingAs(): see project_backpack-guard-auth-checks in Claude's memory / UploadFieldContrastTest.
- */
-function loginAdminUser(array $permissions, ?UserRoles $role = null, ?int $stateId = null): User
-{
-    $user = User::factory()->create(['state_id' => $stateId]);
-
-    foreach ($permissions as $permission) {
-        $user->givePermissionTo(Permission::findOrCreate($permission, 'web'));
-    }
-
-    if ($role) {
-        $user->assignRole(Role::findOrCreate($role->value, 'web'));
-    }
-
-    backpack_auth()->setUser($user);
-
-    return $user;
-}
-
-function loginStateAgent(int $stateId, array $permissions): User
-{
-    return loginAdminUser($permissions, UserRoles::AGENT, $stateId);
-}
-
-/**
- * The rows Backpack's list view would show (its DataTables search endpoint).
- */
-function listRows($test, string $segment): array
-{
-    return $test->postJson("/admin/{$segment}/search", [], ['X-Requested-With' => 'XMLHttpRequest'])
-        ->assertOk()
-        ->json();
-}
 
 function contactIn(State $state, string $name): StateContact
 {

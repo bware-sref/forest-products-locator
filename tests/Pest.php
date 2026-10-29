@@ -157,3 +157,43 @@ function freshMill(\App\Models\Mill $mill): ?\App\Models\Mill
 {
     return \App\Models\Mill::withoutGlobalScopes()->find($mill->id);
 }
+
+/**
+ * Admin panel helpers (tests/Feature/Admin).
+ */
+/**
+ * Log in a user on the backpack guard with the given permissions (all 'web' guard, like the real ones).
+ * Not actingAs(): it also makes backpack the default guard, so Spatie checks the 'web' permissions against the
+ * wrong guard (see UploadFieldContrastTest).
+ */
+function loginAdminUser(array $permissions, ?\App\Enums\UserRoles $role = null, ?int $stateId = null): \App\Models\User
+{
+    $user = \App\Models\User::factory()->create(['state_id' => $stateId]);
+
+    foreach ($permissions as $permission) {
+        $user->givePermissionTo(\Spatie\Permission\Models\Permission::findOrCreate($permission, 'web'));
+    }
+
+    if ($role) {
+        $user->assignRole(\Spatie\Permission\Models\Role::findOrCreate($role->value, 'web'));
+    }
+
+    backpack_auth()->setUser($user);
+
+    return $user;
+}
+
+function loginStateAgent(int $stateId, array $permissions): \App\Models\User
+{
+    return loginAdminUser($permissions, \App\Enums\UserRoles::AGENT, $stateId);
+}
+
+/**
+ * The rows Backpack's list view would show (its DataTables search endpoint).
+ */
+function listRows($test, string $segment): array
+{
+    return $test->postJson("/admin/{$segment}/search", [], ['X-Requested-With' => 'XMLHttpRequest'])
+        ->assertOk()
+        ->json();
+}
