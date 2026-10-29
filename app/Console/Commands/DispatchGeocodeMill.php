@@ -9,7 +9,9 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('zed:geocode-mill {mill* : id(s) of Mill(s) for which to dispatch GeocodeMill job(s)}')]
+#[Signature('zed:geocode-mill
+    {mill* : id(s) of Mill(s) for which to dispatch GeocodeMill job(s)}
+    {--force : Look up even mills whose street address and coordinates are already trusted}')]
 #[Description('Performs geocode (or reverse) geocode for the given mill(s) and updates the records')]
 class DispatchGeocodeMill extends Command
 {
@@ -47,8 +49,17 @@ class DispatchGeocodeMill extends Command
                 continue;
             }
 
+            /**
+             * GeocodeMill skips mills that already have a street address and coordinates, unless the address changed
+             * since (needs_geocode). Forcing sets that flag, so the job geocodes from the address, or reverse
+             * geocodes when there's no address. The job clears it again after a successful lookup.
+             */
+            if ($this->option('force')) {
+                $mill->update(['needs_geocode' => true]);
+            }
+
             GeocodeMill::dispatch($mill);
-            $this->info("Dispatched {$job} job for Mill #{$millId}.");
+            $this->info("Dispatched {$job} job for Mill #{$millId}".($this->option('force') ? ' (forced).' : '.'));
             $audit['success']++;
         }
 
