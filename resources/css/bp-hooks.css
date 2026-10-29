@@ -95,6 +95,92 @@ html[data-bs-theme=dark] {
 }
 
 /**
+ Native select options (e.g. the charcoal State filter, plain `select` fields).
+ Fallback for browsers without customizable selects (see the base-select block below): give the
+ options their own opaque colors so the browser-drawn dropdown list doesn't depend on the select's
+ translucent (glass skin) or oklch() background.
+ light: body text on white ~16:1; dark: beluga on coupe 8.93:1.
+*/
+select.form-control option,
+select.form-select option {
+    background-color: rgb(255, 255, 255);
+    color: rgb(var(--tblr-body-color-rgb));
+}
+
+[data-bs-theme=dark] select.form-control option,
+[data-bs-theme=dark] select.form-select option {
+    background-color: rgb(var(--color-coupe-rgb));
+    color: rgb(var(--color-beluga-rgb));
+}
+
+/**
+ Customizable selects (Chrome 135+): the dropdown list becomes part of the page, so these styles
+ actually apply to it. Chrome on Windows (dark OS) drew `.form-select` option text unreadable in the
+ native list despite correct computed colors, and no CSS on the option or select fixed it.
+ Single-choice selects only; [multiple]/[size] list boxes are already drawn in the page.
+*/
+@supports (appearance: base-select) {
+    select.form-control:not([multiple], [size]),
+    select.form-select:not([multiple], [size]),
+    select.form-control:not([multiple], [size])::picker(select),
+    select.form-select:not([multiple], [size])::picker(select) {
+        appearance: base-select;
+    }
+
+    /* .form-control's display: block stacks the picker icon under the text; lay the button out in a row */
+    select.form-control:not([multiple], [size]) {
+        display: flex;
+        align-items: center;
+    }
+
+    select.form-control:not([multiple], [size])::picker-icon {
+        margin-inline-start: auto;
+    }
+
+    /* .form-select already draws its caret as a background image; don't add a second one */
+    select.form-select:not([multiple], [size])::picker-icon {
+        display: none;
+    }
+
+    select.form-control:not([multiple], [size])::picker(select),
+    select.form-select:not([multiple], [size])::picker(select) {
+        max-height: 20rem;
+        padding: .25rem 0;
+        background-color: rgb(255, 255, 255);
+        color: rgb(var(--tblr-body-color-rgb));
+        border: var(--tblr-border-width) solid var(--tblr-border-color);
+        border-radius: var(--tblr-border-radius);
+        box-shadow: var(--tblr-box-shadow-dropdown, 0 .5rem 1rem rgba(0, 0, 0, .15));
+    }
+
+    [data-bs-theme=dark] select.form-control:not([multiple], [size])::picker(select),
+    [data-bs-theme=dark] select.form-select:not([multiple], [size])::picker(select) {
+        background-color: var(--color-coupe);
+        color: var(--color-beluga);
+    }
+
+    select.form-control:not([multiple], [size]) option,
+    select.form-select:not([multiple], [size]) option {
+        padding: .375rem 1rem;
+        background-color: transparent;
+        color: inherit;
+    }
+
+    /* primary fill with its paired foreground (see the *-fg tokens in fpn-backpack-color-palette.css) */
+    select.form-control:not([multiple], [size]) option:is(:hover, :focus-visible),
+    select.form-select:not([multiple], [size]) option:is(:hover, :focus-visible) {
+        background-color: var(--tblr-primary);
+        color: var(--tblr-primary-fg);
+        outline: none;
+    }
+
+    select.form-control:not([multiple], [size]) option:checked,
+    select.form-select:not([multiple], [size]) option:checked {
+        font-weight: 600;
+    }
+}
+
+/**
  A few color-adjustments.css selectors use --tblr-light-text as a full color value
  (`color: var(--tblr-light-text)`) rather than wrapping it in rgba(), unlike most of that
  file's other uses. We define --tblr-light-text as a bare r,g,b triplet (matching the
@@ -303,6 +389,15 @@ html[data-bs-theme=dark] .daterangepicker .calendar-table td.active,
 html[data-bs-theme=dark] .daterangepicker .calendar-table td:hover,
 html[data-bs-theme=dark] select[multiple]:focus option:checked {
     color: var(--tblr-primary-fg) !important;
+}
+
+/**
+ Upload field's picked-file name: the field's own CSS hardcodes #5c6873 text, and theme-tabler's dark mode swaps
+ the label background to --tblr-primary-border-subtle (#4a5d64), leaving the name at 1.21:1. Body color: 6.11:1.
+ (tests/Feature/Browser/UploadFieldContrastTest.php)
+*/
+[data-bs-theme=dark] label.backstrap-file-label {
+    color: var(--tblr-body-color);
 }
 
 /* the dark-mode "browse"/file-picker buttons sit on --tblr-gray-500 (#736c91), too dark for dark text and too light for 7:1 */
