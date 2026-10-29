@@ -120,3 +120,40 @@ function northCarolinaFeature(int $objectId = 1, string $company = 'Acme Lumber'
         ],
     ];
 }
+
+/**
+ * Mill import pipeline helpers (tests/Feature/Jobs).
+ * Mill's and State's factories are empty, so these build the bare minimum by hand.
+ */
+function makeImport(?int $stateId = null, array $attributes = []): \App\Models\Import
+{
+    return \App\Models\Import::create([
+        'state_id'  => $stateId,
+        'file_path' => 'imports/test.xlsx',
+        'disk'      => 'local',
+        'model'     => \App\Models\Mill::class,
+        'status'    => \App\Enums\ImportStatus::Processing,
+        ...$attributes,
+    ]);
+}
+
+/**
+ * A pending (i.e., freshly imported, unpublished) Mill.
+ * Pending mills are hidden by Mill's global ApprovedScope; use freshMill() to reload one.
+ */
+function makePendingMill(array $attributes = []): \App\Models\Mill
+{
+    return \App\Models\Mill::create([
+        'mill_name' => 'Test Mill '.\Illuminate\Support\Str::random(6),
+        'status'    => \App\Enums\PublicationStatus::Pending,
+        ...$attributes,
+    ]);
+}
+
+/**
+ * Reload a Mill regardless of its status.
+ */
+function freshMill(\App\Models\Mill $mill): ?\App\Models\Mill
+{
+    return \App\Models\Mill::withoutGlobalScopes()->find($mill->id);
+}
