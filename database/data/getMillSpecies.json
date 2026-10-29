@@ -1,1 +1,10 @@
-{"species":["Hardwood","Softwood"]}
+{
+    "species": [
+        "Hardwood",
+        "Softwood",
+        "Pine",
+        "Elm",
+        "Oak",
+        "Maple"
+    ]
+}
