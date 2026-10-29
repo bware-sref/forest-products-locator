@@ -94,7 +94,8 @@ class StatisticsController extends Controller
 
             $total = [
                 'number' => $number,
-                'percentage' => ($number / $totalMillCount) * 100,
+                // no mills at all (e.g., a fresh install) would divide by zero
+                'percentage' => $totalMillCount ? ($number / $totalMillCount) * 100 : 0,
             ];
 
             $data[$key] = [

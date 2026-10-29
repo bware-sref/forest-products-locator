@@ -17,6 +17,12 @@ class GeocodeMill implements ShouldQueue
     use Queueable, Batchable;
 
     /**
+     * Lookups lookupNeeded() can ask for.
+     */
+    public const string GEOCODE = 'geocode';
+    public const string REVERSE = 'reverse';
+
+    /**
      * Create a new job instance.
      *
      * $allowFailures: false (default) fails this job for real on error, which
@@ -76,40 +82,16 @@ class GeocodeMill implements ShouldQueue
         //     // 'MILL' => $this->mill->toArray(),
         // ]);
 
-        /**
-         * maybe we extract some of this to a model method?
-         * probably a good idea
-         * what exactly are we doing?
-         * if we have an address, use geocode
-         * if we have latlng (and no address?), use reverse
-         * if we have both, use both and compare the results...actually, let's not.
-         *
-         * Hmm...
-         * Having both coordinates and an address doesn't necessarily mean that it doesn't necessarily mean we don't need to do a lookup.
-         * For example, if the address has been updated since the last coordinate lookup, then we need a lookup to verify coordinates.
-         * But how can we know if the address has been updated since the last lookup?
-         * We could add an additional field to indicate that the physical address has changed...
-         * Indeed.
-         * Okay.
-         * That would tell us if we need to do a geocode lookup, but it doesn't establish the action to take when the address
-         * in geocoding results differs from the address we were given.
-         * Well, maybe we flag these with "needs_review" and update the import publishing job to only publish mills from this import
-         * that don't need review?
-         * 
-         * Also, I keep wanting to invert this conditional to make if (not both) the first case.
-         * I don't think that gets us anything but it feels cleaner :shrugs:
-         */
-
         if (! $this->mill->hasAddress() && ! $this->mill->hasLatLng()) {
             $this->invalidateMillAndDie();
         }
 
-        /**
-         * If we already have both, this is where we start needing the address_changed indicator.
-         * If we have an address but no coordinates, we need coordinates.
-         * If we have coordinates but no address, we would benefit from having address, but it's not truly essential.
-         * If the address has changed, we need to know so we can update the coordinates.
-         */
+        $lookup = $this->lookupNeeded();
+
+        if (null === $lookup) {
+            Log::debug(self::class.": Mill #{$this->mill->id} already has a street address and coordinates that match it. Skipping.");
+            return;
+        }
 
         /**
          * Initialize, man!
@@ -117,7 +99,7 @@ class GeocodeMill implements ShouldQueue
         $results = [];
         $censusResults = [];
 
-        if ($this->mill->hasAddress()) {
+        if (self::GEOCODE === $lookup) {
             $rawAddress = $this->mill->getRawAddress();
             Log::debug(self::class.":\nabout to do a geocode lookup for mill #{$this->mill->id} in import #{$this->mill->import_id}:\n", [
                 "\nrawAddress:\n" => $rawAddress,
@@ -127,10 +109,7 @@ class GeocodeMill implements ShouldQueue
             if ($this->doCensusLookup) {
                 $censusResults = $census->oneLineAddress($rawAddress);
             }
-        } else if ($this->mill->hasLatLng()) {
-            // Log::debug(self::class.": about to do a REVERSE geocode (edocoeg) lookup for mill #{$this->mill->id} in import #{$this->mill->import_id}: ", [
-            //     'mill->lngLat()' => $this->mill->lngLat(),
-            // ]);
+        } else {
             $results = $geo->reverse(...$this->mill->lngLat());
 
             /**
@@ -210,6 +189,11 @@ class GeocodeMill implements ShouldQueue
 
         if (empty($diff)) {
             Log::debug(self::class.": no updates for Mill #{$this->mill->id}?!?");
+
+            // the lookup confirmed what we had, so the coordinates are no longer in doubt
+            if ($this->mill->needs_geocode) {
+                $this->mill->applyGeocodeResults([]);
+            }
             return;
         }
 
@@ -219,7 +203,7 @@ class GeocodeMill implements ShouldQueue
             "\ndiff:\n" => $diff,
         ]);
 
-        $this->mill->update($updates);
+        $this->mill->applyGeocodeResults($updates);
 
         return;
     }
@@ -249,35 +233,30 @@ class GeocodeMill implements ShouldQueue
         throw new \RuntimeException($msg);
     }
 
-    protected function shouldGeocode(): bool
+    /**
+     * Which lookup this mill needs, if any: self::GEOCODE (address → coordinates), self::REVERSE (coordinates →
+     * address), or null when it already has a street address and coordinates we trust.
+     *
+     * Trusted means the coordinates arrived with the address (state data, or an admin who entered both). Once the
+     * address changes without new coordinates, Mill flags needs_geocode and the address wins.
+     * Where the mill came from (ArcGIS, spreadsheet, user) doesn't matter.
+     *
+     * Assumes the mill has an address or coordinates (geocode() checks that first).
+     */
+    protected function lookupNeeded(): ?string
     {
-        /**
-         * shouldGeocode() isn't really the question we're trying to answer as much as "shouldOverwrite address and/or coordinates?"
-         * That's a different question.
-         * 
-         * If the mill is pending, it's almost certainly from an ArcGIS or spreadsheet import.
-         */
-        if ($this->mill->isPending()) {
-
-            /**
-             * Does the source even matter?
-             * If it's pending and hasAddress and has coordinates, don't geocode.
-             */
-            /**
-             * If this is a pending ArcGIS mill, we only need to geocode if it does not have an address (looking at you North Carolina)
-             */
-            if ($this->mill->isArcGis() && $this->mill->hasAddress()) {
-                return false;
-            }
-
-            /**
-             * If it's a spreadsheet mill that doesn't have coordinates
-             * Or any mill without coordinates?
-             */
-            if ($this->mill->isSpreadsheet() && $this->mill->hasLatLng()) {
-                return false;
-            }
+        if (! $this->mill->hasLatLng()) {
+            return self::GEOCODE;
         }
-        return true;
+
+        if ($this->mill->needs_geocode && $this->mill->hasAddress()) {
+            return self::GEOCODE;
+        }
+
+        if (! $this->mill->hasStreetAddress()) {
+            return self::REVERSE;
+        }
+
+        return null;
     }
 }
