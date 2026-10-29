@@ -8,6 +8,7 @@
     $back = ['_backToAllEntriesUrl' => $hubUrl];
     $editUrl = fn (string $table, $entry) => backpack_url($segments[$table].'/'.$entry->getKey().'/edit').'?'.http_build_query($back);
     $createUrl = fn (string $table, array $params) => backpack_url($segments[$table].'/create').'?'.http_build_query($params + $back);
+    $deleteUrl = fn (string $table, $entry) => backpack_url($segments[$table].'/'.$entry->getKey());
     $user = backpack_user();
 @endphp
 
@@ -49,7 +50,13 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <span>{{ $record->{$section['label']} ?: '(untitled)' }}</span>
                             @if ($canEdit)
-                                <a href="{{ $editUrl($table, $record) }}"><i class="la la-edit"></i> Edit</a>
+                                <span class="text-nowrap">
+                                    <a href="{{ $editUrl($table, $record) }}"><i class="la la-edit"></i> Edit</a>
+                                    {{-- single-record sections get no Delete: agents can't recreate them (SetsUpForStateAgents) --}}
+                                    @unless ($section['single'])
+                                        @include('admin.state-hub.delete-button', ['route' => $deleteUrl($table, $record), 'redirectUrl' => $hubUrl])
+                                    @endunless
+                                </span>
                             @endif
                         </div>
 
@@ -60,7 +67,10 @@
                                     <li class="d-flex justify-content-between">
                                         <span class="text-muted">{{ $link->label }}</span>
                                         @if(backpack_user()->can('state_assistance_links.edit'))
-                                            <a href="{{ $editUrl('state_assistance_links', $link) }}"><i class="la la-edit"></i> Edit</a>
+                                            <span class="text-nowrap">
+                                                <a href="{{ $editUrl('state_assistance_links', $link) }}"><i class="la la-edit"></i> Edit</a>
+                                                @include('admin.state-hub.delete-button', ['route' => $deleteUrl('state_assistance_links', $link), 'redirectUrl' => $hubUrl])
+                                            </span>
                                         @endif
                                     </li>
                                 @endforeach
