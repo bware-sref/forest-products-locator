@@ -108,6 +108,7 @@ class Mill extends Model
         'email_2',
         'needs_review',
         'extended_attributes',
+        'needs_geocode',
     ];
 
     /**
@@ -245,6 +246,18 @@ class Mill extends Model
     protected $casts = [
         'status' => PublicationStatus::class,
         'extended_attributes' => 'array',
+        'needs_geocode' => 'boolean',
+    ];
+
+    /**
+     * Fields whose change makes a mill's coordinates stale (see booted()).
+     */
+    public const array GEOCODE_ADDRESS_FIELDS = [
+        'physical_address',
+        'physical_city',
+        'physical_state',
+        'physical_zip',
+        'raw_physical_address',
     ];
 
     /**
@@ -268,6 +281,31 @@ class Mill extends Model
 
             // Log::debug("Made match_id '$mill->match_id' for '$mill->mill_name'.");
         });
+
+        /**
+         * A changed physical address means the coordinates may no longer match it, so flag the mill for GeocodeMill.
+         * Not when the same save also brings coordinates: those came with the address (state data, or an admin who
+         * entered both) and are trusted as-is.
+         * GeocodeMill saves its own results through applyGeocodeResults(), which skips this hook.
+         */
+        static::saving(function (Mill $mill) {
+            $addressChanged = $mill->isDirty(self::GEOCODE_ADDRESS_FIELDS);
+            $coordinatesProvided = $mill->isDirty(['latitude', 'longitude']) && $mill->hasLatLng();
+
+            if ($addressChanged && ! $coordinatesProvided) {
+                $mill->needs_geocode = true;
+            }
+        });
+    }
+
+    /**
+     * Save a geocoding lookup's results and clear needs_geocode.
+     * Saved quietly so the saving hook in booted() doesn't re-flag the mill: a lookup normalizes the address, which
+     * looks like an address change, and a reverse lookup may not move the coordinates at all.
+     */
+    public function applyGeocodeResults(array $updates): bool
+    {
+        return $this->fill([...$updates, 'needs_geocode' => false])->saveQuietly();
     }
 
     /**
@@ -884,6 +922,17 @@ class Mill extends Model
 
         return !empty($addy);
         // return ! empty($this->getRawAddress($type));
+    }
+
+    /**
+     * True if this Mill has a street address, not just a city/state/zip.
+     * Coordinates plus a street address is a complete location; coordinates plus only a city still needs a
+     * reverse lookup to find the street.
+     */
+    public function hasStreetAddress(): bool
+    {
+        return ! empty(Str::trim($this->physical_address ?? ''))
+            || ! empty(Str::trim($this->raw_physical_address ?? ''));
     }
 
     /**
