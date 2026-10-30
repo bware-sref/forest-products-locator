@@ -252,6 +252,8 @@ class Mill extends Model
     /**
      * Fields whose change makes a mill's coordinates stale (see booted()).
      */
+    public const float METERS_PER_MILE = 1609.344;
+
     public const array GEOCODE_ADDRESS_FIELDS = [
         'physical_address',
         'physical_city',
@@ -558,6 +560,19 @@ class Mill extends Model
                 $longitude,
                 $longitudeRadius,
             ]);
+
+            /**
+             * The box above is a square around the search circle, so its corners reach ~1.41x the radius.
+             * It stays as a cheap first pass; this trims what's left to the true circle.
+             * ST_Distance_Sphere() measures along the earth's surface in meters; POINT() takes (longitude, latitude).
+             */
+            $query->whereRaw(
+                'ST_Distance_Sphere(
+                    POINT(CAST(longitude AS DECIMAL(10,7)), CAST(latitude AS DECIMAL(10,7))),
+                    POINT(?, ?)
+                ) <= ?',
+                [$longitude, $latitude, $radius * self::METERS_PER_MILE]
+            );
         }
 
         // add match_id to the fields that get compared to q

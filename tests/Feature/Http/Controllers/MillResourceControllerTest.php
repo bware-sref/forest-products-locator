@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\Geo;
 use App\Models\County;
 use App\Models\Mill;
 use App\Models\MillType;
@@ -80,6 +81,22 @@ describe('listing', function () {
         $response = $this->getJson('/api/v1/mills?lat=33.9519&lng=-83.3576&radius=10');
 
         expect(apiMillNames($response))->toBe(['Here', 'Nearby']);
+    });
+
+    test('a radius search is a circle, not a square', function () {
+        /**
+         * 10 miles from Athens, GA due north is inside; the same distance north *and* east (a corner of the bounding
+         * square, ~14 miles away) is outside.
+         */
+        $latitude = 33.9519;
+        $longitude = -83.3576;
+        $northOffset = Geo::distanceToDegreesLatitude(9.5);
+        $eastOffset = Geo::distanceToDegreesLongitude(9.5, $latitude);
+
+        Mill::factory()->for($this->state)->create(['mill_name' => 'North', 'latitude' => $latitude + $northOffset, 'longitude' => $longitude]);
+        Mill::factory()->for($this->state)->create(['mill_name' => 'Corner', 'latitude' => $latitude + $northOffset, 'longitude' => $longitude + $eastOffset]);
+
+        expect(apiMillNames($this->getJson("/api/v1/mills?lat={$latitude}&lng={$longitude}&radius=10")))->toBe(['North']);
     });
 
     test('coordinates without a radius don\'t filter', function () {
