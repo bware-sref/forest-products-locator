@@ -197,3 +197,29 @@ function listRows($test, string $segment): array
         ->assertOk()
         ->json();
 }
+
+function namedState(string $name, string $abbreviation): \App\Models\State
+{
+    return \App\Models\State::factory()->create(['name' => $name, 'abbreviation' => $abbreviation, 'slug' => \Illuminate\Support\Str::slug($name)]);
+}
+
+/**
+ * A state with every section of its public page filled in.
+ */
+function fullyBuiltState(): \App\Models\State
+{
+    $state = namedState('Georgia', 'GA');
+
+    \App\Models\StatePage::factory()->for($state)->create(['hero_copy' => '<ul><li>Georgia grows trees.</li></ul>']);
+    \App\Models\StateContact::factory()->count(2)->for($state)->create();
+    \App\Models\StateForestOverview::factory()->for($state)->create();
+    \App\Models\StateForestType::factory()->count(2)->for($state)->create();
+    \App\Models\StateForestProduct::factory()->count(3)->for($state)->create();
+    \App\Models\StateEconomicImpact::factory()->for($state)->create();
+    \App\Models\StateForestryAgency::factory()->for($state)->create();
+
+    $category = \App\Models\StateAssistanceCategory::factory()->for($state)->create();
+    \App\Models\StateAssistanceLink::factory()->count(2)->for($category, 'category')->create();
+
+    return $state;
+}

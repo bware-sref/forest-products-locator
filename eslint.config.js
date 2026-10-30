@@ -5,12 +5,31 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import typescript from 'typescript-eslint';
 import { reactRefresh } from 'eslint-plugin-react-refresh';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
     js.configs.recommended,
     reactHooks.configs.flat.recommended,
     ...typescript.configs.recommended,
+    {
+        ...jsxA11y.flatConfigs.recommended,
+        settings: {
+            /**
+             * Check our wrapper components as the elements they render, or jsx-a11y skips them
+             * (e.g. a <Button> with only an icon inside would otherwise go unflagged).
+             */
+            'jsx-a11y': {
+                components: {
+                    Button: 'button',
+                    Input: 'input',
+                    Label: 'label',
+                    Textarea: 'textarea',
+                    Link: 'a',
+                },
+            },
+        },
+    },
     {
         ...react.configs.flat.recommended,
         ...react.configs.flat['jsx-runtime'], // Required for React 17+
