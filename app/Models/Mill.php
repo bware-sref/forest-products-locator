@@ -538,11 +538,16 @@ class Mill extends Model
             Log::debug('proximity params in API request: ', ['lng' => $validated['lng'], 'lat' => $validated['lat']]);
             Log::debug(\sprintf('radius %s miles at latitude %f =~ %f degrees longitude', $radius, $latitude, $longitudeRadius));
 
+            /**
+             * latitude/longitude are string columns. A bare DECIMAL cast means DECIMAL(10,0) in MySQL, which rounded
+             * every coordinate to a whole degree (up to ~35 miles off), so mills right at the search point could
+             * miss the box. Keep 7 decimal places (~1 cm), enough for any coordinate we store.
+             */
             $query->whereRaw('(
-                CAST(latitude AS DECIMAL) <= (? + ?) AND 
-                CAST(latitude AS DECIMAL) >= (? - ?) AND
-                CAST(longitude AS DECIMAL) <= (? + ?) AND 
-                CAST(longitude AS DECIMAL) >= (? - ?)
+                CAST(latitude AS DECIMAL(10,7)) <= (? + ?) AND 
+                CAST(latitude AS DECIMAL(10,7)) >= (? - ?) AND
+                CAST(longitude AS DECIMAL(10,7)) <= (? + ?) AND 
+                CAST(longitude AS DECIMAL(10,7)) >= (? - ?)
             )', [
                 $latitude,
                 $latitudeRadius,
