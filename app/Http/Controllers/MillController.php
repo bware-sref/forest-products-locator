@@ -295,7 +295,12 @@ class MillController extends Controller
              * If we don't, just thank the user and pretend nothing happened.
              * Actually, perhaps we just check !empty($diff) instead because the mess below happens either way.
              */
-            if (! empty($diff['changes'])) {
+            /**
+             * Check diff, not changes: changes always carries mill_types and wood_species (so a save keeps them),
+             * which made every unchanged submission look like an edit for mills that have any.
+             * diff only lists fields whose values actually changed, relationships included.
+             */
+            if (! empty($diff['diff'])) {
                 $edit = MillEdit::create([
                     'mill_id' => $mill->id,
                     'submitter_email' => $data['submitter_email'],
