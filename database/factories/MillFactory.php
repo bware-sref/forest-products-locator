@@ -73,7 +73,8 @@ class MillFactory extends Factory
             'mailing_zip' => fn (array $attributes) => $attributes['physical_zip'],
             'mailing_state_id' => fn (array $attributes) => $attributes['state_id'],
 
-            'telephone' => fake()->numerify('###-###-####'),
+            // area code and exchange can't start with 0 or 1 (AbstractMillRequest rejects those)
+            'telephone' => fake()->numberBetween(200, 999).'-'.fake()->numberBetween(200, 999).'-'.fake()->numerify('####'),
             'email' => fake()->companyEmail(),
             'web_site' => fake()->optional()->url(),
         ];
