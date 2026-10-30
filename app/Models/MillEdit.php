@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 class MillEdit extends Model
 {
     use CrudTrait;
-    /** @use HasFactory<\Database\Factories\MillEditsFactory> */
+    /** @use HasFactory<\Database\Factories\MillEditFactory> */
     use HasFactory;
 
     /**
