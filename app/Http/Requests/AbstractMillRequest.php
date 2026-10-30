@@ -189,6 +189,8 @@ abstract class AbstractMillRequest extends FormRequest
              * @tada: add submitter_email
              */
             'submitter_email' => [
+                // the form requires it too; without it, MillController can't record who submitted
+                'required',
                 Rule::email()
                     ->rfcCompliant(strict: true) // check for strict RFC compliance
                     ->preventSpoofing() // prevent sneaky, lookalike Unicode characters
