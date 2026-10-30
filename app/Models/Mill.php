@@ -565,12 +565,20 @@ class Mill extends Model
              * The box above is a square around the search circle, so its corners reach ~1.41x the radius.
              * It stays as a cheap first pass; this trims what's left to the true circle.
              * ST_Distance_Sphere() measures along the earth's surface in meters; POINT() takes (longitude, latitude).
+             *
+             * Both MySQL and MariaDB raise an error, failing the whole query, if any row's point is out of range
+             * (e.g., swapped latitude/longitude). SQL doesn't promise to check the box first, but CASE does evaluate in
+             * order, so out-of-range rows get NULL (excluded) instead of breaking every radius search.
              */
             $query->whereRaw(
-                'ST_Distance_Sphere(
-                    POINT(CAST(longitude AS DECIMAL(10,7)), CAST(latitude AS DECIMAL(10,7))),
-                    POINT(?, ?)
-                ) <= ?',
+                'CASE
+                    WHEN CAST(latitude AS DECIMAL(10,7)) BETWEEN -90 AND 90
+                        AND CAST(longitude AS DECIMAL(10,7)) BETWEEN -180 AND 180
+                    THEN ST_Distance_Sphere(
+                        POINT(CAST(longitude AS DECIMAL(10,7)), CAST(latitude AS DECIMAL(10,7))),
+                        POINT(?, ?)
+                    )
+                END <= ?',
                 [$longitude, $latitude, $radius * self::METERS_PER_MILE]
             );
         }

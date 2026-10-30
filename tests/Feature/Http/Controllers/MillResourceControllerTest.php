@@ -99,6 +99,16 @@ describe('listing', function () {
         expect(apiMillNames($this->getJson("/api/v1/mills?lat={$latitude}&lng={$longitude}&radius=10")))->toBe(['North']);
     });
 
+    test('a mill with out-of-range coordinates doesn\'t break radius searches', function () {
+        // e.g., latitude and longitude swapped by a bad import; ST_Distance_Sphere() would error on it
+        Mill::factory()->for($this->state)->create(['mill_name' => 'Swapped', 'latitude' => -83.3576, 'longitude' => 33.9519]);
+        Mill::factory()->for($this->state)->create(['mill_name' => 'Here', 'latitude' => 33.9519, 'longitude' => -83.3576]);
+
+        $response = $this->getJson('/api/v1/mills?lat=33.9519&lng=-83.3576&radius=10')->assertOk();
+
+        expect(apiMillNames($response))->toBe(['Here']);
+    });
+
     test('coordinates without a radius don\'t filter', function () {
         Mill::factory()->for($this->state)->count(2)->create();
 
