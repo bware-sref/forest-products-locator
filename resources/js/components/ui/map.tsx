@@ -33,8 +33,7 @@ import type {
     LocateOptions,
     LocationEvent,
     Marker,
-    // I don't know what to do about this.
-    // The editor flags it as an error, but it seems to work...
+    // declared by @types/leaflet.markercluster (loaded via "types" in tsconfig.json)
     MarkerCluster,
     PointExpression,
     Polygon,

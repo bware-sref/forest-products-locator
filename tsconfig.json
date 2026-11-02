@@ -32,8 +32,9 @@
         // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
         // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
         // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
-        // supposedly this might resolve the NodeJS.Timeout isssue in components/ui/map.tsx
-        "types": ["node"],                                      /* Specify type package names to be included without being referenced in a source file. */
+        // node: for NodeJS.Timeout in components/ui/map.tsx
+        // leaflet.markercluster: adds MarkerCluster and friends to the "leaflet" module; listing "types" turns off auto-loading of @types/*
+        "types": ["node", "leaflet.markercluster"],                                      /* Specify type package names to be included without being referenced in a source file. */
         // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
         // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
         // "allowImportingTsExtensions": true,               /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */
