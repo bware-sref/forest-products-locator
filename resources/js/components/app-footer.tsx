@@ -118,7 +118,7 @@ export function AppFooter() {
                 {/* Secondary Nav */}
                 <div className="mt-4 mx-auto px-5 md:max-w-6xl lg:max-w-7xl h-full items-center md:justify-end space-6 flex flex-row w-full">
                     <NavigationMenu
-                        aria-label="Secondary"
+                        aria-label="Site Information"
                         data-orientation={isMobile ? 'vertical' : 'horizontal'}
                         className="flex flex-col md:flex-row h-full items-stretch w-full md:w-auto max-w-full py-2 lg:justify-end lg:-mr-4"
                     >
