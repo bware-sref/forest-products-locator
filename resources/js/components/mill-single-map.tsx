@@ -39,7 +39,8 @@ const tileLayerUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
  */
 export default function MillSingleMap({mills, children}: MillListProps) {
     const mill = mills[0];
-    const mapCenter = [parseFloat(mill.latitude ?? '0'), parseFloat(mill.longitude ?? '0')] satisfies LatLngExpression;
+    // MillSingleItem only renders this map when the mill has coordinates
+    const mapCenter = [mill.latitude ?? 0, mill.longitude ?? 0] satisfies LatLngExpression;
 
     return (
         <Map 
@@ -58,10 +59,7 @@ export default function MillSingleMap({mills, children}: MillListProps) {
                 {mills?.map((mill) => (
                     <MapMarker
                         key={mill.match_id}
-                        position={[
-                            parseFloat(mill.latitude || '0'),
-                            parseFloat(mill.longitude || '0')
-                        ]}
+                        position={[mill.latitude ?? 0, mill.longitude ?? 0]}
                         // add method to map mill.mill_type[0] to the appropriate icon
                         icon={<MapPinIcon className="size-6 stroke-velvet" />}
                         // the marker is a focusable button; this is what screen readers announce

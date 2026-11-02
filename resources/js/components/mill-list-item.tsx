@@ -24,6 +24,10 @@ import {
 
 export default function MillListItem ({mill, children, ...props}: IMillListItemProps) {
     const cardClassName = props.className ?? '';
+    // coordinates when geocoded, else the address; no link when there's neither
+    const mapQuery = (mill.latitude != null && mill.longitude != null)
+        ? `${mill.latitude},${mill.longitude}`
+        : [mill.physical_address, mill.physical_address_two].filter(Boolean).join(', ');
 
     /**
      * I'm debating making this component more versatile or just making a separate component for the single mill view.
@@ -73,15 +77,17 @@ export default function MillListItem ({mill, children, ...props}: IMillListItemP
                     <br />
                     {mill.physical_address_two}
                 </address>
-                <p>
-                    <a 
-                        href={`https://maps.google.com/?q=${mill.latitude},${mill.longitude}`}
-                        target="_blank"
-                        className="underline hover:no-underline"
-                    >
-                        Map This Location
-                    </a>
-                </p>
+                {mapQuery && (
+                    <p>
+                        <a 
+                            href={`https://maps.google.com/?q=${encodeURIComponent(mapQuery)}`}
+                            target="_blank"
+                            className="underline hover:no-underline"
+                        >
+                            Map This Location
+                        </a>
+                    </p>
+                )}
                 <p><strong>Species: </strong> 
                     {mill.wood_species ? mill.wood_species.map((wood, index) => {
                         const prefix = (0 < index) ? ', ' : '';

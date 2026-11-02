@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\Concerns\HasCoordinates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
@@ -39,6 +40,7 @@ class Mill extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\MillFactory> */
     use HasFactory;
+    use HasCoordinates;
 
     /**
      * These model attributes are mass assignable.
@@ -531,35 +533,18 @@ class Mill extends Model
              * longitudeDistanceInMilesAtLatitude = 69.17 miles * cos(latitude)
              * make local variables for readability
              */
-            $latitude = $validated['lat'];
-            $longitude = $validated['lng'];
-            $radius = $validated['radius'];
+            $latitude = (float) $validated['lat'];
+            $longitude = (float) $validated['lng'];
+            $radius = (float) $validated['radius'];
 
             $latitudeRadius = Geo::distanceToDegreesLatitude($radius);
             $longitudeRadius = Geo::distanceToDegreesLongitude($radius, $latitude);
             Log::debug('proximity params in API request: ', ['lng' => $validated['lng'], 'lat' => $validated['lat']]);
             Log::debug(\sprintf('radius %s miles at latitude %f =~ %f degrees longitude', $radius, $latitude, $longitudeRadius));
 
-            /**
-             * latitude/longitude are string columns. A bare DECIMAL cast means DECIMAL(10,0) in MySQL, which rounded
-             * every coordinate to a whole degree (up to ~35 miles off), so mills right at the search point could
-             * miss the box. Keep 7 decimal places (~1 cm), enough for any coordinate we store.
-             */
-            $query->whereRaw('(
-                CAST(latitude AS DECIMAL(10,7)) <= (? + ?) AND 
-                CAST(latitude AS DECIMAL(10,7)) >= (? - ?) AND
-                CAST(longitude AS DECIMAL(10,7)) <= (? + ?) AND 
-                CAST(longitude AS DECIMAL(10,7)) >= (? - ?)
-            )', [
-                $latitude,
-                $latitudeRadius,
-                $latitude,
-                $latitudeRadius,
-                $longitude,
-                $longitudeRadius,
-                $longitude,
-                $longitudeRadius,
-            ]);
+            // a cheap box around the search circle first; plain column comparisons, so an index could serve them
+            $query->whereBetween('latitude', [$latitude - $latitudeRadius, $latitude + $latitudeRadius])
+                ->whereBetween('longitude', [$longitude - $longitudeRadius, $longitude + $longitudeRadius]);
 
             /**
              * The box above is a square around the search circle, so its corners reach ~1.41x the radius.
@@ -572,10 +557,10 @@ class Mill extends Model
              */
             $query->whereRaw(
                 'CASE
-                    WHEN CAST(latitude AS DECIMAL(10,7)) BETWEEN -90 AND 90
-                        AND CAST(longitude AS DECIMAL(10,7)) BETWEEN -180 AND 180
+                    WHEN latitude BETWEEN -90 AND 90
+                        AND longitude BETWEEN -180 AND 180
                     THEN ST_Distance_Sphere(
-                        POINT(CAST(longitude AS DECIMAL(10,7)), CAST(latitude AS DECIMAL(10,7))),
+                        POINT(longitude, latitude),
                         POINT(?, ?)
                     )
                 END <= ?',
@@ -975,8 +960,8 @@ class Mill extends Model
          * do we actually need to do the value?
          * we could take absolute value of both and only compare against positive limits.
          */
-        $lat = (float) $this->latitude ?? null;
-        $lng = (float) $this->longitude ?? null;
+        $lat = $this->latitude;
+        $lng = $this->longitude;
         if (
             empty($lat) || $lat > 90 || $lat < -90 ||
             empty($lng) || $lng > 180 || $lng < -180
@@ -989,7 +974,7 @@ class Mill extends Model
     /**
      * Returns an array containing the longitude and latitude values for this Mill.
      * The array is keyed by the full field names and ordered so that longitude is first to accomodate geocoding.
-     * @return array{longitude: string|null, latitude: string|null}
+     * @return array{longitude: float|null, latitude: float|null}
      */
     public function lngLat(): array
     {

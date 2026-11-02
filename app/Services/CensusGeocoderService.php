@@ -48,7 +48,7 @@ class CensusGeocoderService
     /**
      * Look up a single free-form address.
      *
-     * @return array{query: string, latitude: float|string, longitude: float|string, state: string, city: string, zip: string, street_address: string, addressComponents: array}|array{input: array, addressMatches: array}|null
+     * @return array{query: string, latitude: float|null, longitude: float|null, state: string, city: string, zip: string, street_address: string, addressComponents: array}|array{input: array, addressMatches: array}|null
      *         The formatted first match (see formatGeocodeResult()), or the API's raw `result` when $rawOutput is true.
      *         Null when the API returns no addressMatches, in either mode.
      *
@@ -407,8 +407,9 @@ class CensusGeocoderService
 
         return [
             'query' => $result['input']['address']['address'] ?? '',
-            'latitude' => $xy['y'] ?? '',
-            'longitude' => $xy['x'] ?? '',
+            // null, not '': GeocodeMill keeps a mill's existing coordinates only when the result's are null
+            'latitude' => $xy['y'] ?? null,
+            'longitude' => $xy['x'] ?? null,
             'state' => $state,
             'city' => Str::title($city),
             'zip' => $zip,

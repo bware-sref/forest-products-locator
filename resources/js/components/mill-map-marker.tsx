@@ -31,13 +31,15 @@ export default function MillMapMarker({
     mill: Mill;
     children?: ReactNode;
 }) {
+    // no coordinates yet (not geocoded): leave it off the map rather than pinning it at 0, 0
+    if (mill.latitude == null || mill.longitude == null) {
+        return null;
+    }
+
     return (
         <MapMarker
             // key={mill.match_id}
-            position={[
-                parseFloat(mill.latitude || '0'),
-                parseFloat(mill.longitude || '0')
-            ]}
+            position={[mill.latitude, mill.longitude]}
             // add method to map mill.mill_type[0] to the appropriate icon
             icon={<MapPinIcon className="size-6 stroke-velvet" />}
             // the marker is a focusable button; this is what screen readers announce

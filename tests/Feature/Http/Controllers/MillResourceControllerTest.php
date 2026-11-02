@@ -32,7 +32,18 @@ describe('listing', function () {
             ->assertJsonPath('0.state', $this->state->abbreviation)
             ->assertJsonPath('0.state_name', $this->state->name)
             ->assertJsonPath('0.mill_types.0.name', $sawmill->name)
-            ->assertJsonPath('0.latitude', (float) $mill->latitude);
+            ->assertJsonPath('0.latitude', $mill->latitude);
+    });
+
+    test('coordinates are numbers, and null for a mill that has none yet', function () {
+        Mill::factory()->for($this->state)->create(['mill_name' => 'Located', 'latitude' => 33.95, 'longitude' => -83.38]);
+        Mill::factory()->for($this->state)->withoutCoordinates()->create(['mill_name' => 'Unlocated']);
+
+        $mills = collect($this->getJson('/api/v1/mills')->assertOk()->json())->keyBy('mill_name');
+
+        // null, not 0: a 0 pinned the mill at 0, 0 on the map
+        expect($mills['Located'])->latitude->toBe(33.95)->longitude->toBe(-83.38)
+            ->and($mills['Unlocated'])->latitude->toBeNull()->longitude->toBeNull();
     });
 
     test('unpublished mills are left out', function () {
