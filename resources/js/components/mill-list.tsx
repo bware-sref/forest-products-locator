@@ -26,7 +26,11 @@ export default function MillList({mills, children, ...props}: MillListProps) {
             className="flex flex-row w-90 max-w-90 md:w-full md:max-w-full mt-6 lg:mt-0 h-200 lg:bg-lorne lg:px-4 lg:py-4 lg:h-screen lg:max-h-full lg:flex-wrap lg:w-full lg:max-w-full"
             {...props}
         >
-            <ul className="flex flex-col md:flex-row md:flex-wrap justify-evenly items-stretch gap-6">
+            <ul
+                className="flex flex-col md:flex-row md:flex-wrap justify-evenly items-stretch gap-6"
+                // only placeholders are showing until mills arrive
+                aria-busy={!(mills && mills.length > 0)}
+            >
                 {(mills && mills.length > 0) ? mills.map(mill => 
                     <li className="p-0 w-full md:w-75 lg:w-90" key={mill.match_id}>
                         <MillListItem mill={mill} />
