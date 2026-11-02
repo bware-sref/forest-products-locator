@@ -88,7 +88,7 @@ export default function DumpTrunk({ original, submitted, etAl }: DumpTrunkProps)
             </header>
 
             {/* Visual Diff Table */}
-            <main className="space-y-10">
+            <div className="space-y-10">
                 <section>
                     <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 shadow-xl">
                         <table className="w-full border-collapse text-left text-sm">
@@ -171,7 +171,7 @@ export default function DumpTrunk({ original, submitted, etAl }: DumpTrunkProps)
                         </div>
                     </div>
                 </section>
-            </main>
+            </div>
         </div>
     );
 }

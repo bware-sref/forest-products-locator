@@ -40,6 +40,8 @@ export default function MillMapMarker({
             ]}
             // add method to map mill.mill_type[0] to the appropriate icon
             icon={<MapPinIcon className="size-6 stroke-velvet" />}
+            // the marker is a focusable button; this is what screen readers announce
+            title={mill.mill_name}
         >
             <MapPopup className="w-72">
                 <div className="flex flex-col text-left text-velvet text-[16px]">

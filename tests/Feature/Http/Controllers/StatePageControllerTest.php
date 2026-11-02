@@ -13,32 +13,6 @@ use App\Models\StatePage;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 
-function namedState(string $name, string $abbreviation): State
-{
-    return State::factory()->create(['name' => $name, 'abbreviation' => $abbreviation, 'slug' => Str::slug($name)]);
-}
-
-/**
- * A state with every section of its public page filled in.
- */
-function fullyBuiltState(): State
-{
-    $state = namedState('Georgia', 'GA');
-
-    StatePage::factory()->for($state)->create(['hero_copy' => '<ul><li>Georgia grows trees.</li></ul>']);
-    StateContact::factory()->count(2)->for($state)->create();
-    StateForestOverview::factory()->for($state)->create();
-    StateForestType::factory()->count(2)->for($state)->create();
-    StateForestProduct::factory()->count(3)->for($state)->create();
-    StateEconomicImpact::factory()->for($state)->create();
-    StateForestryAgency::factory()->for($state)->create();
-
-    $category = StateAssistanceCategory::factory()->for($state)->create();
-    StateAssistanceLink::factory()->count(2)->for($category, 'category')->create();
-
-    return $state;
-}
-
 describe('index', function () {
     test('it lists southern states that have a page, alphabetically', function () {
         foreach ([['Georgia', 'GA'], ['Alabama', 'AL'], ['Texas', 'TX']] as [$name, $abbreviation]) {

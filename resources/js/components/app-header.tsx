@@ -80,7 +80,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <>
-            <div className="border-b-6 border-sidebar-border bg-zucchini text-velvet">
+            {/* <header> makes this the page's banner landmark for screen readers */}
+            <header className="border-b-6 border-sidebar-border bg-zucchini text-velvet">
                 <div className="mx-auto flex h-22 lg:h-20 items-center px-4 md:max-w-7xl">
 
                     {/* Logo + home link */}
@@ -234,7 +235,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     {/* new menu who dis?*/}
                     {/** we don't use right-nav, user info, or breadcrumbs */}
                 </div>
-            </div>
+            </header>
             {/** 
              * we don't use breadcrumbs 
              * should we?

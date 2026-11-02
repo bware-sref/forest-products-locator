@@ -577,7 +577,8 @@ function MapMarker({
     return (
         <LeafletMarker
             icon={L.divIcon({
-                html: renderToString(icon),
+                // the icon is decoration; the marker's accessible name comes from its `title` prop
+                html: renderToString(<span className="contents" aria-hidden="true">{icon}</span>),
                 iconAnchor,
                 ...(bgPos ? { bgPos } : {}),
                 ...(popupAnchor ? { popupAnchor } : {}),
