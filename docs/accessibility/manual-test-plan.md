@@ -12,6 +12,8 @@ Automated tests already run the axe-core checker on every public page. They catc
 
 **Out of scope for this round:** the admin panel at /admin.
 
+New to screen readers? Start with the step-by-step VoiceOver scripts in Part 3 of [tester-scripts.md](../testing/tester-scripts.md); this plan is the fuller reference.
+
 Each tester does not need to run every test. Pick a test from Tests 1–7, work through the pages in the checklist, and log what you find.
 
 ## Setup
