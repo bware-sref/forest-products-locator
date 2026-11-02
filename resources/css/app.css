@@ -75,9 +75,13 @@
         0.3754 0.0306 222.53
     ); /*#2f454d;  homepage card heading background, arrow buttons, et al */
     --color-ebony: oklch(0.315 0.0279 136.83); /* #2b3527 State pages */
+    /**
+     * Darkened from 0.5509 (#6a7666) for WCAG AA: beluga text on it was 4.22:1, now 4.61:1 (white: 5.21:1).
+     * Nature is used less than beluga, so it's the one that moved.
+     */
     --color-nature: oklch(
-        0.5509 0.0282 137.85
-    ); /* #6a7666;  footer background */
+        0.53 0.0282 137.85
+    ); /* #647060;  footer background */
     --color-lorne: oklch(47.38% 0.022 137.85); /* #565f53; filters background */
     --color-petroleum: oklch(
         0.2439 0.0096 53.02
@@ -172,11 +176,13 @@
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
+    /* darkened from 0.556 for WCAG AA on beluga: 4.19:1 -> 4.64:1 */
+    --muted-foreground: oklch(0.53 0 0);
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.577 0.245 27.325);
+    /* darkened from 0.577 for WCAG AA on beluga: 4.32:1 -> 4.70:1 */
+    --destructive: oklch(0.54 0.245 27.325);
+    --destructive-foreground: oklch(0.54 0.245 27.325);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
     --ring: oklch(0.87 0 0);
