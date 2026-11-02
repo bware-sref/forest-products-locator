@@ -116,6 +116,9 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 <MapMarker
                     key="user-position"
                     position={coordinates}
+                    // just a visual marker for the search center: keep it out of the Tab order
+                    keyboard={false}
+                    interactive={false}
                     icon={
                         <CircleIcon
                             size={10}
