@@ -101,6 +101,7 @@ export default function MillListPage() {
                     woodSpecies={page.props.woodSpecies}
                     filterResetKey={filterResetKey}
                     isLoading={isLoading}
+                    loadError={loadError}
                     isDownloading={isDownloading}
                     onTextSearchChange={handleTextSearchChange}
                     onStateSelectChange={handleStateSelectChange}
