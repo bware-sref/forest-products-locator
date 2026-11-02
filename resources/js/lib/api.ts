@@ -11,7 +11,9 @@ import { geocode } from '@/routes/api/v1/geocoding';
  * @param url       - The API endpoint URL (passed in from Inertia page props)
  * @param params    - Search/filter parameters to append as query string
  * @param signal    - Optional AbortSignal so the caller can cancel in-flight requests
- * @returns         - Array of Mill objects, or an empty array on error
+ * @returns         - Array of Mill objects (empty means nothing matched)
+ * @throws          - On a failed request, and with an AbortError when cancelled,
+ *                    so callers can tell "no results" apart from "couldn't load"
  */
 export async function fetchMills(
     url: string,
@@ -36,7 +38,7 @@ export async function fetchMills(
         if (error instanceof Error && error.name !== 'AbortError') {
             console.error(`Error fetching mills: ${error.message}`);
         }
-        return [];
+        throw error;
     }
 }
 

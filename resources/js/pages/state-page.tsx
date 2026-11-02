@@ -383,7 +383,7 @@ export default function StatePage() {
                                                             <span>
                                                                 <span className="block">{link.label}</span>
                                                                 {link.description && (
-                                                                    <span className="block text-xs text-white/56">
+                                                                    <span className="block text-xs text-white/70">
                                                                         {link.description}
                                                                     </span>
                                                                 )}

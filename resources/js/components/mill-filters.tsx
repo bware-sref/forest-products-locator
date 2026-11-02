@@ -340,6 +340,8 @@ export default function MillFilters({
                                             value={addressInput}
                                             onChange={(event) => setAddressInput(event.target.value)}
                                             disabled={isGeocoding}
+                                            // this field only appears after the user asks to enter a location, so focusing it is expected
+                                            // eslint-disable-next-line jsx-a11y/no-autofocus
                                             autoFocus
                                         />
                                         <InputGroupAddon align="inline-end">

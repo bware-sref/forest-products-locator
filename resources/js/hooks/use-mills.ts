@@ -134,6 +134,16 @@ export interface UseMillsReturn {
     isLoading: boolean;
 
     /**
+     * True when the last mill search failed (as opposed to finding nothing).
+     */
+    loadError: boolean;
+
+    /**
+     * Re-run the current mill search, e.g. from a "Try again" button.
+     */
+    handleRetryLoadClick: () => void;
+
+    /**
      * monitor downloading state
      */
     isDownloading: boolean;
@@ -262,7 +272,8 @@ export function useMills({
     /**
      * add isLoading state variable to make API loading state visible to other components
      */
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    // starts true: the first search runs on mount, and an empty list before it returns isn't "no results"
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     // make useEffectEvent wrapper to allow updating isLoading during useEffect
     const updateIsLoading = useEffectEvent((loadingValue: boolean) => {
         setIsLoading(loadingValue);
@@ -278,6 +289,10 @@ export function useMills({
     // ---------------------------------------------------------------------------
 
     const [mills, setMills] = useState<Mill[]>([]);
+    const [loadError, setLoadError] = useState<boolean>(false);
+    // bumping this re-runs the search effect below with the same searchParams
+    const [retryCount, setRetryCount] = useState<number>(0);
+    const handleRetryLoadClick = useCallback(() => setRetryCount((count) => count + 1), []);
 
     useEffect(() => {
         // AbortController lets us cancel the previous request if searchParams
@@ -290,16 +305,22 @@ export function useMills({
         updateIsLoading(true);
 
         fetchMills(millsApiUrl, searchParams, controller.signal).then((result) => {
+            if (controller.signal.aborted) return;
             setMills(result);
+            setLoadError(false);
+        }).catch(() => {
+            // a cancelled request was replaced by a newer one, which owns the state now
+            if (controller.signal.aborted) return;
+            setMills([]);
+            setLoadError(true);
         }).finally(() => {
-            setIsLoading(false);
+            if (!controller.signal.aborted) setIsLoading(false);
         });
 
         return () => {
             controller.abort();
-            setIsLoading(false);
         };
-    }, [millsApiUrl, searchParams]);
+    }, [millsApiUrl, searchParams, retryCount]);
 
 
     // ---------------------------------------------------------------------------
@@ -630,6 +651,8 @@ export function useMills({
         searchParams,
         filterResetKey,
         isLoading,
+        loadError,
+        handleRetryLoadClick,
         isDownloading,
         handleTextSearchChange,
         handleStateSelectChange,

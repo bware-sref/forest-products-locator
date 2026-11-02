@@ -117,8 +117,9 @@ export function ControlledCombobox<FormValues extends FieldValues, Item>({
                             <ComboboxValue>
                                 {field.value.map((item: string) => (
                                     
-                                    <ComboboxChip 
+                                    <ComboboxChip
                                         key={item}
+                                        removeLabel={`Remove ${itemsKeyedByValue[item] || item}`}
                                     >
                                         {itemsKeyedByValue[item] || item}
                                     </ComboboxChip>

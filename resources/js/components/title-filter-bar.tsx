@@ -21,6 +21,7 @@ import {
     SlidersHorizontalIcon
 } from "lucide-react";
 import { Spinner } from '@/components/ui/spinner';
+import { MILL_RESULTS_HEADING_ID } from '@/components/mill-results-empty';
 
 export interface TitleFilterBarProps {
     headline: string;
@@ -28,6 +29,8 @@ export interface TitleFilterBarProps {
     isDownloading: boolean;
     isLoading: boolean;
     millCount?: number;
+    /** the last mill search failed (as opposed to finding nothing) */
+    loadError?: boolean;
     handleExportClick: MouseEventHandler<HTMLButtonElement>;
     handleClickCapture?: MouseEventHandler<HTMLDivElement> | undefined;
 }
@@ -38,12 +41,25 @@ export function TitleFilterBar({
     isDownloading,
     isLoading,
     millCount,
+    loadError = false,
     handleExportClick,
     handleClickCapture,
     ...props
 }: TitleFilterBarProps) {
 
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+
+    /**
+     * What screen readers hear when a search starts and finishes (WCAG 4.1.3).
+     * Changing to "Loading" in between means a repeat count still gets announced.
+     */
+    const statusMessage = isLoading
+        ? 'Loading mills…'
+        : loadError
+            ? "Couldn't load mills."
+            : millCount === 1
+                ? '1 mill found.'
+                : `${millCount ?? 0} mills found.`;
 
     /**
      * make triggerButton a component
@@ -76,10 +92,23 @@ export function TitleFilterBar({
             {/** title bar + filter controls */}
             <div className="w-full lg:max-w-7xl mx-auto flex flex-row items-center justify-between pl-2 md:px-0 2xl:px-6 py-2">
                 <div data-thing="" className="flex flex-row gap-x-5 items-center">
-                    <h1 className="font-bold text-3xl text-beluga">{headline}</h1>
-                    {millCount && millCount > 0 ? (
-                        <span className="text-beluga">{millCount} mills found.</span>
+                    {/* tabIndex -1: focus lands here after Clear filters / Try again (see MillResultsEmpty) */}
+                    <h1
+                        id={MILL_RESULTS_HEADING_ID}
+                        tabIndex={-1}
+                        className="font-bold text-3xl text-beluga focus:outline-none"
+                    >
+                        {headline}
+                    </h1>
+                    {/* keeps the previous count on screen during a new search; shows 0 once loaded.
+                        aria-hidden because the live region below says the same thing. */}
+                    {!loadError && ((millCount ?? 0) > 0 || !isLoading) ? (
+                        <span className="text-beluga" aria-hidden="true">
+                            {millCount === 1 ? '1 mill found.' : `${millCount ?? 0} mills found.`}
+                        </span>
                     ) : ''}
+                    {/* always rendered: a live region added along with its text often isn't announced */}
+                    <span role="status" className="sr-only">{statusMessage}</span>
                     {isLoading || isDownloading ? (
                         <Spinner data-icon="inline-end" className="ml-auto size-8 text-beluga" />
                     ) : ''}

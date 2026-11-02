@@ -90,16 +90,16 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
     // renderValue seems like it should be privy to the value of change for the value in question
     const renderValue = (value: unknown, changed : boolean = false): React.ReactNode => {
         if (value === null || value === undefined) {
-            return <span className="Xtext-slate-500 text-beluga/60 italic">(Not set)</span>;
+            return <span className="text-beluga/75 italic">(Not set)</span>;
         }
 
         // If it's an array (like a list of pivot relationship IDs)
         if (Array.isArray(value)) {
-            if (value.length === 0) return <span className="text-slate-500 italic">[] (Empty Collection)</span>;
+            if (value.length === 0) return <span className="text-beluga/75 italic">[] (Empty Collection)</span>;
             return (
                 <div className="flex flex-wrap gap-1.5">
                     {value.map((item, idx) => (
-                        <span key={idx} className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 ${changed ? 'font-bold text-emerald-400 ring-1 ring-emerald-400/20' : 'Xbg-slate-800 bg-velvet font-medium Xtext-slate-300 text-beluga ring-slate-700/50'}`}>
+                        <span key={idx} className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 ${changed ? 'font-bold text-emerald-300 ring-1 ring-emerald-300/20' : 'bg-velvet font-medium text-beluga ring-slate-700/50'}`}>
                             {typeof item === 'object' ? JSON.stringify(item) : String(item)}
                         </span>
                     ))}
@@ -114,7 +114,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
 
         // Booleans
         if (typeof value === 'boolean') {
-            return value ? <span className="text-emerald-400 font-semibold">TRUE</span> : <span className="text-rose-400 font-semibold">FALSE</span>;
+            return value ? <span className="text-emerald-300 font-semibold">TRUE</span> : <span className="text-rose-400 font-semibold">FALSE</span>;
         }
 
         // Default strings & numeric values (FK integers included)
@@ -123,27 +123,32 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-nature Xslate-950 text-slate-100 p-6 md:p-10 font-sans selection:bg-emerald-500/30">
+            <div className="min-h-screen bg-nature text-slate-100 p-6 md:p-10 font-sans selection:bg-emerald-500/30">
                 {/* Header section */}
                 <header className="mb-8">
                     <div className="flex items-center gap-3">
                         <span className="text-3xl hidden">🔄</span>
                         <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Mill Edit Submission Differences</h1>
                     </div>
-                    <p className="mt-2 text-sm md:text-base Xtext-slate-400 text-white">
+                    <p className="mt-2 text-sm md:text-base text-white">
                         Compare the Mill's current information to user-submitted changes.
                     </p>
                 </header>
 
                 {/* Visual Diff Table */}
-                <main className="space-y-10">
+                <div className="space-y-10">
 
                     {/* Diff */}                    
                     <section>
-                        <div className="overflow-x-auto rounded-xl border Xborder-slate-800 Xbg-slate-900 shadow-xl bg-velvet border-velvet">
+                        <div
+                            className="overflow-x-auto rounded-xl border shadow-xl bg-velvet border-velvet focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+                            tabIndex={0}
+                            role="region"
+                            aria-label="Current and proposed values"
+                        >
                             <table className="w-full border-collapse text-left text-sm">
                                 <thead>
-                                    <tr className="border-b Xborder-slate-800 Xbg-slate-900 Xtext-slate-400 border-aircraft bg-velvet text-beluga font-semibold">
+                                    <tr className="border-b border-aircraft bg-velvet text-beluga font-semibold">
                                         <th className="p-4 w-1/4">Field / Property Key</th>
                                         <th className="p-4 w-3/8">Original Value (DB)</th>
                                         <th className="p-4 w-3/8">Submitted Value (Form)</th>
@@ -158,27 +163,27 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                                             <tr 
                                                 key={key} 
                                                 className={`transition-colors duration-150 odd:bg-aircraft even:bg-coupe ${
-                                                    changed ? 'bg-emerald-950/20 hover:bg-emerald-950/30' : 'hover:bg-slate-800/40 opacity-60'
+                                                    changed ? 'bg-emerald-950/20 hover:bg-emerald-950/30' : 'hover:bg-slate-800/40'
                                                 }`}
                                             >
                                                 {/* Field Name */}
-                                                <td className="p-4 font-semibold Xtext-slate-300 antialiased flex items-center gap-2">
-                                                    <span className="font-mono Xtext-slate-400 text-beluga">{key}</span>
+                                                <td className="p-4 font-semibold antialiased flex items-center gap-2">
+                                                    <span className="font-mono text-beluga">{key}</span>
                                                     {changed && (
-                                                        <span className="inline-flex items-center rounded-full bg-emerald-400/10 px-1.5 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-400/20" title="Data Changed">
+                                                        <span className="inline-flex items-center rounded-full bg-emerald-400/10 px-1.5 py-0.5 text-xs font-medium text-emerald-300 ring-1 ring-emerald-300/20" title="Data Changed">
                                                             Modified
                                                         </span>
                                                     )}
                                                 </td>
 
                                                 {/* Original DB State */}
-                                                <td className={`p-4 font-mono Xtext-slate-300 text-beluga ${changed ? 'opacity-60' : ''}`}>
+                                                <td className={`p-4 font-mono ${changed ? 'text-beluga/75' : 'text-beluga'}`}>
                                                     {renderValue(value)}
                                                     {/* {renderValue(original[key])} */}
                                                 </td>
 
                                                 {/* Incoming Form Submission */}
-                                                <td className={`p-4 font-mono ${changed ? 'text-emerald-400 font-bold' : 'Xtext-slate-300'}`}>
+                                                <td className={`p-4 font-mono ${changed ? 'text-emerald-300 font-bold' : ''}`}>
                                                     {/* I see, it uses 'value', which comes from whichever version we loop over. */}
                                                     {renderValue(submitted[key], changed)}
                                                     {/* {renderValue(value)} */}
@@ -200,7 +205,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                         >What do you want to do?</h2>
                         <div className="flex flex-row w-full space-x-8 justify-center items-center px-10">
                             <Button
-                                className="bg-red-600 text-white font-bold text-xl px-6 py-8 hover:text-red-500"
+                                className="bg-red-600 text-white font-bold text-xl px-6 py-8 hover:bg-red-700"
                                 asChild
                             >
                                 <Link
@@ -219,7 +224,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                             </Button>
 
                             <Button
-                                className="bg-green-600 text-white font-bold text-xl px-6 py-8 hover:text-green-500"
+                                className="bg-green-600 text-white font-bold text-xl px-6 py-8 hover:bg-green-700"
                                 asChild
                             >
                                 <Link
@@ -255,24 +260,24 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                     {/* Split Deep Diagnostics Codeblocks */}
                     {showRaw &&
                     <section>
-                        <h2 className="text-lg font-semibold text-slate-400 mb-4">Raw Structural JSON Payloads</h2>
+                        <h2 className="text-lg font-semibold text-beluga mb-4">Raw Structural JSON Payloads</h2>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <div>
-                                <span className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Full Original Schema</span>
-                                <pre className="text-xs font-mono bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-400 overflow-x-auto max-h-72">
+                                <span className="block text-xs font-medium text-beluga uppercase tracking-wider mb-2">Full Original Schema</span>
+                                <pre className="text-xs font-mono bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-300 overflow-x-auto max-h-72" tabIndex={0} role="region" aria-label="Full original schema">
                                     {JSON.stringify(original, null, 2)}
                                 </pre>
                             </div>
                             <div>
-                                <span className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Full Submitted Schema</span>
-                                <pre className="text-xs font-mono bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-400 overflow-x-auto max-h-72">
+                                <span className="block text-xs font-medium text-beluga uppercase tracking-wider mb-2">Full Submitted Schema</span>
+                                <pre className="text-xs font-mono bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-300 overflow-x-auto max-h-72" tabIndex={0} role="region" aria-label="Full submitted schema">
                                     {JSON.stringify(submitted, null, 2)}
                                 </pre>
                             </div>
                         </div>
                     </section>
                     }
-                </main>
+                </div>
             </div>
         </AppLayout>
     );

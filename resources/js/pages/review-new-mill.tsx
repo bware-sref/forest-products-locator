@@ -101,16 +101,16 @@ export default function ReviewNewMill({ submitted, ...props }: MillDiffProps) {
     // renderValue seems like it should be privy to the value of change for the value in question
     const renderValue = (value: unknown): React.ReactNode => {
         if (value === null || value === undefined) {
-            return <span className="Xtext-slate-500 text-beluga/60 italic">(Not set)</span>;
+            return <span className="text-beluga/75 italic">(Not set)</span>;
         }
 
         // If it's an array (like a list of pivot relationship IDs)
         if (Array.isArray(value)) {
-            if (value.length === 0) return <span className="text-slate-500 italic">[] (Empty Collection)</span>;
+            if (value.length === 0) return <span className="text-beluga/75 italic">[] (Empty Collection)</span>;
             return (
                 <div className="flex flex-wrap gap-1.5">
                     {value.map((item, idx) => (
-                        <span key={idx} className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 bg-velvet font-medium Xtext-slate-300 text-beluga ring-slate-700/50'}`}>
+                        <span key={idx} className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 bg-velvet font-medium text-beluga ring-slate-700/50`}>
                             {typeof item === 'object' ? JSON.stringify(item) : String(item)}
                         </span>
                     ))}
@@ -125,7 +125,7 @@ export default function ReviewNewMill({ submitted, ...props }: MillDiffProps) {
 
         // Booleans
         if (typeof value === 'boolean') {
-            return value ? <span className="text-emerald-400 font-semibold">TRUE</span> : <span className="text-rose-400 font-semibold">FALSE</span>;
+            return value ? <span className="text-emerald-300 font-semibold">TRUE</span> : <span className="text-rose-400 font-semibold">FALSE</span>;
         }
 
         // Default strings & numeric values (FK integers included)
@@ -146,14 +146,19 @@ export default function ReviewNewMill({ submitted, ...props }: MillDiffProps) {
                 </header>
 
                 {/* Data Table */}
-                <main className="space-y-10">
+                <div className="space-y-10">
 
                     {/* New Mill Data */}                    
                     <section>
-                        <div className="overflow-x-auto rounded-xl border Xborder-slate-800 Xbg-slate-900 shadow-xl bg-velvet border-velvet">
+                        <div
+                            className="overflow-x-auto rounded-xl border shadow-xl bg-velvet border-velvet focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+                            tabIndex={0}
+                            role="region"
+                            aria-label="Current and proposed values"
+                        >
                             <table className="w-full border-collapse text-left text-sm">
                                 <thead>
-                                    <tr className="border-b Xborder-slate-800 Xbg-slate-900 Xtext-slate-400 border-aircraft bg-velvet text-beluga font-semibold">
+                                    <tr className="border-b border-aircraft bg-velvet text-beluga font-semibold">
                                         <th className="p-4 w-1/4">Field / Property Key</th>
                                         {/* <th className="p-4 w-3/8">Original Value (DB)</th> */}
                                         <th className="p-4 w-3/8">Submitted Value (Form)</th>
@@ -174,7 +179,7 @@ export default function ReviewNewMill({ submitted, ...props }: MillDiffProps) {
                                                     <span className="font-mono text-beluga">{key}</span>
                                                 </td>
                                                 {/* New Mill */}
-                                                <td className={`p-4 font-mono Xtext-slate-300 text-beluga`}>
+                                                <td className="p-4 font-mono text-beluga">
                                                     {renderValue(value)}
                                                 </td>
                                             </tr>
@@ -191,7 +196,7 @@ export default function ReviewNewMill({ submitted, ...props }: MillDiffProps) {
                     <section>
                         <div className="flex flex-row w-full space-x-8 justify-center items-center px-10">
                             <Button
-                                className="bg-red-600 text-white font-bold text-xl px-6 py-8 hover:text-red-500"
+                                className="bg-red-600 text-white font-bold text-xl px-6 py-8 hover:bg-red-700"
                                 asChild
                             >
                                 <Link
@@ -210,7 +215,7 @@ export default function ReviewNewMill({ submitted, ...props }: MillDiffProps) {
                             </Button>
 
                             <Button
-                                className="bg-green-600 text-white font-bold text-xl px-6 py-8 hover:text-green-500"
+                                className="bg-green-600 text-white font-bold text-xl px-6 py-8 hover:bg-green-700"
                                 asChild
                             >
                                 <Link
@@ -230,7 +235,7 @@ export default function ReviewNewMill({ submitted, ...props }: MillDiffProps) {
                         </div>
                     </section>
 
-                </main>
+                </div>
             </div>
         </AppLayout>
     );

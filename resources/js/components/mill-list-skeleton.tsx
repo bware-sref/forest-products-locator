@@ -5,9 +5,6 @@ import {
     IMillListSkeletonProps,
 } from '@/types';
 import {
-    Link,
-} from '@inertiajs/react';
-import {
     Card,
     CardAction,
     CardContent,
@@ -31,14 +28,12 @@ export default function MillListSkeleton ({children, ...props}: IMillListSkeleto
                 cardClassName,
                 "pt-0 w-full gap-6 min-h-62.75"
             )}
+            // a loading placeholder: nothing here for screen readers (the list is marked aria-busy instead)
+            aria-hidden="true"
             {...props}
         >
-            {/** wrap entire header in Link to make entire header a link...whodathunk? */}
-            <Link
-                viewTransition
-                href="#"
-                className="hover:underline"
-            >
+            {/** mirrors the real card's header link, but a placeholder must not be a link users can land on */}
+            <div>
                 <CardHeader
                     className="border-b border-sonic px-0 pb-0 [.border-b]:pb-0 content-center items-center auto-rows-max grid-rows-1 gap-y-0"
                 >
@@ -57,7 +52,7 @@ export default function MillListSkeleton ({children, ...props}: IMillListSkeleto
                         />
                     </CardAction>
                 </CardHeader>
-            </Link>
+            </div>
             <CardContent
                 className="px-4 pt-0 flex flex-col gap-1 text-[16px]"
             >
