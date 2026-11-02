@@ -148,3 +148,27 @@ test('clearing filters from the no-results message moves focus to the page headi
 
     expect($page->script('document.activeElement.id'))->toBe('mill-results-heading');
 })->group('a11y', 'forms');
+
+/**
+ * Status messages a screen reader can actually hear: role="status" regions not hidden behind an open dialog.
+ */
+const EXPOSED_STATUS_TEXT_JS = <<<'JS'
+    [...document.querySelectorAll('[role=status]')]
+        .filter((el) => !el.closest('[aria-hidden=true]'))
+        .map((el) => el.textContent)
+JS;
+
+test('search results are announced while the filters dialog is still open', function (string $path) {
+    // the open dialog hides the title bar from screen readers, so its live region can't be the only one
+    $page = visit($path)
+        ->wait(A11Y_FADE_IN_SECONDS)
+        ->click('#filter-trigger')
+        ->type('#q', 'zzzz-no-such-mill')
+        ->wait(2);
+
+    expect($page->script(EXPOSED_STATUS_TEXT_JS))->toBe(['0 mills found.']);
+
+    $page->keys('#q', 'Escape')->wait(1);
+
+    expect($page->script(EXPOSED_STATUS_TEXT_JS))->toBe(['0 mills found.']);
+})->with(['mill list' => '/mill-list', 'mill map' => '/mill-map'])->group('a11y', 'forms');

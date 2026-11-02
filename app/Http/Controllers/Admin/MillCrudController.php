@@ -10,6 +10,7 @@ use App\Http\Requests\MillRequest;
 use App\Imports\FloridaMills;
 use App\Imports\MillsCrudImport;
 use App\Models\Mill;
+use App\Models\Scopes\ApprovedScope;
 use App\Models\User;
 use App\Traits\CrudPermissionTrait;
 use App\Traits\FiltersByState;
@@ -44,6 +45,12 @@ class MillCrudController extends CrudController
     public function setup()
     {
         CRUD::setModel(\App\Models\Mill::class);
+        /**
+         * The public site only shows approved mills (ApprovedScope). Admins need all of them,
+         * or a mill set to Pending can't be found again to approve it.
+         * Backpack carries removed scopes into list, show, edit, update and delete lookups.
+         */
+        CRUD::addClause('withoutGlobalScope', ApprovedScope::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/mill');
         CRUD::setEntityNameStrings('mill', 'mills');
 
