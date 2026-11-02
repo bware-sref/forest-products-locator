@@ -46,11 +46,13 @@ export function AppFooter() {
 
     return (
         <>
-            <div className="bg-nature text-white py-8 w-full border-t-beluga border-t-4 md:mt-0 md:pt-8">
+            <footer className="bg-nature text-white py-8 w-full border-t-beluga border-t-4 md:mt-0 md:pt-8">
                 <div className="mx-auto flex flex-col px-5 md:flex-row lg:h-20 items-center md:max-w-6xl lg:max-w-7xl ">
                     {/* Main Navigation + SGSF link */}
                     <div className="h-full items-stretch md:items-center space-6 flex flex-col lg:flex-row w-full">
                         <NavigationMenu 
+                            // without a label this defaults to "Main", same as the header menu
+                            aria-label="Footer"
                             data-orientation={isMobile ? 'vertical' : 'horizontal'}
                             className="flex flex-col md:flex-row justify-stretch h-full items-stretch lg:-ml-4 w-full md:w-auto max-w-full pb-5 lg:pb-0"
                         >
@@ -181,7 +183,7 @@ export function AppFooter() {
                     </NavigationMenu>
                 </div>
 
-            </div>
+            </footer>
         </>
     );
 }
