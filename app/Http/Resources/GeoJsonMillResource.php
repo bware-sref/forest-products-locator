@@ -21,7 +21,8 @@ class GeoJsonMillResource extends JsonResource
         // return parent::toArray($request);
         return [
             'type' => 'Feature',
-            'geometry' => [
+            // GeoJSON's way of saying "no location" (RFC 7946 §3.2); a point needs real numbers
+            'geometry' => $this->latitude === null || $this->longitude === null ? null : [
                 'type' => 'Point',
                 'coordinates' => [
                     /**
@@ -30,8 +31,8 @@ class GeoJsonMillResource extends JsonResource
                      * TL;DR, we need to reverse them to put x (longitude) first
                      * 
                      */
-                    $this->whenNotNull((float) $this->longitude, 0),
-                    $this->whenNotNull((float) $this->latitude, 0),
+                    $this->longitude,
+                    $this->latitude,
                 ],
             ],
             /**
@@ -58,8 +59,8 @@ class GeoJsonMillResource extends JsonResource
                 /**
                  * add lat & long for debugging purposes
                  */
-                'latitude' => $this->whenNotNull((float) $this->latitude, 0),
-                'longitude' => $this->whenNotNull((float) $this->longitude, 0),
+                'latitude' => $this->latitude,
+                'longitude' => $this->longitude,
                 'mill_types' => MillTypeResource::collection($this->whenLoaded('millTypes')),
                 'wood_species' => WoodSpeciesResource::collection($this->whenLoaded('woodSpecies')),
                 'state' => new StateResource($this->whenLoaded('state')),

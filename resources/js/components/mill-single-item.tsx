@@ -35,7 +35,8 @@ const MillSingleMap = lazy(() => import('@/components/mill-single-map'));
 export default function MillSingleItem ({mill, children, ...props}: IMillListItemProps) {
     const cardClassName = props.className ?? '';
     const showContact = !!(mill.telephone || mill.fax || mill.email || mill.web_site);
-    const showMap = mill.latitude && mill.longitude;
+    // a boolean: a bare number here would render as text ("0") in JSX
+    const showMap = !!(mill.latitude && mill.longitude);
 
     return (
         <Card 

@@ -89,8 +89,9 @@ export interface Mill {
     mill_id?: string;
     // It's mill_name on the model, so I'm intentionally making a redundant field
     mill_name?: string;
-    latitude?: string;
-    longitude?: string;
+    // null until the mill is geocoded
+    latitude?: number | null;
+    longitude?: number | null;
     year?: string;
     physical_address?: string;
     physical_city?: string;
@@ -158,8 +159,9 @@ export interface State {
     name: string;
     slug: string;
     abbreviation: string;
-    latitude?: string;
-    longitude?: string;
+    // null until the mill is geocoded
+    latitude?: number | null;
+    longitude?: number | null;
     polygon?: string;
     resource_summary?: string;
     counties?: County[];
@@ -296,8 +298,9 @@ export interface County {
     id: number;
     name: string;
     type?: string;
-    latitude?: string;
-    longitude?: string;
+    // null until the mill is geocoded
+    latitude?: number | null;
+    longitude?: number | null;
     geo_shape?: string;
     county_code?: string; // string to allow for leading zeros
     fips_code?: string; // string to allow for leading zeros
