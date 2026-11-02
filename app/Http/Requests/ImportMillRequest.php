@@ -77,9 +77,9 @@ class ImportMillRequest extends FormRequest
             /**
              * latitude and longitude can be filled via reverse geolookup
              */
-            'latitude' => 'string|nullable',
+            'latitude' => 'numeric|nullable',
 
-            'longitude' => 'string|nullable',
+            'longitude' => 'numeric|nullable',
 
             // if present and true, use the same values for mailing address as physical address
             // 'mailing_address_same_as_physical' => 'boolean|nullable',

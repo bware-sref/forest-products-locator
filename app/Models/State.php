@@ -5,6 +5,7 @@ namespace App\Models;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\HasCoordinates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -21,6 +22,7 @@ class State extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\StateFactory> */
     use HasFactory;
+    use HasCoordinates;
 
     /**
      * List of southern state abbreviations.

@@ -52,8 +52,9 @@ class MillResource extends JsonResource
             'fax' => $this->whenNotNull($this->fax),
             'email' => $this->whenNotNull($this->email),
             'web_site' => $this->whenNotNull($this->web_site),
-            'latitude' => $this->whenNotNull((float) $this->latitude, 0),
-            'longitude' => $this->whenNotNull((float) $this->longitude, 0),
+            // null when the mill has no coordinates yet; (float) null used to send 0, which pinned it at 0,0
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
             /**
              * We may want to flatten these into strings
              * Except State probably needs to have name and abbreviation

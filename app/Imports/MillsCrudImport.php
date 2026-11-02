@@ -671,9 +671,20 @@ class MillsCrudImport extends CrudImport implements SkipsEmptyRows, WithChunkRea
         }
 
         /**
+         * Coordinates are stored as numbers: blank or unusable values become null (the geocoder fills them later)
+         * rather than failing the row.
+         */
+        foreach (['latitude', 'longitude'] as $field) {
+            $field = $this->mapField($field);
+            if (array_key_exists($field, $data)) {
+                $data[$field] = Mill::toCoordinate($data[$field]);
+            }
+        }
+
+        /**
          * Cast zips if present
          */
-        foreach (['physical_zip', 'mailing_zip', 'latitude', 'longitude'] as $field) {
+        foreach (['physical_zip', 'mailing_zip'] as $field) {
             $field = $this->mapField($field);
             if (!empty($data[$field]) && !\is_string($data[$field])) {
                 $data[$field] = (string) $data[$field];
