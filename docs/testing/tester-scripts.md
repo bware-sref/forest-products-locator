@@ -176,7 +176,7 @@ What you should see:
 
 ## Part 2: Admin review
 
-Every new business and every suggested edit waits for a reviewer before it appears on the site. Reviewers get an email with a link; the review happens on that link's page, not inside the admin panel. The email goes to site Superadmins and to the contacts for the mill's state.
+Every new business and every suggested edit waits for a reviewer before it appears on the site. Reviewers get an email with a link; the review happens on that link's page, not inside the admin panel. The email goes to the site's administrators and to the reviewers for the mill's state; see "Where review emails go during testing" above.
 
 You need the submissions from scripts 1.7 and 1.8, plus one extra of each to reject. Make the extras the same way, with different `TEST` names. **Don't delete anything**: we clean up `TEST` records after testing.
 
