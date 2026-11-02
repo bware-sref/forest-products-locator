@@ -14,6 +14,14 @@ export default [
     ...typescript.configs.recommended,
     {
         ...jsxA11y.flatConfigs.recommended,
+        rules: {
+            ...jsxA11y.flatConfigs.recommended.rules,
+            /**
+             * Content that scrolls sideways (wide tables, JSON blocks) must be focusable so keyboard users can
+             * scroll it (axe: scrollable-region-focusable). The pattern is a named role="region" with tabIndex={0}.
+             */
+            'jsx-a11y/no-noninteractive-tabindex': ['error', { tags: [], roles: ['tabpanel', 'region'] }],
+        },
         settings: {
             /**
              * Check our wrapper components as the elements they render, or jsx-a11y skips them
