@@ -72,7 +72,7 @@ Log one row per problem, per page. If the same problem appears on many pages, su
 | Page | Address and state | /mill-list, after a search with no results |
 | Test | Which test found it | Test 2 – Screen reader |
 | What happened | What you did and what went wrong, in plain words | “No results” appears on screen but NVDA says nothing |
-| What you expected | What should have happened | NVDA announces “No mills found” |
+| What you expected | What should have happened | NVDA announces “0 mills found.” |
 | Severity | One of the four levels below | High |
 | WCAG criterion | If you know it; leave blank otherwise | 4.1.3 Status Messages |
 | Browser and assistive tech | Versions | Chrome 141, NVDA 2026.1, Windows 11 |
@@ -143,7 +143,7 @@ The NVDA key is Insert by default. The VO key is Ctrl+Option.
 5. Read the whole page top to bottom. Check that images with meaning are described, and that decorative images are skipped silently.
 6. Move through each form field. Each should announce its label, whether it is required, and its current value. Checkbox groups should announce the group name, such as “Mill types”.
 7. Submit a form with errors. The errors should be announced without you having to search for them, and each error should be read with its field.
-8. Run a search or apply a filter. The number of results, or “no results”, should be announced without moving focus.
+8. Run a search or apply a filter. The screen reader should say “Loading mills…”, then the count (for example “12 mills found.” or “0 mills found.”), without moving focus. With no matches, the page shows “No mills match these filters.” and a Clear filters button, not loading placeholders.
 9. Check that buttons and links are announced with the right role. A button that looks like a link should still say “button”.
 
 **It passes when** you can understand every page and finish every task by listening alone.
@@ -229,7 +229,7 @@ The mill map is the hardest part of the site to make accessible. It does not hav
 
 **Search and filter steps**
 
-1. After a search or filter, the number of results, or “no results”, should be announced by the screen reader.
+1. After a search or filter, the screen reader should announce the number of results (“0 mills found.” when nothing matches). If the search fails, it should announce “Couldn’t load mills.” and the page should offer a Try again button.
 2. Focus should not jump unexpectedly when results update.
 3. Changing a filter should not reload the page or move you elsewhere without warning, unless there is an “Apply” button.
 
