@@ -53,6 +53,8 @@ export default function MillListPage() {
         searchText,
         filterResetKey,
         isLoading,
+        loadError,
+        handleRetryLoadClick,
         isDownloading,
         handleTextSearchChange,
         handleStateSelectChange,
@@ -88,6 +90,7 @@ export default function MillListPage() {
                 handleExportClick={handleExportClick}
                 isDownloading={isDownloading}
                 isLoading={isLoading}
+                loadError={loadError}
                 millCount={mills.length}
             >
                 <MillFilters
@@ -125,7 +128,13 @@ export default function MillListPage() {
             <div className="flex min-h-screen flex-col items-center px-4 lg:px-8 text-velvet lg:justify-center">
                 {/* content column: max-width 1280px */}
                 <div className="flex flex-col lg:flex-row w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 lg:px-5 lg:gap-5 lg:justify-between">
-                    <MillList mills={mills} />
+                    <MillList
+                        mills={mills}
+                        isLoading={isLoading}
+                        loadError={loadError}
+                        onClearFiltersClick={handleClearFiltersClick}
+                        onRetryClick={handleRetryLoadClick}
+                    />
                 </div>
             </div>
         </AppLayout>

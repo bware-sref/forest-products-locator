@@ -21,6 +21,7 @@ import {
 import { Seo } from '@/components/seo';
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
+import MillResultsEmpty from '@/components/mill-results-empty';
 
 // MillMap (and everything it pulls in transitively — react-leaflet, leaflet
 // itself) touches window/document at import time, which crashes SSR. Lazy
@@ -70,6 +71,8 @@ export default function MillMapPage() {
         searchParams,
         filterResetKey,
         isLoading,
+        loadError,
+        handleRetryLoadClick,
         isDownloading,
         handleTextSearchChange,
         handleStateSelectChange,
@@ -120,10 +123,19 @@ export default function MillMapPage() {
                     radius={radius}
                     coordinates={coordinates}
                     onMapReady={setMap}
+                    // a blank map looks the same as "still loading", so say when nothing matched
+                    notice={!isLoading && mills.length === 0 ? (
+                        <MillResultsEmpty
+                            className="rounded-md border border-beluga bg-lorne p-6 shadow-md"
+                            loadError={loadError}
+                            onClearFiltersClick={handleClearFiltersClick}
+                            onRetryClick={handleRetryLoadClick}
+                        />
+                    ) : null}
                 />
             </Suspense>
         </ClientOnly>
-    ), [mills, radius, coordinates]);
+    ), [mills, radius, coordinates, isLoading, loadError, handleClearFiltersClick, handleRetryLoadClick]);
 
     // handle map focus when coordinates are found
     useEffect(() => {
@@ -145,6 +157,7 @@ export default function MillMapPage() {
                 headline={page.props.pageTitle || ''}
                 isDownloading={isDownloading}
                 isLoading={isLoading}
+                loadError={loadError}
                 handleExportClick={handleExportClick}
                 millCount={mills.length}
             >

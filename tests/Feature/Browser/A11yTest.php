@@ -105,4 +105,46 @@ describe('interactive states', function () {
             ->wait(1)
             ->assertNoAccessibilityIssues(a11yLevel());
     })->group('a11y', 'forms');
+
+    test('the mill list after a search that matches nothing', function () {
+        visit('/mill-list')
+            ->wait(A11Y_FADE_IN_SECONDS)
+            // the first load announces its count
+            ->assertSourceHas('<span role="status" class="sr-only">5 mills found.</span>')
+            ->click('#filter-trigger')
+            ->type('#q', 'zzzz-no-such-mill')
+            ->keys('#q', 'Escape')
+            // text search is debounced
+            ->wait(2)
+            ->assertSee('No mills match these filters.')
+            ->assertSourceHas('<span role="status" class="sr-only">0 mills found.</span>')
+            ->assertNoAccessibilityIssues(a11yLevel());
+    })->group('a11y', 'forms');
+
+    test('the mill map after a search that matches nothing', function () {
+        visit('/mill-map')
+            ->wait(A11Y_FADE_IN_SECONDS)
+            ->click('#filter-trigger')
+            ->type('#q', 'zzzz-no-such-mill')
+            ->keys('#q', 'Escape')
+            ->wait(2)
+            ->assertSee('No mills match these filters.')
+            ->assertSourceHas('<span role="status" class="sr-only">0 mills found.</span>')
+            ->assertNoAccessibilityIssues(a11yLevel());
+    })->group('a11y', 'forms');
 });
+
+test('clearing filters from the no-results message moves focus to the page heading', function () {
+    // the button disappears once results load; without this, focus drops to the top of the page
+    $page = visit('/mill-list')
+        ->wait(A11Y_FADE_IN_SECONDS)
+        ->click('#filter-trigger')
+        ->type('#q', 'zzzz-no-such-mill')
+        ->keys('#q', 'Escape')
+        ->wait(2)
+        ->click('Clear filters')
+        ->wait(2)
+        ->assertSourceHas('<span role="status" class="sr-only">5 mills found.</span>');
+
+    expect($page->script('document.activeElement.id'))->toBe('mill-results-heading');
+})->group('a11y', 'forms');

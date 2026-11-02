@@ -2,13 +2,14 @@
 // "use client" is also required to use WMS (or so I led myself to believe...)
 "use client"
 
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import {
     MillListProps,
 } from '@/types';
 import {
     Map as MapContainer,
     MapCircle,
+    MapControlContainer,
     MapMarker,
     MapMarkerClusterGroup,
     MapTileLayer,
@@ -68,7 +69,11 @@ export default function MillMap({
     coordinates = null,
     radius = null,
     onMapReady,
-}: MillListProps) {
+    notice = null,
+}: MillListProps & {
+    /** message shown over the map, e.g. when no mills match the filters */
+    notice?: ReactNode;
+}) {
 
     // parse radius as a float, handling the empty case with '0'
     const filterRadius = parseFloat(radius ?? '0');
@@ -128,6 +133,11 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
                 />
             )}
             {children}
+            {notice && (
+                <MapControlContainer className="top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md">
+                    {notice}
+                </MapControlContainer>
+            )}
         </MapContainer>
     )
 }
