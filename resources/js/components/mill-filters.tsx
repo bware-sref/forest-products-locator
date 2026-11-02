@@ -47,6 +47,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { millCountText, millStatusMessage } from '@/lib/mill-status';
 
 /**
  * MillFilters needs:
@@ -131,6 +132,8 @@ export interface MillFiltersProps {
 
     // add a mill count
     millCount?: number;
+    /** the last mill search failed (as opposed to finding nothing) */
+    loadError?: boolean;
 }
 
 /**
@@ -184,6 +187,7 @@ export default function MillFilters({
     geocodeError = null,
     locationLabel = null,
     millCount = 0,
+    loadError = false,
     ...props
 }: MillFiltersProps) {
 
@@ -241,7 +245,9 @@ export default function MillFilters({
                     <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2 px-6 lg:px-0">{headline}</h2>
 
                     {/** mill count */}
-                    <div className="justify-self-end text-beluga ml-auto  self-center mr-5 lg:mr-0">{millCount} mills found</div>                    
+                    <div className="justify-self-end text-beluga ml-auto  self-center mr-5 lg:mr-0" aria-hidden="true">{millCountText(millCount)}</div>
+                    {/* the open Filters dialog hides the title bar's live region from screen readers, so announce results here too */}
+                    <span role="status" className="sr-only">{millStatusMessage({ isLoading, loadError, millCount })}</span>
                 </div>
 
                 {/** 

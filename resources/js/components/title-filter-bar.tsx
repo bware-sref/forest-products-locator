@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Spinner } from '@/components/ui/spinner';
 import { MILL_RESULTS_HEADING_ID } from '@/components/mill-results-empty';
+import { millCountText, millStatusMessage } from '@/lib/mill-status';
 
 export interface TitleFilterBarProps {
     headline: string;
@@ -49,17 +50,7 @@ export function TitleFilterBar({
 
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
-    /**
-     * What screen readers hear when a search starts and finishes (WCAG 4.1.3).
-     * Changing to "Loading" in between means a repeat count still gets announced.
-     */
-    const statusMessage = isLoading
-        ? 'Loading mills…'
-        : loadError
-            ? "Couldn't load mills."
-            : millCount === 1
-                ? '1 mill found.'
-                : `${millCount ?? 0} mills found.`;
+    const statusMessage = millStatusMessage({ isLoading, loadError, millCount });
 
     /**
      * make triggerButton a component
@@ -104,10 +95,11 @@ export function TitleFilterBar({
                         aria-hidden because the live region below says the same thing. */}
                     {!loadError && ((millCount ?? 0) > 0 || !isLoading) ? (
                         <span className="text-beluga" aria-hidden="true">
-                            {millCount === 1 ? '1 mill found.' : `${millCount ?? 0} mills found.`}
+                            {millCountText(millCount)}
                         </span>
                     ) : ''}
-                    {/* always rendered: a live region added along with its text often isn't announced */}
+                    {/* always rendered: a live region added along with its text often isn't announced.
+                        Hidden from screen readers while Filters is open; MillFilters has its own then. */}
                     <span role="status" className="sr-only">{statusMessage}</span>
                     {isLoading || isDownloading ? (
                         <Spinner data-icon="inline-end" className="ml-auto size-8 text-beluga" />
