@@ -2,13 +2,11 @@
 
 namespace App\Jobs;
 
-use App\Enums\UserRoles;
+use App\Jobs\Concerns\ResolvesReviewRecipients;
 use App\Mail\MillAddNotification;
 use App\Models\Mill;
 use App\Models\MillEdit;
 use App\Models\State;
-use App\Models\StateContact;
-use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Arr;
@@ -18,6 +16,7 @@ use Illuminate\Support\Facades\Mail;
 class SendMillAddNotification implements ShouldQueue
 {
     use Queueable;
+    use ResolvesReviewRecipients;
 
     /**
      * Create a new job instance.
@@ -34,14 +33,7 @@ class SendMillAddNotification implements ShouldQueue
      */
     public function handle(): void
     {
-        // figure out who all to send the notification to
-        /**
-         * 1. site admins: me & Daniel + possible a more generic sref.info account
-         *      pull site admin users?
-         * 2. state contacts
-         *      pull $millEdit->mill->state->stateContacts?
-         * 
-         */
+        // who gets it: see ResolvesReviewRecipients
         // store toWhom so we can update the record accordingly
         $toWhom = $this->resolveToWhom();
         $sent = Mail::to($toWhom)
@@ -64,21 +56,7 @@ class SendMillAddNotification implements ShouldQueue
 
     protected function resolveToWhom(): array
     {
-        $supers = User::role(UserRoles::SUPER)
-            ->select(['email', 'name'])
-            ->get()
-            ->toArray();
-
-        /**
-         * We have to fetch the state first because we don't have a Mill yet.
-         */
-        $changes = $this->millEdit->getChanges();
-        $state = State::find($changes['state_id']);
-        $stateContacts = $state->stateContacts()
-            ->select(['email', 'name'])
-            ->get()
-            ->toArray();
-
-        return [...$supers, ...$stateContacts];
+        // no Mill yet for a new business, so its state comes from the submitted form data
+        return $this->reviewRecipientsFor(State::find($this->millEdit->getChanges()['state_id'] ?? null));
     }
 }

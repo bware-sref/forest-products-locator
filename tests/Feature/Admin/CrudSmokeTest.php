@@ -83,7 +83,8 @@ test('the :dataset screens render', function (string $segment, string $table, Cl
 ]);
 
 test('the statistics pages render', function (string $path) {
-    loginAdminUser([]);
+    // the pages don't check statistics.see themselves (Statistics is due for a rebuild); CheckIfAdmin needs some access
+    loginAdminUser(['statistics.see']);
 
     $this->get("/admin/{$path}")->assertOk();
 })->with([

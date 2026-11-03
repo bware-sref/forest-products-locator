@@ -2,12 +2,13 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\UserRoles;
 use Backpack\PermissionManager\app\Http\Requests\UserUpdateCrudRequest;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\Concerns\ValidatesUserRoles;
 
 class UpdateUserRequest extends UserUpdateCrudRequest
 {
+    use ValidatesUserRoles;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -33,18 +34,8 @@ class UpdateUserRequest extends UserUpdateCrudRequest
             'nullable',
         ];
 
-        /**
-         * Add our rules for state_id
-         */
-        $rules['state_id'] = [
-            Rule::excludeUnless(
-                'true' === $this->input('is_agent')
-            ),
-            // 'sometimes',
-            'required',
-            'numeric',
-            'exists:states,id'
-        ];
+        $rules['roles'] = [...$this->rolesRules(), $this->keepsLastSuperadminRule()];
+        $rules['state_id'] = $this->stateIdRules();
         return $rules;
     }
 
@@ -68,8 +59,8 @@ class UpdateUserRequest extends UserUpdateCrudRequest
     public function messages()
     {
         return [
+            ...$this->roleMessages(),
             //
-            'state_id.required' => 'State is required for users having the "'.UserRoles::AGENT->value.'" role.',
         ];
     }
 }

@@ -113,6 +113,8 @@ return [
     // Can be a single class or an array of classes
     'middleware_class' => [
         App\Http\Middleware\CheckIfAdmin::class,
+        // State Agents with no valid state would otherwise go unscoped; see the class
+        App\Http\Middleware\BlockIncompleteStateAgents::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         /**
          * @TODO: check for updates to Backpack!!!

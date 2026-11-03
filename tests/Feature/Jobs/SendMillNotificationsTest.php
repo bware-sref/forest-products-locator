@@ -14,20 +14,28 @@ use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 
 /**
- * Who hears about public submissions: every Superadmin, plus the contacts listed for the mill's state.
+ * Who hears about public submissions (ResolvesReviewRecipients): every Superadmin and Administrator, plus the
+ * State Agents for the mill's state, or that state's contacts when it has no State Agents yet.
  */
 
 beforeEach(function () {
     $this->state = State::factory()->create();
     $this->otherState = State::factory()->create();
 
-    $this->super = User::factory()->create(['email' => 'super@example.com']);
-    $this->super->assignRole(Role::findOrCreate(UserRoles::SUPER->value, 'web'));
-    User::factory()->create(['email' => 'not-super@example.com']);
+    userWithRole('super@example.com', UserRoles::SUPER);
+    User::factory()->create(['email' => 'no-role@example.com']);
 
     StateContact::factory()->for($this->state)->create(['email' => 'forester@example.com']);
     StateContact::factory()->for($this->otherState)->create(['email' => 'elsewhere@example.com']);
 });
+
+function userWithRole(string $email, UserRoles $role, ?State $state = null): User
+{
+    $user = User::factory()->create(['email' => $email, 'state_id' => $state?->id]);
+    $user->assignRole(Role::findOrCreate($role->value, 'web'));
+
+    return $user;
+}
 
 function recipientsOf(string $mailable): array
 {
@@ -41,34 +49,72 @@ function recipientsOf(string $mailable): array
     return $recipients;
 }
 
-test('a new business submission goes to Superadmins and the state\'s contacts', function () {
+/**
+ * Runs the job for a submission in $state and returns who the email went to.
+ */
+function notifiedFor(string $job, State $state): array
+{
     Mail::fake();
-    $edit = MillEdit::factory()->newBusiness(['state_id' => $this->state->id])->create();
 
-    (new SendMillAddNotification($edit))->handle();
+    if ($job === SendMillAddNotification::class) {
+        (new SendMillAddNotification(MillEdit::factory()->newBusiness(['state_id' => $state->id])->create()))->handle();
 
-    expect(recipientsOf(MillAddNotification::class))->toBe(['forester@example.com', 'super@example.com']);
-});
+        return recipientsOf(MillAddNotification::class);
+    }
 
-test('a mill edit goes to Superadmins and the mill\'s state\'s contacts', function () {
-    Mail::fake();
-    $edit = MillEdit::factory()->for(Mill::factory()->for($this->state))->create();
+    (new SendMillEditNotification(MillEdit::factory()->for(Mill::factory()->for($state))->create()))->handle();
 
-    (new SendMillEditNotification($edit))->handle();
+    return recipientsOf(MillEditNotification::class);
+}
 
-    expect(recipientsOf(MillEditNotification::class))->toBe(['forester@example.com', 'super@example.com']);
-});
+dataset('notification jobs', [
+    'new business' => SendMillAddNotification::class,
+    'mill edit' => SendMillEditNotification::class,
+]);
 
-test('the submission is marked sent, with who it went to', function (string $job, Closure $makeEdit) {
+test('with no State Agents for the state, it goes to Superadmins and the state\'s contacts', function (string $job) {
+    expect(notifiedFor($job, $this->state))->toBe(['forester@example.com', 'super@example.com']);
+})->with('notification jobs');
+
+test('Administrators get it too, but other roles don\'t', function (string $job) {
+    userWithRole('admin@example.com', UserRoles::ADMIN);
+    userWithRole('editor@example.com', UserRoles::EDITOR);
+
+    expect(notifiedFor($job, $this->state))->toBe(['admin@example.com', 'forester@example.com', 'super@example.com']);
+})->with('notification jobs');
+
+test('the state\'s State Agents get it instead of its contacts', function (string $job) {
+    userWithRole('agent@example.com', UserRoles::AGENT, $this->state);
+    userWithRole('agent-two@example.com', UserRoles::AGENT, $this->state);
+    userWithRole('other-agent@example.com', UserRoles::AGENT, $this->otherState);
+
+    expect(notifiedFor($job, $this->state))->toBe(['agent-two@example.com', 'agent@example.com', 'super@example.com']);
+})->with('notification jobs');
+
+test('a state with neither State Agents nor contacts still notifies Superadmins and Administrators', function (string $job) {
+    userWithRole('admin@example.com', UserRoles::ADMIN);
+    $bareState = State::factory()->create();
+
+    expect(notifiedFor($job, $bareState))->toBe(['admin@example.com', 'super@example.com']);
+})->with('notification jobs');
+
+test('someone with two reasons to get it gets one copy', function (string $job) {
+    StateContact::factory()->for($this->state)->create(['email' => 'SUPER@example.com']);
+
+    expect(notifiedFor($job, $this->state))->toBe(['forester@example.com', 'super@example.com']);
+})->with('notification jobs');
+
+test('the submission is marked sent, with who it went to', function (string $job) {
     // the real 'array' mailer (phpunit.xml), not Mail::fake(): the job checks send()'s return value, and the fake returns nothing
-    $edit = $makeEdit($this->state);
+    userWithRole('agent@example.com', UserRoles::AGENT, $this->state);
+    $edit = $job === SendMillAddNotification::class
+        ? MillEdit::factory()->newBusiness(['state_id' => $this->state->id])->create()
+        : MillEdit::factory()->for(Mill::factory()->for($this->state))->create();
 
     (new $job($edit))->handle();
 
     expect($edit->fresh())
         ->sent->toBeTruthy()
-        ->sent_to->toContain('forester@example.com', 'super@example.com');
-})->with([
-    'new business' => [SendMillAddNotification::class, fn (State $state) => MillEdit::factory()->newBusiness(['state_id' => $state->id])->create()],
-    'edit' => [SendMillEditNotification::class, fn (State $state) => MillEdit::factory()->for(Mill::factory()->for($state))->create()],
-]);
+        ->sent_to->toContain('agent@example.com', 'super@example.com')
+        ->sent_to->not->toContain('forester@example.com');
+})->with('notification jobs');

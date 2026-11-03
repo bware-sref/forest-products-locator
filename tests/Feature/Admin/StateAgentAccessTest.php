@@ -122,16 +122,27 @@ describe('records with a state_id (StateContact)', function () {
         expect($rows['recordsTotal'])->toBe(2);
     });
 
-    test('an agent role without a state_id gets no state scoping', function () {
-        /**
-         * isStateAgent() requires both the role and a state_id, so this user is treated as a regular user.
-         * Pinned here so a change to that rule is a deliberate one.
-         */
-        loginAdminUser(['state_contacts.edit'], UserRoles::AGENT);
+    test('Superadmins and Administrators aren\'t limited to a state, even with the agent role and a state', function (UserRoles $role) {
+        $user = loginStateAgent($this->home->id, ['state_contacts.edit']);
+        // a second role can only come from a raw attach now (User::assignRole() refuses it); the exemption is the safety net
+        $user->roles()->attach(\Spatie\Permission\Models\Role::findOrCreate($role->value, 'web')->id);
 
         $rows = listRows($this, 'state-contact');
 
         expect($rows['recordsTotal'])->toBe(2);
+    })->with([
+        'Superadmin' => UserRoles::SUPER,
+        'Administrator' => UserRoles::ADMIN,
+    ]);
+
+    test('an agent role without a state_id is kept out instead of going unscoped', function () {
+        /**
+         * isStateAgent() requires both the role and a state_id, so nothing here would scope this user to a state.
+         * BlockIncompleteStateAgents keeps them out of the admin panel instead (more in UserRoleRulesTest).
+         */
+        loginAdminUser(['state_contacts.edit'], UserRoles::AGENT);
+
+        $this->postJson('/admin/state-contact/search', ['draw' => 1, 'start' => 0, 'length' => 10])->assertForbidden();
     });
 });
 

@@ -6,17 +6,17 @@ As of 2026-11-02. This is the copy to keep. Testers can also use the online copy
 
 These scripts walk you through the Forest Products Network site task by task: what to do, and what should happen. Do them in order within a part; the parts can be done separately, by different people.
 
-| Part | What it covers | Who | Time |
-| --- | --- | --- | --- |
-| 1. Public site | What visitors do: find mills, submit a business, suggest an edit, contact us | Anyone | About 60 minutes |
-| 2. Admin review | Approving and rejecting what visitors submit, and checking the result | Testers with a reviewer account | About 30 minutes |
-| 3. Accessibility | Using the site by keyboard only, with VoiceOver, and zoomed in | Anyone with a Mac; iPhone optional | About 90 minutes, can be split across days |
+| Part             | What it covers                                                               | Who                                | Time                                       |
+| ---------------- | ---------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------ |
+| 1. Public site   | What visitors do: find mills, submit a business, suggest an edit, contact us | Anyone                             | About 60 minutes                           |
+| 2. Admin review  | Approving and rejecting what visitors submit, and checking the result        | Testers with a reviewer account    | About 30 minutes                           |
+| 3. Accessibility | Using the site by keyboard only, with VoiceOver, and zoomed in               | Anyone with a Mac; iPhone optional | About 90 minutes, can be split across days |
 
 **Use the test site, never the live one.** Your submissions create real records and send real emails.
 
-- Test site address: *to be filled in*
-- Reviewer accounts for Part 2: *to be filled in*
-- Where review emails go during testing: *to be filled in*
+- Test site address: https://fpn.sref.info
+- Reviewer accounts for Part 2: You must use an account with one of the following roles to review Mill submissions: State Agent, Administrator, Superadmin.
+- Where review emails go during testing: Emails will be sent to the email address associated with your user account.
 
 **Use made-up data.** Invent business names that start with `TEST`, such as `TEST Oak Ridge Sawmill`, so they are easy to find and clean up. Use your own email address in "Your Email" so you receive any replies.
 
@@ -28,14 +28,14 @@ These scripts walk you through the Forest Products Network site task by task: wh
 
 Write down every problem, even small or unsure ones; we would rather sort through extras than miss something. Mark each script in the results table at the end, and add one note per problem with these details:
 
-| Detail | Example |
-| --- | --- |
-| Script and step | 1.4, step 3 |
-| Page address | /mill-list |
-| What you did | Typed `pine` in the search box |
-| What happened | The list went blank and stayed blank |
-| What you expected | Mills with pine in their name or species |
-| Browser and device | Safari 19, MacBook; or Chrome, Pixel 8 |
+| Detail                  | Example                                                             |
+| ----------------------- | ------------------------------------------------------------------- |
+| Script and step         | 1.4, step 3                                                         |
+| Page address            | https://fpn.sref.info/mill-list                                     |
+| What you did            | Typed `pine` in the search box                                      |
+| What happened           | The list went blank and stayed blank                                |
+| What you expected       | Mills with pine in their name or species                            |
+| Browser and device      | Safari 19, MacBook; or Chrome, Pixel 8                              |
 | Screenshot or recording | Attach one if you can. On a Mac, Shift-Command-5 records the screen |
 
 Give each problem a severity:
@@ -44,7 +44,7 @@ Give each problem a severity:
 - **Major**: you finished, but only with a workaround, or the result was wrong.
 - **Minor**: confusing wording, odd layout, or a small visual glitch.
 
-Send your notes to: *to be filled in*
+Send your notes to: bware@sref.info
 
 ## Part 1: Public site
 
@@ -52,7 +52,7 @@ Each script has a goal, the steps, and what you should see. If what you see diff
 
 ### 1.1 Find mills on the list
 
-1. Open the home page, then go to the mill list (/mill-list) from the menu.
+1. Open the home page, then go to the mill list (https://fpn.sref.info/mill-list) from the menu.
 2. Wait for the list to load.
 3. Type a word from a mill name you can see into the **Search mills...** box. On a narrow window or phone, open **Filters** first.
 4. Clear the search box.
@@ -95,7 +95,7 @@ What you should see:
 
 ### 1.4 Use the map
 
-1. Go to the mill map (/mill-map).
+1. Go to the mill map (https://fpn.sref.info/mill-map).
 2. Zoom and drag the map. On a phone, use two fingers.
 3. Click a group of mills (a circle with a number) to zoom in, then click a single mill pin.
 4. In the pop-up, click **More Information...**
@@ -131,7 +131,7 @@ What you should see:
 
 ### 1.7 Submit a new business
 
-1. Click **Add Your Business** in the menu (/add-business).
+1. Click **Add Your Business** in the menu (https://fpn.sref.info/add-business).
 2. Click **Submit** without filling anything in.
 3. Fill in the form with a made-up business named `TEST` plus your initials, your own email in **Your Email**, and at least one mill type and wood species.
 4. Change **Is the mailing address the same as the physical address?** and check that the mailing address fields show and hide.
@@ -166,7 +166,7 @@ Write down the mill's name and what you changed.
 1. Visit each page from the menu and footer: State Resources, one state's page, FAQ, Contact, About Us. Privacy Policy and Southern Group of State Foresters link to other websites; just check they open.
 2. On FAQ, open and close several questions.
 3. On Contact, click **Submit** with the form empty, then send a real message with the subject starting `TEST`.
-4. Visit a page that doesn't exist, such as /no-such-page.
+4. Visit a page that doesn't exist, such as https://fpn.sref.info/no-such-page.
 
 What you should see:
 
@@ -264,13 +264,13 @@ On a Mac, Safari skips links when you press Tab unless you turn it on. Do both o
 
 Chrome and Firefox tab to links without changes. The keys you need:
 
-| Key | Does |
-| --- | --- |
-| Tab / Shift-Tab | Next / previous link, button or field |
-| Return | Follow a link, press a button, submit a form |
-| Space | Press a button, tick a checkbox, scroll the page |
-| Arrow keys | Move within a menu, list of options, or the map |
-| Escape | Close a menu, pop-up or dialog |
+| Key             | Does                                             |
+| --------------- | ------------------------------------------------ |
+| Tab / Shift-Tab | Next / previous link, button or field            |
+| Return          | Follow a link, press a button, submit a form     |
+| Space           | Press a button, tick a checkbox, scroll the page |
+| Arrow keys      | Move within a menu, list of options, or the map  |
+| Escape          | Close a menu, pop-up or dialog                   |
 
 ### VoiceOver on a Mac
 
@@ -283,15 +283,15 @@ Use **Safari** with VoiceOver; it is the pairing Apple supports best.
 
 VoiceOver commands all start with **Control-Option**, written **VO** below. Hold both, then press the other key.
 
-| Keys | Does |
-| --- | --- |
-| VO-Right Arrow / VO-Left Arrow | Next / previous item |
-| VO-Space | Click the current item |
-| VO-A | Read from here; press **Control** to stop |
-| VO-Command-H | Next heading |
-| VO-Command-J | Next form field |
-| VO-U | The rotor: lists of headings, links, form fields and page regions. Left/Right Arrow switches list, Up/Down picks, Return goes there, Escape closes |
-| VO-Shift-Down Arrow / VO-Shift-Up Arrow | Step into / out of a group, such as a table |
+| Keys                                    | Does                                                                                                                                               |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VO-Right Arrow / VO-Left Arrow          | Next / previous item                                                                                                                               |
+| VO-Space                                | Click the current item                                                                                                                             |
+| VO-A                                    | Read from here; press **Control** to stop                                                                                                          |
+| VO-Command-H                            | Next heading                                                                                                                                       |
+| VO-Command-J                            | Next form field                                                                                                                                    |
+| VO-U                                    | The rotor: lists of headings, links, form fields and page regions. Left/Right Arrow switches list, Up/Down picks, Return goes there, Escape closes |
+| VO-Shift-Down Arrow / VO-Shift-Up Arrow | Step into / out of a group, such as a table                                                                                                        |
 
 Tab and Shift-Tab still work while VoiceOver is on, and VoiceOver reads each item you land on.
 
@@ -302,14 +302,14 @@ Set up the shortcut **before** turning VoiceOver on, because VoiceOver changes h
 1. **Settings > Accessibility > Accessibility Shortcut**: choose **VoiceOver**. Now three quick presses of the side button turn it on and off.
 2. Use Safari.
 
-| Gesture | Does |
-| --- | --- |
-| Tap | Select an item and hear it |
-| Double-tap | Activate the selected item |
-| Swipe right / left with one finger | Next / previous item |
-| Two-finger tap | Pause or resume speech |
-| Three-finger swipe up / down | Scroll |
-| Twist two fingers like a dial | The rotor: choose headings, links or form controls; then swipe down / up to move by that choice |
+| Gesture                            | Does                                                                                            |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Tap                                | Select an item and hear it                                                                      |
+| Double-tap                         | Activate the selected item                                                                      |
+| Swipe right / left with one finger | Next / previous item                                                                            |
+| Two-finger tap                     | Pause or resume speech                                                                          |
+| Three-finger swipe up / down       | Scroll                                                                                          |
+| Twist two fingers like a dial      | The rotor: choose headings, links or form controls; then swipe down / up to move by that choice |
 
 ### Zoom and display settings
 
@@ -419,26 +419,26 @@ Each tester fills in their own copy of this table: copy it into a new doc or you
 
 Result is one of: Not done, Pass, Pass with notes, Fail, Blocked.
 
-| Script | Result | Browser and device | Problem notes |
-| --- | --- | --- | --- |
-| 1.1 Find mills on the list | Not done | | |
-| 1.2 Filter mills | Not done | | |
-| 1.3 Search by location | Not done | | |
-| 1.4 Use the map | Not done | | |
-| 1.5 Look at a mill's page | Not done | | |
-| 1.6 Export the list | Not done | | |
-| 1.7 Submit a new business | Not done | | |
-| 1.8 Suggest an edit to a mill | Not done | | |
-| 1.9 Other pages | Not done | | |
-| 2.1 Approve a suggested edit | Not done | | |
-| 2.2 Reject a suggested edit | Not done | | |
-| 2.3 Approve a new business | Not done | | |
-| 2.4 Reject a new business | Not done | | |
-| 2.5 Reuse a review link | Not done | | |
-| 2.6 Check and hide a mill in the admin panel | Not done | | |
-| 3.1 Keyboard only | Not done | | |
-| 3.2 VoiceOver: page structure | Not done | | |
-| 3.3 VoiceOver: forms | Not done | | |
-| 3.4 VoiceOver: searching for mills | Not done | | |
-| 3.5 Zoom, reflow and display settings | Not done | | |
-| 3.6 iPhone with VoiceOver | Not done | | |
+| Script                                       | Result   | Browser and device | Problem notes |
+| -------------------------------------------- | -------- | ------------------ | ------------- |
+| 1.1 Find mills on the list                   | Not done |                    |               |
+| 1.2 Filter mills                             | Not done |                    |               |
+| 1.3 Search by location                       | Not done |                    |               |
+| 1.4 Use the map                              | Not done |                    |               |
+| 1.5 Look at a mill's page                    | Not done |                    |               |
+| 1.6 Export the list                          | Not done |                    |               |
+| 1.7 Submit a new business                    | Not done |                    |               |
+| 1.8 Suggest an edit to a mill                | Not done |                    |               |
+| 1.9 Other pages                              | Not done |                    |               |
+| 2.1 Approve a suggested edit                 | Not done |                    |               |
+| 2.2 Reject a suggested edit                  | Not done |                    |               |
+| 2.3 Approve a new business                   | Not done |                    |               |
+| 2.4 Reject a new business                    | Not done |                    |               |
+| 2.5 Reuse a review link                      | Not done |                    |               |
+| 2.6 Check and hide a mill in the admin panel | Not done |                    |               |
+| 3.1 Keyboard only                            | Not done |                    |               |
+| 3.2 VoiceOver: page structure                | Not done |                    |               |
+| 3.3 VoiceOver: forms                         | Not done |                    |               |
+| 3.4 VoiceOver: searching for mills           | Not done |                    |               |
+| 3.5 Zoom, reflow and display settings        | Not done |                    |               |
+| 3.6 iPhone with VoiceOver                    | Not done |                    |               |
