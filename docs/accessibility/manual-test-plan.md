@@ -10,7 +10,7 @@ Automated tests already run the axe-core checker on every public page. They catc
 
 **In scope:** the public site, including the forms and the mill-edit review pages that reviewers reach from email links.
 
-**Out of scope for this round:** the admin panel at /admin.
+**Out of scope for this round:** the admin panel at https://fpn.sref.info/admin.
 
 New to screen readers? Start with the step-by-step VoiceOver scripts in Part 3 of [tester-scripts.md](../testing/tester-scripts.md); this plan is the fuller reference.
 
@@ -20,16 +20,16 @@ Each tester does not need to run every test. Pick a test from Tests 1–7, work 
 
 Test on the QA site, not production, because some tests submit forms. Open question: confirm the QA URL and who sends testers the mill-edit review links.
 
-| What | Why | Where to get it |
-| --- | --- | --- |
-| Chrome or Edge, latest | Main browser for most tests | Already installed on most machines |
-| Firefox, latest | Second browser for keyboard and zoom checks | mozilla.org |
-| NVDA screen reader (Windows) | Test 2 | nvaccess.org, free |
-| VoiceOver (Mac and iPhone) | Test 2, if you use Apple devices | Built in: Cmd+F5 on Mac; Settings → Accessibility on iPhone |
-| TalkBack (Android) | Test 7, optional | Built in: Settings → Accessibility |
-| axe DevTools extension | Quick spot checks of a single page state | Chrome Web Store, free version is enough |
-| WebAIM Contrast Checker | Test 4 | webaim.org/resources/contrastchecker |
-| Text spacing bookmarklet | Test 3 | Search “text spacing bookmarklet” (Steve Faulkner’s version) |
+| What                         | Why                                         | Where to get it                                              |
+| ---------------------------- | ------------------------------------------- | ------------------------------------------------------------ |
+| Chrome or Edge, latest       | Main browser for most tests                 | Already installed on most machines                           |
+| Firefox, latest              | Second browser for keyboard and zoom checks | mozilla.org                                                  |
+| NVDA screen reader (Windows) | Test 2                                      | nvaccess.org, free                                           |
+| VoiceOver (Mac and iPhone)   | Test 2, if you use Apple devices            | Built in: Cmd+F5 on Mac; Settings → Accessibility on iPhone  |
+| TalkBack (Android)           | Test 7, optional                            | Built in: Settings → Accessibility                           |
+| axe DevTools extension       | Quick spot checks of a single page state    | Chrome Web Store, free version is enough                     |
+| WebAIM Contrast Checker      | Test 4                                      | webaim.org/resources/contrastchecker                         |
+| Text spacing bookmarklet     | Test 3                                      | Search “text spacing bookmarklet” (Steve Faulkner’s version) |
 
 Before you start:
 
@@ -41,22 +41,22 @@ Before you start:
 
 Run each test on every page below, including the states listed for that page. Those states only appear after you interact with the page, so automated tests mostly miss them.
 
-| Page | Address | States to test |
-| --- | --- | --- |
-| Home | / | Main menu open on a phone-sized window |
-| Mill map | /mill-map | Search by location and radius; filters applied; a map marker popup open; clustered markers expanded |
-| Mill list | /mill-list | Search results; no results; filters; paging; sorting |
-| Single mill | /mill-list/{mill} | A mill with full details; a mill missing optional details |
-| Add a business | /add-business | Empty form; submitted with errors; successful submission |
-| Edit a mill | /mills/{mill}/edit (linked from a mill page) | Same as Add a business; also submitting with nothing changed |
-| Review an edit | /mill-edits/{link from email} | Changes shown side by side; approve; reject |
-| Review a new business | /mill-edits/{link from email} | Approve; reject |
-| FAQs | /faqs | Every category; any expanding questions open and closed |
-| About us | /about-us | — |
-| States | /states | — |
-| A state page | /states/{state}, such as /states/georgia | State resources and links |
-| Contact | /contact | Empty form; submitted with errors; successful submission |
-| Error page | Any address that doesn’t exist, such as /no-such-page | — |
+| Page                  | Address                                               | States to test                                                                                      |
+| --------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Home                  | /                                                     | Main menu open on a phone-sized window                                                              |
+| Mill map              | /mill-map                                             | Search by location and radius; filters applied; a map marker popup open; clustered markers expanded |
+| Mill list             | /mill-list                                            | Search results; no results; filters; paging; sorting                                                |
+| Single mill           | /mill-list/{mill}                                     | A mill with full details; a mill missing optional details                                           |
+| Add a business        | /add-business                                         | Empty form; submitted with errors; successful submission                                            |
+| Edit a mill           | /mills/{mill}/edit (linked from a mill page)          | Same as Add a business; also submitting with nothing changed                                        |
+| Review an edit        | /mill-edits/{link from email}                         | Changes shown side by side; approve; reject                                                         |
+| Review a new business | /mill-edits/{link from email}                         | Approve; reject                                                                                     |
+| FAQs                  | /faqs                                                 | Every category; any expanding questions open and closed                                             |
+| About us              | /about-us                                             | —                                                                                                   |
+| States                | /states                                               | —                                                                                                   |
+| A state page          | /states/{state}, such as /states/georgia              | State resources and links                                                                           |
+| Contact               | /contact                                              | Empty form; submitted with errors; successful submission                                            |
+| Error page            | Any address that doesn’t exist, such as /no-such-page | —                                                                                                   |
 
 Also check these on every page:
 
@@ -69,16 +69,16 @@ Also check these on every page:
 
 Log one row per problem, per page. If the same problem appears on many pages, such as in the header, log it once and write “all pages”. Open question: where the shared log will live (a spreadsheet or issue tracker).
 
-| Field | What to write | Example |
-| --- | --- | --- |
-| Page | Address and state | /mill-list, after a search with no results |
-| Test | Which test found it | Test 2 – Screen reader |
-| What happened | What you did and what went wrong, in plain words | “No results” appears on screen but NVDA says nothing |
-| What you expected | What should have happened | NVDA announces “0 mills found.” |
-| Severity | One of the four levels below | High |
-| WCAG criterion | If you know it; leave blank otherwise | 4.1.3 Status Messages |
-| Browser and assistive tech | Versions | Chrome 141, NVDA 2026.1, Windows 11 |
-| Evidence | Screenshot or short screen recording | Link to the file |
+| Field                      | What to write                                    | Example                                              |
+| -------------------------- | ------------------------------------------------ | ---------------------------------------------------- |
+| Page                       | Address and state                                | /mill-list, after a search with no results           |
+| Test                       | Which test found it                              | Test 2 – Screen reader                               |
+| What happened              | What you did and what went wrong, in plain words | “No results” appears on screen but NVDA says nothing |
+| What you expected          | What should have happened                        | NVDA announces “0 mills found.”                      |
+| Severity                   | One of the four levels below                     | High                                                 |
+| WCAG criterion             | If you know it; leave blank otherwise            | 4.1.3 Status Messages                                |
+| Browser and assistive tech | Versions                                         | Chrome 141, NVDA 2026.1, Windows 11                  |
+| Evidence                   | Screenshot or short screen recording             | Link to the file                                     |
 
 **Severity levels**
 
@@ -123,16 +123,16 @@ A blind user should get the same information and be able to do the same tasks as
 
 **Key commands**
 
-| Action | NVDA (Windows) | VoiceOver (Mac) |
-| --- | --- | --- |
-| Turn on or off | Ctrl+Alt+N | Cmd+F5 |
-| Stop speaking | Ctrl | Ctrl |
-| Read from here | NVDA+Down arrow | VO+A |
-| Next or previous item | Down or Up arrow | VO+Right or Left arrow |
-| Next heading | H | VO+Cmd+H |
-| Next landmark (header, nav, main, footer) | D | VO+U, then choose Landmarks |
-| Next form field | F | VO+Cmd+J |
-| List all links, headings or landmarks | NVDA+F7 | VO+U |
+| Action                                    | NVDA (Windows)   | VoiceOver (Mac)             |
+| ----------------------------------------- | ---------------- | --------------------------- |
+| Turn on or off                            | Ctrl+Alt+N       | Cmd+F5                      |
+| Stop speaking                             | Ctrl             | Ctrl                        |
+| Read from here                            | NVDA+Down arrow  | VO+A                        |
+| Next or previous item                     | Down or Up arrow | VO+Right or Left arrow      |
+| Next heading                              | H                | VO+Cmd+H                    |
+| Next landmark (header, nav, main, footer) | D                | VO+U, then choose Landmarks |
+| Next form field                           | F                | VO+Cmd+J                    |
+| List all links, headings or landmarks     | NVDA+F7          | VO+U                        |
 
 The NVDA key is Insert by default. The VO key is Ctrl+Option.
 
@@ -183,11 +183,11 @@ The automated tests check most text contrast. This test covers what they miss: t
 
 **Minimum contrast ratios**
 
-| Element | Ratio |
-| --- | --- |
-| Normal text | 4.5 : 1 |
-| Large text (24px, or 19px bold) | 3 : 1 |
-| Icons, field borders, focus outlines | 3 : 1 |
+| Element                              | Ratio   |
+| ------------------------------------ | ------- |
+| Normal text                          | 4.5 : 1 |
+| Large text (24px, or 19px bold)      | 3 : 1   |
+| Icons, field borders, focus outlines | 3 : 1   |
 
 **It passes when** all text and controls meet these ratios in every state, and nothing relies on color alone.
 
@@ -265,13 +265,13 @@ WCAG criteria: 2.2.2 Pause, Stop, Hide, 2.5.1 Pointer Gestures, 2.5.8 Target Siz
 
 WCAG 2.2 adds six criteria at Level A or AA compared with 2.1. Five apply to the public site. It also drops 4.1.1 Parsing, so duplicate-ID warnings matter only when they break assistive technology.
 
-| Criterion | Level | What it means here | Covered in |
-| --- | --- | --- | --- |
-| 2.4.11 Focus Not Obscured (Minimum) | AA | Sticky headers or popups never fully hide the focused item | Test 1 |
-| 2.5.7 Dragging Movements | AA | Map panning and drawing also work with buttons or keys | Test 6 |
-| 2.5.8 Target Size (Minimum) | AA | Tap targets at least 24 × 24 px, or spaced apart | Test 7 |
-| 3.2.6 Consistent Help | A | Contact and help links stay in the same place | Test 7 |
-| 3.3.7 Redundant Entry | A | No retyping the same information in one form | Test 5 |
-| 3.3.8 Accessible Authentication (Minimum) | AA | Not applicable: the public site has no login | — |
+| Criterion                                 | Level | What it means here                                         | Covered in |
+| ----------------------------------------- | ----- | ---------------------------------------------------------- | ---------- |
+| 2.4.11 Focus Not Obscured (Minimum)       | AA    | Sticky headers or popups never fully hide the focused item | Test 1     |
+| 2.5.7 Dragging Movements                  | AA    | Map panning and drawing also work with buttons or keys     | Test 6     |
+| 2.5.8 Target Size (Minimum)               | AA    | Tap targets at least 24 × 24 px, or spaced apart           | Test 7     |
+| 3.2.6 Consistent Help                     | A     | Contact and help links stay in the same place              | Test 7     |
+| 3.3.7 Redundant Entry                     | A     | No retyping the same information in one form               | Test 5     |
+| 3.3.8 Accessible Authentication (Minimum) | AA    | Not applicable: the public site has no login               | —          |
 
 Full text of each criterion: [WCAG 2.2 Understanding docs](https://www.w3.org/WAI/WCAG22/Understanding/). Overview of what changed: [What’s New in WCAG 2.2](https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/).

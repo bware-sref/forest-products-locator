@@ -31,7 +31,7 @@ Write down every problem, even small or unsure ones; we would rather sort throug
 | Detail                  | Example                                                             |
 | ----------------------- | ------------------------------------------------------------------- |
 | Script and step         | 1.4, step 3                                                         |
-| Page address            | /mill-list                                                          |
+| Page address            | https://fpn.sref.info/mill-list                                     |
 | What you did            | Typed `pine` in the search box                                      |
 | What happened           | The list went blank and stayed blank                                |
 | What you expected       | Mills with pine in their name or species                            |
@@ -44,7 +44,7 @@ Give each problem a severity:
 - **Major**: you finished, but only with a workaround, or the result was wrong.
 - **Minor**: confusing wording, odd layout, or a small visual glitch.
 
-Send your notes to: _to be filled in_
+Send your notes to: bware@sref.info
 
 ## Part 1: Public site
 
@@ -52,7 +52,7 @@ Each script has a goal, the steps, and what you should see. If what you see diff
 
 ### 1.1 Find mills on the list
 
-1. Open the home page, then go to the mill list (/mill-list) from the menu.
+1. Open the home page, then go to the mill list (https://fpn.sref.info/mill-list) from the menu.
 2. Wait for the list to load.
 3. Type a word from a mill name you can see into the **Search mills...** box. On a narrow window or phone, open **Filters** first.
 4. Clear the search box.
@@ -95,7 +95,7 @@ What you should see:
 
 ### 1.4 Use the map
 
-1. Go to the mill map (/mill-map).
+1. Go to the mill map (https://fpn.sref.info/mill-map).
 2. Zoom and drag the map. On a phone, use two fingers.
 3. Click a group of mills (a circle with a number) to zoom in, then click a single mill pin.
 4. In the pop-up, click **More Information...**
@@ -131,7 +131,7 @@ What you should see:
 
 ### 1.7 Submit a new business
 
-1. Click **Add Your Business** in the menu (/add-business).
+1. Click **Add Your Business** in the menu (https://fpn.sref.info/add-business).
 2. Click **Submit** without filling anything in.
 3. Fill in the form with a made-up business named `TEST` plus your initials, your own email in **Your Email**, and at least one mill type and wood species.
 4. Change **Is the mailing address the same as the physical address?** and check that the mailing address fields show and hide.
@@ -166,7 +166,7 @@ Write down the mill's name and what you changed.
 1. Visit each page from the menu and footer: State Resources, one state's page, FAQ, Contact, About Us. Privacy Policy and Southern Group of State Foresters link to other websites; just check they open.
 2. On FAQ, open and close several questions.
 3. On Contact, click **Submit** with the form empty, then send a real message with the subject starting `TEST`.
-4. Visit a page that doesn't exist, such as /no-such-page.
+4. Visit a page that doesn't exist, such as https://fpn.sref.info/no-such-page.
 
 What you should see:
 
