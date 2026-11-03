@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\UserRoles;
 use App\Traits\CrudPermissionTrait;
 use App\Http\Requests\StoreUserRequest as StoreRequest;
+use App\Rules\KeepsLastSuperadmin;
 use App\Http\Requests\UpdateUserRequest as UpdateRequest;
 // use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -23,7 +24,7 @@ class UserCrudController extends BaseUserCrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation { store as traitStore; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitUpdate; }
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation { destroy as traitDestroy; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     use CrudPermissionTrait;
@@ -303,6 +304,21 @@ class UserCrudController extends BaseUserCrudController
 
     }
 
+    /**
+     * The last Superadmin can't be deleted, for the same reason they can't lose the role (KeepsLastSuperadmin).
+     */
+    public function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+
+        $user = $this->crud->getEntry($this->crud->getCurrentEntryId() ?? $id);
+        if ($user->isLastSuperadmin()) {
+            abort(422, KeepsLastSuperadmin::MESSAGE);
+        }
+
+        return $this->traitDestroy($id);
+    }
+
     protected function cleanUpRequest()
     {
         /**
@@ -316,6 +332,15 @@ class UserCrudController extends BaseUserCrudController
         $request = $this->crud->getRequest();
         $request->request->remove('agent_role_name');
         $request->request->remove('is_agent');
+
+        /**
+         * Only State Agents keep a state (user.js clears the field too, but don't rely on it).
+         * Only when roles were posted: someone without roles.edit editing their own account posts none, and
+         * clearing an agent's state there would lock them out (BlockIncompleteStateAgents).
+         */
+        if ($request->has('roles') && method_exists($request, 'submitsAgentRole') && ! $request->submitsAgentRole()) {
+            $request->merge(['state_id' => null]);
+        }
 
         $this->crud->setRequest($this->handlePasswordInput($request));
         // $this->crud->setRequest($this->handlePasswordInput($this->crud->getRequest()));

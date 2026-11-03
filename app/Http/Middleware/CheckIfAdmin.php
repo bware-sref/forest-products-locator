@@ -22,7 +22,7 @@ class CheckIfAdmin
      * does not have a '/home' route, use something you've built for your users
      * (again - users, not admins).
      *
-     * @param  ?\Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  ?\App\Models\User  $user
      * @return bool
      */
     private function checkIfUserIsAdmin($user)
@@ -30,11 +30,33 @@ class CheckIfAdmin
         // return ($user->is_admin == 1);
         // return true;
         /**
-         * We only have "admin" users (meaning they can all see the basic admin panel), but we at least to have a user.
-         * However, the comment above this method states that if admins and users are in the same table, this method should 
-         * be modified
+         * Every user is an admin-panel user, but only with at least one role or direct permission:
+         * a user with neither is suspended (User::hasAdminAccess()).
          */
-        return null !== $user;
+        return null !== $user && $user->hasAdminAccess();
+    }
+
+    public const string NO_ACCESS_MESSAGE = 'Your account doesn\'t have access to the admin panel. Ask a site administrator if you think it should.';
+
+    /**
+     * A logged-in user without access. Sending them to the login page alone would loop (Backpack redirects
+     * logged-in users from there to the dashboard), so log them out and explain there.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    private function respondToUserWithoutAccess($request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            return response(self::NO_ACCESS_MESSAGE, 403);
+        }
+
+        backpack_auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->guest(backpack_url('login'))
+            ->withErrors([backpack_authentication_column() => self::NO_ACCESS_MESSAGE]);
     }
 
     /**
@@ -66,7 +88,7 @@ class CheckIfAdmin
         }
 
         if (! $this->checkIfUserIsAdmin(backpack_user())) {
-            return $this->respondToUnauthorizedRequest($request);
+            return $this->respondToUserWithoutAccess($request);
         }
 
         return $next($request);

@@ -9,6 +9,17 @@ use App\Models\User;
  * requests, so forgetGuards() between requests makes each one re-resolve the user from the session the
  * way a real, separate request would.
  */
+/**
+ * A user who may use the admin panel: CheckIfAdmin turns away users with no role or permission.
+ */
+function panelUser(array $attributes = []): User
+{
+    $user = User::factory()->create($attributes);
+    $user->assignRole(\Spatie\Permission\Models\Role::findOrCreate(\App\Enums\UserRoles::EDITOR->value, 'web'));
+
+    return $user;
+}
+
 function freshRequest(): void
 {
     app('auth')->forgetGuards();
@@ -26,14 +37,14 @@ function backpackLogin($test, User $user, string $password, bool $remember = fal
 it('keeps a user authenticated via actingAs() on the backpack guard', function () {
     // the middleware has to store the session password hash itself here; it used to store it with the
     // wrong HMAC key and then immediately fail its own check
-    $this->actingAs(User::factory()->create(), backpack_guard_name());
+    $this->actingAs(panelUser(), backpack_guard_name());
 
     $this->get(route('backpack.dashboard'))->assertOk();
     $this->get(route('backpack.dashboard'))->assertOk();
 });
 
 it('keeps a user logged in through the login form authenticated across requests', function () {
-    $user = User::factory()->create(['password' => 'correct-horse']);
+    $user = panelUser(['password' => 'correct-horse']);
 
     backpackLogin($this, $user, 'correct-horse')->assertRedirect(backpack_url('dashboard'));
 
@@ -44,7 +55,7 @@ it('keeps a user logged in through the login form authenticated across requests'
 });
 
 it('logs the user out when their password changes after login', function () {
-    $user = User::factory()->create(['password' => 'correct-horse']);
+    $user = panelUser(['password' => 'correct-horse']);
     backpackLogin($this, $user, 'correct-horse');
 
     // e.g. changed from another device, or by an admin
@@ -56,7 +67,7 @@ it('logs the user out when their password changes after login', function () {
 });
 
 it('still accepts a raw password hash stored in the session by older code', function () {
-    $user = User::factory()->create();
+    $user = panelUser();
 
     $this->actingAs($user, backpack_guard_name())
         ->withSession(['password_hash_' . backpack_guard_name() => $user->getAuthPassword()])
@@ -65,7 +76,7 @@ it('still accepts a raw password hash stored in the session by older code', func
 });
 
 it('lets a remembered user back in on a new session', function () {
-    $user = User::factory()->create(['password' => 'correct-horse']);
+    $user = panelUser(['password' => 'correct-horse']);
     $login = backpackLogin($this, $user, 'correct-horse', remember: true);
 
     $recallerName = auth(backpack_guard_name())->getRecallerName();

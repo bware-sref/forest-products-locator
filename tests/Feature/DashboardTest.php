@@ -10,9 +10,10 @@ test('authenticated users can visit the dashboard', function () {
     /**
      * actingAs() is spozta be the fake login.
      * However, since we might be using Backpack's auth guards, we need to specify that when invoking actingAs().
-     * Also, it might still break if we don't assign some roles and/or permissions to the new User.
+     * The user needs a role (or a direct permission): CheckIfAdmin turns away users with neither.
      */
     $user = User::factory()->create();
+    $user->assignRole(\Spatie\Permission\Models\Role::findOrCreate(\App\Enums\UserRoles::EDITOR->value, 'web'));
 
     $backpackGuard = config('backpack.base.guard', 'backpack');
 

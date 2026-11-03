@@ -25,7 +25,9 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     // use HasFactory, Notifiable, TwoFactorAuthenticatable, HasApiTokens;
     use HasFactory, Notifiable, HasApiTokens;
-    use HasRoles;
+    use HasRoles {
+        assignRole as protected spatieAssignRole;
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -100,6 +102,11 @@ class User extends Authenticatable
      */
     public function isStateAgent(): bool
     {
+        // never limited to a state, even with the State Agent role as well
+        if ($this->isExemptFromStateLimits()) {
+            return false;
+        }
+
         $hasRole = $this->hasRole(UserRoles::AGENT);
         $hasState = ! empty($this->state_id);
         /**
@@ -113,6 +120,87 @@ class User extends Authenticatable
             return false;
         }
         return $hasRole && $hasState;
+    }
+
+    /**
+     * Has the State Agent role but no state it can be limited to: state_id is empty or points at a state that
+     * no longer exists (users.state_id has no foreign key). isStateAgent() is false for these users, so nothing
+     * scopes them to a state; BlockIncompleteStateAgents keeps them out of the admin panel instead.
+     * Users with a role in STATE_EXEMPT_ROLES are never limited to a state, so they're never incomplete.
+     */
+    public function isIncompleteStateAgent(): bool
+    {
+        if (! $this->hasRole(UserRoles::AGENT) || $this->isExemptFromStateLimits()) {
+            return false;
+        }
+
+        return empty($this->state_id) || ! State::whereKey($this->state_id)->exists();
+    }
+
+    /**
+     * One role per user. Spatie allows several; this refuses any assignment that would leave the user with more
+     * than one, before anything is saved. To change a user's role, use syncRoles(): it removes the current roles
+     * first, then calls this. (The admin user form saves through Eloquent's roles()->sync() instead, so its own
+     * rule, ValidatesUserRoles, covers that path.)
+     *
+     * @param  string|int|array|\Spatie\Permission\Contracts\Role|\Illuminate\Support\Collection|\BackedEnum  ...$roles
+     * @return $this
+     *
+     * @throws \DomainException
+     */
+    public function assignRole(...$roles)
+    {
+        $incoming = $this->collectRoles($roles);
+        $current = $this->exists
+            ? $this->roles()->pluck($this->roles()->getRelated()->getQualifiedKeyName())->all()
+            : [];
+
+        $resulting = collect([...$current, ...$incoming])->map(fn ($id) => (int) $id)->unique();
+
+        if ($resulting->count() > 1) {
+            $who = $this->exists ? "User #{$this->getKey()}" : 'A new user';
+
+            throw new \DomainException("{$who} would have more than one role; a user can have only one. Use syncRoles() to change a user's role.");
+        }
+
+        return $this->spatieAssignRole(...$roles);
+    }
+
+    /**
+     * Whether the user may enter the admin panel at all (CheckIfAdmin): at least one role or direct permission.
+     * Removing a user's role (and any direct permissions) is how to suspend them without deleting the account.
+     */
+    public function hasAdminAccess(): bool
+    {
+        return $this->roles()->exists() || $this->permissions()->exists();
+    }
+
+    /**
+     * True when this user is a Superadmin and no other user is. That role must always have someone in it:
+     * only Superadmins can edit other users (UserCrudController::restrictToOwnRecordUnlessSuper()).
+     */
+    public function isLastSuperadmin(): bool
+    {
+        if (! $this->exists || ! $this->hasRole(UserRoles::SUPER)) {
+            return false;
+        }
+
+        // role names directly: Spatie's User::role() throws if the role hasn't been created
+        return ! static::query()
+            ->whereKeyNot($this->getKey())
+            ->whereHas('roles', fn ($query) => $query->where('name', UserRoles::SUPER->value))
+            ->exists();
+    }
+
+    /**
+     * Roles that are never limited to a state, even when a user also has the State Agent role
+     * (Spatie lets a user hold several roles).
+     */
+    public const array STATE_EXEMPT_ROLES = [UserRoles::SUPER, UserRoles::ADMIN];
+
+    public function isExemptFromStateLimits(): bool
+    {
+        return $this->hasAnyRole(self::STATE_EXEMPT_ROLES);
     }
 
     /**
