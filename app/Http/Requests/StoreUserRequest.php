@@ -2,12 +2,13 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\UserRoles;
 use Backpack\PermissionManager\app\Http\Requests\UserStoreCrudRequest;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\Concerns\ValidatesUserRoles;
 
 class StoreUserRequest extends UserStoreCrudRequest
 {
+    use ValidatesUserRoles;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -33,18 +34,8 @@ class StoreUserRequest extends UserStoreCrudRequest
             'nullable',
         ];
 
-        /**
-         * Add our custom rule for state_id sometimes
-         */
-        $rules['state_id'] = [
-            Rule::excludeUnless(
-                'true' === $this->input('is_agent')
-            ),
-            // 'sometimes',
-            'required',
-            'numeric',
-            'exists:states,id'
-        ];
+        $rules['roles'] = $this->rolesRules();
+        $rules['state_id'] = $this->stateIdRules();
         return $rules;
     }
 
@@ -68,7 +59,7 @@ class StoreUserRequest extends UserStoreCrudRequest
     public function messages()
     {
         return [
-            'state_id.required' => 'State is required for users having the "'.UserRoles::AGENT->value.'" role.',
+            ...$this->roleMessages(),
         ];
     }
 }
