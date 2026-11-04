@@ -10,7 +10,6 @@ use App\Helpers\Geo;
 use App\Models\Scopes\ApprovedScope;
 use App\Models\State;
 use Closure;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -722,64 +721,6 @@ class Mill extends Model
     {
         $query->withoutGlobalScope(ApprovedScope::class)
             ->where('status', PublicationStatus::Rejected);
-    }
-
-    /**
-     * Methods for admin statistics
-     * - mill count, total and by state
-     * - number and % of mill listing updates, total and by state, (last week, last month, last 3 months, last 12 months)
-     * - number and % of new mill listings, total and by state, last week, month, 3 months, 12 months
-     */
-    public static function countAll(): int
-    {
-        return Mill::all()->count();
-    }
-
-    public static function counts(): array
-    {
-        // total is easy
-        // by state is also easy
-        return [
-            'total' => Mill::countAll(),
-            'byState' => State::millCounts(),
-        ];
-    }
-
-    /**
-     * Should I have just made scopes for these instead?
-     * Yeah, probably scopes would make more sense.
-     * Then we could apply to other Models as well.
-     */
-    public static function createdSince(Carbon $since): int
-    {
-        return self::changedSince($since, 'created');
-    }
-
-    public static function updatedSince(Carbon $since): int
-    {
-        return self::changedSince($since, 'updated');
-    }
-
-    protected static function changedSince(Carbon $since, string $column = 'updated'): int
-    {
-        $column = ('updated' === $column ? $column : 'created') . '_at';
-
-        $howMany = Mill::select('match_id')
-            ->where($column, '>=', $since)
-            ->get()
-            ->count();
-
-        return $howMany;
-    }
-
-    protected static function getTimeframes(): array
-    {
-        return [
-            'lastWeek' => Carbon::now()->minus(weeks: 1),
-            'lastMonth' => Carbon::now()->minus(months: 1),
-            'lastThreeMonths' => Carbon::now()->minus(months: 3),
-            'lastYear' => Carbon::now()->minus(years: 1),
-        ];
     }
 
     public static function makeMatchId(Mill|array $mill): string

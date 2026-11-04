@@ -54,6 +54,7 @@
         "state_forestry_agencies.edit",
         "state_pages.edit",
         "states.edit",
+        "statistics.compare_states",
         "statistics.see",
         "users.edit",
         "wood_species.edit"

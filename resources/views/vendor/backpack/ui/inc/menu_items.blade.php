@@ -90,10 +90,15 @@
 </x-backpack::menu-dropdown>
 @endif
 @if(backpack_user()->can('statistics.see'))
-<x-backpack::menu-dropdown title="Stats" icon="la la-chart-pie">
-    <x-backpack::menu-dropdown-item title="Statistics" icon="la la-chart-area" :link="backpack_url('statistics')" />
-    <x-backpack::menu-dropdown-item title="Updated" icon="la la-chart-bar" :link="backpack_url('statistics/updated')" />
-    <x-backpack::menu-dropdown-item title="Additions" icon="la la-chart-line" :link="backpack_url('statistics/additions')" />
+<x-backpack::menu-dropdown title="Statistics" icon="la la-chart-pie">
+    <x-backpack::menu-dropdown-item title="Overview" icon="la la-chart-area" :link="backpack_url('statistics')" />
+    <x-backpack::menu-dropdown-item title="By State" icon="la la-flag-usa" :link="backpack_url('statistics/state')" />
+    <x-backpack::menu-dropdown-item title="Public Submissions" icon="la la-inbox" :link="backpack_url('statistics/submissions')" />
+    <x-backpack::menu-dropdown-item title="Activity" icon="la la-chart-bar" :link="backpack_url('statistics/activity')" />
+    <x-backpack::menu-dropdown-item title="Similar Names" icon="la la-clone" :link="backpack_url('statistics/similar')" />
+    @if(backpack_user()->can('statistics.compare_states'))
+        <x-backpack::menu-dropdown-item title="Compare States" icon="la la-balance-scale" :link="backpack_url('statistics/compare')" />
+    @endif
 </x-backpack::menu-dropdown>
 @endif
 @if(backpack_user()->canAny(['users.see', 'users.edit', 'roles.edit', 'permissions.edit']))

@@ -38,10 +38,16 @@ Route::group([
     Route::get('activity-log/subject', 'ActivityLogCrudController@getSubjectOptions');
     Route::get('statistics', 'StatisticsController@index')
         ->name('page.statistics.index');
-    Route::get('statistics/updated', 'StatisticsController@updated')
-        ->name('page.statistics.updated');
-    Route::get('statistics/additions', 'StatisticsController@additions')
-        ->name('page.statistics.additions');
+    Route::get('statistics/state/{state?}', 'StatisticsController@state')
+        ->name('page.statistics.state');
+    Route::get('statistics/submissions', 'StatisticsController@submissions')
+        ->name('page.statistics.submissions');
+    Route::get('statistics/activity', 'StatisticsController@activity')
+        ->name('page.statistics.activity');
+    Route::get('statistics/similar', 'StatisticsController@similar')
+        ->name('page.statistics.similar');
+    Route::get('statistics/compare', 'StatisticsController@compare')
+        ->name('page.statistics.compare');
     Route::get('state-hub/{state?}', 'StateHubController@show')
         ->name('page.state-hub.show');
     Route::crud('page-seo', 'PageSeoCrudController');
