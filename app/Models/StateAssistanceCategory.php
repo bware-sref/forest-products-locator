@@ -17,6 +17,7 @@ class StateAssistanceCategory extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\StateAssistanceCategoryFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     /**
      * @var list<string>

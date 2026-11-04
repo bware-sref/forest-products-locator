@@ -28,6 +28,32 @@ class User extends Authenticatable
     use HasRoles {
         assignRole as protected spatieAssignRole;
     }
+    use Concerns\AuditsChanges {
+        attributeValuesToBeLogged as auditedAttributeValues;
+    }
+
+    protected function attributesNotAudited(): array
+    {
+        return ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at'];
+    }
+
+    public const string PASSWORD_CHANGED = '(changed)';
+
+    /**
+     * The password itself is never logged, but that it changed is: a marker in place of its value.
+     * Its being dirty also gets a password-only change past the "nothing to log" check.
+     */
+    public function attributeValuesToBeLogged(string $processingEvent): array
+    {
+        $changes = $this->auditedAttributeValues($processingEvent);
+
+        if ('updated' === $processingEvent && $this->wasChanged('password')) {
+            $changes['old']['password'] = '';
+            $changes['attributes']['password'] = self::PASSWORD_CHANGED;
+        }
+
+        return $changes;
+    }
 
     /**
      * The attributes that are mass assignable.

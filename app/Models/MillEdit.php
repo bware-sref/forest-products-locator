@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\PublicationStatus;
+use App\Support\ActivitySource;
+use App\Support\RelationChanges;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -293,13 +295,18 @@ class MillEdit extends Model
      */
     public function approve(): bool
     {
-        DB::transaction(function() {
+        /**
+         * The mill's changes are logged as a public submission, with this submission's id; whoever approved it is
+         * logged as the causer.
+         */
+        ActivitySource::as(ActivitySource::PUBLIC_SUBMISSION, fn () => DB::transaction(function() {
             $edits = $this->prepareSubmitted('id', []);
 
             /**
              * If we don't have a mill, make an empty one.
              */
             $fill = $this->mill ?? Mill::make();
+            $relationsBefore = RelationChanges::snapshot($fill, array_map(fn ($key) => Str::camel($key), Mill::N_TO_N));
             $fill->fill($edits);
 
             // save mill changes
@@ -328,6 +335,7 @@ class MillEdit extends Model
                     throw new \Exception($msg);
                 }
             }
+            RelationChanges::log($fill, $relationsBefore);
 
             /**
              * update MillEdits record
@@ -338,7 +346,7 @@ class MillEdit extends Model
                 'mill_id' => $fill->id,
                 'reviewed_at' => now(),
             ]);
-        });
+        }), ['mill_edit_id' => $this->id]);
 
         // Log::debug("\n".self::class."::approve():\n");
 

@@ -23,6 +23,7 @@ class Faq extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\FaqFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     protected $fillable = [
         'question',

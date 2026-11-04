@@ -15,6 +15,7 @@ class StateEconomicImpact extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\StateEconomicImpactFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     /**
      * @var list<string>

@@ -5,6 +5,9 @@ namespace App\Jobs;
 use App\Enums\ImportStatus;
 use App\Models\Import;
 use App\Models\Mill;
+use App\Models\Scopes\ApprovedScope;
+use App\Models\User;
+use App\Support\ActivitySource;
 use Illuminate\Bus\Batch;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -46,7 +49,10 @@ class FinalizeMillImport implements ShouldQueue
          *  - update mills to set status to approved where mills.import_id === import.id
          */
         DB::transaction(function () {
+            $removed = [];
             if (null !== $this->stateId && $this->deleteFromState) {
+                // kept for the activity log: the delete is one bulk query, so the mills aren't logged one by one
+                $removed = Mill::oldImports($this->importId, $this->stateId)->pluck('mill_name', 'id')->all();
                 $howManyDeletes = Mill::deleteOldImports($this->importId, $this->stateId);
 
                 Log::debug(self::class.": deleted {$howManyDeletes} Mills from State #{$this->stateId} for Import #{$this->importId}.");
@@ -60,8 +66,38 @@ class FinalizeMillImport implements ShouldQueue
                 'didItWork' => (string) $didItWork,
             ]);
 
-            Import::find($this->importId)?->update(['status' => ImportStatus::Completed]);
+            $import = Import::find($this->importId);
+            $import?->update(['status' => ImportStatus::Completed]);
+
+            $this->logSummary($import, $removed);
         });
         Log::debug(self::class.": finalized Import #{$this->importId} for State #{$stateId}.");
+    }
+
+    /**
+     * One activity log entry per import. Mills aren't logged one by one while an import works on them
+     * (Mill::skipsAudit()), and both publishing and removing them are bulk queries.
+     *
+     * @param  array<int, string>  $removed  id => name of the mills this import replaced
+     */
+    protected function logSummary(?Import $import, array $removed): void
+    {
+        $published = Mill::withoutGlobalScope(ApprovedScope::class)->where('import_id', $this->importId)->count();
+
+        $logger = activity()->useLog(ActivitySource::IMPORT);
+        if ($import) {
+            $logger->performedOn($import)->causedBy($import->user_id ? User::find($import->user_id) : null);
+        }
+
+        $logger
+            ->event('finalized')
+            ->withProperties([
+                'import_id' => $this->importId,
+                'state_id' => $this->stateId,
+                'published' => $published,
+                'removed' => count($removed),
+                'removed_mills' => $removed,
+            ])
+            ->log("Import #{$this->importId} published {$published} mills".($removed ? ' and removed '.count($removed) : ''));
     }
 }

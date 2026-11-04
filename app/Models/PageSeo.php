@@ -16,6 +16,7 @@ class PageSeo extends Model
 
     /** @use HasFactory<PageSeoFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     protected $fillable = [
         /**

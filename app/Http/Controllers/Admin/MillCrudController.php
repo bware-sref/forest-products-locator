@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Log;
 class MillCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
+    use Concerns\LogsRelationChanges;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation { store as traitStore; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitUpdate; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
@@ -74,7 +75,7 @@ class MillCrudController extends CrudController
 
     public function store()
     {
-        $response = $this->traitStore();
+        $response = $this->logRelationChanges(['millTypes', 'woodSpecies'], fn () => $this->traitStore());
         $this->geocodeIfNeeded($this->crud->entry);
 
         return $response;
@@ -82,7 +83,7 @@ class MillCrudController extends CrudController
 
     public function update()
     {
-        $response = $this->traitUpdate();
+        $response = $this->logRelationChanges(['millTypes', 'woodSpecies'], fn () => $this->traitUpdate());
         $this->geocodeIfNeeded($this->crud->entry);
 
         return $response;

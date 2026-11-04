@@ -109,6 +109,9 @@
     @endif
 </x-backpack::menu-dropdown>
 @endif
+@if(backpack_user()->can('activity_log.see'))
+    <x-backpack::menu-item title="Activity Log" icon="la la-history" :link="backpack_url('activity-log')" />
+@endif
 @if(backpack_user()->canAny(['page_seos.see', 'page_seos.edit']))
     <x-backpack::menu-item
         title="Page SEO"

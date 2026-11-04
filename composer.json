@@ -17,6 +17,7 @@
     "require": {
         "php": "^8.4",
         "aws/aws-sdk-php-laravel": "^3.11",
+        "backpack/activity-log": "^2.1",
         "backpack/ckeditor-field": "^1.0",
         "backpack/crud": "^7.0",
         "backpack/permissionmanager": "^7.3",
@@ -29,6 +30,7 @@
         "laravel/wayfinder": "^0.1.9",
         "maatwebsite/excel": "^3.1",
         "redsquirrelstudio/laravel-backpack-import-operation": "dev-feature/backpack-7.0 as 1.6.8",
+        "spatie/laravel-activitylog": "^4.12",
         "spatie/laravel-honeypot": "^4.7",
         "spatie/laravel-typescript-transformer": "^2.5"
     },
