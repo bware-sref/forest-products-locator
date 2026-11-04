@@ -16,6 +16,7 @@ class StateForestOverview extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\StateForestOverviewFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     /**
      * @var list<string>

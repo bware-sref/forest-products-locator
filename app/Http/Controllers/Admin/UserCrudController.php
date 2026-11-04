@@ -22,6 +22,7 @@ use Override;
 class UserCrudController extends BaseUserCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
+    use Concerns\LogsRelationChanges;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation { store as traitStore; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitUpdate; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation { destroy as traitDestroy; }
@@ -203,7 +204,7 @@ class UserCrudController extends BaseUserCrudController
 
         // dd($preRequest->request, $request->request);
 
-        return $this->traitStore();
+        return $this->logRelationChanges(['roles', 'permissions'], fn () => $this->traitStore());
     }
 
     public function update()
@@ -216,7 +217,7 @@ class UserCrudController extends BaseUserCrudController
         // $request = $this->crud->getRequest();
         // dd($preRequest->request, $request->request);
 
-        return $this->traitUpdate();
+        return $this->logRelationChanges(['roles', 'permissions'], fn () => $this->traitUpdate());
     }
 
 

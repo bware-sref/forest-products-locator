@@ -15,6 +15,7 @@ class StateAssistanceLink extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\StateAssistanceLinkFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     /**
      * @var list<string>

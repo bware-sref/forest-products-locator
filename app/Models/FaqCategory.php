@@ -21,6 +21,7 @@ class FaqCategory extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\FaqCategoryFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     protected $fillable = [
         'name',

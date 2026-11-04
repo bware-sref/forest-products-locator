@@ -32,6 +32,10 @@ Route::group([
     Route::crud('wood-species', 'WoodSpeciesCrudController');
     Route::crud('faq-category', 'FaqCategoryCrudController');
     Route::crud('faq', 'FaqCrudController');
+    // the same routes backpack/activity-log registers, pointed at our permission-checked subclass
+    Route::crud('activity-log', 'ActivityLogCrudController');
+    Route::get('activity-log/causer', 'ActivityLogCrudController@getCauserOptions');
+    Route::get('activity-log/subject', 'ActivityLogCrudController@getSubjectOptions');
     Route::get('statistics', 'StatisticsController@index')
         ->name('page.statistics.index');
     Route::get('statistics/updated', 'StatisticsController@updated')

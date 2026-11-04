@@ -16,6 +16,7 @@ class StateForestryAgency extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\StateForestryAgencyFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     /**
      * @var list<string>

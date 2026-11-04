@@ -18,6 +18,7 @@ class County extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\CountyFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
     use HasCoordinates;
 
 

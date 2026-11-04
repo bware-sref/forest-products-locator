@@ -1,5 +1,9 @@
 [
     {
+        "name": "activity_log.see",
+        "guard_name": "web"
+    },
+    {
         "name": "content.edit",
         "guard_name": "web"
     },
