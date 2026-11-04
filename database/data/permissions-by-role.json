@@ -31,6 +31,7 @@
     ],
     "Mill Access": [],
     "Superadmin": [
+        "activity_log.see",
         "content.edit",
         "counties.edit",
         "faq_categories.edit",
