@@ -92,6 +92,10 @@
         "guard_name": "web"
     },
     {
+        "name": "statistics.compare_states",
+        "guard_name": "web"
+    },
+    {
         "name": "statistics.see",
         "guard_name": "web"
     },
