@@ -82,17 +82,6 @@ test('the :dataset screens render', function (string $segment, string $table, Cl
     'permission' => ['permission', 'permissions', fn () => Permission::findOrCreate('smoke_tests.edit', 'web')],
 ]);
 
-test('the statistics pages render', function (string $path) {
-    // the pages don't check statistics.see themselves (Statistics is due for a rebuild); CheckIfAdmin needs some access
-    loginAdminUser(['statistics.see']);
-
-    $this->get("/admin/{$path}")->assertOk();
-})->with([
-    'overview' => 'statistics',
-    'updated' => 'statistics/updated',
-    'additions' => 'statistics/additions',
-]);
-
 test('the state hub renders for a state with every section filled in', function () {
     loginAdminUser(['state_pages.edit', 'state_contacts.edit', 'state_assistance_links.edit']);
 

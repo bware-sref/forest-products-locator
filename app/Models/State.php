@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 // use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 
@@ -242,53 +241,6 @@ class State extends Model
             $states->append(['value', 'label']);
         }
         return $states;
-    }
-
-    public static function millCounts(): array
-    {
-        return State::select('name')
-            ->has('mills')
-            ->withCount('mills')
-            ->get()
-            ->withoutAppends()
-            ->pluck('mills_count', 'name')
-            // ->keyBy('name')
-            ->toArray();
-    }
-
-    public static function millsCreatedSince(Carbon $since): array
-    {
-        return self::millsChangedSince($since, 'created');
-    }
-
-    public static function millsUpdatedSince(Carbon $since): array
-    {
-        return self::millsChangedSince($since, 'updated');
-    }
-
-    protected static function millsChangedSince(Carbon $since, string $action = 'updated'): array
-    {
-        $column = ('updated' === $action ? $action : 'created') . '_at';
-
-        /**
-         * I think I've been going about this all wrong.
-         * In addition to passing a query to whereHas(), we need to pass an array to withCount() where relationship names key the queries.
-         */
-        $changed = State::select('name')
-            ->whereHas('mills', function ($query) use ($column, $since) {
-                $query->where($column, '>=', $since);
-            })
-            ->withCount([
-                'mills' => function ($query) use ($column, $since) {
-                    $query->where($column, '>=', $since);
-                }
-            ])
-            ->get()
-            ->withoutAppends()
-            ->pluck('mills_count', 'name')
-            ->toArray();
-
-        return $changed;
     }
 
     public static function byNameOrAbbreviation(string $name, ?string $countyName = null): ?State
