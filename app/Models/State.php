@@ -22,6 +22,7 @@ class State extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\StateFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
     use HasCoordinates;
 
     /**

@@ -24,11 +24,22 @@ class RoleCrudController extends BaseRoleCrudController
     // use ShowOperation;
     // use UpdateOperation;
     use CrudPermissionTrait;
+    use Concerns\LogsRelationChanges;
 
     public function setup()
     {
         parent::setup();
         $this->setAccessUsingPermissions(); // checks roles.see / roles.edit
+    }
+
+    public function store()
+    {
+        return $this->logRelationChanges(['permissions'], fn () => parent::store());
+    }
+
+    public function update()
+    {
+        return $this->logRelationChanges(['permissions'], fn () => parent::update());
     }
 
 }

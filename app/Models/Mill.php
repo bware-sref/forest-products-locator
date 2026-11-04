@@ -40,6 +40,7 @@ class Mill extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\MillFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
     use HasCoordinates;
 
     /**
@@ -267,6 +268,17 @@ class Mill extends Model
     /**
      * Register event handlers in booted
      */
+    /**
+     * Leave mills out of the activity log while an import is still working on them: an import creates every row
+     * as Pending, then several jobs per mill fill it in, which would be thousands of entries per import.
+     * FinalizeMillImport logs one summary entry per import instead. Changes after the import has published the
+     * mill are logged as usual.
+     */
+    protected function skipsAudit(string $eventName): bool
+    {
+        return null !== $this->import_id && PublicationStatus::Pending === $this->status;
+    }
+
     protected static function booted(): void
     {
         /**
@@ -1086,11 +1098,18 @@ class Mill extends Model
          * Doh!
          * We need to use withoutGlobalScope() on this query.
          */
+        return static::oldImports($importId, $stateId)->delete();
+    }
+
+    /**
+     * Mills in $stateId from imports other than $importId: what deleteOldImports() deletes.
+     */
+    public static function oldImports(int $importId, int $stateId): Builder
+    {
         return Mill::withoutGlobalScope(ApprovedScope::class)
             ->whereNotNull('import_id', boolean: 'and')
             ->whereNot('import_id', $importId)
-            ->where('state_id', $stateId)
-            ->delete();
+            ->where('state_id', $stateId);
     }
 
     /**

@@ -19,6 +19,7 @@ class WoodSpecies extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\WoodSpeciesFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     protected $fillable = [
         'name',

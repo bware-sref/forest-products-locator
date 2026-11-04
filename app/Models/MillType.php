@@ -21,6 +21,7 @@ class MillType extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\MillTypeFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     protected $fillable = [
         'name',

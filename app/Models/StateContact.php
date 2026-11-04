@@ -15,6 +15,7 @@ class StateContact extends Model
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\StateContactFactory> */
     use HasFactory;
+    use Concerns\AuditsChanges;
 
     /**
      * @var list<string>
