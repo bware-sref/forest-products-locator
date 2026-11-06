@@ -307,7 +307,7 @@ class Mill extends Model
             $addressChanged = $mill->isDirty(self::GEOCODE_ADDRESS_FIELDS);
             $coordinatesProvided = $mill->isDirty(['latitude', 'longitude']) && $mill->hasLatLng();
 
-            if ($addressChanged && ! $coordinatesProvided) {
+            if ($addressChanged && !$coordinatesProvided) {
                 $mill->needs_geocode = true;
             }
         });
@@ -897,8 +897,8 @@ class Mill extends Model
      */
     public function hasStreetAddress(): bool
     {
-        return ! empty(Str::trim($this->physical_address ?? ''))
-            || ! empty(Str::trim($this->raw_physical_address ?? ''));
+        return !empty(Str::trim($this->physical_address ?? ''))
+            || !empty(Str::trim($this->raw_physical_address ?? ''));
     }
 
     /**
@@ -987,10 +987,23 @@ class Mill extends Model
         }
 
         /**
-         * get the field
-         * if empty return an empty array
+         * We need to replace /\band\b/i at some point.
+         * Doing it before trim seems reasonable, but it'll require another empty
+         * check after replacing "and" with nothing.
          */
-        $value = Str::trim($this->$field);
+        $value = preg_replace('/\band\b/i', '', $this->field);
+
+        /**
+         * Check for empty again since the raw value could have simply been "and"
+         */
+        if (empty($value)) {
+            return [];
+        }
+
+        /**
+         * now trim after possibly removing 'and'
+         */
+        $value = Str::trim($value);
 
         /**
          * get the separator, if any
