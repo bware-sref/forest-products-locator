@@ -990,8 +990,11 @@ class Mill extends Model
          * We need to replace /\band\b/i at some point.
          * Doing it before trim seems reasonable, but it'll require another empty
          * check after replacing "and" with nothing.
+         * 
+         * Also, if you see your mom this weekend, be sure and tell her
+         * "REMEMBER THE SIGIL ($) BEFORE VARIABLE VARIABLE NAMES, YO!"
          */
-        $value = preg_replace('/\band\b/i', '', $this->field);
+        $value = preg_replace('/\band\b/i', '', $this->$field);
 
         /**
          * Check for empty again since the raw value could have simply been "and"

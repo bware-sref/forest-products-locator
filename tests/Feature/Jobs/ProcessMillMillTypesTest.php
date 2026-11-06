@@ -52,6 +52,23 @@ test('an empty type field does nothing', function () {
         ->and(MillType::count())->toBe(0);
 });
 
+test('the word \'and\' gets removed', function (string $type) {
+    $mill = makePendingMill(['type' => $type]);
+
+    (new ProcessMillMillTypes($mill))->handle();
+
+    $values = $mill->millTypes()->pluck('name')->sort()->values()->all();
+
+    expect($values)->toBe([
+        'Paper',
+        'Paperboards',
+        'Pulp',
+    ]);
+})->with([
+            'lower' => 'Pulp, Paper, and Paperboards',
+            'ucfirst' => 'Pulp, Paper, And Paperboards',
+        ]);
+
 /**
  * This is the wrong place to test this because title case conversion
  * happens in the mappers.
