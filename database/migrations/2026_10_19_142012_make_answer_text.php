@@ -16,6 +16,7 @@ return new class extends Migration {
 
         if (!Schema::hasColumn($tableName, $columnName)) {
             Log::warning("\n{$tableName} does not have a column named '{$columnName}'. Aborting.");
+            return;
         }
 
         $type = Schema::getColumnType($tableName, $columnName);
@@ -23,9 +24,10 @@ return new class extends Migration {
             Schema::table($tableName, function (Blueprint $table) use ($columnName) {
                 $table->text($columnName)->change();
             });
-        } else {
-            Log::debug("\n" . __FILE__ . ":\n{$tableName}.{$columnName} is already a column of type '{$type}'.");
         }
+        // else {
+        //     Log::debug("\n" . __FILE__ . ":\n{$tableName}.{$columnName} is already a column of type '{$type}'.");
+        // }
     }
 
     /**
