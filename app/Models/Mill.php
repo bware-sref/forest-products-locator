@@ -1010,6 +1010,11 @@ class Mill extends Model
 
         /**
          * get the separator, if any
+         * there's an argument for defining separators and possibly even 
+         * getSeparator() as static members of MillType instead of
+         * burying them here
+         * Oh right, this is used for WoodSpecies as well.
+         * Trait!
          */
         $separators = ['|', ','];
         $separator = null;

@@ -29,7 +29,7 @@ abstract class AbstractMillMapper implements MillMapperInterface
      * 
      * @var array
      */
-    public static const array TITLE_CASE_FIXES = [
+    public const array TITLE_CASE_FIXES = [
         'search' => [
             '/\bosb\b/i',
             '/\bmdf\b/i',
