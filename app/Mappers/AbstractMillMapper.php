@@ -16,6 +16,30 @@ abstract class AbstractMillMapper implements MillMapperInterface
     // -------------------------------------------------------------------------
     // Import filtering
     // -------------------------------------------------------------------------
+    /**
+     * Abbreviations should not be converted to title case.
+     * These values are used to fix capitalization after applying 
+     * title case in blanket fashion.
+     * The keys are the search patterns, values the replacements.
+     * Searching is case insensitve.
+     * The patterns are escaped with preg_quote($key, '/'), 
+     * then wrapped with \b (word boundary).
+     * On second thought, if make them regex patterns, we won't
+     * have to rebuild the regexes every time it executes
+     * 
+     * @var array
+     */
+    public static const array TITLE_CASE_FIXES = [
+        'search' => [
+            '/\bosb\b/i',
+            '/\bmdf\b/i',
+        ],
+        'replace' => [
+            'OSB',
+            'MDF',
+        ],
+    ];
+
 
     /**
      * Default implementation — import all features.
@@ -53,12 +77,22 @@ abstract class AbstractMillMapper implements MillMapperInterface
     /**
      * Normalise a value to title case and clean it.
      * Used for mill_types and wood_species values before insert.
+     * Hmmm...this method is the most likely corruptor of OSB
      */
     protected function titleCase(?string $value): ?string
     {
         $cleaned = $this->clean($value);
 
-        return $cleaned !== null ? Str::title($cleaned) : null;
+        /**
+         * Now we account for things like OSB and MDF
+         * And we can go back to ternary operator.
+         */
+        return $cleaned === null ? null :
+            preg_replace(
+                self::TITLE_CASE_FIXES['search'],
+                self::TITLE_CASE_FIXES['replace'],
+                Str::title($cleaned)
+            );
     }
 
     /**
@@ -94,31 +128,56 @@ abstract class AbstractMillMapper implements MillMapperInterface
         }
 
         $map = [
-            'alabama'        => 'AL', 'alaska'         => 'AK',
-            'arizona'        => 'AZ', 'arkansas'       => 'AR',
-            'california'     => 'CA', 'colorado'       => 'CO',
-            'connecticut'    => 'CT', 'delaware'       => 'DE',
-            'florida'        => 'FL', 'georgia'        => 'GA',
-            'hawaii'         => 'HI', 'idaho'          => 'ID',
-            'illinois'       => 'IL', 'indiana'        => 'IN',
-            'iowa'           => 'IA', 'kansas'         => 'KS',
-            'kentucky'       => 'KY', 'louisiana'      => 'LA',
-            'maine'          => 'ME', 'maryland'       => 'MD',
-            'massachusetts'  => 'MA', 'michigan'       => 'MI',
-            'minnesota'      => 'MN', 'mississippi'    => 'MS',
-            'missouri'       => 'MO', 'montana'        => 'MT',
-            'nebraska'       => 'NE', 'nevada'         => 'NV',
-            'new hampshire'  => 'NH', 'new jersey'     => 'NJ',
-            'new mexico'     => 'NM', 'new york'       => 'NY',
-            'north carolina' => 'NC', 'north dakota'   => 'ND',
-            'ohio'           => 'OH', 'oklahoma'       => 'OK',
-            'oregon'         => 'OR', 'pennsylvania'   => 'PA',
-            'rhode island'   => 'RI', 'south carolina' => 'SC',
-            'south dakota'   => 'SD', 'tennessee'      => 'TN',
-            'texas'          => 'TX', 'utah'           => 'UT',
-            'vermont'        => 'VT', 'virginia'       => 'VA',
-            'washington'     => 'WA', 'west virginia'  => 'WV',
-            'wisconsin'      => 'WI', 'wyoming'        => 'WY',
+            'alabama' => 'AL',
+            'alaska' => 'AK',
+            'arizona' => 'AZ',
+            'arkansas' => 'AR',
+            'california' => 'CA',
+            'colorado' => 'CO',
+            'connecticut' => 'CT',
+            'delaware' => 'DE',
+            'florida' => 'FL',
+            'georgia' => 'GA',
+            'hawaii' => 'HI',
+            'idaho' => 'ID',
+            'illinois' => 'IL',
+            'indiana' => 'IN',
+            'iowa' => 'IA',
+            'kansas' => 'KS',
+            'kentucky' => 'KY',
+            'louisiana' => 'LA',
+            'maine' => 'ME',
+            'maryland' => 'MD',
+            'massachusetts' => 'MA',
+            'michigan' => 'MI',
+            'minnesota' => 'MN',
+            'mississippi' => 'MS',
+            'missouri' => 'MO',
+            'montana' => 'MT',
+            'nebraska' => 'NE',
+            'nevada' => 'NV',
+            'new hampshire' => 'NH',
+            'new jersey' => 'NJ',
+            'new mexico' => 'NM',
+            'new york' => 'NY',
+            'north carolina' => 'NC',
+            'north dakota' => 'ND',
+            'ohio' => 'OH',
+            'oklahoma' => 'OK',
+            'oregon' => 'OR',
+            'pennsylvania' => 'PA',
+            'rhode island' => 'RI',
+            'south carolina' => 'SC',
+            'south dakota' => 'SD',
+            'tennessee' => 'TN',
+            'texas' => 'TX',
+            'utah' => 'UT',
+            'vermont' => 'VT',
+            'virginia' => 'VA',
+            'washington' => 'WA',
+            'west virginia' => 'WV',
+            'wisconsin' => 'WI',
+            'wyoming' => 'WY',
             'district of columbia' => 'DC',
         ];
 
@@ -265,8 +324,8 @@ abstract class AbstractMillMapper implements MillMapperInterface
     protected function pipeJoin(array $values): ?string
     {
         $filtered = array_values(array_unique(array_filter(
-            array_map(fn ($v) => $this->titleCase($v), $values),
-            fn ($v) => $v !== null && $v !== '',
+            array_map(fn($v) => $this->titleCase($v), $values),
+            fn($v) => $v !== null && $v !== '',
         )));
 
         return \count($filtered) > 0 ? implode('|', $filtered) : null;
@@ -289,7 +348,7 @@ abstract class AbstractMillMapper implements MillMapperInterface
 
         return array_values(array_filter(
             array_map('trim', explode($delimiter, $value)),
-            fn ($v) => $v !== '',
+            fn($v) => $v !== '',
         ));
     }
 
@@ -302,19 +361,42 @@ abstract class AbstractMillMapper implements MillMapperInterface
      * Used to infer Softwood from specific species names.
      */
     private const SOFTWOOD_KEYWORDS = [
-        'pine', 'syp', 'southern yellow pine', 'yellow pine',
-        'cedar', 'eastern red cedar', 'eastern redcedar', 'redcedar',
-        'cypress', 'hemlock', 'spruce', 'fir',
+        'pine',
+        'syp',
+        'southern yellow pine',
+        'yellow pine',
+        'cedar',
+        'eastern red cedar',
+        'eastern redcedar',
+        'redcedar',
+        'cypress',
+        'hemlock',
+        'spruce',
+        'fir',
     ];
 
     /**
      * Known hardwood species keywords (lowercase).
      */
     private const HARDWOOD_KEYWORDS = [
-        'oak', 'red oak', 'white oak', 'post oak', 'blackjack',
-        'poplar', 'yellow poplar', 'walnut', 'hickory', 'ash',
-        'maple', 'beech', 'tupelo', 'pecan', 'cottonwood',
-        'cherry', 'birch', 'gum',
+        'oak',
+        'red oak',
+        'white oak',
+        'post oak',
+        'blackjack',
+        'poplar',
+        'yellow poplar',
+        'walnut',
+        'hickory',
+        'ash',
+        'maple',
+        'beech',
+        'tupelo',
+        'pecan',
+        'cottonwood',
+        'cherry',
+        'birch',
+        'gum',
     ];
 
     /**
@@ -344,23 +426,23 @@ abstract class AbstractMillMapper implements MillMapperInterface
 
         // Direct canonical matches
         $directMap = [
-            'hardwood'            => ['Hardwood'],
-            'softwood'            => ['Softwood'],
-            'mixed hardwood'      => ['Hardwood'],
-            'all hardwood'        => ['Hardwood'],
+            'hardwood' => ['Hardwood'],
+            'softwood' => ['Softwood'],
+            'mixed hardwood' => ['Hardwood'],
+            'all hardwood' => ['Hardwood'],
             'hardwood (anything)' => ['Hardwood'],
-            'mixed softwood'      => ['Softwood'],
-            'mixed'               => ['Hardwood', 'Softwood'],
-            'all'                 => ['Hardwood', 'Softwood'],
-            'any'                 => ['Hardwood', 'Softwood'],
-            'anything'            => ['Hardwood', 'Softwood'],
+            'mixed softwood' => ['Softwood'],
+            'mixed' => ['Hardwood', 'Softwood'],
+            'all' => ['Hardwood', 'Softwood'],
+            'any' => ['Hardwood', 'Softwood'],
+            'anything' => ['Hardwood', 'Softwood'],
             'hardwood and softwood' => ['Hardwood', 'Softwood'],
             'softwood and hardwood' => ['Hardwood', 'Softwood'],
-            'hardwood & softwood'   => ['Hardwood', 'Softwood'],
-            'softwood & hardwood'   => ['Hardwood', 'Softwood'],
-            'hardwood, softwood'    => ['Hardwood', 'Softwood'],
-            'softwood, hardwood'    => ['Hardwood', 'Softwood'],
-            'imported'              => [], // AL — neither; caller stores in extended_attributes
+            'hardwood & softwood' => ['Hardwood', 'Softwood'],
+            'softwood & hardwood' => ['Hardwood', 'Softwood'],
+            'hardwood, softwood' => ['Hardwood', 'Softwood'],
+            'softwood, hardwood' => ['Hardwood', 'Softwood'],
+            'imported' => [], // AL — neither; caller stores in extended_attributes
         ];
 
         if (isset($directMap[$lower])) {
@@ -369,43 +451,43 @@ abstract class AbstractMillMapper implements MillMapperInterface
 
         // Species-to-canonical mapping
         $speciesMap = [
-            'pine'                => 'Pine',
-            'syp'                 => 'Pine',
-            'southern yellow pine'=> 'Pine',
-            'yellow pine'         => 'Pine',
-            'pine only'           => 'Pine',
-            'cedar'               => 'Cedar',
-            'eastern red cedar'   => 'Cedar',
-            'eastern redcedar'    => 'Cedar',
-            'redcedar'            => 'Cedar',
-            'cedar brush'         => 'Cedar',
-            'cypress'             => 'Cypress',
-            'oak'                 => 'Oak',
-            'red oak'             => 'Oak',
-            'white oak'           => 'Oak',
-            'post oak'            => 'Oak',
-            'blackjack'           => 'Oak',
-            'walnut'              => 'Walnut',
-            'poplar'              => 'Poplar',
-            'yellow poplar'       => 'Poplar',
-            'hickory'             => 'Hardwood',
-            'ash'                 => 'Hardwood',
-            'maple'               => 'Hardwood',
-            'soft maple'          => 'Hardwood',
-            'hard maple'          => 'Hardwood',
-            'beech'               => 'Hardwood',
-            'tupelo'              => 'Hardwood',
-            'pecan'               => 'Hardwood',
-            'cottonwood'          => 'Hardwood',
-            'cherry'              => 'Hardwood',
-            'mesquite'            => 'Hardwood',
-            'hemlock'             => 'Softwood',
-            'spruce'              => 'Softwood',
-            'fir'                 => 'Softwood',
+            'pine' => 'Pine',
+            'syp' => 'Pine',
+            'southern yellow pine' => 'Pine',
+            'yellow pine' => 'Pine',
+            'pine only' => 'Pine',
+            'cedar' => 'Cedar',
+            'eastern red cedar' => 'Cedar',
+            'eastern redcedar' => 'Cedar',
+            'redcedar' => 'Cedar',
+            'cedar brush' => 'Cedar',
+            'cypress' => 'Cypress',
+            'oak' => 'Oak',
+            'red oak' => 'Oak',
+            'white oak' => 'Oak',
+            'post oak' => 'Oak',
+            'blackjack' => 'Oak',
+            'walnut' => 'Walnut',
+            'poplar' => 'Poplar',
+            'yellow poplar' => 'Poplar',
+            'hickory' => 'Hardwood',
+            'ash' => 'Hardwood',
+            'maple' => 'Hardwood',
+            'soft maple' => 'Hardwood',
+            'hard maple' => 'Hardwood',
+            'beech' => 'Hardwood',
+            'tupelo' => 'Hardwood',
+            'pecan' => 'Hardwood',
+            'cottonwood' => 'Hardwood',
+            'cherry' => 'Hardwood',
+            'mesquite' => 'Hardwood',
+            'hemlock' => 'Softwood',
+            'spruce' => 'Softwood',
+            'fir' => 'Softwood',
         ];
 
         // Split on common delimiters and attempt to map each token
-        $tokens   = preg_split('/[,&\/]|\band\b/i', $lower);
+        $tokens = preg_split('/[,&\/]|\band\b/i', $lower);
         $resolved = [];
         $hasUnresolvable = false;
 
@@ -436,7 +518,7 @@ abstract class AbstractMillMapper implements MillMapperInterface
                 }
             }
 
-            if (! $matched) {
+            if (!$matched) {
                 // Could not resolve this token — signal to caller
                 $hasUnresolvable = true;
             }
