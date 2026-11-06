@@ -162,6 +162,7 @@ export default function MillMapPage() {
                 millCount={mills.length}
             >
                 <MillFilters
+                    headline={page.props.pageTitle || ''}
                     textSearch={searchText}
                     states={states}
                     counties={counties}
