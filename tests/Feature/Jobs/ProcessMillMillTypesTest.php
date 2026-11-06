@@ -29,9 +29,9 @@ test('it splits the type field on pipes or commas', function (string $type) {
 
     expect($mill->millTypes()->pluck('name')->sort()->values()->all())->toBe(['Pellet Mill', 'Sawmill']);
 })->with([
-    'pipes' => 'Sawmill | Pellet Mill',
-    'commas' => 'Sawmill, Pellet Mill',
-]);
+            'pipes' => 'Sawmill | Pellet Mill',
+            'commas' => 'Sawmill, Pellet Mill',
+        ]);
 
 test('running it again doesn\'t duplicate attachments', function () {
     $mill = makePendingMill(['type' => 'Sawmill|Pellet Mill']);
@@ -51,3 +51,23 @@ test('an empty type field does nothing', function () {
     expect($mill->millTypes()->count())->toBe(0)
         ->and(MillType::count())->toBe(0);
 });
+
+/**
+ * This is the wrong place to test this because title case conversion
+ * happens in the mappers.
+ */
+// test('OSB and MDF survive title case', function (string $type) {
+//     $mill = makePendingMill(['type' => $type]);
+
+//     (new ProcessMillMillTypes($mill))->handle();
+
+//     $types = $mill->millTypes()->pluck('name')->sort()->values()->all();
+//     dump($types);
+
+//     expect($types)->toBe(['(MDF)', 'OSB']);
+// })->with([
+//             'caps' => 'OSB,(MDF)',
+//             'mixed' => 'Osb|(Mdf)',
+//             'lower' => 'osb|(mdf)',
+//             'flipped' => '(mDF)|oSB',
+//         ]);
