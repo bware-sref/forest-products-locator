@@ -53,14 +53,7 @@ function MapReadyBridge({ onMapReady }: { onMapReady: (map: LeafletMap) => void 
 // const wmsServer = srefEsri;
 // const wmsLayers = srefLayers;
 
-// centering the map in northern Mississippi should get most mills in frame initially.
-// consider extracting the center coordinates to a config
-// const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
-
-// consider extracting map tiles and attribution to configs
-// const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
-// const tileLayerUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-
+// default map configs moved to resources/js/config/map-defaults.tsx
 
 /**
  * Currently, the only children we expect would be the mill-filters component.
@@ -88,9 +81,9 @@ export default function MillMap({
     const mapCenter = (mapConfigs && mapConfigs.center) ? 
         [mapConfigs.center.latitude, mapConfigs.center.longitude] as LatLngExpression :
         [mapDefaults.center.latitude, mapDefaults.center.longitude] as LatLngExpression; //MAP_CENTER;
-    const mapZoom = (mapConfigs?.zoom.multiple) ? mapConfigs.zoom.multiple : mapDefaults.zoom.multiple;
+    const mapZoom = mapConfigs?.zoom.multiple ?? mapDefaults.zoom.multiple;
     const tileAttribution = mapConfigs?.tile.attribution.full ?? mapDefaults.tile.attribution.full;
-    const tileUrl = mapConfigs?.tile?.url ?? mapDefaults.tile.url;
+    const tileUrl = mapConfigs?.tile.url ?? mapDefaults.tile.url;
     const showPolygonsOnHover = mapConfigs?.cluster.polygon.hover ?? mapDefaults.cluster.polygon.hover;
 
     return (
