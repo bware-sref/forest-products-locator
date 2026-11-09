@@ -371,6 +371,30 @@ export interface GeocodeResult {
     street_address?: string | null;
 }
 
+export interface IMapConfigs {
+    center: {
+        latitude: number;
+        longitude: number;
+    };
+    cluster: {
+        polygon: {
+            hover: boolean;
+        }
+    };
+    tile: {
+        attribution: {
+            url: string;
+            text: string;
+            full: string;
+        }
+        url: string;
+    };
+    zoom: {
+        multiple: number;
+        single: number;
+    };
+}
+
 /**
  * for mill map and mill list
  * It's the same as MillListProps, so it should probably just be one type for both.
@@ -382,12 +406,14 @@ export interface MillListProps {
     radius?: string | null;
     /** Called with the underlying Leaflet map instance once it's mounted. */
     onMapReady?: (map: LeafletMap) => void;
+    mapConfigs?: IMapConfigs;
     [key: string]: unknown;
 }
 
 export interface IMillListItemProps {
     mill: Mill;
     children?: ReactNode;
+    mapConfigs?: IMapConfigs;
     [key: string]: unknown;
 }
 

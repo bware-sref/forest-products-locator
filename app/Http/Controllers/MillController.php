@@ -50,6 +50,7 @@ class MillController extends Controller
                 'Mill Map',
                 'Search an interactive map of sawmills, pulp mills, and other forest product processors.'
             ),
+            'mapConfigs' => config('map'),
             ...$this->getData($request),
         ]);
     }
@@ -75,9 +76,9 @@ class MillController extends Controller
             ->implode(', ');
 
         return Inertia::render('mill-single', [
-            'pageTitle' => $mill->mill_name.' | Details',
+            'pageTitle' => $mill->mill_name . ' | Details',
             'pageSeo' => [
-                'title' => $mill->mill_name.' | Details',
+                'title' => $mill->mill_name . ' | Details',
                 'description' => trim(\sprintf(
                     '%s%s. Contact information, products, and location details.',
                     $mill->mill_name,
@@ -85,6 +86,7 @@ class MillController extends Controller
                 )),
             ],
             'mills' => [$mill],
+            'mapConfigs' => config('map'),
         ]);
     }
 
@@ -102,7 +104,8 @@ class MillController extends Controller
                 'Add Your Business',
                 'List your sawmill, pulp mill, or forest product processing business in our directory.'
             ),
-            'states' => Inertia::once(fn () => State::getWithCounties(
+            'states' => Inertia::once(
+                fn() => State::getWithCounties(
                     cols: ['id', 'name', 'abbreviation'],
                     countyCols: ['id', 'name', 'state_id']
                 )->toArray()
@@ -130,7 +133,7 @@ class MillController extends Controller
          */
         // $data = $request->validated();
         $data = $request->all();
-        Log::debug("\n".self::class."::store():\nrequest->all() data\n", $data);
+        Log::debug("\n" . self::class . "::store():\nrequest->all() data\n", $data);
 
         /**
          * I don't think we need to wrap all this in a conditional because if the validation fails, it will automatically redirect back with errors and old input, so we won't even get to this point if the data is invalid.
@@ -140,7 +143,7 @@ class MillController extends Controller
             $newMill = MillEdit::addBusiness($data);
 
             $msg = "Successfully submitted new Mill \"{$data['mill_name']}\"!";
-            Log::debug("\n".self::class."::store():\n{$msg}", [
+            Log::debug("\n" . self::class . "::store():\n{$msg}", [
                 "\nmillData:\n" => $newMill->toArray(),
             ]);
 
@@ -200,7 +203,7 @@ class MillController extends Controller
             //     ]);
             // }, attempts: 3);
         } catch (\Exception $e) {
-            Log::error("\n".self::class."::store():\nError creating mill\n", [
+            Log::error("\n" . self::class . "::store():\nError creating mill\n", [
                 "\nerror\n" => $e->getMessage(),
             ]);
             Inertia::flash([
@@ -300,7 +303,7 @@ class MillController extends Controller
              * which made every unchanged submission look like an edit for mills that have any.
              * diff only lists fields whose values actually changed, relationships included.
              */
-            if (! empty($diff['diff'])) {
+            if (!empty($diff['diff'])) {
                 $edit = MillEdit::create([
                     'mill_id' => $mill->id,
                     'submitter_email' => $data['submitter_email'],
@@ -344,7 +347,7 @@ class MillController extends Controller
         } catch (\Exception $e) {
             Log::error("Error editing Mill #{$mill->id}.\n", [
                 "\nerror\n" => $e->getMessage(),
-                "\nfile:line\n" => $e->getFile().":".$e->getLine(),
+                "\nfile:line\n" => $e->getFile() . ":" . $e->getLine(),
                 "\ntrace\n" => $e->getTraceAsString(),
             ]);
             Inertia::flash([
@@ -395,20 +398,21 @@ class MillController extends Controller
              * We can't use with() to fetch each states millTypes and woodSpecies...
              * Maybe I should just install the deep relationship package?
              */
-            'states' => Inertia::once(fn () => State::has('mills')->with([
+            'states' => Inertia::once(fn() => State::has('mills')->with([
                 'counties' => function ($query) {
                     $query->select('id', 'name', 'state_id')
                         ->has('mills')
                         ->orderBy('name', 'asc');
-                }])->get(['id', 'name', 'abbreviation'])
+                }
+            ])->get(['id', 'name', 'abbreviation'])
                 ->append(['value', 'label'])
                 ->toArray()),
 
             /**
-                 * Move millTypes and woodSpecies to HandleInertiaRequests::shareOnce() because they are used on multiple pages
-                 * and rarely, if ever, change.
-                 * Could probably do the same with millsApiUrl but hold off
-                 */
+             * Move millTypes and woodSpecies to HandleInertiaRequests::shareOnce() because they are used on multiple pages
+             * and rarely, if ever, change.
+             * Could probably do the same with millsApiUrl but hold off
+             */
 
             // easy way to inform the front end of the api url
             'millsApiUrl' => route('api.v1.mills.index'),

@@ -22,6 +22,10 @@ import {
     CircleIcon,
 } from "lucide-react";
 import MillMapMarker from '@/components/mill-map-marker';
+import {
+    mapDefaults
+} from "@/config/map-defaults";
+
 
 /**
  * useMap() is only available in children of MapContainer, so this bridges
@@ -49,12 +53,7 @@ function MapReadyBridge({ onMapReady }: { onMapReady: (map: LeafletMap) => void 
 // const wmsServer = srefEsri;
 // const wmsLayers = srefLayers;
 
-// centering the map in northern Mississippi should get most mills in frame initially.
-const MAP_CENTER = [34.887494, -88.873249] satisfies LatLngExpression;
-
-const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
-const tileLayerUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-
+// default map configs moved to resources/js/config/map-defaults.tsx
 
 /**
  * Currently, the only children we expect would be the mill-filters component.
@@ -70,26 +69,35 @@ export default function MillMap({
     radius = null,
     onMapReady,
     notice = null,
+    mapConfigs,
 }: MillListProps & {
     /** message shown over the map, e.g. when no mills match the filters */
     notice?: ReactNode;
 }) {
 
     // parse radius as a float, handling the empty case with '0'
-    const filterRadius = parseFloat(radius ?? '0');
+    const filterRadius = parseFloat(radius ?? '0');    
+
+    const mapCenter = (mapConfigs && mapConfigs.center) ? 
+        [mapConfigs.center.latitude, mapConfigs.center.longitude] as LatLngExpression :
+        [mapDefaults.center.latitude, mapDefaults.center.longitude] as LatLngExpression; //MAP_CENTER;
+    const mapZoom = mapConfigs?.zoom.multiple ?? mapDefaults.zoom.multiple;
+    const tileAttribution = mapConfigs?.tile.attribution.full ?? mapDefaults.tile.attribution.full;
+    const tileUrl = mapConfigs?.tile.url ?? mapDefaults.tile.url;
+    const showPolygonsOnHover = mapConfigs?.cluster.polygon.hover ?? mapDefaults.cluster.polygon.hover;
 
     return (
         <MapContainer
             className="min-h-[calc(100vh-6rem)] lg:min-h-[calc(100vh-4rem)]"
-            center={MAP_CENTER}
-            zoom={5}
+            center={mapCenter}
+            zoom={mapZoom}
         >
             {onMapReady && <MapReadyBridge onMapReady={onMapReady} />}
             <MapGestureHandler data-thing="map-gesture-handler" />
             <MapTileLayer
                 data-thing="map-tile-layer"
-                attribution={attribution}
-                url={tileLayerUrl}
+                attribution={tileAttribution}
+                url={tileUrl}
             />
 {/*
 Disable the POC WMS layer until esri.sref.info certificate is fixed.            
@@ -99,7 +107,10 @@ Disable the POC WMS layer until esri.sref.info certificate is fixed.
             />
 */}
 
-            <MapMarkerClusterGroup data-thing="map-marker-cluster-group">
+            <MapMarkerClusterGroup 
+                data-thing="map-marker-cluster-group"
+                showCoverageOnHover={showPolygonsOnHover}
+            >
                 {/** Mills! */}
                 {mills?.map((mill) => (
                     // hoisted key to this level to avoid warning about all list items should have keys

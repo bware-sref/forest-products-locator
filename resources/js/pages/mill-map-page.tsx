@@ -58,6 +58,7 @@ export default function MillMapPage() {
         pageSeo: PageSeoOverride;
         millsApiUrl: string;
         csrf_token: string;
+        mapConfigs: undefined;
     }>();
 
     /**
@@ -107,6 +108,8 @@ export default function MillMapPage() {
      * let's see what happens if we remove it...
      */
     const [map, setMap] = useState<Map | null>(null);
+    const mapConfigs = page.props.mapConfigs;
+
 
     /**
      * We need to add position and radius to the return values from useMills and use them to display the following:
@@ -132,10 +135,11 @@ export default function MillMapPage() {
                             onRetryClick={handleRetryLoadClick}
                         />
                     ) : null}
+                    mapConfigs={mapConfigs}
                 />
             </Suspense>
         </ClientOnly>
-    ), [mills, radius, coordinates, isLoading, loadError, handleClearFiltersClick, handleRetryLoadClick]);
+    ), [mills, radius, coordinates, isLoading, loadError, handleClearFiltersClick, handleRetryLoadClick, mapConfigs]);
 
     // handle map focus when coordinates are found
     useEffect(() => {
