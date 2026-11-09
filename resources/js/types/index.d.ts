@@ -413,6 +413,7 @@ export interface MillListProps {
 export interface IMillListItemProps {
     mill: Mill;
     children?: ReactNode;
+    mapConfigs?: IMapConfigs;
     [key: string]: unknown;
 }
 
