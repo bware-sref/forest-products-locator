@@ -7,9 +7,7 @@ import {
 } from '@/types';
 import { 
     Map,
-    // MapCircle,
     MapControlContainer,
-    // MapLocateControl,
     MapMarker,
     MapMarkerClusterGroup,
     MapPopup,
@@ -20,15 +18,12 @@ import type { LatLngExpression } from "leaflet";
 import {
     MapPinIcon,
 } from "lucide-react";
-// import { useState } from "react";
-// import { toast } from "sonner";
-import { Link } from "@inertiajs/react";
-import { show } from "@/actions/App/Http/Controllers/MillController"
+import {
+    mapDefaults
+} from "@/config/map-defaults";
 
-const zoom = 14;
+// default map configs moved to resources/js/config/map-defaults.tsx
 
-const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
-const tileLayerUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 
 /**
  * Currently, the only children we expect would be the mill-filters component.
@@ -37,10 +32,18 @@ const tileLayerUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
  * @param millMapProps
  * @returns 
  */
-export default function MillSingleMap({mills, children}: MillListProps) {
+export default function MillSingleMap({
+    mills,
+    children,
+    mapConfigs,
+}: MillListProps) {
     const mill = mills[0];
     // MillSingleItem only renders this map when the mill has coordinates
     const mapCenter = [mill.latitude ?? 0, mill.longitude ?? 0] satisfies LatLngExpression;
+
+    const zoom = mapConfigs?.zoom.single ?? mapDefaults.zoom.single;
+    const attribution = mapConfigs?.tile.attribution.full || mapDefaults.tile.attribution.full;
+    const tileLayerUrl = mapConfigs?.tile.url || mapDefaults.tile.url;
 
     return (
         <Map 
@@ -86,8 +89,11 @@ export default function MillSingleMap({mills, children}: MillListProps) {
                                         const prefix = (0 < index) ? ', ' : '';                                            
                                         return prefix + millType.name;
                                     })}
-                                </p>                                                    
-                                <p>
+                                </p>
+                                {/**
+                                 * We don't need to show a link to this page on this page.
+                                 */}
+                                {/* <p>
                                     <Link
                                         viewTransition
                                         href={show(mill.match_id)}
@@ -97,7 +103,7 @@ export default function MillSingleMap({mills, children}: MillListProps) {
                                         More Information...
                                     </Link>
 
-                                </p>
+                                </p> */}
                             </div>
                         </MapPopup>
                     </MapMarker>

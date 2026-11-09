@@ -32,7 +32,12 @@ import {
 const MillSingleMap = lazy(() => import('@/components/mill-single-map'));
 
 
-export default function MillSingleItem ({mill, children, ...props}: IMillListItemProps) {
+export default function MillSingleItem ({
+    mill,
+    children,
+    mapConfigs,
+    ...props
+}: IMillListItemProps) {
     const cardClassName = props.className ?? '';
     const showContact = !!(mill.telephone || mill.fax || mill.email || mill.web_site);
     // a boolean: a bare number here would render as text ("0") in JSX
@@ -198,7 +203,10 @@ export default function MillSingleItem ({mill, children, ...props}: IMillListIte
                 {showMap && (
                     <ClientOnly fallback={<div className="min-h-[calc(100vh-6rem)] lg:min-h-96 w-full" />}>
                         <Suspense fallback={<div className="min-h-[calc(100vh-6rem)] lg:min-h-96 w-full" />}>
-                            <MillSingleMap mills={[mill]} />
+                            <MillSingleMap
+                                mills={[mill]}
+                                mapConfigs={mapConfigs}
+                            />
                         </Suspense>
                     </ClientOnly>
                 )}
