@@ -49,6 +49,7 @@ class MillEdit extends Model
         'sent_to',
         'status',
         'rejection_reason',
+        'submitter_notified_at',
         'reviewed_at',
         'created_at',
         'updated_at',

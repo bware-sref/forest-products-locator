@@ -16,6 +16,10 @@ return new class extends Migration {
                 ->after('status')
                 ->nullable(true)
                 ->default(null);
+            $table->timestamp('submitter_notified_at')
+                ->after('rejection_reason')
+                ->nullable(true)
+                ->default(null);
         });
     }
 
@@ -26,7 +30,10 @@ return new class extends Migration {
     {
         Schema::table('mill_edits', function (Blueprint $table) {
             //
-            $table->dropColumn(['rejection_reason']);
+            $table->dropColumn([
+                'rejection_reason',
+                'submitter_notified_at',
+            ]);
         });
     }
 };
