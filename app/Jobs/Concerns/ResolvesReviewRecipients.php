@@ -34,10 +34,10 @@ trait ResolvesReviewRecipients
         }
 
         return $siteReviewers->concat($stateReviewers)
-            ->map(fn ($person) => ['email' => trim((string) $person->email), 'name' => $person->name])
-            ->filter(fn (array $person) => $person['email'] !== '')
+            ->map(fn($person) => ['email' => trim((string) $person->email), 'name' => $person->name])
+            ->filter(fn(array $person) => $person['email'] !== '')
             // someone can be both, e.g., a Superadmin who is also listed as a state contact
-            ->unique(fn (array $person) => strtolower($person['email']))
+            ->unique(fn(array $person) => strtolower($person['email']))
             ->values()
             ->all();
     }
@@ -51,6 +51,13 @@ trait ResolvesReviewRecipients
     {
         return User::query()
             ->select(['users.id', 'users.email', 'users.name', 'users.state_id'])
-            ->whereHas('roles', fn (Builder $query) => $query->whereIn('name', array_map(fn (UserRoles $role) => $role->value, $roles)));
+            ->whereHas('roles', fn(Builder $query) => $query->whereIn('name', array_map(fn(UserRoles $role) => $role->value, $roles)));
+    }
+
+    protected function getSiteReviewers(): array
+    {
+        return $this->usersWithRole([UserRoles::SUPER, UserRoles::ADMIN])
+            ->get(['email', 'name'])
+            ->toArray();
     }
 }
