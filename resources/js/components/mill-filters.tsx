@@ -48,6 +48,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { millCountText, millStatusMessage } from '@/lib/mill-status';
+import { DialogClose } from "@/components/ui/dialog";
 
 /**
  * MillFilters needs:
@@ -576,30 +577,21 @@ export default function MillFilters({
                             disabled={isDownloading || isLoading}
                         >Clear Filters</Button>
                         {/**
-                         * Display Spinner when either export is downloading or mill data is being fetched
+                         * Closes the parent Dialog/Drawer. vaul's Drawer is built on the same
+                         * Radix Dialog, so DialogClose works for both. Only shown when the
+                         * current filters found mills; disabled while a new search is loading.
                          */}
-                        {/* {isLoading || isDownloading ? (
-                            <Spinner data-icon="inline-end" className="ml-auto size-8" />
-                        ) : ''} */}
-                        {/**
-                         * We need to put the export button somewhere, but the spinner somewhat complicates the situation.
-                         * Actually, we might want to just submit the form, so to speak.
-                         * By which I mean that the filters form already contains all the search parameters needed to query the 
-                         * DB and get the same list of mills.
-                         */}
-                        {/* <Button                            
-                            className="ml-auto text-beluga! font-bold rounded-sm"
-                            onClick={onExportClick}
-                            disabled={isDownloading}
-                        >
-                            Export
-                        </Button> */}
+                        {!loadError && millCount > 0 ? (
+                            <DialogClose asChild>
+                                <Button
+                                    className="ml-auto bg-coupe text-beluga border font-bold hover:text-beluga rounded-sm"
+                                    disabled={isLoading}
+                                >Show Results</Button>
+                            </DialogClose>
+                        ) : ''}
                     </div>
 
                 </FieldGroup>
-                {/* 
-                ScrollArea doesn't work here for some reason...
-                </ScrollArea> */}
             </div>                            
         </div>
 
