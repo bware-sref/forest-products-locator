@@ -48,6 +48,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { millCountText, millStatusMessage } from '@/lib/mill-status';
+import { DialogClose } from "@/components/ui/dialog";
 
 /**
  * MillFilters needs:
@@ -259,20 +260,20 @@ export default function MillFilters({
                 >
                     {/* text search */}
                     <Field>
-                        <FieldLabel className="sr-only" htmlFor="q">Text Search</FieldLabel>
+                        <FieldLabel className="sr-only" htmlFor="q">Search mill names</FieldLabel>
                         <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga has-[[data-slot=input-group-control]:focus-visible]:ring-coupe">
                             <InputGroupInput 
                                 id="q"
                                 className="text-velvet dark:text-velvet"
-                                placeholder="Search mills..."
+                                placeholder="Search mill names..."
                                 value={textSearch || searchParams.q || ''}
                                 onChange={onTextSearchChange}
                             />
                             {/* */}
                             <InputGroupAddon align="inline-end">
                                 <InputGroupButton                            
-                                    aria-label="Search mills"
-                                    title="Search mills"
+                                    aria-label="Search mill names"
+                                    title="Search mill names"
                                     size="icon-sm"
                                     className="bg-coupe text-beluga rounded-full"
                                 >
@@ -576,30 +577,21 @@ export default function MillFilters({
                             disabled={isDownloading || isLoading}
                         >Clear Filters</Button>
                         {/**
-                         * Display Spinner when either export is downloading or mill data is being fetched
+                         * Closes the parent Dialog/Drawer. vaul's Drawer is built on the same
+                         * Radix Dialog, so DialogClose works for both. Only shown when the
+                         * current filters found mills; disabled while a new search is loading.
                          */}
-                        {/* {isLoading || isDownloading ? (
-                            <Spinner data-icon="inline-end" className="ml-auto size-8" />
-                        ) : ''} */}
-                        {/**
-                         * We need to put the export button somewhere, but the spinner somewhat complicates the situation.
-                         * Actually, we might want to just submit the form, so to speak.
-                         * By which I mean that the filters form already contains all the search parameters needed to query the 
-                         * DB and get the same list of mills.
-                         */}
-                        {/* <Button                            
-                            className="ml-auto text-beluga! font-bold rounded-sm"
-                            onClick={onExportClick}
-                            disabled={isDownloading}
-                        >
-                            Export
-                        </Button> */}
+                        {!loadError && millCount > 0 ? (
+                            <DialogClose asChild>
+                                <Button
+                                    className="ml-auto bg-coupe text-beluga border font-bold hover:text-beluga rounded-sm"
+                                    disabled={isLoading}
+                                >Show Results</Button>
+                            </DialogClose>
+                        ) : ''}
                     </div>
 
                 </FieldGroup>
-                {/* 
-                ScrollArea doesn't work here for some reason...
-                </ScrollArea> */}
             </div>                            
         </div>
 

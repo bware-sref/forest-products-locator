@@ -23,7 +23,7 @@ return [
     'rate_limits' => [
         'per_minute' => env('GEOCODING_RATE_LIMIT_PER_MINUTE', 5),
         'per_day' => env('GEOCODING_RATE_LIMIT_PER_DAY', 200),
-    ],    
+    ],
 
     /**
      * Bias Position
@@ -55,6 +55,7 @@ return [
      * Look what won!
      */
     'bias_position' => [
+        'enabled' => env('GEOCODING_BIAS_POSITION_ENABLED', false),
         'x' => env('GEOCODING_BIAS_POSITION_X', -91.0),
         'y' => env('GEOCODING_BIAS_POSITION_Y', 32.0),
     ],
