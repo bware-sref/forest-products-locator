@@ -260,20 +260,20 @@ export default function MillFilters({
                 >
                     {/* text search */}
                     <Field>
-                        <FieldLabel className="sr-only" htmlFor="q">Text Search</FieldLabel>
+                        <FieldLabel className="sr-only" htmlFor="q">Search mill names</FieldLabel>
                         <InputGroup className="rounded-2xl bg-beluga dark:bg-beluga has-[[data-slot=input-group-control]:focus-visible]:ring-coupe">
                             <InputGroupInput 
                                 id="q"
                                 className="text-velvet dark:text-velvet"
-                                placeholder="Search mills..."
+                                placeholder="Search mill names..."
                                 value={textSearch || searchParams.q || ''}
                                 onChange={onTextSearchChange}
                             />
                             {/* */}
                             <InputGroupAddon align="inline-end">
                                 <InputGroupButton                            
-                                    aria-label="Search mills"
-                                    title="Search mills"
+                                    aria-label="Search mill names"
+                                    title="Search mill names"
                                     size="icon-sm"
                                     className="bg-coupe text-beluga rounded-full"
                                 >
