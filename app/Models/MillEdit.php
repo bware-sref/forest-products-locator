@@ -48,6 +48,7 @@ class MillEdit extends Model
         'sent',
         'sent_to',
         'status',
+        'rejection_reason',
         'reviewed_at',
         'created_at',
         'updated_at',
@@ -59,7 +60,7 @@ class MillEdit extends Model
     ];
 
     protected static function booted(): void
-    {            
+    {
         static::creating(function (MillEdit $me) {
             // We can't use proposed_changes without converting to string first.
             // We don't have mill_name because we're a MillEdit...
@@ -124,10 +125,10 @@ class MillEdit extends Model
          * I think it was fluke that it was ever needed.
          */
         $diff = $this->proposed_changes['diff'] ?? $this->proposed_changes;
-        if (! \is_array($diff)) {
+        if (!\is_array($diff)) {
             $diff = ['diff' => $diff];
         }
-        return  $diff;
+        return $diff;
     }
 
     public function didAddressChange(): bool
@@ -135,7 +136,7 @@ class MillEdit extends Model
         $pAddressParts = Mill::getAddressTypePartNames();
         $addressFields = [...$pAddressParts, ...Mill::STATE_FIELDS];
         $keys = array_keys($this->getChanges());
-        return ! empty(array_intersect($addressFields, $keys));
+        return !empty(array_intersect($addressFields, $keys));
     }
 
     /**
@@ -183,7 +184,7 @@ class MillEdit extends Model
          * replicate() if we have one make() if we don't.
          * @var Mill
          */
-        $submitted = ! $this->isNewMill() ? $this->mill?->replicate() : Mill::make($this->getChanges());
+        $submitted = !$this->isNewMill() ? $this->mill?->replicate() : Mill::make($this->getChanges());
         // store changes so we can possibly loop over it later without an existence check
         $changes = $this->getChanges();
         $submitted->fill($changes);
@@ -267,7 +268,7 @@ class MillEdit extends Model
                         $v = $model::findMany($v)->pluck('name', 'id')->toArray();
                     }
                 }
-               
+
                 $submitted[$k] = $v;
             }
         }
@@ -299,26 +300,26 @@ class MillEdit extends Model
          * The mill's changes are logged as a public submission, with this submission's id; whoever approved it is
          * logged as the causer.
          */
-        ActivitySource::as(ActivitySource::PUBLIC_SUBMISSION, fn () => DB::transaction(function() {
+        ActivitySource:: as(ActivitySource::PUBLIC_SUBMISSION, fn() => DB::transaction(function () {
             $edits = $this->prepareSubmitted('id', []);
 
             /**
              * If we don't have a mill, make an empty one.
              */
             $fill = $this->mill ?? Mill::make();
-            $relationsBefore = RelationChanges::snapshot($fill, array_map(fn ($key) => Str::camel($key), Mill::N_TO_N));
+            $relationsBefore = RelationChanges::snapshot($fill, array_map(fn($key) => Str::camel($key), Mill::N_TO_N));
             $fill->fill($edits);
 
             // save mill changes
-            if (! $fill->save() ) {
+            if (!$fill->save()) {
                 /**
                  * $fill won't have an id if it failed to save
                  */
-                $msg = $this->isNewMill() ? 
+                $msg = $this->isNewMill() ?
                     "Failed to create new Mill from MillEdit #{$this->id}!"
-                    : 
+                    :
                     "Failed to save changes to Mill #{$fill->id}!";
-                Log::error("\n".self::class."::approve():\n{$msg}", [
+                Log::error("\n" . self::class . "::approve():\n{$msg}", [
                     "\nfilled\n" => $fill->toArray(),
                 ]);
                 throw new \Exception($msg);
@@ -327,9 +328,9 @@ class MillEdit extends Model
             // sync relations
             foreach (Mill::N_TO_N as $key) {
                 $relation = Str::camel($key);
-                if (! $fill->$relation()->sync($edits[$key])) {
+                if (!$fill->$relation()->sync($edits[$key])) {
                     $msg = "Failed to sync {$relation} for Mill #{$fill->id}!";
-                    Log::error("\n".self::class."::approve():\n{$msg}", [
+                    Log::error("\n" . self::class . "::approve():\n{$msg}", [
                         "\nedits[$key]\n" => $edits[$key],
                     ]);
                     throw new \Exception($msg);
@@ -356,10 +357,11 @@ class MillEdit extends Model
         return true;
     }
 
-    public function reject(): bool
+    public function reject(?string $reason = null): bool
     {
         return $this->update([
             'status' => PublicationStatus::Rejected,
+            'rejection_reason' => $reason,
             'reviewed_at' => now(),
         ]);
     }
@@ -371,7 +373,7 @@ class MillEdit extends Model
          */
         $formData = collect($data)->only(Mill::FORM_FIELDS)->toArray();
 
-        Log::debug("\n".self::class."::addBusiness():\nattempting to create MillEdit with data:\n", [
+        Log::debug("\n" . self::class . "::addBusiness():\nattempting to create MillEdit with data:\n", [
             "\nformData:\n" => $formData
         ]);
 
@@ -393,7 +395,7 @@ class MillEdit extends Model
         ]);
 
         if (empty($edit) || false === $edit) {
-            Log::error("\n".self::class."::addBusiness():\nFailed to create a MillEdit for Add Business submission.", [
+            Log::error("\n" . self::class . "::addBusiness():\nFailed to create a MillEdit for Add Business submission.", [
                 "\ndata:\n" => $data,
             ]);
         }
