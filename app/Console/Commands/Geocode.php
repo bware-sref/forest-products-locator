@@ -29,7 +29,7 @@ class Geocode extends Command implements PromptsForMissingInput
         if (empty($this->option('query'))) {
             $this->error('The "query" option cannot be empty. Exiting...');
             return parent::FAILURE;
-        }        
+        }
 
         /**
          * We only need to add options for BiasPosition because this usage is always SingleUse since we never store these results.
@@ -45,18 +45,19 @@ class Geocode extends Command implements PromptsForMissingInput
              * Pass through whatever was passed for x and y.
              * If they're invalid, the default will be used instead.
              */
-            'biasPosition' => [$this->option('x'), $this->option('y')],
+            'biasPosition' => self::resolveBiasPosition(),
+            // [$this->option('x'), $this->option('y')],
         ];
 
         /**
          * --noBias is false unless included, so true means remove biasPosition from $params.
          * Actually, we don't want to remove it, but instead set it to false.
          */
-        if ($this->option('noBias')) {
-            $params['biasPosition'] = false;
+        // if ($this->option('noBias')) {
+        //     $params['biasPosition'] = false;
 
-            $this->comment('Omitting BiasPosition...');
-        }
+        //     $this->comment('Omitting BiasPosition...');
+        // }
 
         $this->info('Doing geocode lookup with the following parameters: ');
         /**
@@ -84,5 +85,19 @@ class Geocode extends Command implements PromptsForMissingInput
         dump($result);
 
         return parent::SUCCESS;
+    }
+
+    private function resolveBiasPosition(): array|bool
+    {
+        if (
+            $this->option('noBias') ||
+            !$this->option('x') ||
+            !$this->option('y')
+        ) {
+            $this->comment('Omitting BiasPosition...');
+            return false;
+        }
+
+        return [$this->option('x'), $this->option('y')];
     }
 }
