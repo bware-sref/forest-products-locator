@@ -408,4 +408,22 @@ class MillEdit extends Model
     {
         return empty($this->mill_id);
     }
+
+    /**
+     * All MillEdits should have a name somewhere.
+     * If it's a new submission, it'll be in proposed_changes.
+     * If it's an edit, it'll be on the original Mill.
+     * We don't really care about all that specifically, we just need a way to 
+     * fetch whatever that name is.
+     *
+     * @return string
+     */
+    public function millName(): ?string
+    {
+        if (!$this->isNewMill()) {
+            return $this->mill->mill_name ?? $this->mill_id ?? null;
+        }
+
+        return $this->proposed_changes['mill_name'] ?? 'Mill name unknown';
+    }
 }
