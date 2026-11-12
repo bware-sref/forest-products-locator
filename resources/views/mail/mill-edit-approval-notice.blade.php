@@ -1,11 +1,13 @@
 <x-mail::message>
-# Introduction
+# Good news!
 
-The body of your message.
+{{ $subject }}
 
-<x-mail::button :url="''">
-Button Text
+@if($url)
+<x-mail::button :url="$url">
+View the listing for {{ $mill_name }}
 </x-mail::button>
+@endif
 
 Thanks,<br>
 {{ config('app.name') }}
