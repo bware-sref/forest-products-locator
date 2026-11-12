@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PublicationStatus;
-use App\Jobs\ProcessMill;
 use App\Mail\MillAddNotification;
 use App\Mail\MillEditNotification;
-use App\Models\Mill;
 use App\Models\MillEdit;
+use App\Jobs\SendMillEditApprovalNotice;
+use App\Jobs\SendMillEditRejectionNotice;
+use App\Jobs\ProcessMill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
@@ -34,7 +35,7 @@ class MillEditController extends Controller
             $millEdit->approve();
         } catch (Throwable $e) {
             $msg = "Failed to process approval of MillEdit #{$millEdit->id}!";
-            Log::error("\n".self::class."::approve():\n{$msg}", [
+            Log::error("\n" . self::class . "::approve():\n{$msg}", [
                 "\nerror\n" => $e->getMessage(),
                 "\nmillEdit\n" => $millEdit->toArray(),
             ]);
@@ -44,7 +45,7 @@ class MillEditController extends Controller
             ]);
             return to_route('mill-edits.show', $millEdit);
         }
-        
+
         /**
          * Dispatch a ProcessMill job to make sure coordinates, et al, are filled in.
          * @todo test it
@@ -54,7 +55,13 @@ class MillEditController extends Controller
         ProcessMill::dispatch($millEdit->mill);
 
         $msg = "Approved MillEdit #{$millEdit->id} for Mill #{$millEdit->mill->id}.";
-        Log::debug("\n".self::class."::approve():\n{$msg}");
+        Log::debug("\n" . self::class . "::approve():\n{$msg}");
+
+        /**
+         * trigger sending MillEditApprovalNotice
+         */
+        SendMillEditApprovalNotice::dispatch($millEdit);
+
         Inertia::flash([
             'type' => 'success',
             'message' => $msg,
@@ -63,16 +70,18 @@ class MillEditController extends Controller
         return to_route('mills.show', $millEdit->mill);
     }
 
-    public function reject(MillEdit $millEdit)
+    public function reject(Request $request, MillEdit $millEdit)
     {
         self::pendingOrDie($millEdit);
 
-        if (! $millEdit->reject()) {
+        $reason = $request->input('rejection_reason', null);
+
+        if (!$millEdit->reject($reason)) {
             /**
              * What to do if it fails?
              */
             $msg = "Failed to reject MillEdit #{$millEdit->id}";
-            Log::error("\n".self::class."::rejected():\n{$msg}");
+            Log::error("\n" . self::class . "::rejected():\n{$msg}");
             Inertia::flash([
                 'type' => 'error',
                 'message' => $msg,
@@ -81,7 +90,13 @@ class MillEditController extends Controller
         }
 
         $msg = "Rejected MillEdit #{$millEdit->id}.";
-        Log::debug("\n".self::class."::rejected():\n{$msg}\n");
+        Log::debug("\n" . self::class . "::rejected():\n{$msg}\n");
+
+        /**
+         * trigger sending rejection notice.
+         */
+        SendMillEditRejectionNotice::dispatch($millEdit);
+
         Inertia::flash([
             'type' => 'success',
             'message' => $msg,
@@ -164,7 +179,7 @@ class MillEditController extends Controller
         if ($millEdit->status === PublicationStatus::Pending) {
             return;
         }
-        Log::error("\n".self::class."::pendingOrDie():\nattempt to approve, reject, or review MillEdits which are no longer pending?!?\n", [
+        Log::error("\n" . self::class . "::pendingOrDie():\nattempt to approve, reject, or review MillEdits which are no longer pending?!?\n", [
             'millEdit' => $millEdit->toArray(),
         ]);
         /**
