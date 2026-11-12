@@ -3,11 +3,11 @@
 
 {{ $subject }}
 
-@if($url)
+@isset($url)
 <x-mail::button :url="$url">
 View the listing for {{ $mill_name }}
 </x-mail::button>
-@endif
+@endisset
 
 Thanks,<br>
 {{ config('app.name') }}
