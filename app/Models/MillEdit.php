@@ -424,6 +424,21 @@ class MillEdit extends Model
             return $this->mill->mill_name ?? $this->mill_id ?? null;
         }
 
-        return $this->proposed_changes['mill_name'] ?? 'Mill name unknown';
+        /**
+         * @remember
+         * proposed_changes has two top level keys: diff and changes.
+         * diff should be empty for new mill submissions.
+         * changes should contain a mill_name
+         */
+        return $this->proposed_changes['changes']['mill_name'] ?? 'Mill name unknown';
+    }
+
+    public function resetReviewStatus(): bool
+    {
+        $this->status = PublicationStatus::Pending;
+        $this->rejection_reason = null;
+        $this->reviewed_at = null;
+        $this->submitter_notified_at = null;
+        return $this->save();
     }
 }
