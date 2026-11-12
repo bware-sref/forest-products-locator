@@ -404,9 +404,25 @@ class MillEdit extends Model
         return $edit;
     }
 
+    /**
+     * Whether this was submitted as a new business rather than an edit.
+     * Approving a new business sets mill_id, so mill_id alone can't tell afterwards. New business submissions
+     * are stored with an empty diff and the full form in changes, which always includes mill_name (required).
+     * Edits have a non-empty diff; old edits made before empty submissions were blocked can have an empty diff,
+     * but their changes only carry mill_types and wood_species.
+     */
     public function isNewMill(): bool
     {
-        return empty($this->mill_id);
+        if (empty($this->mill_id)) {
+            return true;
+        }
+
+        $proposed = $this->proposed_changes;
+
+        return \is_array($proposed)
+            && \array_key_exists('diff', $proposed)
+            && empty($proposed['diff'])
+            && !empty($proposed['changes']['mill_name']);
     }
 
     /**
