@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Enums\Environment;
+use App\Jobs\Concerns\SendsMailFromMultipleEnvironments;
 use App\Models\MillEdit;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,14 +16,14 @@ use Illuminate\Queue\SerializesModels;
 class MillEditNotification extends Mailable
 {
     use Queueable, SerializesModels;
+    use SendsMailFromMultipleEnvironments;
 
     /**
      * Create a new message instance.
      */
     public function __construct(
         protected MillEdit $millEdit
-    )
-    {
+    ) {
         //
     }
 
@@ -33,10 +33,11 @@ class MillEditNotification extends Mailable
     public function envelope(): Envelope
     {
         $addy = new Address(config('mail.from.address'), config('mail.from.name'));
-        $subject = "Mill Edit Submitted (#{$this->millEdit->id})";
-        if (Environment::Production->value !== config('app.env')) {
-            $subject = config('mail.test.subject.prefix').$subject;
-        }
+        $subject = $this->applyEnvironmentPrefix("Mill Edit Submitted (#{$this->millEdit->id})");
+        // $subject = "Mill Edit Submitted (#{$this->millEdit->id})";
+        // if (Environment::Production->value !== config('app.env')) {
+        //     $subject = config('mail.test.subject.prefix').$subject;
+        // }
         return new Envelope(
             from: $addy,
             subject: $subject,

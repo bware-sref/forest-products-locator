@@ -2,6 +2,8 @@
 
 use App\Enums\PublicationStatus;
 use App\Jobs\ProcessMill;
+use App\Jobs\SendMillEditApprovalNotice;
+use App\Jobs\SendMillEditRejectionNotice;
 use App\Models\Mill;
 use App\Models\MillEdit;
 use App\Models\MillType;
@@ -16,7 +18,7 @@ use Inertia\Testing\AssertableInertia as Assert;
  */
 
 beforeEach(function () {
-    Bus::fake([ProcessMill::class]);
+    Bus::fake([ProcessMill::class, SendMillEditApprovalNotice::class, SendMillEditRejectionNotice::class]);
 
     $this->state = State::factory()->create();
     $this->mill = Mill::factory()->for($this->state)->create([
@@ -131,12 +133,22 @@ describe('approving', function () {
         Bus::assertDispatched(ProcessMill::class, fn (ProcessMill $job) => $job->mill->is($mill));
     });
 
+    test('the submitter is sent an approval notice', function () {
+        $edit = MillEdit::factory()->for($this->mill)->create();
+
+        $this->post("/mill-edits/{$edit->approve_hash}/approve");
+
+        Bus::assertDispatched(SendMillEditApprovalNotice::class, fn ($job) => $job->millEdit->is($edit));
+        Bus::assertNotDispatched(SendMillEditRejectionNotice::class);
+    });
+
     test('an edit can only be approved once', function () {
         $edit = MillEdit::factory()->for($this->mill)->approved()->create();
 
         $this->post("/mill-edits/{$edit->approve_hash}/approve")->assertNotFound();
 
         Bus::assertNotDispatched(ProcessMill::class);
+        Bus::assertNotDispatched(SendMillEditApprovalNotice::class);
     });
 
     test('the review and reject hashes can\'t approve', function () {
@@ -171,10 +183,39 @@ describe('rejecting', function () {
         expect(Mill::withoutGlobalScopes()->where('mill_name', 'Spam Mill')->exists())->toBeFalse();
     });
 
+    test('the reviewer\'s reason is saved', function () {
+        $edit = MillEdit::factory()->for($this->mill)->create();
+
+        $this->post("/mill-edits/{$edit->reject_hash}/reject", ['rejection_reason' => 'This mill closed in 2019.']);
+
+        expect($edit->fresh()->rejection_reason)->toBe('This mill closed in 2019.');
+    });
+
+    test('the reason is optional', function (?string $reason) {
+        $edit = MillEdit::factory()->for($this->mill)->create();
+
+        $this->post("/mill-edits/{$edit->reject_hash}/reject", ['rejection_reason' => $reason])->assertRedirect();
+
+        expect($edit->fresh())
+            ->status->toBe(PublicationStatus::Rejected)
+            ->rejection_reason->toBeNull();
+    })->with(['left out' => null, 'blank' => '']);
+
+    test('the submitter is sent a rejection notice', function () {
+        $edit = MillEdit::factory()->for($this->mill)->create();
+
+        $this->post("/mill-edits/{$edit->reject_hash}/reject");
+
+        Bus::assertDispatched(SendMillEditRejectionNotice::class, fn ($job) => $job->millEdit->is($edit));
+        Bus::assertNotDispatched(SendMillEditApprovalNotice::class);
+    });
+
     test('an edit can only be rejected once', function () {
         $edit = MillEdit::factory()->for($this->mill)->rejected()->create();
 
         $this->post("/mill-edits/{$edit->reject_hash}/reject")->assertNotFound();
+
+        Bus::assertNotDispatched(SendMillEditRejectionNotice::class);
     });
 
     test('the approve hash can\'t reject', function () {

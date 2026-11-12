@@ -48,3 +48,39 @@ test('a new business has no original mill to compare against', function () {
     expect($edit->isNewMill())->toBeTrue()
         ->and($edit->originalMill())->toBe([]);
 });
+
+describe('isNewMill()', function () {
+    test('an edit to an existing mill is not new', function () {
+        $edit = MillEdit::factory()->for(Mill::factory()->for($this->state))->create();
+
+        expect($edit->isNewMill())->toBeFalse();
+    });
+
+    test('a new business is still new after approval sets its mill', function () {
+        $edit = MillEdit::factory()->newBusiness(['state_id' => $this->state->id])->create();
+
+        $edit->approve();
+
+        expect($edit->fresh())
+            ->mill_id->not->toBeNull()
+            ->isNewMill()->toBeTrue();
+    });
+
+    test('an old edit with no changes (from before those were blocked) is not new', function () {
+        $mill = Mill::factory()->for($this->state)->create();
+        $edit = MillEdit::factory()->for($mill)->create([
+            'proposed_changes' => ['diff' => [], 'changes' => ['mill_types' => [], 'wood_species' => []]],
+        ]);
+
+        expect($edit->isNewMill())->toBeFalse();
+    });
+
+    test('an edit stored in the older format without a diff key is not new', function () {
+        $mill = Mill::factory()->for($this->state)->create();
+        $edit = MillEdit::factory()->for($mill)->create([
+            'proposed_changes' => ['mill_name' => ['from' => 'Old', 'to' => 'New']],
+        ]);
+
+        expect($edit->isNewMill())->toBeFalse();
+    });
+});
