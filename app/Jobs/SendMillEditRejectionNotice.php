@@ -51,12 +51,9 @@ class SendMillEditRejectionNotice implements ShouldQueue
         ]);
     }
 
-    protected function resolveToWhom(): array
+    protected function resolveToWhom(): string
     {
-        return [
-            'email' => $this->millEdit->submitter_email,
-            'name' => 'Submitter',
-        ];
+        return $this->millEdit->submitter_email;
     }
 
     protected function resolveBcc(): array
