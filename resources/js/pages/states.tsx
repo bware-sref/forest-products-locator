@@ -11,7 +11,7 @@ import { Seo } from '@/components/seo';
 import Hero from '@/components/hero';
 import {
     Card,
-    CardContent,
+    // CardContent,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
@@ -86,9 +86,11 @@ export default function States() {
                                 </Link>
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="mr-5 bg-coupe text-xl text-beluga">
+
+                        {/* <CardContent className="mr-5 bg-coupe text-xl text-beluga">
                             {state.resource_summary}
-                        </CardContent>
+                        </CardContent> */}
+
                     </Card>
                 ))}
             </div>
