@@ -1,6 +1,12 @@
 import React from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import {
+    Field,
+    FieldDescription,
+    FieldLabel,
+} from '@/components/ui/field';
 import {
     Link,
     router,
@@ -41,6 +47,9 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
 
     const rejectHash = props.millEdit?.reject_hash ?? '';
     const approveHash = props.millEdit?.approve_hash ?? '';
+
+    /** Optional reason, sent with the Reject request and included in the submitter's rejection email. */
+    const [rejectionReason, setRejectionReason] = React.useState('');
 
     const showRaw = false;
 
@@ -199,10 +208,24 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                     {/**
                      * Approve and Reject buttons!
                      */}
-                    <section>
+                    <section className="flex flex-col gap-8">
                         <h2
                             className="text-2xl mb-5 hidden"
                         >What do you want to do?</h2>
+                        <Field className="max-w-2xl mx-auto px-10">
+                            <FieldLabel htmlFor="rejection_reason" className="text-beluga">Reason for rejection (optional)</FieldLabel>
+                            <Textarea
+                                id="rejection_reason"
+                                name="rejection_reason"
+                                rows={4}
+                                className="bg-beluga text-velvet dark:bg-beluga dark:text-velvet"
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                            />
+                            <FieldDescription className="text-beluga">
+                                Only used if you reject. It's included in the email to the person who submitted these changes.
+                            </FieldDescription>
+                        </Field>
                         <div className="flex flex-row w-full space-x-8 justify-center items-center px-10">
                             <Button
                                 className="bg-red-600 text-white font-bold text-xl px-6 py-8 hover:bg-red-700"
@@ -212,6 +235,7 @@ export default function MillEditShow({ original, submitted, ...props }: MillDiff
                                     href={reject(rejectHash)}
                                     className=""
                                     method="post"
+                                    data={{ rejection_reason: rejectionReason.trim() || null }}
                                     as="button"
                                 >
                                     Reject Changes

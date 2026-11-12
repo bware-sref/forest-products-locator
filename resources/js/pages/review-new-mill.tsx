@@ -209,7 +209,7 @@ export default function ReviewNewMill({ submitted, ...props }: MillDiffProps) {
                                 id="rejection_reason"
                                 name="rejection_reason"
                                 rows={4}
-                                className="bg-beluga text-velvet"
+                                className="bg-beluga text-velvet dark:bg-beluga dark:text-velvet"
                                 value={rejectionReason}
                                 onChange={(e) => setRejectionReason(e.target.value)}
                             />
