@@ -47,27 +47,35 @@ export default function MillMapMarker({
         >
             <MapPopup className="w-72">
                 <div className="flex flex-col text-left text-velvet text-[16px]">
-                    <h3 className="font-extrabold text-lg">{mill.mill_name}</h3>
-                    <address className="not-italic">
+                    <h3 className="font-extrabold text-lg mb-5">{mill.mill_name}</h3>
+                    <address className="not-italic mb-5">
                         {mill.physical_address}
                         <br />
                         {mill.physical_address_two}
                     </address>
-                    <p>
-                        <strong>Species: </strong>
-                        {mill.wood_species?.map((wood, index) => {
-                            const prefix = (0 < index) ? ', ' : '';
-                            return prefix + wood.name;
-                        })}
-                    </p>
-                    <p>
-                        <strong>Mill Type: </strong>
-                        {mill.mill_types?.map((millType, index) => {
-                            const prefix = (0 < index) ? ', ' : '';                                            
-                            return prefix + millType.name;
-                        })}
-                    </p>                                                    
-                    <p>
+
+                    {mill.wood_species?.length ? (
+                        <p>
+                            <strong>Species: </strong>
+                            {mill.wood_species.map((wood, index) => {
+                                const prefix = (0 < index) ? ', ' : '';
+                                return prefix + wood.name;
+                            })}
+                        </p>
+                    ) : '' }
+
+                    {mill.mill_types?.length ? (
+                        <p>
+                            <strong>Mill Type: </strong>
+                            {mill.mill_types.map((millType, index) => {
+                                const prefix = (0 < index) ? ', ' : '';                                            
+                                return prefix + millType.name;
+                            })}
+                        </p>
+                    ) : ''}
+
+
+                    <div className="pt-5">
                         <Link
                             viewTransition
                             href={show(mill.match_id)}
@@ -76,7 +84,7 @@ export default function MillMapMarker({
                         >
                             More Information...
                         </Link>
-                    </p>
+                    </div>
                     {children}
                 </div>
             </MapPopup>

@@ -80,18 +80,31 @@ export default function MillSingleItem ({
                     {mill.physical_address_two}
                 </address>
 
-                <p><strong>Species: </strong> 
-                    {mill.wood_species ? mill.wood_species.map((wood, index) => {
-                        const prefix = (0 < index) ? ', ' : '';
-                        return prefix + wood.name;
-                    }) : ''}
-                </p>
-                <p><strong>Mill Type: </strong> {
-                    mill.mill_types ? mill.mill_types.map((millType, index) => {
-                        const prefix = (0 < index) ? ', ' : '';                                            
-                        return prefix + millType.name;
-                    }) : ''
-                }</p>
+                {mill.wood_species?.length ? (
+                    <p><strong>Species: </strong> 
+                        {mill.wood_species.map((wood, index) => {
+                            const prefix = (0 < index) ? ', ' : '';
+                            return prefix + wood.name;
+                        })}
+                    </p>
+                ) : ''}
+
+                {mill.mill_types?.length ? (
+                    <p>
+                        <strong>Mill Type: </strong> 
+                        {mill.mill_types.map((millType, index) => {
+                            const prefix = (0 < index) ? ', ' : '';                                            
+                            return prefix + millType.name;
+                        })}
+                    </p>
+                ) : ''}
+                
+                {mill.size ? (
+                    <p>
+                        <strong>Size: </strong>
+                        {mill.size}
+                    </p>
+                ) : ''}
 
                 {/** Contact */}
                 <div className="mill-contact my-5" hidden={!showContact}>
