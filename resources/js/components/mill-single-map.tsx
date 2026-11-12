@@ -47,7 +47,7 @@ export default function MillSingleMap({
 
     return (
         <Map 
-            className='min-h-[calc(100vh-6rem)] lg:min-h-96'
+            className='min-h-[calc(100vh-6rem)] lg:min-h-96 mt-5'
             center={mapCenter}
             zoom={zoom}
         >
