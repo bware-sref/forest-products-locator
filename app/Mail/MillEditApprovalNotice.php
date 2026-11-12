@@ -34,11 +34,9 @@ class MillEditApprovalNotice extends Mailable
     {
         $addy = new Address(config('mail.from.address'), config('mail.from.name'));
 
-        $subject = $this->applyEnvironmentPrefix("Your mill submission (#{$this->millEdit->id}) has been approved");
-
         return new Envelope(
             from: $addy,
-            subject: $subject,
+            subject: $this->resolveSubject(applyEnvironmentPrefix: true),
             replyTo: [
                 $addy,
             ]
@@ -53,18 +51,23 @@ class MillEditApprovalNotice extends Mailable
         /**
          * Finding the mill name is now a MillEdit model method.
          */
-        $millName = $this->millEdit->millName();
+        $with = [
+            'mill_name' => $this->millEdit->millName(),
+            'isNewMill' => $this->millEdit->isNewMill(),
+            'subject' => $this->resolveSubject(applyEnvironmentPrefix: false),
+            'reviewed_at' => $this->millEdit->reviewed_at,
+            'email' => $this->millEdit->submitter_email,
+            'ip' => $this->millEdit->submitter_ip,
+            'now' => now(),
+        ];
+
+        if ($this->millEdit->mill) {
+            $with['url'] = route('mills.show', ['mill' => $this->millEdit->mill]);
+        }
 
         return new Content(
             markdown: 'mail.mill-edit-approval-notice',
-            with: [
-                'mill_name' => $millName,
-                'reviewed_at' => $this->millEdit->reviewed_at,
-                'email' => $this->millEdit->submitter_email,
-                'ip' => $this->millEdit->submitter_ip,
-                'now' => now(),
-                'url' => route('mills.show', ['mill' => $this->millEdit->mill_id]),
-            ]
+            with: $with
         );
     }
 
@@ -76,5 +79,22 @@ class MillEditApprovalNotice extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    /**
+     * differentiate messaging depending on whether this is a 
+     * new mill submission or an edit submission
+     */
+    protected function resolveSubject(bool $applyEnvironmentPrefix = true): string
+    {
+        $millName = $this->millEdit->millName();
+        $subject = $this->millEdit->isNewMill() ?
+            "Your new mill submission for \"{$millName}\" has been approved."
+            :
+            "Your edits for \"{$millName}\" have been approved.";
+        return $applyEnvironmentPrefix ?
+            $this->applyEnvironmentPrefix($subject)
+            :
+            $subject;
     }
 }

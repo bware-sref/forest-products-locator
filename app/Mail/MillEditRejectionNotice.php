@@ -34,11 +34,9 @@ class MillEditRejectionNotice extends Mailable
     {
         $addy = new Address(config('mail.from.address'), config('mail.from.name'));
 
-        $subject = $this->applyEnvironmentPrefix("Your mill submission (#{$this->millEdit->id}) has been rejected");
-
         return new Envelope(
             from: $addy,
-            subject: $subject,
+            subject: $this->resolveSubject(applyEnvironmentPrefix: true),
             replyTo: [
                 $addy,
             ]
@@ -50,15 +48,16 @@ class MillEditRejectionNotice extends Mailable
      */
     public function content(): Content
     {
-        /**
-         * Finding the mill name is now a MillEdit model method.
-         */
-        $millName = $this->millEdit->millName();
-
         return new Content(
             markdown: 'mail.mill-edit-rejection-notice',
             with: [
-                'mill_name' => $millName,
+                /**
+                 * Finding the mill name is now a MillEdit model 
+                 * method.
+                 */
+                'mill_name' => $this->millEdit->millName(),
+                'isNewMill' => $this->millEdit->isNewMill(),
+                'subject' => $this->resolveSubject(applyEnvironmentPrefix: false),
                 'reason' => $this->millEdit->rejection_reason,
                 'reviewed_at' => $this->millEdit->reviewed_at,
                 'email' => $this->millEdit->submitter_email,
@@ -77,5 +76,18 @@ class MillEditRejectionNotice extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    protected function resolveSubject(bool $applyEnvironmentPrefix = true): string
+    {
+        $millName = $this->millEdit->millName();
+        $subject = $this->millEdit->isNewMill() ?
+            "Your new mill submission for \"{$millName}\" has been rejected."
+            :
+            "Your edits for \"{$millName}\" have been rejected.";
+        return $applyEnvironmentPrefix ?
+            $this->applyEnvironmentPrefix($subject)
+            :
+            $subject;
     }
 }
