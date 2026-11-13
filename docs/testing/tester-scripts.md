@@ -54,7 +54,7 @@ Each script has a goal, the steps, and what you should see. If what you see diff
 
 1. Open the home page, then go to the mill list (https://fpn.sref.info/mill-list) from the menu.
 2. Wait for the list to load.
-3. Type a word from a mill name you can see into the **Search mills...** box. On a narrow window or phone, open **Filters** first.
+3. Type a word from a mill name you can see into the **Search mill names...** box. On a narrow window or phone, open **Filters** first.
 4. Clear the search box.
 5. Type nonsense, such as `zzzz`.
 6. Click **Clear filters** in the message that appears.
@@ -77,20 +77,23 @@ What you should see:
 
 - The county list only offers counties in the chosen state.
 - Each choice narrows the list and updates the count.
+- On a computer, each filter you pick is listed under the page title. Clicking one removes just that filter.
 - Clear Filters empties every filter and brings back all mills.
 
 ### 1.3 Search by location
 
 1. On the mill list, under **Filter by Location**, click **Use my location** and allow the browser to share your location.
-2. Pick a distance in the radius list.
-3. Click **Reset Location**, then type a city or ZIP code into **Enter an address, city, or zip...** and look it up.
-4. Try a made-up address, such as `123 Nowhere Road, Atlantis`.
+2. Open **Maximum distance** and pick a different distance.
+3. Click **Reset Location**.
+4. Click **Choose location**, type a city or ZIP code into **Enter an address, city, or zip...**, and look it up.
+5. Click **Reset Location**, then **Choose location** again, and try a made-up address, such as `123 Nowhere Road, Atlantis`.
 
 What you should see:
 
-- After allowing location, the radius list becomes usable; before that, it explains why it is disabled.
-- Only mills within the chosen distance appear.
-- A looked-up place shows its name as the search center.
+- Right after allowing location, the list narrows to mills within 50 miles, without picking a distance. The panel says "Showing mills within 50 miles of your current location", and on a computer "Within 50 mi of your location" is listed under the page title.
+- Changing **Maximum distance** updates the list and the message. The distance list has no option to clear it.
+- **Reset Location** brings back all mills and the **Use my location** and **Choose location** buttons.
+- A looked-up place filters right away too, and the message names it, such as "Showing mills within 50 miles of Athens, GA".
 - A made-up address shows "We couldn't find that location. Try a different address."
 
 ### 1.4 Use the map
@@ -164,13 +167,14 @@ Write down the mill's name and what you changed.
 ### 1.9 Other pages
 
 1. Visit each page from the menu and footer: State Resources, one state's page, FAQ, Contact, About Us. Privacy Policy and Southern Group of State Foresters link to other websites; just check they open.
-2. On FAQ, open and close several questions.
+2. On FAQ, type a word such as `cookies` into **Search the FAQs**, and click one of the questions listed.
 3. On Contact, click **Submit** with the form empty, then send a real message with the subject starting `TEST`.
 4. Visit a page that doesn't exist, such as https://fpn.sref.info/no-such-page.
 
 What you should see:
 
 - Every page loads with no broken images or obviously missing text.
+- The FAQ search lists the questions whose question or answer contains your words. Clicking one scrolls the page to it, and your search stays in the box.
 - The empty contact form shows an error beside each required field; the filled-in one shows "Thank you for submitting a contact request."
 - The missing page shows a friendly not-found page with a way back to the site.
 
@@ -314,7 +318,7 @@ Set up the shortcut **before** turning VoiceOver on, because VoiceOver changes h
 ### Zoom and display settings
 
 - **Command-plus / Command-minus** zooms the page in the browser; **Command-0** resets it.
-- **System Settings > Accessibility > Display**: **Reduce motion** and **Increase contrast** are used in script 3.5.
+- **System Settings > Accessibility > Display**: **Reduce motion** and **Increase contrast** are used in script 3.6.
 
 ## Part 3: Accessibility scripts
 
@@ -329,7 +333,8 @@ Put the mouse or trackpad out of reach. Do this on the home page, mill list, mil
 3. Use every menu, button, filter and dropdown with the keyboard alone.
 4. On a narrow window (or zoomed to 200%), open the menu button at the top, move through it, and press Escape.
 5. On the mill map, Tab to the map and use the arrow keys and **+ / -**. Tab to a mill pin and press Return.
-6. Open **Filters**, then press Escape.
+6. On the mill list in a full-size window, the Filters panel is open beside the list. Tab to its close button (×) and press Return. Then press Return on **Filters** to open it again.
+7. Make the window narrow (or zoom to 200%), open **Filters**, and press Escape.
 
 What you should see:
 
@@ -338,7 +343,8 @@ What you should see:
 - The order follows the page: top to bottom, left to right. Focus never disappears or gets stuck.
 - Everything you can click, you can also reach and use with the keyboard.
 - The map pans and zooms with keys; a pin's pop-up opens with Return and closes with Escape.
-- Escape closes Filters and the menu, and focus goes back to the button that opened them.
+- In a full-size window, the × hides the Filters panel and focus goes to the **Filters** button, which opens it again. Escape doesn't close this panel, since it isn't a pop-up.
+- In a narrow window, Escape closes Filters and the menu, and focus goes back to the button that opened them.
 
 ### 3.2 VoiceOver: page structure
 
@@ -388,7 +394,29 @@ What you should hear:
 - After Clear filters: you land on the page title, such as "Mill List, heading level 1", then hear the new count.
 - On the map, each pin reads as the mill's name, and VO-Space opens its pop-up.
 
-### 3.5 Zoom, reflow and display settings
+### 3.5 VoiceOver: searching the FAQs
+
+1. On the FAQ page, move to **Search the FAQs** with **VO-Command-J** and type `cookies`.
+2. Wait without moving.
+3. Press **Down Arrow** to move through the results, then **Return** on one.
+4. Press **VO-A** to read from there, then press **Control** to stop.
+5. Go back to the search box. Clear it, type `location`, and wait. While the results are showing, press **VO-Right Arrow** a few times.
+6. Press **Escape**.
+7. Type `location` again if it's gone, then press **Tab** while the results are showing.
+8. Clear the search box and type `zebra`.
+
+What you should hear:
+
+- On the search box: "Search the FAQs", and that it's a text field (VoiceOver may say "combo box").
+- After typing: "N questions found." on its own, while you stay in the search box.
+- On each result: the question, then its category, such as "Does the site use cookies? Finding Mills".
+- After Return: VoiceOver moves to that question and its answer, and VO-A reads the answer. The search box still has your words in it.
+- With the results showing, VO-Right Arrow stays among the results and the search box rather than moving into the page behind. That's expected; write down if it does anything else.
+- Escape closes the results and leaves you in the search box.
+- **Tab with the results showing:** the results close, and you hear the next item on the page clearly. Write down exactly what VoiceOver said. Silence, "dimmed", or a blank there is a problem.
+- After `zebra`: "0 questions found." and "No questions match "zebra"."
+
+### 3.6 Zoom, reflow and display settings
 
 1. Make the browser window about 1280 pixels wide (roughly a laptop screen's full width), then zoom to **200%** (Command-plus several times). Use the mill list, a mill's page, and add-a-business.
 2. Zoom to **400%** and repeat.
@@ -402,16 +430,18 @@ What you should see:
 - With Reduce motion, no large sliding or zooming animations.
 - Text and buttons stay readable against their backgrounds, in both settings.
 
-### 3.6 iPhone with VoiceOver (optional)
+### 3.7 iPhone with VoiceOver (optional)
 
 1. Turn VoiceOver on with the side-button shortcut and open the site in Safari.
 2. Swipe right through the home page.
 3. Open the menu, go to the mill list, and search with the rotor set to **Form Controls**.
 4. Repeat script 3.3 on the contact form.
+5. On the FAQ page, search for `cookies` and double-tap a result.
 
 What you should hear:
 
-- The same as 3.2 to 3.4: named buttons and links, a heading for each page, counts announced after a search, and errors read out after submitting.
+- The same as 3.2 to 3.5: named buttons and links, a heading for each page, counts announced after a search, and errors read out after submitting.
+- Picking an FAQ result moves VoiceOver to that question.
 
 ## Results
 
@@ -440,5 +470,6 @@ Result is one of: Not done, Pass, Pass with notes, Fail, Blocked.
 | 3.2 VoiceOver: page structure                | Not done |                    |               |
 | 3.3 VoiceOver: forms                         | Not done |                    |               |
 | 3.4 VoiceOver: searching for mills           | Not done |                    |               |
-| 3.5 Zoom, reflow and display settings        | Not done |                    |               |
-| 3.6 iPhone with VoiceOver                    | Not done |                    |               |
+| 3.5 VoiceOver: searching the FAQs            | Not done |                    |               |
+| 3.6 Zoom, reflow and display settings        | Not done |                    |               |
+| 3.7 iPhone with VoiceOver                    | Not done |                    |               |

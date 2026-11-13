@@ -6,6 +6,8 @@ import {
     SafeHtml
 } from "@/components/safe-html"
 import { FaqCategoryNav } from '@/components/faq-category-nav';
+import { FaqSearch } from '@/components/faq-search';
+import { faqElementId } from '@/lib/faqs';
 
 export default function Faqs() {
     const page = usePage<{
@@ -21,6 +23,8 @@ export default function Faqs() {
             <div className="flex min-h-screen flex-col items-center bg-nature p-6 text-beluga lg:justify-center lg:p-8 dark:bg-nature">
                 <div className="flex flex-col w-full lg:max-w-7xl items-center lg:items-start justify-start opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 px-6 gap-5">
                     <h1 className="font-bold text-3xl">{pageTitle}</h1>
+
+                    <FaqSearch categories={faqsByCategory} />
 
                     {/**
                      * nav first in the DOM (and on the left on desktop) so reading/tab order matches
@@ -45,7 +49,10 @@ export default function Faqs() {
                                     <ul className="flex flex-col gap-4">
                                         {category.faqs.map((faq) => (
                                             <li key={faq.id}
-                                                className="odd:bg-lorne even:bg-coupe p-4"
+                                                // the search jumps here; tabIndex lets it take focus, and the scroll margins match the category headings'
+                                                id={faqElementId(faq.id)}
+                                                tabIndex={-1}
+                                                className="odd:bg-lorne even:bg-coupe p-4 scroll-mt-28 lg:scroll-mt-6 focus:outline-2 focus:outline-offset-2 focus:outline-beluga"
                                             >
                                                 <div className="question flex flex-row gap-4 mb-2 text-lg">
                                                     <div className="text-xl font-bold">

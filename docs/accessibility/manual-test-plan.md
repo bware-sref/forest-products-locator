@@ -51,7 +51,7 @@ Run each test on every page below, including the states listed for that page. Th
 | Edit a mill           | /mills/{mill}/edit (linked from a mill page)          | Same as Add a business; also submitting with nothing changed                                        |
 | Review an edit        | /mill-edits/{link from email}                         | Changes shown side by side; approve; reject                                                         |
 | Review a new business | /mill-edits/{link from email}                         | Approve; reject                                                                                     |
-| FAQs                  | /faqs                                                 | Every category; any expanding questions open and closed                                             |
+| FAQs                  | /faqs                                                 | Every category; search with results open, a result picked, and no matches                          |
 | About us              | /about-us                                             | —                                                                                                   |
 | States                | /states                                               | —                                                                                                   |
 | A state page          | /states/{state}, such as /states/georgia              | State resources and links                                                                           |
@@ -147,6 +147,7 @@ The NVDA key is Insert by default. The VO key is Ctrl+Option.
 7. Submit a form with errors. The errors should be announced without you having to search for them, and each error should be read with its field.
 8. Run a search or apply a filter. The screen reader should say “Loading mills…”, then the count (for example “12 mills found.” or “0 mills found.”), without moving focus. With no matches, the page shows “No mills match these filters.” and a Clear filters button, not loading placeholders.
 9. Check that buttons and links are announced with the right role. A button that looks like a link should still say “button”.
+10. On the FAQ page, search, then pick a result from the list. The number of matching questions should be announced, and picking one should move you to that question. While the list is open, the rest of the page is hidden from the screen reader on purpose. Press Tab with the list open: it should close, and the next item should be announced normally. Log anything silent or confusing there.
 
 **It passes when** you can understand every page and finish every task by listening alone.
 
