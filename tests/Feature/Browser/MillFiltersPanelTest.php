@@ -159,6 +159,58 @@ describe('desktop', function () {
             ->assertSourceHas('<span role="status" class="sr-only">1 mill found.</span>');
     });
 
+    test('a location filters right away at 50 miles, and the distance can be changed but not cleared', function () {
+        // open ocean, so none of the factory mills are nearby; one mill about 3 miles away and one about 76
+        Mill::factory()->for($this->georgia)->create(['mill_name' => 'Near Mill', 'latitude' => 40.05, 'longitude' => -140]);
+        Mill::factory()->for($this->georgia)->create(['mill_name' => 'Farther Mill', 'latitude' => 41.1, 'longitude' => -140]);
+
+        $page = visit('/mill-list')
+            ->geolocation(40, -140)
+            ->wait(FILTERS_FADE_IN_SECONDS)
+            ->click('Use my location')
+            ->wait(2)
+            ->assertSee('Showing mills within 50 miles of your current location')
+            ->assertSeeIn('#active-filter-location', 'Within 50 mi of your location')
+            ->assertSeeIn('label[for=radius]', 'Maximum distance')
+            ->assertSeeIn('#radius', '50 miles')
+            ->assertSourceHas('<span role="status" class="sr-only">1 mill found.</span>');
+
+        $page->click('#radius')
+            ->assertSeeIn('[data-slot=popover-content]', 'Close')
+            ->assertDontSeeIn('[data-slot=popover-content]', 'Clear')
+            ->click('100 miles')
+            ->wait(2)
+            ->assertSee('Showing mills within 100 miles of your current location')
+            ->assertSourceHas('<span role="status" class="sr-only">2 mills found.</span>');
+
+        $page->click('Reset Location')
+            ->wait(2)
+            ->assertNotPresent('#active-filter-location')
+            ->assertSee('Use my location')
+            ->assertSourceHas('<span role="status" class="sr-only">7 mills found.</span>');
+    });
+
+    test('a location saved without a distance gets the default one', function () {
+        // saved before a location filtered right away
+        $saved = json_encode([
+            'searchText' => '',
+            'searchParams' => ['lat' => '40', 'lng' => '-140'],
+            'coordinates' => ['lat' => 40, 'lng' => -140],
+            'radius' => null,
+            'locationLabel' => 'Somewhere, CA',
+        ]);
+        Mill::factory()->for($this->georgia)->create(['mill_name' => 'Near Mill', 'latitude' => 40.05, 'longitude' => -140]);
+
+        $page = visit('/mill-list')->wait(FILTERS_FADE_IN_SECONDS);
+        $page->script("sessionStorage.setItem('fpn:mill-filters', JSON.stringify({$saved}))");
+
+        $page->navigate('/mill-list')
+            ->wait(FILTERS_FADE_IN_SECONDS)
+            ->assertSee('Showing mills within 50 miles of Somewhere, CA')
+            ->assertSeeIn('#active-filter-location', 'Within 50 mi of Somewhere, CA')
+            ->assertSourceHas('<span role="status" class="sr-only">1 mill found.</span>');
+    });
+
     test('the panel\'s close button closes it and returns focus to the Filters button', function (string $path) {
         $page = visit($path)
             ->wait(FILTERS_FADE_IN_SECONDS)
