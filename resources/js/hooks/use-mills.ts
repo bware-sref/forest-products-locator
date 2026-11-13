@@ -325,6 +325,9 @@ export interface UseMillsReturn {
  * });
  * ```
  */
+/** Miles. Applied as soon as a location is chosen; one of MillFilters' radius options. */
+export const DEFAULT_RADIUS = '50';
+
 export function useMills({
     millsApiUrl,
     rawStates,
@@ -627,6 +630,19 @@ export function useMills({
     const [geocodeError, setGeocodeError] = useState<string | null>(null);
     const [locationLabel, setLocationLabel] = useState<string | null>(null);
 
+    /**
+     * Turns the proximity filter on for a newly chosen location (from either source), at DEFAULT_RADIUS. Visitors
+     * didn't realize they had to pick a distance after picking a location, so a location filters right away; the
+     * distance can be changed after.
+     */
+    const applyLocation = useCallback((lat: number, lng: number) => {
+        coordinatesRef.current = { lat, lng };
+        setCoordinates(coordinatesRef.current);
+        setRadius(DEFAULT_RADIUS);
+        // All three are set together so the API never gets a partial proximity query
+        setSearchParams((prev) => ({ ...prev, lat: String(lat), lng: String(lng), radius: DEFAULT_RADIUS }));
+    }, []);
+
     const handleRequestLocationClick: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
         if (! navigator.geolocation) {
             setGeolocationStatus('unavailable');
@@ -638,18 +654,12 @@ export function useMills({
         navigator.geolocation.getCurrentPosition(
             // success
             (position) => {
-                coordinatesRef.current = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                };
-                setCoordinates(coordinatesRef.current);
+                applyLocation(position.coords.latitude, position.coords.longitude);
                 setGeolocationStatus('granted');
                 // No address label for browser geolocation — MillFilters falls
                 // back to a generic "location is set" message when this is null.
                 setLocationLabel(null);
                 setGeocodeError(null);
-                // Don't fire a proximity fetch yet, the user still needs to pick a radius.
-                // Coordinates are ready and waiting in the ref.
             },
             // error
             (error) => {
@@ -673,17 +683,14 @@ export function useMills({
             // options?
         );
 
-    }, []);
+    }, [applyLocation]);
 
     const handleRadiusSelectChange = useCallback((radius: string) => {
         setSearchParams((prev) => {
             const next = { ...prev };
             if (radius === '' || !coordinatesRef.current) {
-                // Clearing the radius doesn't need to remove all three proximity parameters, only radius
-                // delete next.lat;
-                // delete next.lng;
-                delete next.radius;
-                setRadius(null);
+                // The dropdown can't be cleared (Reset Location turns the filter off), so this shouldn't happen
+                return prev;
             } else {
                 // All three properties are set atomically so the API never receives a 
                 // partial proximity query
@@ -713,13 +720,12 @@ export function useMills({
                 return;
             }
 
-            coordinatesRef.current = { lat: result.latitude, lng: result.longitude };
-            setCoordinates(coordinatesRef.current);
+            applyLocation(result.latitude, result.longitude);
             setLocationLabel(formatLocationLabel(result) || address);
         }).finally(() => {
             setIsGeocoding(false);
         });
-    }, []);
+    }, [applyLocation]);
 
     /**
      * Clears whichever location source is active (browser geolocation or
@@ -767,6 +773,10 @@ export function useMills({
             setCoordinates(saved.coordinates);
             setRadius(saved.radius);
             setLocationLabel(saved.locationLabel);
+            if (saved.coordinates && !saved.searchParams.radius) {
+                // saved before a location filtered right away (a tab left open over a deploy)
+                applyLocation(saved.coordinates.lat, saved.coordinates.lng);
+            }
             // the selects only pick up a new value when remounted
             setFilterResetKey((k) => k + 1);
         }

@@ -63,7 +63,7 @@ You can also type part of a mill's name in the search box. The number of mills t
 On a computer, the filters you've set are listed under the page title, even with the Filters panel closed. Click one to remove it. On a phone, the **Filters** button shows how many filters are on.
 
 ### Can I find mills near a specific location?
-Yes. In the Filters panel, choose **Use my location**, or type an address, city, or ZIP code. Then pick a distance from 5 to 250 miles. Distances are straight-line, not driving miles.
+Yes. In the Filters panel, choose **Use my location**, or type an address, city, or ZIP code. You'll see mills within 50 miles of that spot, and you can change **Maximum distance** to anywhere from 5 to 250 miles. Distances are straight-line, not driving miles. To stop filtering by location, choose **Reset Location**.
 
 ### Do you save my location?
 No. Your location is only used to find nearby mills, and we don't store it. If you type in an address, it's sent to the U.S. Census Bureau's free address lookup service to get map coordinates, but we don't keep a copy.

@@ -350,11 +350,12 @@ export default function MillFilters({
                             {isLocationActive ? (
                                 <div className="flex flex-col gap-1">
                                     <p className="text-beluga text-sm">
-                                        {locationLabel ? ( 
-                                            <strong>{locationLabel}</strong> 
-
+                                        {/* says what's being filtered, so it never reads as on when it isn't */}
+                                        Showing mills within <strong>{searchParams.radius} miles</strong> of{' '}
+                                        {locationLabel ? (
+                                            <strong>{locationLabel}</strong>
                                         ) : (
-                                            'Using your current location'
+                                            'your current location'
                                         )}
                                     </p>
                                     <Button
@@ -439,6 +440,7 @@ export default function MillFilters({
 
                             {/* Radius dropdown — disabled until a location (either source) is active */}
                             <div
+                                className="flex flex-col gap-2 mt-2"
                                 hidden={
                                     !(
                                     isLocationActive ||
@@ -447,6 +449,9 @@ export default function MillFilters({
                                     )
                                 }
                             >
+                                <FieldLabel htmlFor="radius" className="text-beluga">
+                                    Maximum distance:
+                                </FieldLabel>
                                 <TooltipProvider>
                                     <Tooltip>
                                         {/**
@@ -462,12 +467,16 @@ export default function MillFilters({
                                             }
                                         >
                                                 <InputSelect
-                                                    key={filterResetKey}
+                                                    // remounted when a location is set or reset, to show the default
+                                                    // distance (it only picks up a new value while open)
+                                                    key={`${filterResetKey}-${isLocationActive}`}
                                                     options={RADIUS_OPTIONS}
                                                     className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-200"
                                                     onValueChange={onRadiusSelectChange}
                                                     placeholder="Select a distance..."
-                                                    clearable={true}
+                                                    // Reset Location turns the filter off; a cleared distance would
+                                                    // leave a location that looks set but doesn't filter
+                                                    clearable={false}
                                                     disabled={!isLocationActive}
                                                     value={searchParams.radius || ''}
                                                 >
