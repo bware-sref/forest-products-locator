@@ -4,29 +4,25 @@
  */
 import {
     MouseEventHandler,
-    ReactNode,
-    useState
 } from "react";
 import {
     Button
 } from "@/components/ui/button";
 import {
-    DialogDrawer
-} from "@/components/extend/dialog-drawer";
-import {
-    DialogProps
-} from "vaul";
-import {
     DownloadIcon,
-    SlidersHorizontalIcon
+    SlidersHorizontalIcon,
+    X,
 } from "lucide-react";
 import { Spinner } from '@/components/ui/spinner';
 import { MILL_RESULTS_HEADING_ID } from '@/components/mill-results-empty';
+import { MILL_FILTERS_PANEL_ID, MILL_FILTERS_TRIGGER_ID } from '@/components/mill-filters-panel';
 import { millCountText, millStatusMessage } from '@/lib/mill-status';
+import { type ActiveFilter, type ActiveFilterKey } from '@/hooks/use-mills';
+
+const FILTER_TRIGGER_ID = MILL_FILTERS_TRIGGER_ID;
 
 export interface TitleFilterBarProps {
     headline: string;
-    children: ReactNode;
     isDownloading: boolean;
     isLoading: boolean;
     millCount?: number;
@@ -34,39 +30,47 @@ export interface TitleFilterBarProps {
     loadError?: boolean;
     handleExportClick: MouseEventHandler<HTMLButtonElement>;
     handleClickCapture?: MouseEventHandler<HTMLDivElement> | undefined;
+
+    // --- Filters panel (see useFilterPanel) ---
+    filtersOpen: boolean;
+    onFiltersToggle: () => void;
+    isDesktop: boolean;
+    /** Shown as removable chips on desktop, and as a count on the Filters button on smaller screens. */
+    activeFilters: ActiveFilter[];
+    onRemoveFilter: (key: ActiveFilterKey) => void;
 }
 
 export function TitleFilterBar({
     headline,
-    children,
     isDownloading,
     isLoading,
     millCount,
     loadError = false,
     handleExportClick,
     handleClickCapture,
+    filtersOpen,
+    onFiltersToggle,
+    isDesktop,
+    activeFilters,
+    onRemoveFilter,
     ...props
 }: TitleFilterBarProps) {
 
-    const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-
     const statusMessage = millStatusMessage({ isLoading, loadError, millCount });
+    const activeCount = activeFilters.length;
 
     /**
-     * make triggerButton a component
+     * The removed chip disappears, so move focus to the next chip (or the previous one, if it was last), or to the
+     * Filters button once none are left. Otherwise keyboard and screen reader users are dropped at the top of the page.
      */
-    const triggerButton = (
-        <Button
-            className="bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end rounded-sm z-20"
-            id="filter-trigger"
-        >
-            <span className="sr-only lg:not-sr-only"><span className="sr-only">Toggle </span>Filters</span>
-            <SlidersHorizontalIcon
-                data-icon="inline-end"                            
-                className="w-6 h-6 lg:ml-2 size-1"
-            />
-        </Button>
-    );
+    const removeFilter = (index: number) => {
+        const nextKey = activeFilters[index + 1]?.key ?? activeFilters[index - 1]?.key;
+        onRemoveFilter(activeFilters[index].key);
+        requestAnimationFrame(() => {
+            const next = nextKey ? document.getElementById(`active-filter-${nextKey}`) : null;
+            (next ?? document.getElementById(FILTER_TRIGGER_ID))?.focus();
+        });
+    };
 
     return (
         <>
@@ -99,7 +103,7 @@ export function TitleFilterBar({
                         </span>
                     ) : ''}
                     {/* always rendered: a live region added along with its text often isn't announced.
-                        Hidden from screen readers while Filters is open; MillFilters has its own then. */}
+                        Hidden from screen readers while the mobile filters Sheet is open; MillFilters announces then. */}
                     <span role="status" className="sr-only">{statusMessage}</span>
                     {isLoading || isDownloading ? (
                         <Spinner data-icon="inline-end" className="ml-auto size-8 text-beluga" />
@@ -119,42 +123,57 @@ export function TitleFilterBar({
                         />
                     </Button>
 
-                    <DialogDrawer
-                        trigger={triggerButton}
-                        title="Mill Filters"
-                        description="Filter mills based on the criteria below."
-                        drawerContentProps={{
-                            className: "bg-transparent z-200 border-r-lorne w-full max-w-screen p-0 ",                            
-                        }}
-                        drawerHeaderProps={{
-                            className: "sr-only"
-                        }}
-                        drawerProps={{
-                            direction: "left",
-                            modal: true,
-                            onOpenChange: setDrawerOpen,
-                            autoFocus: drawerOpen,
-                            className: 'w-screen min-w-full max-w-full'
-                        } as DialogProps}
-                        dialogHeaderProps={{
-                            className: "sr-only"
-                        }}
-                        dialogContentProps={{
-                            className: "bg-nature lg:bg-lorne z-100 border-lorne",                            
-                        }}
-                        dialogProps={{
-                            modal: true,
-                            onOpenChange: setDrawerOpen,
-                            autoFocus: drawerOpen
-                        } as DialogProps}
+                    <Button
+                        className="relative bg-coupe border border-beluga text-beluga text-[16px] font-bold justify-self-end rounded-sm z-20"
+                        id={FILTER_TRIGGER_ID}
+                        onClick={onFiltersToggle}
+                        aria-expanded={filtersOpen}
+                        // the desktop panel is in the page; the mobile Sheet manages its own relationship
+                        aria-controls={isDesktop ? MILL_FILTERS_PANEL_ID : undefined}
                     >
-                        {/**
-                         * Expect MillFilters as children
-                         */}
-                        {children}
-                    </DialogDrawer>
+                        <span className="sr-only lg:not-sr-only">Filters</span>
+                        {activeCount > 0 && (
+                            <span className="sr-only">, {activeCount} active</span>
+                        )}
+                        <SlidersHorizontalIcon
+                            data-icon="inline-end"
+                            className="w-6 h-6 lg:ml-2 size-1"
+                        />
+                        {/* smaller screens have no room for chips, so show how many filters are on */}
+                        {activeCount > 0 && (
+                            <span
+                                aria-hidden="true"
+                                className="lg:hidden absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-beluga text-velvet text-xs font-bold leading-5 text-center"
+                            >
+                                {activeCount}
+                            </span>
+                        )}
+                    </Button>
                 </div>
             </div>
+
+            {/* desktop: active filters as removable chips, so they stay visible with the panel closed */}
+            {activeCount > 0 && (
+                <ul
+                    aria-label="Active filters"
+                    className="hidden lg:flex w-full lg:max-w-7xl mx-auto flex-row flex-wrap gap-2 pb-3 md:px-0 2xl:px-6"
+                >
+                    {activeFilters.map((filter, index) => (
+                        <li key={filter.key}>
+                            <button
+                                type="button"
+                                id={`active-filter-${filter.key}`}
+                                onClick={() => removeFilter(index)}
+                                className="inline-flex items-center gap-1 rounded-full border border-beluga bg-coupe px-3 py-1 text-sm text-beluga hover:bg-beluga hover:text-velvet focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-beluga"
+                            >
+                                {filter.label}
+                                <X aria-hidden="true" className="size-4" />
+                                <span className="sr-only">, remove filter</span>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
         </>
     );

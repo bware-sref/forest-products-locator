@@ -38,10 +38,24 @@ export function buildCountiesByState(states: State[]): CountiesByState {
     const result: CountiesByState = {};
     for (const state of states) {
         if (state.counties !== undefined) {
-            result[state.id] = state.counties;
+            result[state.id] = normalizeOptions(state.counties);
         }
     }
     return result;
+}
+
+/**
+ * The server sends option values as numbers (the ids), but the selects, searchParams and the chips all work with
+ * strings. A number value never matches its string id, which left chips reading "Selected mill type" and kept the
+ * filter from being saved. Same idea as normalizeStates().
+ * Defined outside the hook so it isn't recreated on every render.
+ */
+export function normalizeOptions<T extends { id: number; name: string; label?: string }>(options: T[]): T[] {
+    return options.map((option) => ({
+        ...option,
+        value: String(option.id),
+        label: option.label ?? option.name,
+    }));
 }
 
 /**
@@ -73,6 +87,80 @@ export function formatLocationLabel(result: GeocodeResult): string {
         .filter(Boolean)
         .join(', ');
     return [result.street_address, cityStateZip].filter(Boolean).join(', ');
+}
+
+/** Which filters can show as removable chips. */
+export type ActiveFilterKey = 'q' | 'location' | 'state' | 'county' | 'millType' | 'woodSpecies';
+
+export interface ActiveFilter {
+    key: ActiveFilterKey;
+    /** What the chip says, e.g. "Georgia" or "Within 25 mi of Athens, GA" */
+    label: string;
+}
+
+/**
+ * Filter selections are kept in sessionStorage so they survive moving between Mill Map and Mill List (and reloads)
+ * for the rest of the browser session. Only what the visitor chose is saved; nothing is sent anywhere.
+ */
+const FILTERS_STORAGE_KEY = 'fpn:mill-filters';
+
+interface SavedFilters {
+    searchText: string;
+    searchParams: SearchParams;
+    coordinates: { lat: number; lng: number } | null;
+    radius: string | null;
+    locationLabel: string | null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function readSavedFilters(): SavedFilters | null {
+    try {
+        const parsed: unknown = JSON.parse(window.sessionStorage.getItem(FILTERS_STORAGE_KEY) ?? 'null');
+        if (!isRecord(parsed) || !isRecord(parsed.searchParams)) {
+            return null;
+        }
+
+        // keep only string values for known params; drop anything else (including a stale _token)
+        const searchParams: SearchParams = {};
+        for (const key of ['q', 'state', 'county', 'millType', 'woodSpecies', 'lat', 'lng', 'radius'] as const) {
+            const value = parsed.searchParams[key];
+            if (typeof value === 'string' && value !== '') {
+                searchParams[key] = value;
+            }
+        }
+
+        const coords = parsed.coordinates;
+        const coordinates = isRecord(coords) && typeof coords.lat === 'number' && typeof coords.lng === 'number'
+            ? { lat: coords.lat, lng: coords.lng }
+            : null;
+
+        return {
+            searchText: typeof parsed.searchText === 'string' ? parsed.searchText : '',
+            searchParams,
+            coordinates,
+            radius: typeof parsed.radius === 'string' ? parsed.radius : null,
+            locationLabel: typeof parsed.locationLabel === 'string' ? parsed.locationLabel : null,
+        };
+    } catch {
+        // unreadable or blocked storage: start fresh
+        return null;
+    }
+}
+
+function writeSavedFilters(saved: SavedFilters): void {
+    try {
+        window.sessionStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(saved));
+    } catch {
+        // storage blocked or full: filters just won't be remembered
+    }
+}
+
+/** Finds an option by the string id the filters use as their value. */
+function findById<T extends { id: number; name: string }>(options: T[] | undefined, id: string | undefined): T | undefined {
+    return id ? options?.find((option) => String(option.id) === id) : undefined;
 }
 
 async function downloadExport(params: SearchParams, token: string) {
@@ -117,6 +205,10 @@ export interface UseMillsReturn {
      * straight into the MillFilters component.
      */
     states: State[];
+    /** Mill types for the filter dropdown, with string values (see normalizeOptions) */
+    millTypeOptions: MillType[];
+    /** Wood species for the filter dropdown, with string values (see normalizeOptions) */
+    woodSpeciesOptions: WoodSpecies[];
 
     // --- Current filter values (for controlled inputs in MillFilters) ---
     searchText: string;
@@ -210,6 +302,12 @@ export interface UseMillsReturn {
      * buttons.
      */
     handleResetLocationClick: MouseEventHandler<HTMLButtonElement>;
+
+    // --- Active filter chips ---
+    /** The filters currently narrowing the results, in the same order as the filters panel. */
+    activeFilters: ActiveFilter[];
+    /** Removes one filter, e.g. from its chip, without opening the filters panel. */
+    handleRemoveFilter: (key: ActiveFilterKey) => void;
 }
 
 /**
@@ -241,6 +339,8 @@ export function useMills({
 
     const states = useMemo(() => normalizeStates(rawStates), [rawStates]);
     const countiesByState = useMemo(() => buildCountiesByState(rawStates), [rawStates]);
+    const millTypeOptions = useMemo(() => normalizeOptions(millTypes ?? []), [millTypes]);
+    const woodSpeciesOptions = useMemo(() => normalizeOptions(woodSpecies ?? []), [woodSpecies]);
 
     // ---------------------------------------------------------------------------
     // State
@@ -270,6 +370,12 @@ export function useMills({
     const [searchParams, setSearchParams] = useState<SearchParams>({});
 
     /**
+     * False until any saved filters have been read from sessionStorage (after mount, since the server can't see
+     * it). The search waits for this so it doesn't fetch everything first and then refetch with the saved filters.
+     */
+    const [isRestored, setIsRestored] = useState<boolean>(false);
+
+    /**
      * add isLoading state variable to make API loading state visible to other components
      */
     // starts true: the first search runs on mount, and an empty list before it returns isn't "no results"
@@ -295,6 +401,10 @@ export function useMills({
     const handleRetryLoadClick = useCallback(() => setRetryCount((count) => count + 1), []);
 
     useEffect(() => {
+        if (!isRestored) {
+            return;
+        }
+
         // AbortController lets us cancel the previous request if searchParams
         // changes before the fetch resolves, replacing the old `ignore` flag.
         const controller = new AbortController();
@@ -320,7 +430,7 @@ export function useMills({
         return () => {
             controller.abort();
         };
-    }, [millsApiUrl, searchParams, retryCount]);
+    }, [millsApiUrl, searchParams, retryCount, isRestored]);
 
 
     // ---------------------------------------------------------------------------
@@ -388,7 +498,7 @@ export function useMills({
             if (countyId === '') {
                 delete next.county;
             } else {
-                next.county = countyId;
+                next.county = String(countyId);
             }
             return next;
         });
@@ -404,7 +514,7 @@ export function useMills({
             if (millTypeId === '' || !resolved) {
                 delete next.millType;
             } else {
-                next.millType = millTypeId;
+                next.millType = String(millTypeId);
             }
             return next;
         });
@@ -418,7 +528,7 @@ export function useMills({
             if (woodSpeciesId === '' || !resolved) {
                 delete next.woodSpecies;
             } else {
-                next.woodSpecies = woodSpeciesId;
+                next.woodSpecies = String(woodSpeciesId);
             }
             return next;
         });
@@ -618,7 +728,7 @@ export function useMills({
      * the browser's actual permission state doesn't change just because
      * we've cleared our own coordinates.
      */
-    const handleResetLocationClick: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
+    const resetLocation = useCallback(() => {
         coordinatesRef.current = null;
         setCoordinates(null);
         setRadius(null);
@@ -641,12 +751,116 @@ export function useMills({
      */
     const isLocationActive = coordinates !== null;
 
+    const handleResetLocationClick: MouseEventHandler<HTMLButtonElement> = resetLocation;
+
+    // ---------------------------------------------------------------------------
+    // Remembering filters for the session
+    // ---------------------------------------------------------------------------
+
+    const restoreSavedFilters = useEffectEvent(() => {
+        const saved = readSavedFilters();
+        if (saved) {
+            setSearchText(saved.searchText);
+            setSearchParams(saved.searchParams);
+            setCounties(saved.searchParams.state ? countiesByState[saved.searchParams.state] ?? [] : []);
+            coordinatesRef.current = saved.coordinates;
+            setCoordinates(saved.coordinates);
+            setRadius(saved.radius);
+            setLocationLabel(saved.locationLabel);
+            // the selects only pick up a new value when remounted
+            setFilterResetKey((k) => k + 1);
+        }
+        setIsRestored(true);
+    });
+
+    useEffect(() => {
+        // sessionStorage isn't available during SSR, so saved filters can only be applied after hydration
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        restoreSavedFilters();
+    }, []);
+
+    useEffect(() => {
+        if (!isRestored) {
+            return;
+        }
+        writeSavedFilters({ searchText, searchParams, coordinates, radius, locationLabel });
+    }, [isRestored, searchText, searchParams, coordinates, radius, locationLabel]);
+
+    // ---------------------------------------------------------------------------
+    // Active filter chips
+    // ---------------------------------------------------------------------------
+
+    const activeFilters = useMemo<ActiveFilter[]>(() => {
+        const list: ActiveFilter[] = [];
+
+        if (searchParams.q) {
+            list.push({ key: 'q', label: `Name contains "${searchParams.q}"` });
+        }
+        // a location only filters once a radius is picked
+        if (searchParams.radius && coordinates) {
+            list.push({ key: 'location', label: `Within ${searchParams.radius} mi of ${locationLabel ?? 'your location'}` });
+        }
+        if (searchParams.state) {
+            list.push({ key: 'state', label: findById(states, searchParams.state)?.name ?? 'Selected state' });
+        }
+        if (searchParams.county) {
+            const county = findById(countiesByState[searchParams.state ?? ''], searchParams.county);
+            list.push({ key: 'county', label: county?.name ?? 'Selected county' });
+        }
+        if (searchParams.millType) {
+            list.push({ key: 'millType', label: findById(millTypes, searchParams.millType)?.name ?? 'Selected mill type' });
+        }
+        if (searchParams.woodSpecies) {
+            list.push({ key: 'woodSpecies', label: findById(woodSpecies, searchParams.woodSpecies)?.name ?? 'Selected wood type' });
+        }
+
+        return list;
+    }, [searchParams, coordinates, locationLabel, states, countiesByState, millTypes, woodSpecies]);
+
+    const handleRemoveFilter = useCallback((key: ActiveFilterKey) => {
+        switch (key) {
+            case 'q':
+                // drop a search that's still waiting on the debounce, or it would put the text back
+                debouncedTextSearch.cancel();
+                setSearchText('');
+                applyTextSearch('');
+                break;
+            case 'location':
+                resetLocation();
+                break;
+            case 'state':
+                handleStateSelectChange('');
+                break;
+            case 'county':
+                handleCountySelectChange('');
+                break;
+            case 'millType':
+                handleMillTypeSelectChange('');
+                break;
+            case 'woodSpecies':
+                handleWoodSpeciesSelectChange('');
+                break;
+        }
+        // the selects only pick up a new value when remounted
+        setFilterResetKey((k) => k + 1);
+    }, [
+        debouncedTextSearch,
+        applyTextSearch,
+        resetLocation,
+        handleStateSelectChange,
+        handleCountySelectChange,
+        handleMillTypeSelectChange,
+        handleWoodSpeciesSelectChange,
+    ]);
+
     // ---------------------------------------------------------------------------
 
     return {
         mills,
         counties,
         states,
+        millTypeOptions,
+        woodSpeciesOptions,
         searchText,
         searchParams,
         filterResetKey,
@@ -672,5 +886,7 @@ export function useMills({
         locationLabel,
         handleResetLocationClick,
         isLocationActive,
+        activeFilters,
+        handleRemoveFilter,
     };
 }

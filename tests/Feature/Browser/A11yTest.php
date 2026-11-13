@@ -18,10 +18,7 @@ use App\Models\WoodSpecies;
  * work: Sail doesn't pass host environment variables through):
  *   sail bash -c 'A11Y_LEVEL=3 php artisan test --group=a11y'
  */
-function a11yLevel(): int
-{
-    return (int) (getenv('A11Y_LEVEL') ?: 1);
-}
+// a11yLevel() lives in tests/Pest.php so other browser tests can use it
 
 /**
  * Content fades in on load; checking sooner measures a half-faded color and reports contrast issues that aren't real.
@@ -111,9 +108,8 @@ describe('interactive states', function () {
             ->wait(A11Y_FADE_IN_SECONDS)
             // the first load announces its count
             ->assertSourceHas('<span role="status" class="sr-only">5 mills found.</span>')
-            ->click('#filter-trigger')
+            // the desktop filters panel starts open
             ->type('#q', 'zzzz-no-such-mill')
-            ->keys('#q', 'Escape')
             // text search is debounced
             ->wait(2)
             ->assertSee('No mills match these filters.')
@@ -124,9 +120,7 @@ describe('interactive states', function () {
     test('the mill map after a search that matches nothing', function () {
         visit('/mill-map')
             ->wait(A11Y_FADE_IN_SECONDS)
-            ->click('#filter-trigger')
             ->type('#q', 'zzzz-no-such-mill')
-            ->keys('#q', 'Escape')
             ->wait(2)
             ->assertSee('No mills match these filters.')
             ->assertSourceHas('<span role="status" class="sr-only">0 mills found.</span>')
@@ -138,9 +132,7 @@ test('clearing filters from the no-results message moves focus to the page headi
     // the button disappears once results load; without this, focus drops to the top of the page
     $page = visit('/mill-list')
         ->wait(A11Y_FADE_IN_SECONDS)
-        ->click('#filter-trigger')
         ->type('#q', 'zzzz-no-such-mill')
-        ->keys('#q', 'Escape')
         ->wait(2)
         ->click('Clear filters')
         ->wait(2)
@@ -158,17 +150,29 @@ const EXPOSED_STATUS_TEXT_JS = <<<'JS'
         .map((el) => el.textContent)
 JS;
 
-test('search results are announced while the filters dialog is still open', function (string $path) {
-    // the open dialog hides the title bar from screen readers, so its live region can't be the only one
+test('on mobile, search results are announced while the filters Sheet is still open', function (string $path) {
+    // the open Sheet hides the title bar from screen readers, so its live region can't be the only one
     $page = visit($path)
+        ->on()->mobile()
         ->wait(A11Y_FADE_IN_SECONDS)
         ->click('#filter-trigger')
+        ->wait(1)
         ->type('#q', 'zzzz-no-such-mill')
         ->wait(2);
 
     expect($page->script(EXPOSED_STATUS_TEXT_JS))->toBe(['0 mills found.']);
 
     $page->keys('#q', 'Escape')->wait(1);
+
+    expect($page->script(EXPOSED_STATUS_TEXT_JS))->toBe(['0 mills found.']);
+})->with(['mill list' => '/mill-list', 'mill map' => '/mill-map'])->group('a11y', 'forms', 'mobile');
+
+test('on desktop, search results are announced once with the filters panel open', function (string $path) {
+    // the panel doesn't hide the page, so only the title bar announces; a second region would be read twice
+    $page = visit($path)
+        ->wait(A11Y_FADE_IN_SECONDS)
+        ->type('#q', 'zzzz-no-such-mill')
+        ->wait(2);
 
     expect($page->script(EXPOSED_STATUS_TEXT_JS))->toBe(['0 mills found.']);
 })->with(['mill list' => '/mill-list', 'mill map' => '/mill-map'])->group('a11y', 'forms');
