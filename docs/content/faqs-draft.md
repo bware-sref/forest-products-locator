@@ -49,7 +49,7 @@ No. The directory doesn't include prices, buying specifications, or quotas. Cont
 ## Finding Mills
 
 ### What's the difference between the Mill Map and the Mill List?
-They show the same mills with the same filters. The Mill Map shows where the mills are. The Mill List is easier to scan and read. Your filters carry over when you switch between them.
+They show the same mills with the same filters. The Mill Map shows where the mills are. The Mill List is easier to scan and read. Your filters carry over when you switch between them, and stay set until you close your browser tab.
 
 ### How do I narrow down the results?
 Open the **Filters** panel. You can filter by:
@@ -60,14 +60,21 @@ Open the **Filters** panel. You can filter by:
 
 You can also type part of a mill's name in the search box. The number of mills that match your filters is shown at the top of the page. **Clear Filters** resets everything.
 
+On a computer, the filters you've set are listed under the page title, even with the Filters panel closed. Click one to remove it. On a phone, the **Filters** button shows how many filters are on.
+
 ### Can I find mills near a specific location?
 Yes. In the Filters panel, choose **Use my location**, or type an address, city, or ZIP code. Then pick a distance from 5 to 250 miles. Distances are straight-line, not driving miles.
 
 ### Do you save my location?
-No. Your location is only used to find nearby mills during your visit, and we don't store it. If you type in an address, it's sent to the U.S. Census Bureau's free address lookup service to get map coordinates, but we don't keep a copy.
+No. Your location is only used to find nearby mills, and we don't store it. If you type in an address, it's sent to the U.S. Census Bureau's free address lookup service to get map coordinates, but we don't keep a copy.
+
+Your browser remembers your filters, including a location you chose, so they carry over between the Mill Map and Mill List. They're kept in your browser only, and are cleared when you close the tab.
 
 ### Do you collect any information about visitors?
 We don't store any personal information about visitors. We use Google Analytics to understand how the site is used, such as which pages are visited and what kinds of devices people use. Google may collect and store this information under its own privacy policy. You can opt out with your browser's privacy settings or with Google's [opt-out browser add-on](https://tools.google.com/dlpage/gaoptout). For more details, see the Privacy Policy linked at the bottom of every page.
+
+### Does the site use cookies?
+Yes, a few. The site uses essential cookies to keep it running and its forms secure. Google Analytics also uses cookies to count visits; you can opt out as described above. Your filter choices aren't stored in a cookie: your browser keeps them for the current tab only.
 
 ### Why isn't "Use my location" working?
 Your browser has to give the site permission to use your location. If you blocked it earlier, change the permission in your browser's site settings and try again. You can also type in an address instead.
