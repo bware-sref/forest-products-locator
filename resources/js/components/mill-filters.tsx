@@ -48,7 +48,6 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { millCountText, millStatusMessage } from '@/lib/mill-status';
-import { DialogClose } from "@/components/ui/dialog";
 
 /**
  * MillFilters needs:
@@ -135,6 +134,23 @@ export interface MillFiltersProps {
     millCount?: number;
     /** the last mill search failed (as opposed to finding nothing) */
     loadError?: boolean;
+
+    /**
+     * Closes the mobile filters Sheet. When given, a "Show Results" button appears next to Clear Filters once the
+     * filters find mills. Leave it out on desktop, where the results are already visible.
+     */
+    onShowResultsClick?: () => void;
+    /**
+     * When given, screen readers get this as the panel's heading instead of `headline`, and the visible headline
+     * is hidden from them. On desktop the title bar's <h1> already says "Mill Map" or "Mill List", so repeating it
+     * as this heading would be a duplicate that doesn't describe the filters.
+     */
+    screenReaderHeading?: string;
+    /**
+     * Announce search results from inside the filters. Needed only when the filters are a modal (mobile Sheet),
+     * which hides the title bar's announcement from screen readers; on desktop it would be read twice.
+     */
+    announceStatus?: boolean;
 }
 
 /**
@@ -189,6 +205,9 @@ export default function MillFilters({
     locationLabel = null,
     millCount = 0,
     loadError = false,
+    onShowResultsClick,
+    screenReaderHeading,
+    announceStatus = false,
     ...props
 }: MillFiltersProps) {
 
@@ -242,13 +261,22 @@ export default function MillFilters({
 
             <div data-thing="filter-inner-wrap" className="grid gap-1 py-4 lg:py-8 min-w-screen lg:min-w-full px-0 z-101">
                 <div data-thing="filter-header" className="flex flex-row lg:flex-row lg:px-8">
-                    {/** This should perhaps be an h1 */}
-                    <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2 px-6 lg:px-0">{headline}</h2>
+                    {screenReaderHeading ? (
+                        <>
+                            <h2 className="sr-only">{screenReaderHeading}</h2>
+                            {/* looks like the heading, but isn't one: see screenReaderHeading */}
+                            <p aria-hidden="true" className="text-[31px] lg:text-3xl font-bold text-beluga pb-2 px-6 lg:px-0">{headline}</p>
+                        </>
+                    ) : (
+                        <h2 className="text-[31px] lg:text-3xl font-bold text-beluga pb-2 px-6 lg:px-0">{headline}</h2>
+                    )}
 
                     {/** mill count */}
                     <div className="justify-self-end text-beluga ml-auto  self-center mr-5 lg:mr-0" aria-hidden="true">{millCountText(millCount)}</div>
-                    {/* the open Filters dialog hides the title bar's live region from screen readers, so announce results here too */}
-                    <span role="status" className="sr-only">{millStatusMessage({ isLoading, loadError, millCount })}</span>
+                    {/* the open mobile Sheet hides the title bar's live region from screen readers, so announce results here too */}
+                    {announceStatus && (
+                        <span role="status" className="sr-only">{millStatusMessage({ isLoading, loadError, millCount })}</span>
+                    )}
                 </div>
 
                 {/** 
@@ -577,17 +605,15 @@ export default function MillFilters({
                             disabled={isDownloading || isLoading}
                         >Clear Filters</Button>
                         {/**
-                         * Closes the parent Dialog/Drawer. vaul's Drawer is built on the same
-                         * Radix Dialog, so DialogClose works for both. Only shown when the
-                         * current filters found mills; disabled while a new search is loading.
+                         * Closes the mobile filters Sheet. Only shown when the current filters
+                         * found mills; disabled while a new search is loading.
                          */}
-                        {!loadError && millCount > 0 ? (
-                            <DialogClose asChild>
-                                <Button
-                                    className="ml-auto bg-coupe text-beluga border font-bold hover:text-beluga rounded-sm"
-                                    disabled={isLoading}
-                                >Show Results</Button>
-                            </DialogClose>
+                        {onShowResultsClick && !loadError && millCount > 0 ? (
+                            <Button
+                                className="ml-auto bg-coupe text-beluga border font-bold hover:text-beluga rounded-sm"
+                                disabled={isLoading}
+                                onClick={onShowResultsClick}
+                            >Show Results</Button>
                         ) : ''}
                     </div>
 

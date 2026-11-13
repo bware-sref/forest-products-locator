@@ -21,6 +21,8 @@ import {
 import { Seo } from '@/components/seo';
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
+import { MillFiltersPanel } from '@/components/mill-filters-panel';
+import { useFilterPanel } from '@/hooks/use-filter-panel';
 import MillResultsEmpty from '@/components/mill-results-empty';
 
 // MillMap (and everything it pulls in transitively — react-leaflet, leaflet
@@ -93,6 +95,10 @@ export default function MillMapPage() {
         locationLabel,
         handleResetLocationClick,
         isLocationActive,
+        activeFilters,
+        handleRemoveFilter,
+        millTypeOptions,
+        woodSpeciesOptions,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
@@ -100,6 +106,8 @@ export default function MillMapPage() {
         woodSpecies: page.props.woodSpecies,
         csrfToken: page.props.csrf_token,
     });
+
+    const filterPanel = useFilterPanel();
 
     /**
      * catch the map so we can use external controls!
@@ -164,39 +172,12 @@ export default function MillMapPage() {
                 loadError={loadError}
                 handleExportClick={handleExportClick}
                 millCount={mills.length}
-            >
-                <MillFilters
-                    headline={page.props.pageTitle || ''}
-                    textSearch={searchText}
-                    states={states}
-                    counties={counties}
-                    millTypes={page.props.millTypes}
-                    woodSpecies={page.props.woodSpecies}
-                    filterResetKey={filterResetKey}
-                    isLoading={isLoading}
-                    loadError={loadError}
-                    isDownloading={isDownloading}
-                    onTextSearchChange={handleTextSearchChange}
-                    onStateSelectChange={handleStateSelectChange}
-                    onCountySelectChange={handleCountySelectChange}
-                    onMillTypesSelectChange={handleMillTypeSelectChange}
-                    onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
-                    onClearFiltersClick={handleClearFiltersClick}
-                    // onExportClick={handleExportClick}
-                    searchParams={searchParams}
-                    geolocationStatus={geolocationStatus}
-                    onRequestLocationClick={handleRequestLocationClick}
-                    onRadiusSelectChange={handleRadiusSelectChange}
-                    isLocationActive={isLocationActive}
-                    onCustomLocationSubmit={handleCustomLocationSubmit}
-                    onResetLocationClick={handleResetLocationClick}
-                    isGeocoding={isGeocoding}
-                    geocodeError={geocodeError}
-                    locationLabel={locationLabel}
-                    millCount={mills.length}
-                />
-
-            </TitleFilterBar>
+                filtersOpen={filterPanel.open}
+                onFiltersToggle={filterPanel.toggle}
+                isDesktop={filterPanel.isDesktop}
+                activeFilters={activeFilters}
+                onRemoveFilter={handleRemoveFilter}
+            />
 
             {/**
              * full screen-width wrapper
@@ -204,7 +185,54 @@ export default function MillMapPage() {
             */}
             <div
                 data-thing="map-page-wrap" 
-                className="flex flex-col w-full h-full items-center text-velvet lg:justify-center">
+                className="relative flex flex-col w-full h-full items-center text-velvet lg:justify-center">
+                {/**
+                 * Desktop: floats over the full-width map, outside the map element so scrolling and dragging in the
+                 * panel don't pan or zoom the map. Its left edge overhangs the content column by 30px, per the
+                 * approved design. The content column's left edge is the title bar's: 2rem, or centered at 80rem.
+                 * z-60 clears the map (z-50).
+                 */}
+                <MillFiltersPanel
+                    open={filterPanel.open}
+                    onOpenChange={filterPanel.setOpen}
+                    isDesktop={filterPanel.isDesktop}
+                    className="absolute z-60 top-5 left-[calc(max(2rem,(100vw-80rem)/2)-30px)] w-md rounded-sm"
+                >
+                    <MillFilters
+                        headline={page.props.pageTitle || ''}
+                        textSearch={searchText}
+                        states={states}
+                        counties={counties}
+                        millTypes={millTypeOptions}
+                        woodSpecies={woodSpeciesOptions}
+                        filterResetKey={filterResetKey}
+                        isLoading={isLoading}
+                        loadError={loadError}
+                        isDownloading={isDownloading}
+                        onTextSearchChange={handleTextSearchChange}
+                        onStateSelectChange={handleStateSelectChange}
+                        onCountySelectChange={handleCountySelectChange}
+                        onMillTypesSelectChange={handleMillTypeSelectChange}
+                        onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
+                        onClearFiltersClick={handleClearFiltersClick}
+                        // onExportClick={handleExportClick}
+                        searchParams={searchParams}
+                        geolocationStatus={geolocationStatus}
+                        onRequestLocationClick={handleRequestLocationClick}
+                        onRadiusSelectChange={handleRadiusSelectChange}
+                        isLocationActive={isLocationActive}
+                        onCustomLocationSubmit={handleCustomLocationSubmit}
+                        onResetLocationClick={handleResetLocationClick}
+                        isGeocoding={isGeocoding}
+                        geocodeError={geocodeError}
+                        locationLabel={locationLabel}
+                        millCount={mills.length}
+                        onShowResultsClick={filterPanel.isDesktop ? undefined : () => filterPanel.setOpen(false)}
+                        announceStatus={!filterPanel.isDesktop}
+                    screenReaderHeading={filterPanel.isDesktop ? 'Filters' : undefined}
+                    />
+                </MillFiltersPanel>
+
                 {/* content column: max-width 1280px */}
                 <div
                     data-thing="map-wrap" 

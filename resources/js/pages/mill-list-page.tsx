@@ -15,6 +15,8 @@ import {
 import { Seo } from '@/components/seo';
 import { useMills } from '@/hooks/use-mills';
 import MillFilters from '@/components/mill-filters';
+import { MillFiltersPanel } from '@/components/mill-filters-panel';
+import { useFilterPanel } from '@/hooks/use-filter-panel';
 import MillList from '@/components/mill-list';
 // import { 
 //     Button
@@ -73,6 +75,10 @@ export default function MillListPage() {
         locationLabel,
         handleResetLocationClick,
         isLocationActive,
+        activeFilters,
+        handleRemoveFilter,
+        millTypeOptions,
+        woodSpeciesOptions,
     } = useMills({
         millsApiUrl: page.props.millsApiUrl,
         rawStates: page.props.states,
@@ -80,6 +86,8 @@ export default function MillListPage() {
         woodSpecies: page.props.woodSpecies,
         csrfToken: page.props.csrf_token,
     });
+
+    const filterPanel = useFilterPanel();
 
     return (
         <AppLayout>
@@ -92,43 +100,62 @@ export default function MillListPage() {
                 isLoading={isLoading}
                 loadError={loadError}
                 millCount={mills.length}
-            >
-                <MillFilters
-                    textSearch={searchText}
-                    states={states}
-                    counties={counties}
-                    millTypes={page.props.millTypes}
-                    woodSpecies={page.props.woodSpecies}
-                    filterResetKey={filterResetKey}
-                    isLoading={isLoading}
-                    loadError={loadError}
-                    isDownloading={isDownloading}
-                    onTextSearchChange={handleTextSearchChange}
-                    onStateSelectChange={handleStateSelectChange}
-                    onCountySelectChange={handleCountySelectChange}
-                    onMillTypesSelectChange={handleMillTypeSelectChange}
-                    onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
-                    onClearFiltersClick={handleClearFiltersClick}
-                    // onExportClick={handleExportClick}
-                    searchParams={searchParams}
-                    geolocationStatus={geolocationStatus}
-                    onRequestLocationClick={handleRequestLocationClick}
-                    onRadiusSelectChange={handleRadiusSelectChange}
-                    isLocationActive={isLocationActive}
-                    onCustomLocationSubmit={handleCustomLocationSubmit}
-                    onResetLocationClick={handleResetLocationClick}
-                    isGeocoding={isGeocoding}
-                    geocodeError={geocodeError}
-                    locationLabel={locationLabel}
-                    millCount={mills.length}
-                />
-            </TitleFilterBar>
+                filtersOpen={filterPanel.open}
+                onFiltersToggle={filterPanel.toggle}
+                isDesktop={filterPanel.isDesktop}
+                activeFilters={activeFilters}
+                onRemoveFilter={handleRemoveFilter}
+            />
 
 
             {/* full screen-width wrapper */}
             <div className="flex min-h-screen flex-col items-center px-4 lg:px-8 text-velvet lg:justify-center">
                 {/* content column: max-width 1280px */}
                 <div className="flex flex-col lg:flex-row w-full max-w-7xl items-start justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 lg:px-5 lg:gap-5 lg:justify-between">
+                    {/**
+                     * Desktop: sits beside the list inside the content column, so it never covers mills; the list's
+                     * fixed-width cards wrap into fewer columns while it's open. Sticks in view while scrolling.
+                     */}
+                    <MillFiltersPanel
+                        open={filterPanel.open}
+                        onOpenChange={filterPanel.setOpen}
+                        isDesktop={filterPanel.isDesktop}
+                        // 26rem leaves room for two 360px cards beside it in the 80rem content column
+                        className="lg:sticky lg:top-4 self-start shrink-0 w-104 mt-4 rounded-sm"
+                    >
+                        <MillFilters
+                            textSearch={searchText}
+                            states={states}
+                            counties={counties}
+                            millTypes={millTypeOptions}
+                            woodSpecies={woodSpeciesOptions}
+                            filterResetKey={filterResetKey}
+                            isLoading={isLoading}
+                            loadError={loadError}
+                            isDownloading={isDownloading}
+                            onTextSearchChange={handleTextSearchChange}
+                            onStateSelectChange={handleStateSelectChange}
+                            onCountySelectChange={handleCountySelectChange}
+                            onMillTypesSelectChange={handleMillTypeSelectChange}
+                            onWoodSpeciesSelectChange={handleWoodSpeciesSelectChange}
+                            onClearFiltersClick={handleClearFiltersClick}
+                            // onExportClick={handleExportClick}
+                            searchParams={searchParams}
+                            geolocationStatus={geolocationStatus}
+                            onRequestLocationClick={handleRequestLocationClick}
+                            onRadiusSelectChange={handleRadiusSelectChange}
+                            isLocationActive={isLocationActive}
+                            onCustomLocationSubmit={handleCustomLocationSubmit}
+                            onResetLocationClick={handleResetLocationClick}
+                            isGeocoding={isGeocoding}
+                            geocodeError={geocodeError}
+                            locationLabel={locationLabel}
+                            millCount={mills.length}
+                            onShowResultsClick={filterPanel.isDesktop ? undefined : () => filterPanel.setOpen(false)}
+                            announceStatus={!filterPanel.isDesktop}
+                    screenReaderHeading={filterPanel.isDesktop ? 'Filters' : undefined}
+                        />
+                    </MillFiltersPanel>
                     <MillList
                         mills={mills}
                         isLoading={isLoading}
