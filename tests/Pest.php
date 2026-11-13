@@ -223,3 +223,12 @@ function fullyBuiltState(): \App\Models\State
 
     return $state;
 }
+
+/**
+ * axe severity for assertNoAccessibilityIssues(): 0 = critical only, 1 = critical + serious (the default), 3 = all.
+ * Set A11Y_LEVEL inside the container to change it; see tests/Feature/Browser/A11yTest.php.
+ */
+function a11yLevel(): int
+{
+    return (int) (getenv('A11Y_LEVEL') ?: 1);
+}
