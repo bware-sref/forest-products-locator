@@ -3,14 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\FaqRequest;
-use App\Models\FaqCategory;
 use App\Traits\CrudPermissionTrait;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Backpack\CRUD\app\Library\Widget;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
 
 
 /**
@@ -52,18 +50,26 @@ class FaqCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        /**
+         * We still have to tell list to sort by the 'order' column.
+         */
         if (!$this->crud->getRequest()->has('order')) {
-            $this->crud->query
-                ->orderBy(
-                    FaqCategory::select('order')
-                        ->whereColumn('faq_categories.id', 'faqs.faq_category_id')
-                        ->limit(1)
-                    ,
-                    'asc'
-                );
+            $this->crud->orderBy('order', 'asc');
+
+            // $this->crud->query
+            //     ->orderBy(
+            //         FaqCategory::select('order')
+            //             ->whereColumn('faq_categories.id', 'faqs.faq_category_id')
+            //             ->limit(1)
+            //         ,
+            //         'asc'
+            //     );
         }
 
-        $this->doFilter();
+        /**
+         * No need to filter if we don't have categories
+         */
+        // $this->doFilter();
 
         CRUD::column('question')
             ->type('text')
@@ -73,12 +79,12 @@ class FaqCrudController extends CrudController
          * Columns can be defined using the fluent syntax:
          * - CRUD::column('price')->type('number');
          */
-        CRUD::column('faq_category_id')
-            ->type('select')
-            ->entity('faqCategory')
-            ->model('App\Models\FaqCategory')
-            ->attribute('name')
-            ->orderable(true);
+        // CRUD::column('faq_category_id')
+        //     ->type('select')
+        //     ->entity('faqCategory')
+        //     ->model('App\Models\FaqCategory')
+        //     ->attribute('name')
+        //     ->orderable(true);
 
         CRUD::column('order')
             ->type('number')
@@ -108,14 +114,14 @@ class FaqCrudController extends CrudController
             ->label('Answer')
             ->type('ckeditor');
 
-        CRUD::field('faq_category_id')
-            ->label('Category')
-            ->type('select')
-            ->entity('faqCategory')
-            ->attributes([
-                'model' => FaqCategory::class,
-                'attribute' => 'name',
-            ]);
+        // CRUD::field('faq_category_id')
+        //     ->label('Category')
+        //     ->type('select')
+        //     ->entity('faqCategory')
+        //     ->attributes([
+        //         'model' => FaqCategory::class,
+        //         'attribute' => 'name',
+        //     ]);
 
         CRUD::field('order')
             ->label('Sort Weight')
@@ -155,6 +161,20 @@ class FaqCrudController extends CrudController
         $this->setupListOperation();
     }
 
+    /************************************************************************************************************************
+     * 
+     * Methods below this comment relate to filtering.
+     * These are our DIY filtering methods.
+     * We don't use them any more but keeping for now because they can serve as a partial blueprint for making other DIY filters
+     * since Backpack filters are a premium feature.
+     * 
+     ************************************************************************************************************************/
+
+    /**
+     * Summary of doFilter
+     * @param mixed $fn
+     * @return void
+     */
     protected function doFilter(?callable $fn = null): void
     {
         $this->addFilterWidget();
@@ -206,10 +226,15 @@ class FaqCrudController extends CrudController
 
     protected function getFilterOptions(): array
     {
-        return FaqCategory::whereHas('faqs')
-            ->get()
-            // ->pluck('name', 'id')
-            ->toArray();
+        return [];
+        /**
+         * No more FaqCategories
+         * 
+         */
+        // FaqCategory::whereHas('faqs')
+        //     ->get()
+        //     // ->pluck('name', 'id')
+        //     ->toArray();
     }
 
     protected function applyFilterQuery(Builder $builder): Builder
