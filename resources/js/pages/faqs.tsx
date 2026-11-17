@@ -1,21 +1,23 @@
 import AppLayout from '@/layouts/app-layout';
-import { type PageSeoOverride, type IFaqCategory } from '@/types';
+import {
+    type PageSeoOverride,
+    type IFaq,
+} from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Seo } from '@/components/seo';
 import {
     SafeHtml
 } from "@/components/safe-html"
-import { FaqCategoryNav } from '@/components/faq-category-nav';
 import { FaqSearch } from '@/components/faq-search';
 import { faqElementId } from '@/lib/faqs';
 
 export default function Faqs() {
     const page = usePage<{
         pageSeo: PageSeoOverride;
-        faqsByCategory: IFaqCategory[];
+        faqs: IFaq[];
     }>();
     const pageTitle = page.props.pageSeo.title;
-    const faqsByCategory = page.props.faqsByCategory;
+    const faqs = page.props.faqs;
 
     return (
         <AppLayout>
@@ -24,54 +26,41 @@ export default function Faqs() {
                 <div className="flex flex-col w-full lg:max-w-7xl items-center lg:items-start justify-start opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0 px-6 gap-5">
                     <h1 className="font-bold text-3xl">{pageTitle}</h1>
 
-                    <FaqSearch categories={faqsByCategory} />
+                    <FaqSearch faqs={faqs} />
 
                     {/**
                      * nav first in the DOM (and on the left on desktop) so reading/tab order matches
                      * visual order. Its stickiness lives in the component: a sticky side list on
                      * desktop, a sticky "Jump to" bar on smaller screens.
                      */}
-                    <div className="grid w-full gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
-                        <FaqCategoryNav categories={faqsByCategory} />
+                    <div className="grid w-full gap-8 Xlg:grid-cols-[16rem_minmax(0,1fr)]">
+                        {/* <FaqCategoryNav categories={faqsByCategory} /> */}
 
                         <ul className="flex flex-col gap-4">
-                            {faqsByCategory.map((category) => (
-                                <li key={category.slug}
-                                    className="border-b last:border-0 pb-4"
+                            {faqs.map((faq) => (
+                                <li key={faq.id}
+                                    // the search jumps here; tabIndex lets it take focus, and the scroll margins match the category headings'
+                                    id={faqElementId(faq.id)}
+                                    tabIndex={-1}
+                                    className="faq-item odd:bg-lorne even:bg-coupe p-4 scroll-mt-28 lg:scroll-mt-6 focus:outline-2 focus:outline-offset-2 focus:outline-beluga group"
                                 >
-                                    {/* scroll margin clears the sticky mobile bar (up to ~6rem when the category name wraps at 320px) / sits just below the top on desktop */}
-                                    <h2
-                                        id={category.slug}
-                                        className="font-bold text-2xl mb-4 scroll-mt-28 lg:scroll-mt-6"
-                                    >
-                                        {category.name}
-                                    </h2>
-                                    <ul className="flex flex-col gap-4">
-                                        {category.faqs.map((faq) => (
-                                            <li key={faq.id}
-                                                // the search jumps here; tabIndex lets it take focus, and the scroll margins match the category headings'
-                                                id={faqElementId(faq.id)}
-                                                tabIndex={-1}
-                                                className="odd:bg-lorne even:bg-coupe p-4 scroll-mt-28 lg:scroll-mt-6 focus:outline-2 focus:outline-offset-2 focus:outline-beluga"
-                                            >
-                                                <div className="question flex flex-row gap-4 mb-2 text-lg">
-                                                    <div className="text-xl font-bold">
-                                                        Q<span className="sr-only">uestion</span>:
-                                                    </div>
-                                                    {faq.question}
-                                                </div>
-                                                <div className="answer flex flex-row gap-4 text-lg pr-4">
-                                                    <div className="text-xl font-bold">
-                                                        A<span className="sr-only">nswer</span>:
-                                                    </div>
-                                                    <SafeHtml
-                                                        html={faq.answer}
-                                                        className="answerd"
-                                                    />
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <div className="question flex flex-row gap-4 mb-2 text-2xl Xitems-center">
+                                        <div className="text-3xl font-bold">
+                                            Q<span className="sr-only">uestion</span>:
+                                        </div>
+                                        <div>
+                                            {faq.question}
+                                        </div>                                        
+                                    </div>
+                                    <div className="answer flex flex-row gap-4 text-xl pr-4">
+                                        <div className="text-2xl font-bold">
+                                            A<span className="sr-only">nswer</span>:
+                                        </div>
+                                        <SafeHtml
+                                            html={faq.answer}
+                                            className="answerd"
+                                        />
+                                    </div>
                                 </li>
                             ))}
                         </ul>
