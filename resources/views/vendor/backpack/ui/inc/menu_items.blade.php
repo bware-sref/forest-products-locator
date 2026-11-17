@@ -84,9 +84,6 @@
     @if(backpack_user()->canAny(['faqs.see', 'faqs.edit']))
         <x-backpack::menu-dropdown-item title="FAQs" icon="la la-question" :link="backpack_url('faq')" />
     @endif
-    @if(backpack_user()->canAny(['faq_categories.see', 'faq_categories.edit']))
-        <x-backpack::menu-dropdown-item title="FAQ Categories" icon="la la-question-circle" :link="backpack_url('faq-category')" />
-    @endif
 </x-backpack::menu-dropdown>
 @endif
 @if(backpack_user()->can('statistics.see'))

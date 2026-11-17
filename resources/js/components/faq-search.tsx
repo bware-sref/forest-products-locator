@@ -1,13 +1,17 @@
 import { useMemo, useState } from 'react';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { SearchIcon } from 'lucide-react';
-import { type IFaqCategory } from '@/types';
+import {
+    type IFaq,
+} from '@/types';
 import { faqElementId } from '@/lib/faqs';
 
 interface SearchableFaq {
     id: number;
     question: string;
-    category: string;
+    // order: number;
+    // we don't need category any more
+    // category: string;
     /** Question and answer as plain text, for matching. */
     text: string;
 }
@@ -29,22 +33,18 @@ function toPlainText(html: string): string {
  * one picked (scrolling to it and moving keyboard focus there, so reading continues from the answer).
  * Built on Base UI's Autocomplete, which handles the combobox keyboard and screen reader behavior.
  */
-export function FaqSearch({ categories }: { categories: IFaqCategory[] }) {
+export function FaqSearch({ faqs }: { faqs: IFaq[] }) {
     const [query, setQuery] = useState('');
     // case- and accent-insensitive
     const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
 
     const items = useMemo<SearchableFaq[]>(
-        () =>
-            categories.flatMap((category) =>
-                category.faqs.map((faq) => ({
-                    id: faq.id,
-                    question: faq.question,
-                    category: category.name,
-                    text: `${faq.question} ${toPlainText(faq.answer)}`,
-                })),
-            ),
-        [categories],
+        () => faqs.map((faq) => ({
+                id: faq.id,
+                question: faq.question,
+                text: `${faq.question} ${toPlainText(faq.answer)}`,
+            })),
+        [faqs],
     );
 
     const words = query.trim().split(/\s+/).filter(Boolean);
@@ -111,7 +111,7 @@ export function FaqSearch({ categories }: { categories: IFaqCategory[] }) {
                                     className="flex cursor-pointer flex-col gap-0.5 px-3 py-2 outline-hidden select-none data-highlighted:bg-beluga data-highlighted:text-velvet"
                                 >
                                     <span className="font-bold">{item.question}</span>
-                                    <span className="text-sm">{item.category}</span>
+                                    {/* <span className="text-sm">{item.category}</span> */}
                                 </Autocomplete.Item>
                             )}
                         </Autocomplete.List>
