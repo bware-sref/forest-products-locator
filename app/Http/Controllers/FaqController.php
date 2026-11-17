@@ -3,25 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Faq;
-use App\Models\FaqCategory;
 use App\Models\PageSeo;
 use Inertia\Inertia;
 
 class FaqController extends Controller
 {
     /**
-     * The name is possibly misleading.
-     * We query all FaqCategories with their babies.
+     * The name is no longer possibly misleading.
+     * We no longer query all FaqCategories with their babies.
      */
     public function index()
     {
-        $faqsByCategory = FaqCategory::query()
+        $faqs = Faq::query()
             ->orderBy(column: 'order', direction: 'asc')
-            ->with('faqs')
             ->get();
 
         return Inertia::render('faqs', [
-            'faqsByCategory' => $faqsByCategory,
+            'faqs' => $faqs,
             'pageTitle' => 'Frequently Asked Questions',
             'pageSeo' => PageSeo::resolve(
                 'faqs',
@@ -31,6 +29,12 @@ class FaqController extends Controller
         ]);
     }
 
+    /**
+     * I think this was intended to allow linking directly to individual
+     * FAQs.
+     * @param Faq $faq
+     * @return void
+     */
     public function show(Faq $faq)
     {
         $faq->load(['faqCategory']);
