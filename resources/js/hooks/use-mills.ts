@@ -326,7 +326,7 @@ export interface UseMillsReturn {
  * ```
  */
 /** Miles. Applied as soon as a location is chosen; one of MillFilters' radius options. */
-export const DEFAULT_RADIUS = '50';
+export const DEFAULT_RADIUS = '25';
 
 export function useMills({
     millsApiUrl,
