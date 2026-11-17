@@ -25,7 +25,6 @@ import {
     Loader2,
     MapPinIcon,
     SearchIcon,
-    // SlidersHorizontalIcon,
 } from 'lucide-react';
 import {
     ChangeEvent,
@@ -38,16 +37,16 @@ import {
     InputSelectTrigger,
 } from "@/components/extend/input-select";
 import { ClassValue } from "clsx";
-// import { useIsMobile } from '@/hooks/use-mobile';
-// import { ScrollArea } from "@/components/ui/scroll-area";
-// import { useGeolocated } from "react-geolocated";
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { millCountText, millStatusMessage } from '@/lib/mill-status';
+import { 
+    millCountText,
+    millStatusMessage
+} from '@/lib/mill-status';
 
 /**
  * MillFilters needs:
@@ -68,11 +67,8 @@ export interface MillFiltersProps {
     counties?: County[];
     millTypes?: MillType[];
     woodSpecies?: WoodSpecies[];
-    /**
-     * Probably need props for selected values of each select box.
-     */
-    // searchParams?: SearchParams;
 
+    // event handlers
     onTextSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
     onStateSelectChange: (stateId: string) => void;
     onCountySelectChange: (countyId: string) => void;
@@ -154,11 +150,11 @@ export interface MillFiltersProps {
 }
 
 /**
- * Preset raidus options in miles.
- * Fine-grainded at short haul distances, then wider steps beyond 25 miles.
+ * Preset radius options in miles.
+ * Fine-grainded at short haul distances, then wider steps beyond 50 miles.
  */
 const RADIUS_OPTIONS: SelectOption[] = [
-    5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 250,
+    5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 150, 200, 250,
 ].map((miles) => ({
     value: String(miles),
     label: `${miles} miles`,
@@ -230,26 +226,6 @@ export default function MillFilters({
         setAddressInput('');
         onResetLocationClick(event);
     };
-
-    // const [position, setPosition] = useState<GeolocationPosition | null>(null);
-
-    // geolocation hook
-    // const geolocated = useGeolocated({
-    //     positionOptions: {
-    //         enableHighAccuracy: false,
-    //     },
-    //     // prevents immediate lookup
-    //     // should we even do that?
-    //     suppressLocationOnMount: true,
-    //     onError: (positionError: GeolocationPositionError | undefined) => {
-    //         console.error('Geolocation Error: ', positionError);
-    //     },
-    //     onSuccess: (position: GeolocationPosition) => {
-    //         console.log('Geolocation success!', position);
-    //         setPosition(position);
-    //         // return position;
-    //     }
-    // });
 
     // geolocation properties
     const proximityDisabledReason = GEOLOCATION_DISABLED_REASON[geolocationStatus];
@@ -323,12 +299,12 @@ export default function MillFilters({
                 <FieldGroup
                     id="mill-filters_D"
                     data-el="second FieldGroup"
-                    className="gap-5 px-8 lg:bg-lorne w-full pt-8 pb-8 lg:py-0 X-mt-15 lg:mt-0 lg:overflow-y-auto"
+                    className="gap-5 px-8 lg:bg-lorne w-full pt-8 pb-8 lg:py-0 lg:mt-0 lg:overflow-y-auto"
                 >
                     {/** Proximity filter */}
                     <Field>
-                        <FieldLabel className="text-beluga">
-                            Filter by Location:
+                        <FieldLabel className="text-beluga" hidden={isLocationActive}>
+                            Filter by Location and Distance:
                         </FieldLabel>
                         {/**
                          * The "Use my location" button and the radius dropdown
@@ -351,13 +327,71 @@ export default function MillFilters({
                                 <div className="flex flex-col gap-1">
                                     <p className="text-beluga text-sm">
                                         {/* says what's being filtered, so it never reads as on when it isn't */}
-                                        Showing mills within <strong>{searchParams.radius} miles</strong> of{' '}
-                                        {locationLabel ? (
-                                            <strong>{locationLabel}</strong>
-                                        ) : (
-                                            'your current location'
-                                        )}
+                                        Showing mills within <strong className="font-extrabold">{searchParams.radius} miles</strong> of{' '}
+                                        <strong className="font-extrabold">{locationLabel ?? 'your current location'}</strong>
                                     </p>
+                                    {/* Radius dropdown — disabled until a location (either source) is active */}
+                                    <div
+                                        className="flex flex-col gap-2 my-2"
+                                        hidden={
+                                            !(
+                                            isLocationActive ||
+                                            geolocationStatus === 'denied' ||
+                                            geolocationStatus === 'unavailable'
+                                            )
+                                        }
+                                    >
+                                        <FieldLabel htmlFor="radius" className="text-beluga">
+                                            Maximum distance:
+                                        </FieldLabel>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                {/**
+                                                 * Wrapping in a <span> ensures the TooltipTrigger has a
+                                                 * focusable element even when the InputSelect is disabled,
+                                                 * so keyboard users still see the explanation.
+                                                 */}
+                                                <TooltipTrigger asChild>
+                                                    <span className="w-full z-100" hidden={
+                                                        !(isLocationActive ||
+                                                        geolocationStatus === 'denied' ||
+                                                        geolocationStatus === 'unavailable')
+                                                    }
+                                                >
+                                                        <InputSelect
+                                                            // remounted when a location is set or reset, to show the default
+                                                            // distance (it only picks up a new value while open)
+                                                            key={`${filterResetKey}-${isLocationActive}`}
+                                                            options={RADIUS_OPTIONS}
+                                                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-200"
+                                                            onValueChange={onRadiusSelectChange}
+                                                            placeholder="Select a distance..."
+                                                            // Reset Location turns the filter off; a cleared distance would
+                                                            // leave a location that looks set but doesn't filter
+                                                            clearable={false}
+                                                            disabled={!isLocationActive}
+                                                            value={searchParams.radius || ''}
+                                                        >
+                                                            {(provided) => (
+                                                                <InputSelectTrigger
+                                                                    {...provided}
+                                                                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9 w-full z-100"
+                                                                    id="radius"
+                                                                />
+                                                            )}
+                                                        </InputSelect>
+                                                    </span>
+                                                </TooltipTrigger>
+                                                {!isLocationActive && proximityDisabledReason && (
+                                                    <TooltipContent side="right" className="max-w-56 z-101">
+                                                        <p>{proximityDisabledReason}</p>
+                                                    </TooltipContent>
+                                                )}
+                                            </Tooltip>
+                                        </TooltipProvider>
+
+                                    </div>
+
                                     <Button
                                         type="button"
                                         onClick={handleResetClick}
@@ -365,6 +399,8 @@ export default function MillFilters({
                                     >
                                         Reset Location
                                     </Button>
+
+                                    <hr className="w-full mt-3" />
                                 </div>
                             ) : isChoosingLocation ? (
                                 <form className="flex flex-col gap-2" onSubmit={handleCustomLocationFormSubmit}>
@@ -437,68 +473,6 @@ export default function MillFilters({
                                     </Button>
                                 </div>
                             )}
-
-                            {/* Radius dropdown — disabled until a location (either source) is active */}
-                            <div
-                                className="flex flex-col gap-2 mt-2"
-                                hidden={
-                                    !(
-                                    isLocationActive ||
-                                    geolocationStatus === 'denied' ||
-                                    geolocationStatus === 'unavailable'
-                                    )
-                                }
-                            >
-                                <FieldLabel htmlFor="radius" className="text-beluga">
-                                    Maximum distance:
-                                </FieldLabel>
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        {/**
-                                         * Wrapping in a <span> ensures the TooltipTrigger has a
-                                         * focusable element even when the InputSelect is disabled,
-                                         * so keyboard users still see the explanation.
-                                         */}
-                                        <TooltipTrigger asChild>
-                                            <span className="w-full z-100" hidden={
-                                                !(isLocationActive ||
-                                                geolocationStatus === 'denied' ||
-                                                geolocationStatus === 'unavailable')
-                                            }
-                                        >
-                                                <InputSelect
-                                                    // remounted when a location is set or reset, to show the default
-                                                    // distance (it only picks up a new value while open)
-                                                    key={`${filterResetKey}-${isLocationActive}`}
-                                                    options={RADIUS_OPTIONS}
-                                                    className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet p-0 z-200"
-                                                    onValueChange={onRadiusSelectChange}
-                                                    placeholder="Select a distance..."
-                                                    // Reset Location turns the filter off; a cleared distance would
-                                                    // leave a location that looks set but doesn't filter
-                                                    clearable={false}
-                                                    disabled={!isLocationActive}
-                                                    value={searchParams.radius || ''}
-                                                >
-                                                    {(provided) => (
-                                                        <InputSelectTrigger
-                                                            {...provided}
-                                                            className="rounded-none bg-beluga! text-velvet! data-placeholder:text-velvet h-9 w-full z-100"
-                                                            id="radius"
-                                                        />
-                                                    )}
-                                                </InputSelect>
-                                            </span>
-                                        </TooltipTrigger>
-                                        {!isLocationActive && proximityDisabledReason && (
-                                            <TooltipContent side="right" className="max-w-56 z-101">
-                                                <p>{proximityDisabledReason}</p>
-                                            </TooltipContent>
-                                        )}
-                                    </Tooltip>
-                                </TooltipProvider>
-
-                            </div>
                         </div>
                     </Field>
 
