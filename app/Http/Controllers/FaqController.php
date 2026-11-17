@@ -22,10 +22,10 @@ class FaqController extends Controller
 
         return Inertia::render('faqs', [
             'faqsByCategory' => $faqsByCategory,
-            'pageTitle' => 'FAQs',
+            'pageTitle' => 'Frequently Asked Questions',
             'pageSeo' => PageSeo::resolve(
                 'faqs',
-                'FAQs',
+                'Frequently Asked Questions',
                 'Answers to frequently asked questions about the Forest Products Locator.'
             ),
         ]);
