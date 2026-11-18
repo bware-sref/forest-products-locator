@@ -59,6 +59,11 @@ export function FaqSearch({ faqs }: { faqs: IFaq[] }) {
             }
             // scrolls too (smoothly, per app.css); scroll-margin keeps it below the sticky category bar
             target.focus();
+            target.scrollTo({
+                behavior: "smooth",
+            });
+            target.click();
+            target.blur();
         });
     };
 
