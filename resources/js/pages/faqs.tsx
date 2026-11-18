@@ -8,6 +8,15 @@ import { Seo } from '@/components/seo';
 import {
     SafeHtml
 } from "@/components/safe-html"
+import {
+  Discordion as Accordion,
+  DiscordionContent as AccordionContent,
+  DiscordionItem as AccordionItem,
+  DiscordionTrigger as AccordionTrigger,
+} from "@/components/extend/discordion"
+import {
+    ChevronDownIcon
+} from "lucide-react";
 import { FaqSearch } from '@/components/faq-search';
 import { faqElementId } from '@/lib/faqs';
 
@@ -28,43 +37,40 @@ export default function Faqs() {
 
                     <FaqSearch faqs={faqs} />
 
-                    {/**
-                     * nav first in the DOM (and on the left on desktop) so reading/tab order matches
-                     * visual order. Its stickiness lives in the component: a sticky side list on
-                     * desktop, a sticky "Jump to" bar on smaller screens.
-                     */}
-                    <div className="grid w-full gap-8 Xlg:grid-cols-[16rem_minmax(0,1fr)]">
-                        {/* <FaqCategoryNav categories={faqsByCategory} /> */}
-
-                        <ul className="flex flex-col gap-4">
-                            {faqs.map((faq) => (
-                                <li key={faq.id}
-                                    // the search jumps here; tabIndex lets it take focus, and the scroll margins match the category headings'
+                    <Accordion
+                        type="single"
+                        defaultValue={faqs[0].id.toString()}
+                        className="w-full"
+                    >
+                        {faqs.map((faq) => (
+                            <AccordionItem
+                                key={faq.id}
+                                value={faq.id.toString()}
+                                className="odd:bg-lorne even:bg-coupe py-4 px-8"
+                            >
+                                <AccordionTrigger
+                                    asHeading="h2"
+                                    className="text-2xl lg:text-3xl text-beluga"
                                     id={faqElementId(faq.id)}
-                                    tabIndex={-1}
-                                    className="faq-item odd:bg-lorne even:bg-coupe p-4 scroll-mt-28 lg:scroll-mt-6 focus:outline-2 focus:outline-offset-2 focus:outline-beluga group"
+                                    icon={
+                                        <ChevronDownIcon className="pointer-events-none size-4 shrink-0 translate-y-0.5 text-beluga transition-transform duration-200" />
+                                    }
                                 >
-                                    <div className="question flex flex-row gap-4 mb-2 text-2xl Xitems-center">
-                                        <div className="text-3xl font-bold">
-                                            Q<span className="sr-only">uestion</span>:
-                                        </div>
-                                        <div>
-                                            {faq.question}
-                                        </div>                                        
-                                    </div>
-                                    <div className="answer flex flex-row gap-4 text-xl pr-4">
-                                        <div className="text-2xl font-bold">
-                                            A<span className="sr-only">nswer</span>:
-                                        </div>
-                                        <SafeHtml
-                                            html={faq.answer}
-                                            className="answerd"
-                                        />
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                                    {faq.question}
+                                </AccordionTrigger>
+                                <AccordionContent
+                                    className="answer text-xl lg:text-2xl py-4 px-6 lg:py-6 lg:px-10 Xlg:max-w-4/5 bg-beluga text-velvet"
+                                >
+                                    <SafeHtml
+                                        html={faq.answer}
+                                        className="answerd"
+                                    />
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+
+
 
                     {/* mobile: the sticky bar covers jumping between categories, but not getting back to the page top. "#top" scrolls to the top of the document natively. */}
                     <a
