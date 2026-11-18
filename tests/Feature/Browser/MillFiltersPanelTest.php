@@ -16,6 +16,7 @@ use App\Models\WoodSpecies;
 
 /** Content fades in on load; see A11yTest. */
 const FILTERS_FADE_IN_SECONDS = 2;
+const DEFAULT_RADIUS = 25;
 
 beforeEach(function () {
     $this->georgia = namedState('Georgia', 'GA');
@@ -56,11 +57,11 @@ describe('desktop', function () {
         $headings = visit($path)->wait(FILTERS_FADE_IN_SECONDS)->script(EXPOSED_HEADINGS_JS);
 
         expect($headings)->toContain("H1 {$title}", 'H2 Filters')
-            ->and(array_filter($headings, fn ($heading) => str_ends_with($heading, " {$title}")))->toHaveCount(1);
+            ->and(array_filter($headings, fn($heading) => str_ends_with($heading, " {$title}")))->toHaveCount(1);
     })->with([
-        'mill list' => ['/mill-list', 'Mill List'],
-        'mill map' => ['/mill-map', 'Mill Map'],
-    ]);
+                'mill list' => ['/mill-list', 'Mill List'],
+                'mill map' => ['/mill-map', 'Mill Map'],
+            ]);
 
     test('the panel starts open, and the Filters button closes it', function (string $path) {
         visit($path)
@@ -159,7 +160,7 @@ describe('desktop', function () {
             ->assertSourceHas('<span role="status" class="sr-only">1 mill found.</span>');
     });
 
-    test('a location filters right away at 50 miles, and the distance can be changed but not cleared', function () {
+    test('a location filters right away at ' . DEFAULT_RADIUS . ' miles, and the distance can be changed but not cleared', function () {
         // open ocean, so none of the factory mills are nearby; one mill about 3 miles away and one about 76
         Mill::factory()->for($this->georgia)->create(['mill_name' => 'Near Mill', 'latitude' => 40.05, 'longitude' => -140]);
         Mill::factory()->for($this->georgia)->create(['mill_name' => 'Farther Mill', 'latitude' => 41.1, 'longitude' => -140]);
@@ -169,10 +170,10 @@ describe('desktop', function () {
             ->wait(FILTERS_FADE_IN_SECONDS)
             ->click('Use my location')
             ->wait(2)
-            ->assertSee('Showing mills within 50 miles of your current location')
-            ->assertSeeIn('#active-filter-location', 'Within 50 mi of your location')
+            ->assertSee('Showing mills within ' . DEFAULT_RADIUS . ' miles of your current location')
+            ->assertSeeIn('#active-filter-location', 'Within ' . DEFAULT_RADIUS . ' mi of your location')
             ->assertSeeIn('label[for=radius]', 'Maximum distance')
-            ->assertSeeIn('#radius', '50 miles')
+            ->assertSeeIn('#radius', DEFAULT_RADIUS . ' miles')
             ->assertSourceHas('<span role="status" class="sr-only">1 mill found.</span>');
 
         $page->click('#radius')
@@ -206,8 +207,8 @@ describe('desktop', function () {
 
         $page->navigate('/mill-list')
             ->wait(FILTERS_FADE_IN_SECONDS)
-            ->assertSee('Showing mills within 50 miles of Somewhere, CA')
-            ->assertSeeIn('#active-filter-location', 'Within 50 mi of Somewhere, CA')
+            ->assertSee('Showing mills within ' . DEFAULT_RADIUS . ' miles of Somewhere, CA')
+            ->assertSeeIn('#active-filter-location', 'Within ' . DEFAULT_RADIUS . ' mi of Somewhere, CA')
             ->assertSourceHas('<span role="status" class="sr-only">1 mill found.</span>');
     });
 

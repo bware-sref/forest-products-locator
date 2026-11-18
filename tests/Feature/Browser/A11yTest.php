@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Faq;
-use App\Models\FaqCategory;
+// use App\Models\FaqCategory;
 use App\Models\Mill;
 use App\Models\MillEdit;
 use App\Models\MillType;
@@ -36,8 +36,11 @@ beforeEach(function () {
     $this->mill->woodSpecies()->attach($species->pluck('id'));
     Mill::factory()->for($this->state)->count(4)->create();
 
-    $category = FaqCategory::factory()->create();
-    Faq::factory()->for($category)->count(3)->create(['published_at' => now()->subDay(), 'unpublished_at' => null]);
+    // $category = FaqCategory::factory()->create();
+    // Faq::factory()->for($category)->count(3)->create(['published_at' => now()->subDay(), 'unpublished_at' => null]);
+    Faq::factory()
+        ->count(3)
+        ->create(['published_at' => now()->subDay(), 'unpublished_at' => null]);
 
     $this->edit = MillEdit::factory()->for($this->mill)->withChanges(['mill_name' => 'Renamed Lumber Co'])->create();
     $this->newBusiness = MillEdit::factory()->newBusiness(['state_id' => $this->state->id])->create();
@@ -47,20 +50,20 @@ beforeEach(function () {
  * Closures, because the URLs depend on records made in beforeEach.
  */
 $pages = [
-    'home' => fn () => '/',
-    'mill map' => fn () => '/mill-map',
-    'mill list' => fn () => '/mill-list',
-    'single mill' => fn () => route('mills.show', test()->mill, false),
-    'add a business' => fn () => '/add-business',
-    'edit a mill' => fn () => '/mills/'.test()->mill->match_id.'/edit',
-    'review an edit' => fn () => '/mill-edits/'.test()->edit->review_hash,
-    'review a new business' => fn () => '/mill-edits/'.test()->newBusiness->review_hash,
-    'faqs' => fn () => '/faqs',
-    'about us' => fn () => '/about-us',
-    'states' => fn () => '/states',
-    'state page' => fn () => '/states/'.test()->state->slug,
-    'contact' => fn () => '/contact',
-    'not found' => fn () => '/no-such-page',
+    'home' => fn() => '/',
+    'mill map' => fn() => '/mill-map',
+    'mill list' => fn() => '/mill-list',
+    'single mill' => fn() => route('mills.show', test()->mill, false),
+    'add a business' => fn() => '/add-business',
+    'edit a mill' => fn() => '/mills/' . test()->mill->match_id . '/edit',
+    'review an edit' => fn() => '/mill-edits/' . test()->edit->review_hash,
+    'review a new business' => fn() => '/mill-edits/' . test()->newBusiness->review_hash,
+    'faqs' => fn() => '/faqs',
+    'about us' => fn() => '/about-us',
+    'states' => fn() => '/states',
+    'state page' => fn() => '/states/' . test()->state->slug,
+    'contact' => fn() => '/contact',
+    'not found' => fn() => '/no-such-page',
 ];
 
 test('pages have no accessibility issues on desktop', function (Closure $url) {
