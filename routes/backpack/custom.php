@@ -30,7 +30,7 @@ Route::group([
     Route::crud('mill-type', 'MillTypeCrudController');
     Route::crud('state', 'StateCrudController');
     Route::crud('wood-species', 'WoodSpeciesCrudController');
-    Route::crud('faq-category', 'FaqCategoryCrudController');
+    // Route::crud('faq-category', 'FaqCategoryCrudController');
     Route::crud('faq', 'FaqCrudController');
     // the same routes backpack/activity-log registers, pointed at our permission-checked subclass
     Route::crud('activity-log', 'ActivityLogCrudController');

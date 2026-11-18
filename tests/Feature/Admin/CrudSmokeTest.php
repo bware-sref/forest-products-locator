@@ -2,7 +2,6 @@
 
 use App\Models\County;
 use App\Models\Faq;
-use App\Models\FaqCategory;
 use App\Models\Mill;
 use App\Models\MillType;
 use App\Models\PageSeo;
@@ -16,8 +15,8 @@ use App\Models\StateForestProduct;
 use App\Models\StateForestryAgency;
 use App\Models\StateForestType;
 use App\Models\StatePage;
-use Illuminate\Support\Facades\Route;
 use App\Models\WoodSpecies;
+use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -59,28 +58,27 @@ test('the :dataset screens render', function (string $segment, string $table, Cl
     }
     $this->get("/admin/{$segment}/{$record->getKey()}/edit")->assertOk();
 })->with([
-    'mill' => ['mill', 'mills', fn (State $state) => Mill::factory()->for($state)->hasAttached(MillType::factory())->create()],
-    'mill type' => ['mill-type', 'mill_types', fn () => MillType::factory()->create()],
-    'wood species' => ['wood-species', 'wood_species', fn () => WoodSpecies::factory()->create()],
-    'state' => ['state', 'states', fn (State $state) => $state],
-    'county' => ['county', 'counties', fn (State $state) => County::forceCreate(['name' => 'Clarke', 'type' => 'county', 'state_id' => $state->id])],
-    'FAQ category' => ['faq-category', 'faq_categories', fn () => FaqCategory::factory()->create()],
-    'FAQ' => ['faq', 'faqs', fn () => Faq::factory()->for(FaqCategory::factory())->create()],
-    'page SEO' => ['page-seo', 'page_seos', fn () => PageSeo::factory()->create()],
-    'state page' => ['state-page', 'state_pages', fn (State $state) => StatePage::factory()->for($state)->create()],
-    'state contact' => ['state-contact', 'state_contacts', fn (State $state) => StateContact::factory()->for($state)->create()],
-    'forest overview' => ['state-forest-overview', 'state_forest_overviews', fn (State $state) => StateForestOverview::factory()->for($state)->create()],
-    'forest type' => ['state-forest-type', 'state_forest_types', fn (State $state) => StateForestType::factory()->for($state)->create()],
-    'forest product' => ['state-forest-product', 'state_forest_products', fn (State $state) => StateForestProduct::factory()->for($state)->create()],
-    'economic impact' => ['state-economic-impact', 'state_economic_impacts', fn (State $state) => StateEconomicImpact::factory()->for($state)->create()],
-    'forestry agency' => ['state-forestry-agency', 'state_forestry_agencies', fn (State $state) => StateForestryAgency::factory()->for($state)->create()],
-    'assistance category' => ['state-assistance-category', 'state_assistance_categories', fn (State $state) => StateAssistanceCategory::factory()->for($state)->create()],
-    'assistance link' => ['state-assistance-link', 'state_assistance_links', fn (State $state) => assistanceLinkIn($state)],
-    // only Superadmins may edit other users, so use the logged-in user's own record
-    'user' => ['user', 'users', fn () => backpack_user()],
-    'role' => ['role', 'roles', fn () => Role::findOrCreate('Smoke Test Role', 'web')],
-    'permission' => ['permission', 'permissions', fn () => Permission::findOrCreate('smoke_tests.edit', 'web')],
-]);
+            'mill' => ['mill', 'mills', fn(State $state) => Mill::factory()->for($state)->hasAttached(MillType::factory())->create()],
+            'mill type' => ['mill-type', 'mill_types', fn() => MillType::factory()->create()],
+            'wood species' => ['wood-species', 'wood_species', fn() => WoodSpecies::factory()->create()],
+            'state' => ['state', 'states', fn(State $state) => $state],
+            'county' => ['county', 'counties', fn(State $state) => County::forceCreate(['name' => 'Clarke', 'type' => 'county', 'state_id' => $state->id])],
+            'FAQ' => ['faq', 'faqs', fn() => Faq::factory()->create()],
+            'page SEO' => ['page-seo', 'page_seos', fn() => PageSeo::factory()->create()],
+            'state page' => ['state-page', 'state_pages', fn(State $state) => StatePage::factory()->for($state)->create()],
+            'state contact' => ['state-contact', 'state_contacts', fn(State $state) => StateContact::factory()->for($state)->create()],
+            'forest overview' => ['state-forest-overview', 'state_forest_overviews', fn(State $state) => StateForestOverview::factory()->for($state)->create()],
+            'forest type' => ['state-forest-type', 'state_forest_types', fn(State $state) => StateForestType::factory()->for($state)->create()],
+            'forest product' => ['state-forest-product', 'state_forest_products', fn(State $state) => StateForestProduct::factory()->for($state)->create()],
+            'economic impact' => ['state-economic-impact', 'state_economic_impacts', fn(State $state) => StateEconomicImpact::factory()->for($state)->create()],
+            'forestry agency' => ['state-forestry-agency', 'state_forestry_agencies', fn(State $state) => StateForestryAgency::factory()->for($state)->create()],
+            'assistance category' => ['state-assistance-category', 'state_assistance_categories', fn(State $state) => StateAssistanceCategory::factory()->for($state)->create()],
+            'assistance link' => ['state-assistance-link', 'state_assistance_links', fn(State $state) => assistanceLinkIn($state)],
+            // only Superadmins may edit other users, so use the logged-in user's own record
+            'user' => ['user', 'users', fn() => backpack_user()],
+            'role' => ['role', 'roles', fn() => Role::findOrCreate('Smoke Test Role', 'web')],
+            'permission' => ['permission', 'permissions', fn() => Permission::findOrCreate('smoke_tests.edit', 'web')],
+        ]);
 
 test('the state hub renders for a state with every section filled in', function () {
     loginAdminUser(['state_pages.edit', 'state_contacts.edit', 'state_assistance_links.edit']);

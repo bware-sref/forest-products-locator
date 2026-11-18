@@ -1,7 +1,8 @@
 <?php
 
 use App\Models\Faq;
-use Database\Seeders\FaqCategorySeeder;
+// use Database\Seeders\FaqCategorySeeder;
+use Database\Seeders\FaqSeeder;
 
 /**
  * The search box on the FAQ page: lists the FAQs matching every word typed (in the question or the answer), and
@@ -12,12 +13,13 @@ use Database\Seeders\FaqCategorySeeder;
 const FAQ_FADE_IN_SECONDS = 2;
 
 beforeEach(function () {
-    $this->seed(FaqCategorySeeder::class);
+    // $this->seed(FaqCategorySeeder::class);
+    $this->seed(FaqSeeder::class);
 });
 
 function faqId(string $question): string
 {
-    return 'faq-'.Faq::where('question', $question)->value('id');
+    return 'faq-' . Faq::where('question', $question)->value('id');
 }
 
 test('typing lists the FAQs whose question or answer has every word', function () {
@@ -85,5 +87,5 @@ test('the open results have no accessibility issues', function () {
     // the same levels assertNoAccessibilityIssues() uses
     $reported = array_slice(['critical', 'serious', 'moderate', 'minor'], 0, a11yLevel() + 1);
 
-    expect(array_filter($violations, fn (array $violation) => in_array($violation['impact'], $reported, true)))->toBe([]);
+    expect(array_filter($violations, fn(array $violation) => in_array($violation['impact'], $reported, true)))->toBe([]);
 })->group('a11y');
