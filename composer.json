@@ -32,6 +32,7 @@
         "redsquirrelstudio/laravel-backpack-import-operation": "dev-feature/backpack-7.0 as 1.6.8",
         "spatie/laravel-activitylog": "^4.12",
         "spatie/laravel-honeypot": "^4.7",
+        "spatie/laravel-sitemap": "^8.2",
         "spatie/laravel-typescript-transformer": "^2.5"
     },
     "require-dev": {
