@@ -10,6 +10,7 @@ use App\Models\Concerns\HasCoordinates;
 use App\Models\Scopes\ApprovedScope;
 use App\Models\State;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\hasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Log;
 use Spatie\Sitemap\Contracts\Sitemapable;
+use Spatie\Sitemap\Tags\Url;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
@@ -442,11 +444,33 @@ class Mill extends Model implements Sitemapable
     /**
      * Contract: Sitemappable
      */
-    public function toSitemapTag(): array|string|\Spatie\Sitemap\Tags\Url
+    public function toSitemapTag(): array|string|Url
     {
-        return route('mills.show', $this);
+        /**
+         * We may want to make a method that checks the various fields that might contain the actual last modified time
+         * and returns the most likely one.
+         * Actually, we could go ahead and do that now, but just make it return updated_at most of the time.
+         */
+        return Url::create(route('mills.show', $this))
+            ->setLastModificationDate(Carbon::create($this->lastModified()));
     }
 
+    /**
+     * Peels through the various fields which might contain the actual last modified timestamp.
+     * Actually, it looks like we already set modification_date based on the relevant fields in ArcGIS data.
+     * I wonder if Florida data does something similar...it does not.
+     * The last Florida file we received is dated 6/30/2026.
+     * In future, we could add an additional column modification_date to subsequent Florida files if they are similarly dated.
+     * If the files are not dated, we could just use the date of receipt.
+     * 
+     * Defaults to modification_date, then updated_at.
+     * 
+     * @return string|\Illuminate\Support\Carbon|null
+     */
+    public function lastModified(): Carbon|string|null
+    {
+        return $this->modification_date ?? $this->updated_at;
+    }
 
     /**
      * Record a per-row processing failure against this mill's import and raw
