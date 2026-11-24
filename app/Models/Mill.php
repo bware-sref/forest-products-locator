@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Enums\MillRawImportStatus;
 use App\Enums\ImportSourceType;
 use App\Enums\PublicationStatus;
 use App\Helpers\Geo;
+use App\Models\Concerns\HasCoordinates;
 use App\Models\Scopes\ApprovedScope;
 use App\Models\State;
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Closure;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\Concerns\HasCoordinates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\hasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Log;
+use Spatie\Sitemap\Contracts\Sitemapable;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
@@ -34,7 +35,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
  */
 #[TypeScript]
 #[ScopedBy([ApprovedScope::class])]
-class Mill extends Model
+class Mill extends Model implements Sitemapable
 {
     use CrudTrait;
     /** @use HasFactory<\Database\Factories\MillFactory> */
@@ -437,6 +438,15 @@ class Mill extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Contract: Sitemappable
+     */
+    public function toSitemapTag(): array|string|\Spatie\Sitemap\Tags\Url
+    {
+        return route('mills.show', $this);
+    }
+
 
     /**
      * Record a per-row processing failure against this mill's import and raw
