@@ -66,7 +66,7 @@ function something()
 function geojsonResponse(array $features): array
 {
     return [
-        'type'     => 'FeatureCollection',
+        'type' => 'FeatureCollection',
         'features' => $features,
     ];
 }
@@ -77,28 +77,28 @@ function geojsonResponse(array $features): array
 function georgiaFeature(int $objectId = 1, string $millName = 'Test Mill'): array
 {
     return [
-        'type'       => 'Feature',
-        'geometry'   => ['type' => 'Point', 'coordinates' => [-83.5, 33.1]],
+        'type' => 'Feature',
+        'geometry' => ['type' => 'Point', 'coordinates' => [-83.5, 33.1]],
         'properties' => [
-            'OBJECTID'        => $objectId,
-            'MillName'        => $millName,
-            'ProductNote'     => null,
-            'Product1'        => 'Sawmill - Hardwood',
-            'Product2'        => null,
-            'Product3'        => null,
-            'Symbology'       => 'Sawmill - Hardwood',
-            'County'          => 'Clarke',
+            'OBJECTID' => $objectId,
+            'MillName' => $millName,
+            'ProductNote' => null,
+            'Product1' => 'Sawmill - Hardwood',
+            'Product2' => null,
+            'Product3' => null,
+            'Symbology' => 'Sawmill - Hardwood',
+            'County' => 'Clarke',
             'AddressPhysical' => '123 Timber Rd',
-            'City'            => 'Athens',
-            'State'           => 'GA',
-            'Zip'             => '30601',
-            'Telephone'       => '706-555-0100',
-            'CEO'             => 'Jane Doe',
-            'Mill_Type'       => 'Sawmill',
-            'Mill_Size'       => 'B',
-            'Species'         => 'HW',
-            'Latitude'        => 33.1,
-            'Longitude'       => -83.5,
+            'City' => 'Athens',
+            'State' => 'GA',
+            'Zip' => '30601',
+            'Telephone' => '706-555-0100',
+            'CEO' => 'Jane Doe',
+            'Mill_Type' => 'Sawmill',
+            'Mill_Size' => 'B',
+            'Species' => 'HW',
+            'Latitude' => 33.1,
+            'Longitude' => -83.5,
         ],
     ];
 }
@@ -109,14 +109,14 @@ function georgiaFeature(int $objectId = 1, string $millName = 'Test Mill'): arra
 function northCarolinaFeature(int $objectId = 1, string $company = 'Acme Lumber'): array
 {
     return [
-        'type'       => 'Feature',
-        'geometry'   => ['type' => 'Point', 'coordinates' => [-84.3, 33.7]],
+        'type' => 'Feature',
+        'geometry' => ['type' => 'Point', 'coordinates' => [-84.3, 33.7]],
         'properties' => [
             'OBJECTID' => $objectId,
-            'Company'  => $company,
-            'OP1'      => 'Sawmill, Pine',
-            'Lat'      => 33.7,
-            'Long'     => -84.3,
+            'Company' => $company,
+            'OP1' => 'Sawmill, Pine',
+            'Lat' => 33.7,
+            'Long' => -84.3,
         ],
     ];
 }
@@ -128,11 +128,11 @@ function northCarolinaFeature(int $objectId = 1, string $company = 'Acme Lumber'
 function makeImport(?int $stateId = null, array $attributes = []): \App\Models\Import
 {
     return \App\Models\Import::create([
-        'state_id'  => $stateId,
+        'state_id' => $stateId,
         'file_path' => 'imports/test.xlsx',
-        'disk'      => 'local',
-        'model'     => \App\Models\Mill::class,
-        'status'    => \App\Enums\ImportStatus::Processing,
+        'disk' => 'local',
+        'model' => \App\Models\Mill::class,
+        'status' => \App\Enums\ImportStatus::Processing,
         ...$attributes,
     ]);
 }
@@ -144,8 +144,8 @@ function makeImport(?int $stateId = null, array $attributes = []): \App\Models\I
 function makePendingMill(array $attributes = []): \App\Models\Mill
 {
     return \App\Models\Mill::create([
-        'mill_name' => 'Test Mill '.\Illuminate\Support\Str::random(6),
-        'status'    => \App\Enums\PublicationStatus::Pending,
+        'mill_name' => 'Test Mill ' . \Illuminate\Support\Str::random(6),
+        'status' => \App\Enums\PublicationStatus::Pending,
         ...$attributes,
     ]);
 }
@@ -206,11 +206,11 @@ function namedState(string $name, string $abbreviation): \App\Models\State
 /**
  * A state with every section of its public page filled in.
  */
-function fullyBuiltState(): \App\Models\State
+function fullyBuiltState(string $name = 'Georgia', string $abbreviation = 'GA'): \App\Models\State
 {
-    $state = namedState('Georgia', 'GA');
+    $state = namedState($name, $abbreviation);
 
-    \App\Models\StatePage::factory()->for($state)->create(['hero_copy' => '<ul><li>Georgia grows trees.</li></ul>']);
+    \App\Models\StatePage::factory()->for($state)->create(['hero_copy' => "<ul><li>{$state->name} grows trees.</li></ul>"]);
     \App\Models\StateContact::factory()->count(2)->for($state)->create();
     \App\Models\StateForestOverview::factory()->for($state)->create();
     \App\Models\StateForestType::factory()->count(2)->for($state)->create();
